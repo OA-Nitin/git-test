@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -20,11 +23,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa_github
           ssh-keyscan -H 3.111.213.126 >> ~/.ssh/known_hosts
 
-      - name: Remove Unwanted Files Before Deployment
+      - name: Deploy Files to AWS Lightsail (Complete Sync)
         run: |
-          rm -rf .git .github node_modules
-
-      - name: Deploy Files & Directories to AWS Lightsail (Using SCP)
-        run: |
-          scp -r -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no \
-          * bitnami@3.111.213.126:/opt/bitnami/apache/htdocs/git-test/
+          rsync -avz --delete --exclude=".git*" --exclude=".github" --exclude="node_modules" \
+          -e "ssh -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no" ./ bitnami@3.111.213.126:/opt/bitnami/apache/htdocs/git-test/
+		  
