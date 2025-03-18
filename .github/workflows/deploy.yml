@@ -20,8 +20,11 @@ jobs:
           chmod 600 ~/.ssh/id_rsa_github
           ssh-keyscan -H 3.111.213.126 >> ~/.ssh/known_hosts
 
-      - name: Deploy Files & Folders to AWS Lightsail (Using SCP)
+      - name: Remove Unwanted Files Before Deployment
+        run: |
+          rm -rf .git .github node_modules
+
+      - name: Deploy Files & Directories to AWS Lightsail (Using SCP)
         run: |
           scp -r -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no \
-          --exclude=.git --exclude=.github --exclude=node_modules \
           * bitnami@3.111.213.126:/opt/bitnami/apache/htdocs/git-test/
