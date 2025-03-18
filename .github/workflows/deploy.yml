@@ -16,13 +16,17 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_github
+          chmod 600 ~/.ssh/id_rsa_github
           ssh-keyscan -H 3.111.213.126 >> ~/.ssh/known_hosts
+
+      - name: Debug SSH Connection
+        run: |
+          ssh -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no -v bitnami@3.111.213.126 "echo 'SSH Connection Successful'"
 
       - name: Deploy to AWS Lightsail
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no bitnami@3.111.213.126 << 'EOF'
+          ssh -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no bitnami@3.111.213.126 << 'EOF'
             cd /opt/bitnami/apache/htdocs/git-test
             git pull origin main
           EOF
