@@ -13,25 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup SSH key with passphrase
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 3.111.213.126 >> ~/.ssh/known_hosts
-          
-          # Create an SSH_ASKPASS script to provide the passphrase
-          echo 'echo "${{ secrets.SSH_PASSPHRASE }}"' > ~/.ssh/ssh_askpass
-          chmod +x ~/.ssh/ssh_askpass
-          
-          # Ensure SSH uses the passphrase automatically
-          export DISPLAY=:0
-          export SSH_ASKPASS=~/.ssh/ssh_askpass
-          setsid ssh-add ~/.ssh/id_rsa < /dev/null
 
       - name: Deploy to AWS Lightsail
         run: |
-          ssh -o StrictHostKeyChecking=no bitnami@3.111.213.126 << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no bitnami@3.111.213.126 << 'EOF'
             cd /opt/bitnami/apache/htdocs/git-test
             git pull origin main
-            EOF
+          EOF
