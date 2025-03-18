@@ -13,16 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup SSH key
+      - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_github
           chmod 600 ~/.ssh/id_rsa_github
           ssh-keyscan -H 3.111.213.126 >> ~/.ssh/known_hosts
 
-      - name: Debug SSH Connection
+      - name: Test SSH Connection
         run: |
-          ssh -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no -v bitnami@3.111.213.126 "echo 'SSH Connection Successful'"
+          ssh -i ~/.ssh/id_rsa_github -o StrictHostKeyChecking=no bitnami@3.111.213.126 "echo 'SSH Connection Successful'"
 
       - name: Deploy to AWS Lightsail
         run: |
