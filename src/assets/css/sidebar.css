@@ -1,0 +1,110 @@
+/* Sidebar Menu Styles */
+
+.metismenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.metismenu li {
+  margin: 0;
+  position: relative;
+}
+
+.metismenu a {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #eee;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.metismenu a:hover {
+  background-color: #32373c;
+  color: #fff;
+}
+
+.wp-menu-arrow {
+  display: none;
+}
+
+.wp-menu-image {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  opacity: 0.7;
+}
+
+.wp-menu-name {
+  font-size: 14px;
+}
+
+.wp-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #32373c;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.wp-submenu.mm-show {
+  max-height: 500px; /* Adjust as needed */
+}
+
+.wp-submenu a {
+  padding-left: 35px;
+  font-size: 13px;
+}
+
+.wp-submenu-head {
+  display: none;
+}
+
+/* Active menu styles */
+.mm-active > a {
+  background-color: #0073aa;
+  color: #fff;
+}
+
+.wp-has-current-submenu {
+  background-color: #0073aa;
+  color: #fff;
+}
+
+.current {
+  background-color: #32373c;
+  color: #fff;
+}
+
+.current a {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Menu arrow styles */
+.menu-arrow {
+  position: absolute;
+  right: 15px;
+  font-size: 24px;
+  transition: transform 0.3s;
+  color: #a7aaad;
+}
+
+.mm-active > a .menu-arrow,
+.wp-has-current-submenu .menu-arrow {
+  color: #fff;
+}
+
+/* Position the menu items properly */
+.wp-has-submenu > a {
+  position: relative;
+  padding-right: 30px;
+}
+
+
+.metismenu a.wp-has-submenu::after {
+  display: none;
+}

@@ -1,0 +1,52 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Header = ({ user, onLogout }) => {
+  return (
+    <div id="wpadminbar" className="nojq header_iner">
+      <div className="quicklinks" id="wp-toolbar" role="navigation" aria-label="Toolbar">
+        <ul id="wp-admin-bar-root-default" className="ab-top-menu">
+          <li className="">
+            <Link to="/send-lead" className="send_doc">
+              <span><img src="/assets/images/send_lead.svg" alt="Send Lead" /></span>
+              Send Lead
+            </Link>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <Link to="/create-sales-user" className="send_doc">
+              <span><img src="/assets/images/send_lead.svg" alt="Create Sales User" /></span>
+              Create Sales User
+            </Link>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <Link to="/affiliate-form" className="send_doc">
+              <span><img src="/assets/images/send_lead.svg" alt="Affiliate Form" /></span>
+              Affiliate Form
+            </Link>
+          </li>
+        </ul>
+        <ul id="wp-admin-bar-top-secondary" className="ab-top-secondary ab-top-menu">
+          <li id="wp-admin-bar-my-account" className="menupop with-avatar">
+            <a className="ab-item" aria-haspopup="true" href="#">
+              Welcome, <span className="display-name">{user?.display_name || 'User'}</span>
+            </a>
+            <div className="ab-sub-wrapper">
+              <ul id="wp-admin-bar-user-actions" className="ab-submenu">
+                <li id="wp-admin-bar-myProfile">
+                  <Link className="ab-item" to="/my-profile">
+                    Account Settings
+                  </Link>
+                </li>
+                <li id="wp-admin-bar-logout">
+                  <button className="ab-item" onClick={onLogout}>
+                    Log Out
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+export default Header;
