@@ -40,18 +40,16 @@
   font-size: 14px;
 }
 
-.wp-submenu {
+.metismenu .mm-collapse {
   list-style: none;
   padding: 0;
   margin: 0;
   background-color: #32373c;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-in-out;
+  display: none;
 }
 
-.wp-submenu.mm-show {
-  max-height: 500px; /* Adjust as needed */
+.metismenu .mm-collapse.mm-show {
+  display: block !important;
 }
 
 .wp-submenu a {
@@ -96,6 +94,30 @@
 .mm-active > a .menu-arrow,
 .wp-has-current-submenu .menu-arrow {
   color: #fff;
+  transform: rotate(90deg);
+}
+
+/* MetisMenu specific styles */
+.metismenu .mm-active > ul.mm-collapse {
+  display: block !important;
+}
+
+/* Additional MetisMenu styles */
+.metismenu a {
+  position: relative;
+}
+
+.metismenu .mm-active > a {
+  background-color: #0073aa;
+  color: #fff;
+}
+
+.metismenu .mm-active > ul.mm-collapse {
+  background-color: #32373c;
+}
+
+.metismenu .mm-collapse li a {
+  padding-left: 35px;
 }
 
 /* Position the menu items properly */

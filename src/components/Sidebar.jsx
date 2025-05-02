@@ -1,5 +1,5 @@
 // src/components/Sidebar.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/css/sidebar.css';
 import { menuData } from './menuData';
@@ -7,33 +7,7 @@ import { menuData } from './menuData';
 const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-
-  // 1. Build initial expanded state (only for items with children)
-  const [expandedMenus, setExpandedMenus] = useState(() => {
-    return menuData.reduce((acc, item) => {
-      if (item.children) acc[item.key] = false;
-      return acc;
-    }, {});
-  });
-
-  // 2. Auto-expand menus if currentPath matches any child path
-  useEffect(() => {
-    const newExpanded = { ...expandedMenus };
-    menuData.forEach(item => {
-      if (item.children) {
-        newExpanded[item.key] = item.children.some(child => currentPath.startsWith(child.path));
-      }
-    });
-    setExpandedMenus(newExpanded);
-  }, [currentPath]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 3. Toggle expand/collapse
-  const toggleMenu = (key) => {
-    setExpandedMenus(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
+  const menuRef = useRef(null);
 
   // 4. Render
   return (
@@ -44,7 +18,7 @@ const Sidebar = () => {
             <img src="/assets/images/logo-blue-360.svg" alt="Occams Logo" />
           </Link>
         </div>
-        <ul id="adminmenu" className="metismenu">
+        <ul id="adminmenu" className="metismenu" ref={menuRef}>
           {menuData.map(item => {
             const isActiveTop = item.path
               ? currentPath === item.path || currentPath === item.path + '/'
@@ -53,6 +27,7 @@ const Sidebar = () => {
             return (
               <li
                 key={item.key}
+                id={`menu-item-${item.key}`}
                 className={[
                   'wp-first-item menu-top',
                   item.children ? 'wp-has-submenu' : `toplevel_page_${item.key}`,
@@ -62,13 +37,11 @@ const Sidebar = () => {
                 {item.children ? (
                   <a
                     href="#!"
-                    onClick={e => { e.preventDefault(); toggleMenu(item.key); }}
                     className={[
                       'wp-has-submenu menu-top',
                       isActiveTop ? 'wp-has-current-submenu' : 'wp-not-current-submenu'
                     ].join(' ')}
                     aria-haspopup="true"
-                    aria-expanded={expandedMenus[item.key]}
                   >
                     <div className="wp-menu-arrow"><div/></div>
                     <div className={`wp-menu-image dashicons-before ${item.icon}`} aria-hidden="true"/>
@@ -91,7 +64,7 @@ const Sidebar = () => {
                 )}
 
                 {item.children && (
-                  <ul className={`wp-submenu wp-submenu-wrap ${expandedMenus[item.key] ? 'mm-show' : 'mm-collapse'}`}>
+                  <ul className="mm-collapse">
                     <li className="wp-submenu-head" aria-hidden="true">{item.name}</li>
                     {item.children.map(child => {
                       const isChildActive = currentPath === child.path;

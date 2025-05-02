@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import '../assets/css/header-dropdown.css';
 
 const Header = ({ user, onLogout }) => {
   return (
@@ -23,27 +24,42 @@ const Header = ({ user, onLogout }) => {
             </Link>
           </li>
         </ul>
-        <ul id="wp-admin-bar-top-secondary" className="ab-top-secondary ab-top-menu">
-          <li id="wp-admin-bar-my-account" className="menupop with-avatar">
-            <a className="ab-item" aria-haspopup="true" href="#">
-              Welcome, <span className="display-name">{user?.display_name || 'User'}</span>
-            </a>
-            <div className="ab-sub-wrapper">
-              <ul id="wp-admin-bar-user-actions" className="ab-submenu">
-                <li id="wp-admin-bar-myProfile">
-                  <Link className="ab-item" to="/my-profile">
-                    Account Settings
-                  </Link>
-                </li>
-                <li id="wp-admin-bar-logout">
-                  <button className="ab-item" onClick={onLogout}>
-                    Log Out
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
+        <div id="wpadminbar">
+          <ul id="wp-admin-bar-top-secondary" className="ab-top-secondary ab-top-menu">
+            <li
+              id="wp-admin-bar-my-account"
+              className="menupop with-avatar profile_info"
+            >
+              <a
+                className="ab-item"
+                aria-haspopup="true"
+                href="#"
+              >
+                Welcome, <span className="display-name">{user?.display_name || 'User'}</span>
+              </a>
+              <div className="ab-sub-wrapper profile_info_iner">
+                <ul id="wp-admin-bar-user-actions" className="ab-submenu profile_info_details">
+                  <li id="wp-admin-bar-myProfile">
+                    <Link
+                      className="ab-item"
+                      to="/my-profile"
+                    >
+                      Account Settings
+                    </Link>
+                  </li>
+                  <li id="wp-admin-bar-logout">
+                    <button
+                      className="ab-item"
+                      onClick={onLogout}
+                    >
+                      Log Out
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );
