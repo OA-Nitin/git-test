@@ -16,6 +16,7 @@ import CreateUser from "./components/CreateUser";
 import LeadReport from "./components/LeadReport";
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
+import MyProfile from "./components/MyProfile";
 
 // Route wrapper component - no authentication check
 const ProtectedRoute = ({ children }) => {
@@ -97,7 +98,7 @@ const App = () => {
         <Route path="/my-profile" element={
           <ProtectedRoute>
             <Layout>
-              <Dashboard />
+              <MyProfile />
             </Layout>
           </ProtectedRoute>
         } />

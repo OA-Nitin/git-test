@@ -12,7 +12,12 @@ export const menuData = [
     path: '/create-user',
     icon: 'dashicons-admin-users',
   },
-
+  {
+    key: 'myProfile',
+    name: 'My Profile',
+    path: '/my-profile',
+    icon: 'dashicons-id',
+  },
   {
     key: 'reports',
     name: 'Reports',
