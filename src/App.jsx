@@ -13,8 +13,6 @@ import Login from "./Login";
 import Layout from "./components/Layout";
 import Dashboard from "./components/Dashboard";
 import CreateUser from "./components/CreateUser";
-import Contacts from "./components/Contacts";
-import ContactSettings from "./components/ContactSettings";
 import LeadReport from "./components/LeadReport";
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
@@ -44,22 +42,6 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <CreateUser />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/contacts" element={
-          <ProtectedRoute>
-            <Layout>
-              <Contacts />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/contact-settings" element={
-          <ProtectedRoute>
-            <Layout>
-              <ContactSettings />
             </Layout>
           </ProtectedRoute>
         } />

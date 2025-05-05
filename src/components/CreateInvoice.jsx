@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './CommonTableStyles.css';
+import './common/CommonStyles.css';
 
 const CreateInvoice = () => {
   const [invoiceData, setInvoiceData] = useState({

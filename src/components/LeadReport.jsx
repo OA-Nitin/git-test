@@ -3,7 +3,10 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
-import './LeadReportStyles.css';
+import './common/CommonStyles.css';
+import './ColumnSelector.css';
+import SortableTableHeader from './common/SortableTableHeader';
+import { sortArrayByKey } from '../utils/sortUtils';
 
 const LeadReport = () => {
   useEffect(() => {
@@ -83,6 +86,93 @@ const LeadReport = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortField, setSortField] = useState('id');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  // Define all available columns with groups
+  const columnGroups = [
+    {
+      id: 'basic',
+      title: 'Basic Information',
+      columns: [
+        { id: 'leadId', label: 'Lead #', field: 'id', sortable: true },
+        { id: 'date', label: 'Date', field: 'date', sortable: false },
+        { id: 'businessName', label: 'Business Name', field: 'businessName', sortable: true },
+        { id: 'taxNowStatus', label: 'TaxNow Signup Status', field: 'status', sortable: true }
+      ]
+    },
+    {
+      id: 'contacts',
+      title: 'Contact Information',
+      columns: [
+        { id: 'contactCard', label: 'Contact Card', field: 'contactCard', sortable: false },
+        { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
+      ]
+    },
+    {
+      id: 'team',
+      title: 'Team Information',
+      columns: [
+        { id: 'employee', label: 'Employee', field: 'employee', sortable: false },
+        { id: 'salesAgent', label: 'Sales Agent', field: 'salesAgent', sortable: false },
+        { id: 'salesSupport', label: 'Sales Support', field: 'salesSupport', sortable: false }
+      ]
+    },
+    {
+      id: 'additional',
+      title: 'Additional Information',
+      columns: [
+        { id: 'affiliateSource', label: 'Affiliate/Source', field: 'affiliateSource', sortable: false },
+        { id: 'leadCampaign', label: 'Lead Campaign', field: 'leadCampaign', sortable: false },
+        { id: 'w2Count', label: 'W2 Count', field: 'w2Count', sortable: false },
+        { id: 'actions', label: 'Actions', field: 'actions', sortable: false }
+      ]
+    }
+  ];
+
+  // Flatten all columns for easier access
+  const allColumns = columnGroups.flatMap(group => group.columns);
+
+  // Default visible columns (first 5)
+  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'actions'];
+
+  // State to track visible columns
+  const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
+
+  // Toggle column visibility
+  const toggleColumnVisibility = (columnId) => {
+    if (visibleColumns.includes(columnId)) {
+      // Remove column if it's already visible
+      setVisibleColumns(visibleColumns.filter(id => id !== columnId));
+    } else {
+      // Add column if it's not visible
+      setVisibleColumns([...visibleColumns, columnId]);
+    }
+  };
+
+  // Reset to default columns
+  const resetToDefaultColumns = () => {
+    setVisibleColumns(defaultVisibleColumns);
+  };
+
+  // Select all columns
+  const selectAllColumns = () => {
+    setVisibleColumns(allColumns.map(col => col.id));
+  };
+
+  // Handle sorting
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // If already sorting by this field, toggle direction
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // If sorting by a new field, set it and default to ascending
+      setSortField(field);
+      setSortDirection('asc');
+    }
+    // Reset to first page when sorting changes
+    setCurrentPage(1);
+  };
 
   // Filter leads based on search term and status
   const filteredLeads = leads.filter(lead => {
@@ -97,13 +187,16 @@ const LeadReport = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Sort the filtered leads
+  const sortedLeads = sortArrayByKey(filteredLeads, sortField, sortDirection);
+
   // Get current leads for pagination
   const indexOfLastLead = currentPage * itemsPerPage;
   const indexOfFirstLead = indexOfLastLead - itemsPerPage;
-  const currentLeads = filteredLeads.slice(indexOfFirstLead, indexOfLastLead);
+  const currentLeads = sortedLeads.slice(indexOfFirstLead, indexOfLastLead);
 
   // Calculate total pages
-  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedLeads.length / itemsPerPage);
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -526,9 +619,60 @@ const LeadReport = () => {
                       </div>
                     </div>
 
-                    {/* Export buttons */}
+                    {/* Export buttons and Column Selector */}
                     <div className="col-md-4">
                       <div className="d-flex justify-content-end">
+                        <div className="dropdown me-2">
+                          <button
+                            className="column-selector-btn"
+                            type="button"
+                            id="columnSelectorDropdown"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            <i className="fas fa-columns"></i> Columns
+                          </button>
+                          <div className="dropdown-menu dropdown-menu-end column-selector" aria-labelledby="columnSelectorDropdown">
+                            <div className="column-selector-header">
+                              <span>Table Columns</span>
+                              <i className="fas fa-table"></i>
+                            </div>
+                            <div className="column-selector-content">
+                              {columnGroups.map(group => (
+                                <div key={group.id} className="column-group">
+                                  <div className="column-group-title">{group.title}</div>
+                                  {group.columns.map(column => (
+                                    <div
+                                      key={column.id}
+                                      className={`dropdown-item ${visibleColumns.includes(column.id) ? 'active' : ''}`}
+                                    >
+                                      <div className="form-check">
+                                        <input
+                                          className="form-check-input"
+                                          type="checkbox"
+                                          id={`column-${column.id}`}
+                                          checked={visibleColumns.includes(column.id)}
+                                          onChange={() => toggleColumnVisibility(column.id)}
+                                        />
+                                        <label className="form-check-label" htmlFor={`column-${column.id}`}>
+                                          {column.label}
+                                        </label>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              ))}
+                            </div>
+                            <div className="column-selector-footer">
+                              <button className="btn btn-reset" onClick={resetToDefaultColumns}>
+                                Reset
+                              </button>
+                              <button className="btn btn-apply" onClick={selectAllColumns}>
+                                Select All
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                         <button className="btn btn-sm export-btn" onClick={exportToExcel}>
                           <i className="fas fa-file-excel me-1"></i> Excel
                         </button>
@@ -547,94 +691,106 @@ const LeadReport = () => {
                   <table className="table table-bordered table-hover table-striped">
                     <thead>
                       <tr>
-                        <th>Lead #</th>
-                        <th>Date</th>
-                        <th>Business Name</th>
-                        <th>Contact Card</th>
-                        <th>Affiliate/Source</th>
-                        <th>Employee</th>
-                        <th>Sales Agent</th>
-                        <th>Sales Support</th>
-                        <th>TaxNow Signup Status</th>
-                        <th>Lead Campaign</th>
-                        <th>W2 Count</th>
-                        <th>Book A Call</th>
-                        <th>Actions</th>
+                        {allColumns.map(column => {
+                          // Only render columns that are in the visibleColumns array
+                          if (visibleColumns.includes(column.id)) {
+                            return column.sortable ? (
+                              <SortableTableHeader
+                                key={column.id}
+                                label={column.label}
+                                field={column.field}
+                                currentSortField={sortField}
+                                currentSortDirection={sortDirection}
+                                onSort={handleSort}
+                              />
+                            ) : (
+                              <th key={column.id}>{column.label}</th>
+                            );
+                          }
+                          return null;
+                        })}
                       </tr>
                     </thead>
                     <tbody>
                       {currentLeads.length > 0 ? (
                         currentLeads.map(lead => (
                           <tr key={lead.id}>
-                            <td>{lead.id}</td>
-                            <td>{new Date().toLocaleDateString()}</td>
-                            <td>{lead.businessName}</td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => handleView(lead)}
-                                title="View Contact Card"
-                              >
-                                <i className="fas fa-address-card"></i>
-                              </button>
-                            </td>
-                            <td>Website</td>
-                            <td>John Doe</td>
-                            <td>Sarah Smith</td>
-                            <td>Mike Johnson</td>
-                            <td>
-                              <span className={`badge ${
-                                lead.status === 'New' ? 'bg-info' :
-                                lead.status === 'Contacted' ? 'bg-primary' :
-                                lead.status === 'Qualified' ? 'bg-warning' :
-                                lead.status === 'Active' ? 'bg-success' :
-                                'bg-secondary'
-                              }`}>
-                                {lead.status}
-                              </span>
-                            </td>
-                            <td>Email Campaign</td>
-                            <td>{Math.floor(Math.random() * 10) + 1}</td>
-                            <td>
-                              <button
-                                className="btn btn-sm btn-outline-primary"
-                                onClick={() => handleBookCall(lead)}
-                                title="Book A Call"
-                              >
-                                <i className="fas fa-calendar-alt"></i>
-                              </button>
-                            </td>
-                            <td>
-                              <div className="d-flex justify-content-center" style={{ gap: '2px' }}>
+                            {visibleColumns.includes('leadId') && <td>{lead.id}</td>}
+                            {visibleColumns.includes('date') && <td>{new Date().toLocaleDateString()}</td>}
+                            {visibleColumns.includes('businessName') && <td>{lead.businessName}</td>}
+                            {visibleColumns.includes('contactCard') && (
+                              <td>
                                 <button
                                   className="btn btn-sm btn-outline-primary"
-                                  title="Call"
-                                  onClick={() => handleCall(lead.phoneNumber, lead.businessName)}
+                                  onClick={() => handleView(lead)}
+                                  title="View Contact Card"
                                 >
-                                  <i className="fas fa-phone"></i>
+                                  <i className="fas fa-address-card"></i>
                                 </button>
+                              </td>
+                            )}
+                            {visibleColumns.includes('affiliateSource') && <td>Website</td>}
+                            {visibleColumns.includes('employee') && <td>John Doe</td>}
+                            {visibleColumns.includes('salesAgent') && <td>Sarah Smith</td>}
+                            {visibleColumns.includes('salesSupport') && <td>Mike Johnson</td>}
+                            {visibleColumns.includes('taxNowStatus') && (
+                              <td>
+                                <span className={`badge ${
+                                  lead.status === 'New' ? 'bg-info' :
+                                  lead.status === 'Contacted' ? 'bg-primary' :
+                                  lead.status === 'Qualified' ? 'bg-warning' :
+                                  lead.status === 'Active' ? 'bg-success' :
+                                  'bg-secondary'
+                                }`}>
+                                  {lead.status}
+                                </span>
+                              </td>
+                            )}
+                            {visibleColumns.includes('leadCampaign') && <td>Email Campaign</td>}
+                            {visibleColumns.includes('w2Count') && <td>{Math.floor(Math.random() * 10) + 1}</td>}
+                            {visibleColumns.includes('bookACall') && (
+                              <td>
                                 <button
-                                  className="btn btn-sm btn-outline-info"
-                                  title="Email"
-                                  onClick={() => handleEmail(lead.businessEmail, lead.businessName)}
+                                  className="btn btn-sm btn-outline-primary"
+                                  onClick={() => handleBookCall(lead)}
+                                  title="Book A Call"
                                 >
-                                  <i className="fas fa-envelope"></i>
+                                  <i className="fas fa-calendar-alt"></i>
                                 </button>
-                                <button
-                                  className="btn btn-sm btn-outline-success"
-                                  title="Message"
-                                  onClick={() => handleMessage(lead.id, lead.businessName)}
-                                >
-                                  <i className="fas fa-comment"></i>
-                                </button>
-
-                              </div>
-                            </td>
+                              </td>
+                            )}
+                            {visibleColumns.includes('actions') && (
+                              <td>
+                                <div className="d-flex justify-content-center" style={{ gap: '2px' }}>
+                                  <button
+                                    className="btn btn-sm btn-outline-primary"
+                                    title="Call"
+                                    onClick={() => handleCall(lead.phoneNumber, lead.businessName)}
+                                  >
+                                    <i className="fas fa-phone"></i>
+                                  </button>
+                                  <button
+                                    className="btn btn-sm btn-outline-info"
+                                    title="Email"
+                                    onClick={() => handleEmail(lead.businessEmail, lead.businessName)}
+                                  >
+                                    <i className="fas fa-envelope"></i>
+                                  </button>
+                                  <button
+                                    className="btn btn-sm btn-outline-success"
+                                    title="Message"
+                                    onClick={() => handleMessage(lead.id, lead.businessName)}
+                                  >
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </div>
+                              </td>
+                            )}
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="13" className="text-center">No leads found</td>
+                          <td colSpan={visibleColumns.length} className="text-center">No leads found</td>
                         </tr>
                       )}
                     </tbody>
