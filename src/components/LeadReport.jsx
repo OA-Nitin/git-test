@@ -115,7 +115,7 @@ const LeadReport = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('lead_id');
   const [sortDirection, setSortDirection] = useState('asc');
 
@@ -717,52 +717,8 @@ const LeadReport = () => {
                       </div>
                     </div>
 
-                    {/* Status filter */}
-                    <div className="col-md-3">
-                      <div className="d-flex align-items-center">
-                        <span className="me-2">Status:</span>
-                        <select
-                          className="form-select form-select-sm"
-                          value={filterStatus}
-                          onChange={(e) => {
-                            setFilterStatus(e.target.value);
-                            setCurrentPage(1);
-                          }}
-                        >
-                          <option value="">All</option>
-                          <option value="New">New</option>
-                          <option value="Contacted">Contacted</option>
-                          <option value="Qualified">Qualified</option>
-                          <option value="Active">Active</option>
-                          <option value="Converted">Converted</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Rows per page */}
-                    <div className="col-md-2">
-                      <div className="d-flex align-items-center">
-                        <span className="me-2">Rows:</span>
-                        <select
-                          className="form-select form-select-sm"
-                          style={{ width: '70px' }}
-                          value={itemsPerPage}
-                          onChange={(e) => {
-                            setItemsPerPage(Number(e.target.value));
-                            setCurrentPage(1);
-                          }}
-                        >
-                          <option value="5">5</option>
-                          <option value="10">10</option>
-                          <option value="25">25</option>
-                          <option value="50">50</option>
-                          <option value="100">100</option>
-                        </select>
-                      </div>
-                    </div>
-
                     {/* Export buttons and Column Selector */}
-                    <div className="col-md-4">
+                    <div className="col-md-8">
                       <div className="d-flex justify-content-end">
                         <button
                           className="btn btn-sm btn-outline-primary me-2"
