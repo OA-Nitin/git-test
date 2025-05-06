@@ -165,7 +165,7 @@ const LeadReport = () => {
   const allColumns = columnGroups.flatMap(group => group.columns);
 
   // Default visible columns (first 5)
-  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'businessEmail'];
+  const defaultVisibleColumns = ['leadId', 'businessName', 'taxNowStatus', 'businessEmail', 'businessPhone'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -905,42 +905,69 @@ const LeadReport = () => {
                         {currentLeads.length > 0 ? (
                           currentLeads.map((lead, index) => (
                             <tr key={lead.lead_id || lead.id || index}>
-                              {visibleColumns.includes('leadId') && <td>{lead.lead_id || ''}</td>}
-                              {visibleColumns.includes('date') && <td>{lead.created || ''}</td>}
-                              {visibleColumns.includes('businessName') && <td>{lead.business_legal_name || ''}</td>}
-                              {visibleColumns.includes('businessEmail') && <td>{lead.business_email || ''}</td>}
-                              {visibleColumns.includes('businessPhone') && <td>{lead.business_phone || ''}</td>}
-                              {visibleColumns.includes('contactCard') && (
-                                <td>
-                                  <button
-                                    className="btn btn-sm btn-outline-primary"
-                                    onClick={() => handleView(lead)}
-                                    title="View Contact Card"
-                                  >
-                                    <i className="fas fa-address-card"></i>
-                                  </button>
-                                </td>
-                              )}
-                              {visibleColumns.includes('affiliateSource') && <td>{lead.source || ''}</td>}
-                              {visibleColumns.includes('employee') && <td>{lead.employee_id || ''}</td>}
-                              {visibleColumns.includes('salesAgent') && <td>{lead.internal_sales_agent || ''}</td>}
-                              {visibleColumns.includes('salesSupport') && <td>{lead.internal_sales_support || ''}</td>}
-                              {visibleColumns.includes('taxNowStatus') && (
-                                <td>
-                                  <span className={`badge ${
-                                    lead.lead_status === 'New' ? 'bg-info' :
-                                    lead.lead_status === 'Contacted' ? 'bg-primary' :
-                                    lead.lead_status === 'Qualified' ? 'bg-warning' :
-                                    lead.lead_status === 'Active' ? 'bg-success' :
-                                    'bg-secondary'
-                                  }`}>
-                                    {lead.lead_status || ''}
-                                  </span>
-                                </td>
-                              )}
-                              {visibleColumns.includes('leadCampaign') && <td>{lead.campaign || ''}</td>}
-                              {visibleColumns.includes('category') && <td>{lead.category || ''}</td>}
-                              {visibleColumns.includes('leadGroup') && <td>{lead.lead_group || ''}</td>}
+                              {/* Render cells in the same order as the column definitions */}
+                              {allColumns.map(column => {
+                                // Only render columns that are in the visibleColumns array
+                                if (!visibleColumns.includes(column.id)) {
+                                  return null;
+                                }
+
+                                // Render different cell types based on column id
+                                switch (column.id) {
+                                  case 'leadId':
+                                    return <td key={column.id}>{lead.lead_id || ''}</td>;
+                                  case 'date':
+                                    return <td key={column.id}>{lead.created || ''}</td>;
+                                  case 'businessName':
+                                    return <td key={column.id}>{lead.business_legal_name || ''}</td>;
+                                  case 'businessEmail':
+                                    return <td key={column.id}>{lead.business_email || ''}</td>;
+                                  case 'businessPhone':
+                                    return <td key={column.id}>{lead.business_phone || ''}</td>;
+                                  case 'contactCard':
+                                    return (
+                                      <td key={column.id}>
+                                        <button
+                                          className="btn btn-sm btn-outline-primary"
+                                          onClick={() => handleView(lead)}
+                                          title="View Contact Card"
+                                        >
+                                          <i className="fas fa-address-card"></i>
+                                        </button>
+                                      </td>
+                                    );
+                                  case 'affiliateSource':
+                                    return <td key={column.id}>{lead.source || ''}</td>;
+                                  case 'employee':
+                                    return <td key={column.id}>{lead.employee_id || ''}</td>;
+                                  case 'salesAgent':
+                                    return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
+                                  case 'salesSupport':
+                                    return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
+                                  case 'taxNowStatus':
+                                    return (
+                                      <td key={column.id}>
+                                        <span className={`badge ${
+                                          lead.lead_status === 'New' ? 'bg-info' :
+                                          lead.lead_status === 'Contacted' ? 'bg-primary' :
+                                          lead.lead_status === 'Qualified' ? 'bg-warning' :
+                                          lead.lead_status === 'Active' ? 'bg-success' :
+                                          'bg-secondary'
+                                        }`}>
+                                          {lead.lead_status || ''}
+                                        </span>
+                                      </td>
+                                    );
+                                  case 'leadCampaign':
+                                    return <td key={column.id}>{lead.campaign || ''}</td>;
+                                  case 'category':
+                                    return <td key={column.id}>{lead.category || ''}</td>;
+                                  case 'leadGroup':
+                                    return <td key={column.id}>{lead.lead_group || ''}</td>;
+                                  default:
+                                    return <td key={column.id}></td>;
+                                }
+                              })}
                             </tr>
                           ))
                         ) : (
