@@ -25,6 +25,8 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent form submission
         setIsLoading(true); // Set loading state to true
+        setResponseMessage(""); // Clear any existing messages
+        setError(null); // Clear any existing errors
         const apiUrl = "https://play.occamsadvisory.com/portal/wp-json/oc/v1/login"; // New API endpoint
 
         // POST request with username and password
@@ -38,6 +40,7 @@ const Login = () => {
 
                 // Check if login was successful based on the success flag
                 if (response.data.success === true) {
+                    setError(null); // Clear any existing error
                     setResponseMessage("Login successful!"); // Handle successful login
                     localStorage.setItem("user", JSON.stringify(response.data));
 
@@ -47,11 +50,13 @@ const Login = () => {
                     }, 1000); // Short delay to show the success message
                 } else {
                     // If success is not true, show the error message from the API
+                    setResponseMessage(""); // Clear any success message
                     setError(response.data.message || "Invalid username or password");
                 }
             })
             .catch((error) => {
                 // Handle network or server errors
+                setResponseMessage(""); // Clear any success message
                 setError(error.response && error.response.data.message
                     ? error.response.data.message
                     : "Invalid username or password");
