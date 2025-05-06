@@ -29,38 +29,38 @@ const LeadReport = () => {
 
     try {
       console.log('Fetching leads from API...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/v1/leads');
+
+      // Make the API request with proper headers
+      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/v1/leads', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000 // 10 second timeout
+      });
+
       console.log('API Response:', response);
 
-      if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        // Transform API data to match our expected format
-        const formattedLeads = response.data.data.map((lead, index) => ({
-          id: lead.lead_id || lead.id || `LD${String(index + 1).padStart(3, '0')}`,
-          businessName: lead.business_legal_name || 'Unknown Business',
-          businessEmail: lead.business_email || 'no-email@example.com',
-          phoneNumber: lead.business_phone || 'No Phone',
-          status: lead.lead_status || 'New',
-          // Add any additional fields from the API that you want to use
-          date: lead.created || new Date().toLocaleDateString(),
-          employee: lead.employee_id || 'Not Assigned',
-          salesAgent: lead.internal_sales_agent || 'Not Assigned',
-          salesSupport: lead.internal_sales_support || 'Not Assigned',
-          affiliateSource: lead.source || 'Direct',
-          leadCampaign: lead.campaign || 'None',
-          w2Count: lead.w2_count || '0'
-        }));
+      // Check if we have a valid response with data
+      if (response && response.data) {
+        // Use the data directly as it comes from the API
+        setLeads(response.data);
+        console.log('API Leads:', response.data);
 
-        console.log('Formatted Leads:', formattedLeads);
-        setLeads(formattedLeads);
+        if (response.data.length === 0) {
+          console.warn('API returned empty data, using fallback data');
+          setLeads(generateFallbackLeads());
+          setError('No leads found in API response. Using sample data instead.');
+        }
       } else {
-        console.error('API response format unexpected:', response.data);
+        console.error('API response format unexpected:', response);
         // If API returns unexpected format, use fallback data
         setLeads(generateFallbackLeads());
-        setError('API returned unexpected data format. Using fallback data.');
+        setError('API returned unexpected data format. Using sample data instead.');
       }
     } catch (err) {
       console.error('Error fetching leads:', err);
-      setError('Failed to fetch leads. Using fallback data.');
+      setError(`Failed to fetch leads: ${err.message}. Using sample data instead.`);
       setLeads(generateFallbackLeads());
     } finally {
       setLoading(false);
@@ -204,13 +204,22 @@ const LeadReport = () => {
 
   // Filter leads based on search term and status
   const filteredLeads = leads.filter(lead => {
-    const matchesSearch =
-      lead.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.businessEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.phoneNumber.includes(searchTerm);
+    // Handle different possible field names in the API response
+    const id = String(lead.id || lead.lead_id || '').toLowerCase();
+    const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
+    const email = String(lead.email || lead.business_email || '').toLowerCase();
+    const phone = String(lead.phone || lead.business_phone || '');
+    const status = String(lead.status || lead.lead_status || '');
 
-    const matchesStatus = filterStatus === '' || lead.status === filterStatus;
+    const searchTermLower = searchTerm.toLowerCase();
+
+    const matchesSearch = searchTerm === '' ||
+      id.includes(searchTermLower) ||
+      name.includes(searchTermLower) ||
+      email.includes(searchTermLower) ||
+      phone.includes(searchTerm);
+
+    const matchesStatus = filterStatus === '' || status === filterStatus;
 
     return matchesSearch && matchesStatus;
   });
@@ -577,55 +586,67 @@ const LeadReport = () => {
   };
 
   const handleView = (lead) => {
+    // Get all properties from the lead object
+    const leadProperties = Object.entries(lead)
+      .filter(([_, value]) => value !== null && value !== undefined && value !== '')
+      .map(([key, value]) => {
+        // Format the key for display
+        const formattedKey = key
+          .replace(/_/g, ' ')
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+
+        return { key: formattedKey, value: value };
+      });
+
+    // Create HTML for the table rows
+    const tableRows = leadProperties
+      .map(prop => `
+        <tr>
+          <th>${prop.key}</th>
+          <td>${prop.value}</td>
+        </tr>
+      `)
+      .join('');
+
+    const businessName = lead.name || lead.business_name || lead.business_legal_name || 'Unknown Business';
+    const status = lead.status || lead.lead_status || '';
+
     Swal.fire({
       title: 'Lead Details',
       html: `
         <div class="text-start">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">${lead.businessName}</h5>
+            <h5 class="mb-0">${businessName}</h5>
             <span class="badge ${
-              lead.status === 'New' ? 'bg-info' :
-              lead.status === 'Contacted' ? 'bg-primary' :
-              lead.status === 'Qualified' ? 'bg-warning' :
-              lead.status === 'Active' ? 'bg-success' :
+              status === 'New' ? 'bg-info' :
+              status === 'Contacted' ? 'bg-primary' :
+              status === 'Qualified' ? 'bg-warning' :
+              status === 'Active' ? 'bg-success' :
               'bg-secondary'
-            }">${lead.status}</span>
+            }">${status}</span>
           </div>
 
           <table class="table table-bordered">
-            <tr>
-              <th>Lead ID</th>
-              <td>${lead.id}</td>
-            </tr>
-            <tr>
-              <th>Business Name</th>
-              <td>${lead.businessName}</td>
-            </tr>
-            <tr>
-              <th>Email</th>
-              <td>${lead.businessEmail}</td>
-            </tr>
-            <tr>
-              <th>Phone</th>
-              <td>${lead.phoneNumber}</td>
-            </tr>
-            <tr>
-              <th>Created Date</th>
-              <td>${new Date().toLocaleDateString()}</td>
-            </tr>
+            ${tableRows}
           </table>
         </div>
       `,
-      confirmButtonText: 'Close'
+      width: '600px',
+      showCloseButton: true,
+      showConfirmButton: false
     });
   };
 
   const handleBookCall = (lead) => {
+    const businessName = lead.name || lead.business_name || lead.business_legal_name || 'Unknown Business';
+
     Swal.fire({
       title: 'Book a Call',
       html: `
         <div class="text-start">
-          <p>Schedule a call with <strong>${lead.businessName}</strong></p>
+          <p>Schedule a call with <strong>${businessName}</strong></p>
           <div class="form-group mb-3">
             <label class="small">Date:</label>
             <input type="date" class="form-control" id="call-date" min="${new Date().toISOString().split('T')[0]}">
@@ -654,7 +675,7 @@ const LeadReport = () => {
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire('Call Scheduled', `Call with ${lead.businessName} scheduled for ${result.value.date} at ${result.value.time}`, 'success');
+        Swal.fire('Call Scheduled', `Call with ${businessName} scheduled for ${result.value.date} at ${result.value.time}`, 'success');
       }
     });
   };
@@ -825,14 +846,23 @@ const LeadReport = () => {
                 {/* Error message */}
                 {error && !loading && (
                   <div className="alert alert-warning" role="alert">
-                    <i className="fas fa-exclamation-triangle me-2"></i>
-                    {error}
-                    <button
-                      className="btn btn-sm btn-outline-primary ms-3"
-                      onClick={fetchLeads}
-                    >
-                      <i className="fas fa-sync-alt me-1"></i> Retry
-                    </button>
+                    <div className="d-flex align-items-center">
+                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
+                      <div>
+                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
+                        <p className="mb-0">{error}</p>
+                      </div>
+                    </div>
+                    <hr />
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span>Please try again or contact support if the problem persists.</span>
+                      <button
+                        className="btn btn-primary"
+                        onClick={fetchLeads}
+                      >
+                        <i className="fas fa-sync-alt me-1"></i> Retry
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -864,11 +894,11 @@ const LeadReport = () => {
                       </thead>
                       <tbody>
                         {currentLeads.length > 0 ? (
-                          currentLeads.map(lead => (
-                            <tr key={lead.id}>
-                              {visibleColumns.includes('leadId') && <td>{lead.id}</td>}
-                              {visibleColumns.includes('date') && <td>{lead.date || new Date().toLocaleDateString()}</td>}
-                              {visibleColumns.includes('businessName') && <td>{lead.businessName}</td>}
+                          currentLeads.map((lead, index) => (
+                            <tr key={lead.id || lead.lead_id || index}>
+                              {visibleColumns.includes('leadId') && <td>{lead.id || lead.lead_id || ''}</td>}
+                              {visibleColumns.includes('date') && <td>{lead.date || lead.created || new Date().toLocaleDateString()}</td>}
+                              {visibleColumns.includes('businessName') && <td>{lead.name || lead.business_name || lead.business_legal_name || 'Unknown'}</td>}
                               {visibleColumns.includes('contactCard') && (
                                 <td>
                                   <button
@@ -880,25 +910,25 @@ const LeadReport = () => {
                                   </button>
                                 </td>
                               )}
-                              {visibleColumns.includes('affiliateSource') && <td>{lead.affiliateSource || 'Website'}</td>}
-                              {visibleColumns.includes('employee') && <td>{lead.employee || 'John Doe'}</td>}
-                              {visibleColumns.includes('salesAgent') && <td>{lead.salesAgent || 'Sarah Smith'}</td>}
-                              {visibleColumns.includes('salesSupport') && <td>{lead.salesSupport || 'Mike Johnson'}</td>}
+                              {visibleColumns.includes('affiliateSource') && <td>{lead.source || lead.affiliate_source || ''}</td>}
+                              {visibleColumns.includes('employee') && <td>{lead.employee || lead.employee_id || ''}</td>}
+                              {visibleColumns.includes('salesAgent') && <td>{lead.sales_agent || lead.internal_sales_agent || ''}</td>}
+                              {visibleColumns.includes('salesSupport') && <td>{lead.sales_support || lead.internal_sales_support || ''}</td>}
                               {visibleColumns.includes('taxNowStatus') && (
                                 <td>
                                   <span className={`badge ${
-                                    lead.status === 'New' ? 'bg-info' :
-                                    lead.status === 'Contacted' ? 'bg-primary' :
-                                    lead.status === 'Qualified' ? 'bg-warning' :
-                                    lead.status === 'Active' ? 'bg-success' :
+                                    (lead.status || lead.lead_status) === 'New' ? 'bg-info' :
+                                    (lead.status || lead.lead_status) === 'Contacted' ? 'bg-primary' :
+                                    (lead.status || lead.lead_status) === 'Qualified' ? 'bg-warning' :
+                                    (lead.status || lead.lead_status) === 'Active' ? 'bg-success' :
                                     'bg-secondary'
                                   }`}>
-                                    {lead.status}
+                                    {lead.status || lead.lead_status || ''}
                                   </span>
                                 </td>
                               )}
-                              {visibleColumns.includes('leadCampaign') && <td>{lead.leadCampaign || 'Email Campaign'}</td>}
-                              {visibleColumns.includes('w2Count') && <td>{lead.w2Count || '0'}</td>}
+                              {visibleColumns.includes('leadCampaign') && <td>{lead.campaign || lead.lead_campaign || ''}</td>}
+                              {visibleColumns.includes('w2Count') && <td>{lead.w2_count || ''}</td>}
                               {visibleColumns.includes('bookACall') && (
                                 <td>
                                   <button
@@ -916,21 +946,21 @@ const LeadReport = () => {
                                     <button
                                       className="btn btn-sm btn-outline-primary"
                                       title="Call"
-                                      onClick={() => handleCall(lead.phoneNumber, lead.businessName)}
+                                      onClick={() => handleCall(lead.phone || lead.business_phone || '', lead.name || lead.business_name || '')}
                                     >
                                       <i className="fas fa-phone"></i>
                                     </button>
                                     <button
                                       className="btn btn-sm btn-outline-info"
                                       title="Email"
-                                      onClick={() => handleEmail(lead.businessEmail, lead.businessName)}
+                                      onClick={() => handleEmail(lead.email || lead.business_email || '', lead.name || lead.business_name || '')}
                                     >
                                       <i className="fas fa-envelope"></i>
                                     </button>
                                     <button
                                       className="btn btn-sm btn-outline-success"
                                       title="Message"
-                                      onClick={() => handleMessage(lead.id, lead.businessName)}
+                                      onClick={() => handleMessage(lead.id || lead.lead_id || '', lead.name || lead.business_name || '')}
                                     >
                                       <i className="fas fa-comment"></i>
                                     </button>
@@ -941,7 +971,28 @@ const LeadReport = () => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={visibleColumns.length} className="text-center">No leads found</td>
+                            <td colSpan={visibleColumns.length} className="text-center py-5">
+                              <div className="d-flex flex-column align-items-center">
+                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h5 className="text-muted">No leads found</h5>
+                                <p className="text-muted mb-3">
+                                  {searchTerm || filterStatus ?
+                                    'Try adjusting your search or filter criteria' :
+                                    'No lead data is available from the API'}
+                                </p>
+                                {(searchTerm || filterStatus) && (
+                                  <button
+                                    className="btn btn-outline-primary btn-sm"
+                                    onClick={() => {
+                                      setSearchTerm('');
+                                      setFilterStatus('');
+                                    }}
+                                  >
+                                    <i className="fas fa-times me-1"></i> Clear filters
+                                  </button>
+                                )}
+                              </div>
+                            </td>
                           </tr>
                         )}
                       </tbody>
