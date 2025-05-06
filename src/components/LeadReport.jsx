@@ -119,6 +119,7 @@ const LeadReport = () => {
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('lead_id');
   const [sortDirection, setSortDirection] = useState('asc');
+  const [isSearching, setIsSearching] = useState(false);
 
 
   // Define all available columns with groups based on API data structure
@@ -211,23 +212,47 @@ const LeadReport = () => {
 
   // Filter leads based on search term and status
   const filteredLeads = leads.filter(lead => {
+    // Skip filtering if no search term or status filter is applied
+    if (searchTerm === '' && filterStatus === '') {
+      return true;
+    }
+
     // Handle different possible field names in the API response
     const id = String(lead.id || lead.lead_id || '').toLowerCase();
     const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
     const email = String(lead.email || lead.business_email || '').toLowerCase();
     const phone = String(lead.phone || lead.business_phone || '');
     const status = String(lead.status || lead.lead_status || '');
+    const signatory = String(lead.authorized_signatory_name || '').toLowerCase();
+    const campaign = String(lead.campaign || '').toLowerCase();
+    const source = String(lead.source || '').toLowerCase();
+    const category = String(lead.category || '').toLowerCase();
+    const leadGroup = String(lead.lead_group || '').toLowerCase();
+    const salesAgent = String(lead.internal_sales_agent || '').toLowerCase();
+    const salesSupport = String(lead.internal_sales_support || '').toLowerCase();
+    const employeeId = String(lead.employee_id || '').toLowerCase();
 
-    const searchTermLower = searchTerm.toLowerCase();
+    // Check if search term matches any field
+    const searchTermLower = searchTerm.toLowerCase().trim();
 
     const matchesSearch = searchTerm === '' ||
       id.includes(searchTermLower) ||
       name.includes(searchTermLower) ||
       email.includes(searchTermLower) ||
-      phone.includes(searchTerm);
+      phone.includes(searchTermLower) ||
+      signatory.includes(searchTermLower) ||
+      campaign.includes(searchTermLower) ||
+      source.includes(searchTermLower) ||
+      category.includes(searchTermLower) ||
+      leadGroup.includes(searchTermLower) ||
+      salesAgent.includes(searchTermLower) ||
+      salesSupport.includes(searchTermLower) ||
+      employeeId.includes(searchTermLower);
 
+    // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
 
+    // Return true if both conditions are met
     return matchesSearch && matchesStatus;
   });
 
@@ -714,15 +739,73 @@ const LeadReport = () => {
                     {/* Search box */}
                     <div className="col-md-3">
                       <div className="input-group input-group-sm">
-                        <input
-                          type="text"
-                          className="form-control"
-                          placeholder="Search..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <button className="btn btn-sm search-btn" type="button">
-                          <i className="fas fa-search"></i>
+                        <div className="position-relative w-100">
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Search leads by any field..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            style={{ paddingRight: '30px' }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                setIsSearching(true);
+                                setTimeout(() => setIsSearching(false), 500);
+                                setCurrentPage(1); // Reset to first page when searching
+
+                                // Show feedback toast if search term is not empty
+                                if (searchTerm.trim() !== '') {
+                                  Swal.fire({
+                                    title: 'Searching...',
+                                    text: `Searching for "${searchTerm}"`,
+                                    icon: 'info',
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                  });
+                                }
+                              }
+                            }}
+                          />
+                          {searchTerm && (
+                            <button
+                              type="button"
+                              className="btn btn-sm position-absolute"
+                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
+                              onClick={() => {
+                                setSearchTerm('');
+                                setCurrentPage(1);
+                              }}
+                            >
+                              <i className="fas fa-times text-muted"></i>
+                            </button>
+                          )}
+                        </div>
+                        <button
+                          className="btn btn-sm search-btn"
+                          type="button"
+                          onClick={() => {
+                            setIsSearching(true);
+                            setTimeout(() => setIsSearching(false), 500);
+                            setCurrentPage(1); // Reset to first page when searching
+
+                            // Show feedback toast if search term is not empty
+                            if (searchTerm.trim() !== '') {
+                              Swal.fire({
+                                title: 'Searching...',
+                                text: `Searching for "${searchTerm}"`,
+                                icon: 'info',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 1500
+                              });
+                            }
+                          }}
+                        >
+                          <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
                         </button>
                       </div>
                     </div>
