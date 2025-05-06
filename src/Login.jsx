@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate = useNavigate(); // Initialize the navigate hook
+
     useEffect(() => {
         document.title = "Log In - Occams Portal"; // Set title for Login page
     }, []);
@@ -15,7 +18,7 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent form submission
         setIsLoading(true); // Set loading state to true
-        const apiUrl = "https://play.occamsadvisory.com/portal/wp-json/jwt-auth/v1/token"; // Replace with your API URL
+        const apiUrl = "https://play.occamsadvisory.com/portal/wp-json/oc/v1/login"; // New API endpoint
 
         // POST request with username and password
         axios
@@ -26,8 +29,12 @@ const Login = () => {
             .then((response) => {
                 setResponseMessage("Login successful!"); // Handle successful login
                 localStorage.setItem("user", JSON.stringify(response.data));
-                console.log(response.data); // Do something with the response data
-                // No navigation after login - user must manually navigate
+                console.log(response.data); // Log the response data
+
+                // Redirect to dashboard after successful login
+                setTimeout(() => {
+                    navigate('/dashboard'); // Redirect to dashboard page
+                }, 1000); // Short delay to show the success message
             })
             .catch((error) => {
                 setError(error.response ? error.response.data.message : error.message); // Handle errors
@@ -40,6 +47,7 @@ const Login = () => {
 
     // No automatic redirection on component mount
     // This ensures the login page is always shown when accessed directly
+    // After successful login, user will be redirected to the dashboard page
 
 
     return (
