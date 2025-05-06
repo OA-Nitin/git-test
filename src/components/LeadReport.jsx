@@ -739,7 +739,7 @@ const LeadReport = () => {
                     {/* Search box */}
                     <div className="col-md-3">
                       <div className="input-group input-group-sm">
-                        <div className="position-relative w-100">
+                        <div className="position-relative flex-grow-1">
                           <input
                             type="text"
                             className="form-control"
@@ -783,30 +783,32 @@ const LeadReport = () => {
                             </button>
                           )}
                         </div>
-                        <button
-                          className="btn btn-sm search-btn"
-                          type="button"
-                          onClick={() => {
-                            setIsSearching(true);
-                            setTimeout(() => setIsSearching(false), 500);
-                            setCurrentPage(1); // Reset to first page when searching
+                        <div className="input-group-append">
+                          <button
+                            className="btn btn-sm search-btn"
+                            type="button"
+                            onClick={() => {
+                              setIsSearching(true);
+                              setTimeout(() => setIsSearching(false), 500);
+                              setCurrentPage(1); // Reset to first page when searching
 
-                            // Show feedback toast if search term is not empty
-                            if (searchTerm.trim() !== '') {
-                              Swal.fire({
-                                title: 'Searching...',
-                                text: `Searching for "${searchTerm}"`,
-                                icon: 'info',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 1500
-                              });
-                            }
-                          }}
-                        >
-                          <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
-                        </button>
+                              // Show feedback toast if search term is not empty
+                              if (searchTerm.trim() !== '') {
+                                Swal.fire({
+                                  title: 'Searching...',
+                                  text: `Searching for "${searchTerm}"`,
+                                  icon: 'info',
+                                  toast: true,
+                                  position: 'top-end',
+                                  showConfirmButton: false,
+                                  timer: 1500
+                                });
+                              }
+                            }}
+                          >
+                            <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
