@@ -595,54 +595,49 @@ const LeadReport = () => {
   };
 
   const handleView = (lead) => {
-    // Get all properties from the lead object
-    const leadProperties = Object.entries(lead)
-      .filter(([_, value]) => value !== null && value !== undefined && value !== '')
-      .map(([key, value]) => {
-        // Format the key for display
-        const formattedKey = key
-          .replace(/_/g, ' ')
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
+    // Only show specific fields in the contact card
+    const businessName = lead.business_legal_name || lead.business_name || lead.name || 'Unknown Business';
+    const status = lead.lead_status || lead.status || '';
 
-        return { key: formattedKey, value: value };
-      });
+    // Create HTML for the specific fields we want to show
+    const contactCardHTML = `
+      <div class="text-start">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">${businessName}</h5>
+          <span class="badge ${
+            status === 'New' ? 'bg-info' :
+            status === 'Contacted' ? 'bg-primary' :
+            status === 'Qualified' ? 'bg-warning' :
+            status === 'Active' ? 'bg-success' :
+            'bg-secondary'
+          }">${status}</span>
+        </div>
 
-    // Create HTML for the table rows
-    const tableRows = leadProperties
-      .map(prop => `
-        <tr>
-          <th>${prop.key}</th>
-          <td>${prop.value}</td>
-        </tr>
-      `)
-      .join('');
-
-    const businessName = lead.name || lead.business_name || lead.business_legal_name || 'Unknown Business';
-    const status = lead.status || lead.lead_status || '';
+        <table class="table table-bordered">
+          <tr>
+            <th>Lead ID</th>
+            <td>${lead.lead_id || ''}</td>
+          </tr>
+          <tr>
+            <th>Authorized Signatory Name</th>
+            <td>${lead.authorized_signatory_name || ''}</td>
+          </tr>
+          <tr>
+            <th>Business Phone</th>
+            <td>${lead.business_phone || ''}</td>
+          </tr>
+          <tr>
+            <th>Business Email</th>
+            <td>${lead.business_email || ''}</td>
+          </tr>
+        </table>
+      </div>
+    `;
 
     Swal.fire({
-      title: 'Lead Details',
-      html: `
-        <div class="text-start">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">${businessName}</h5>
-            <span class="badge ${
-              status === 'New' ? 'bg-info' :
-              status === 'Contacted' ? 'bg-primary' :
-              status === 'Qualified' ? 'bg-warning' :
-              status === 'Active' ? 'bg-success' :
-              'bg-secondary'
-            }">${status}</span>
-          </div>
-
-          <table class="table table-bordered">
-            ${tableRows}
-          </table>
-        </div>
-      `,
-      width: '600px',
+      title: 'Contact Card',
+      html: contactCardHTML,
+      width: '500px',
       showCloseButton: true,
       showConfirmButton: false
     });
