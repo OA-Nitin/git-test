@@ -28,28 +28,32 @@ const LeadReport = () => {
     setError(null);
 
     try {
+      console.log('Fetching leads from API...');
       const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/v1/leads');
+      console.log('API Response:', response);
 
-      if (response.data && Array.isArray(response.data)) {
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
         // Transform API data to match our expected format
-        const formattedLeads = response.data.map((lead, index) => ({
-          id: lead.id || `LD${String(index + 1).padStart(3, '0')}`,
-          businessName: lead.business_name || 'Unknown Business',
-          businessEmail: lead.email || 'no-email@example.com',
-          phoneNumber: lead.phone || 'No Phone',
-          status: lead.status || 'New',
+        const formattedLeads = response.data.data.map((lead, index) => ({
+          id: lead.lead_id || lead.id || `LD${String(index + 1).padStart(3, '0')}`,
+          businessName: lead.business_legal_name || 'Unknown Business',
+          businessEmail: lead.business_email || 'no-email@example.com',
+          phoneNumber: lead.business_phone || 'No Phone',
+          status: lead.lead_status || 'New',
           // Add any additional fields from the API that you want to use
-          date: lead.date || new Date().toLocaleDateString(),
-          employee: lead.employee || 'Not Assigned',
-          salesAgent: lead.sales_agent || 'Not Assigned',
-          salesSupport: lead.sales_support || 'Not Assigned',
-          affiliateSource: lead.affiliate_source || 'Direct',
-          leadCampaign: lead.lead_campaign || 'None',
+          date: lead.created || new Date().toLocaleDateString(),
+          employee: lead.employee_id || 'Not Assigned',
+          salesAgent: lead.internal_sales_agent || 'Not Assigned',
+          salesSupport: lead.internal_sales_support || 'Not Assigned',
+          affiliateSource: lead.source || 'Direct',
+          leadCampaign: lead.campaign || 'None',
           w2Count: lead.w2_count || '0'
         }));
 
+        console.log('Formatted Leads:', formattedLeads);
         setLeads(formattedLeads);
       } else {
+        console.error('API response format unexpected:', response.data);
         // If API returns unexpected format, use fallback data
         setLeads(generateFallbackLeads());
         setError('API returned unexpected data format. Using fallback data.');
