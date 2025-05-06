@@ -113,8 +113,8 @@ const Login = () => {
                                 {isLoading ? 'Please wait...' : 'Login'}
                             </button>
                             </form>
-                            {responseMessage && <p className="response-msg">{responseMessage}</p>}
-                        {error && <p className="error-msg">Error: {error}</p>}
+                            {responseMessage && <p className="response-msg text-center text-success fw-bold mt-3" style={{ fontSize: '17px' }}>{responseMessage}</p>}
+                        {error && <p className="error-msg text-center text-danger fw-bold mt-3" style={{ fontSize: '17px' }}>{error}</p>}
                         </div>
                     </div>
                 </div>
