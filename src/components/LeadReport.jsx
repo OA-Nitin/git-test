@@ -662,8 +662,8 @@ const LeadReport = () => {
                 return `
                   <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                      <div style="color: #6c757d; font-size: 14px;">${formattedDate}</div>
-                      <div style="color: #6c757d; font-size: 14px;">${formattedTime}</div>
+                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedDate}</div>
+                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedTime}</div>
                     </div>
                     <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${note.note || ''}</p>
                   </div>

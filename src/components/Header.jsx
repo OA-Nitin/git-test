@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../assets/css/header-dropdown.css';
+import '../assets/css/header-logout-button.css';
 
 const Header = ({ user, onLogout }) => {
   return (
@@ -24,8 +25,9 @@ const Header = ({ user, onLogout }) => {
             </Link>
           </li>
         </ul>
-        <div id="wpadminbar">
-          <ul id="wp-admin-bar-top-secondary" className="ab-top-secondary ab-top-menu">
+        <div id="wpadminbar" className="d-flex justify-content-end">
+          <ul id="wp-admin-bar-top-secondary" className="ab-top-secondary ab-top-menu d-flex align-items-center">
+            {/* User Profile Dropdown */}
             <li
               id="wp-admin-bar-my-account"
               className="menupop with-avatar profile_info"
@@ -57,6 +59,17 @@ const Header = ({ user, onLogout }) => {
                   </li>
                 </ul>
               </div>
+            </li>
+
+            {/* Logout Button with Icon */}
+            <li className="d-flex align-items-center ms-3">
+              <button
+                className="logout-button-icon-only"
+                onClick={onLogout}
+                title="Logout"
+              >
+                <img src="/assets/images/logout-icon.svg" alt="Logout" width="16" height="16" />
+              </button>
             </li>
           </ul>
         </div>
