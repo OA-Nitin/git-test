@@ -3,18 +3,68 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 
 const LeadReport = () => {
+  // State for API data
+  const [leads, setLeads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     document.title = "Lead Report - Occams Portal"; // Set title for Lead Report page
+
+    // Fetch leads from API
+    fetchLeads();
   }, []);
 
-  // Generate sample lead data
-  const generateLeads = () => {
+  // Function to fetch leads from API
+  const fetchLeads = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/v1/leads');
+
+      if (response.data && Array.isArray(response.data)) {
+        // Transform API data to match our expected format
+        const formattedLeads = response.data.map((lead, index) => ({
+          id: lead.id || `LD${String(index + 1).padStart(3, '0')}`,
+          businessName: lead.business_name || 'Unknown Business',
+          businessEmail: lead.email || 'no-email@example.com',
+          phoneNumber: lead.phone || 'No Phone',
+          status: lead.status || 'New',
+          // Add any additional fields from the API that you want to use
+          date: lead.date || new Date().toLocaleDateString(),
+          employee: lead.employee || 'Not Assigned',
+          salesAgent: lead.sales_agent || 'Not Assigned',
+          salesSupport: lead.sales_support || 'Not Assigned',
+          affiliateSource: lead.affiliate_source || 'Direct',
+          leadCampaign: lead.lead_campaign || 'None',
+          w2Count: lead.w2_count || '0'
+        }));
+
+        setLeads(formattedLeads);
+      } else {
+        // If API returns unexpected format, use fallback data
+        setLeads(generateFallbackLeads());
+        setError('API returned unexpected data format. Using fallback data.');
+      }
+    } catch (err) {
+      console.error('Error fetching leads:', err);
+      setError('Failed to fetch leads. Using fallback data.');
+      setLeads(generateFallbackLeads());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Generate fallback lead data if API fails
+  const generateFallbackLeads = () => {
     const companies = [
       { name: 'Acme Corporation', domain: 'acmecorp.com' },
       { name: 'Globex Industries', domain: 'globex.com' },
@@ -25,37 +75,7 @@ const LeadReport = () => {
       { name: 'Cyberdyne Systems', domain: 'cyberdyne.com' },
       { name: 'Initech', domain: 'initech.com' },
       { name: 'Massive Dynamic', domain: 'massivedynamic.com' },
-      { name: 'Soylent Corp', domain: 'soylent.com' },
-      { name: 'Weyland-Yutani', domain: 'weyland-yutani.com' },
-      { name: 'Tyrell Corporation', domain: 'tyrell.com' },
-      { name: 'Rekall Inc', domain: 'rekall.com' },
-      { name: 'Omni Consumer Products', domain: 'ocp.com' },
-      { name: 'Nakatomi Trading Corp', domain: 'nakatomi.com' },
-      { name: 'Gekko & Co', domain: 'gekko.com' },
-      { name: 'Dunder Mifflin', domain: 'dundermifflin.com' },
-      { name: 'Wonka Industries', domain: 'wonka.com' },
-      { name: 'Oceanic Airlines', domain: 'oceanic-air.com' },
-      { name: 'Virtucon', domain: 'virtucon.com' },
-      { name: 'Spacely Sprockets', domain: 'spacely.com' },
-      { name: 'Cogswell Cogs', domain: 'cogswell.com' },
-      { name: 'Monsters Inc', domain: 'monsters.com' },
-      { name: 'Buy n Large', domain: 'bnl.com' },
-      { name: 'Gringotts', domain: 'gringotts.com' },
-      { name: 'Ollivanders', domain: 'ollivanders.com' },
-      { name: 'Weasleys Wizard Wheezes', domain: 'weasleys.com' },
-      { name: 'Stark Industries', domain: 'stark.com' },
-      { name: 'Hammer Industries', domain: 'hammer.com' },
-      { name: 'Pied Piper', domain: 'piedpiper.com' },
-      { name: 'Hooli', domain: 'hooli.com' },
-      { name: 'Raviga Capital', domain: 'raviga.com' },
-      { name: 'Endframe', domain: 'endframe.com' },
-      { name: 'Aviato', domain: 'aviato.com' },
-      { name: 'Goliath National Bank', domain: 'gnb.com' },
-      { name: 'Albuquerque Crystal', domain: 'abqcrystal.com' },
-      { name: 'Los Pollos Hermanos', domain: 'lospolloshermanos.com' },
-      { name: 'Madrigal Electromotive', domain: 'madrigal.com' },
-      { name: 'Vought International', domain: 'vought.com' },
-      { name: 'Abstergo Industries', domain: 'abstergo.com' }
+      { name: 'Soylent Corp', domain: 'soylent.com' }
     ];
 
     const statuses = ['New', 'Contacted', 'Qualified', 'Active', 'Converted'];
@@ -72,15 +92,19 @@ const LeadReport = () => {
         businessName: company.name,
         businessEmail: `info@${company.domain}`,
         phoneNumber: `(${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
-        status: statuses[statusIndex]
+        status: statuses[statusIndex],
+        date: new Date().toLocaleDateString(),
+        employee: 'John Doe',
+        salesAgent: 'Sarah Smith',
+        salesSupport: 'Mike Johnson',
+        affiliateSource: 'Website',
+        leadCampaign: 'Email Campaign',
+        w2Count: Math.floor(Math.random() * 10) + 1
       });
     }
 
     return dummyLeads;
   };
-
-  // Sample lead data
-  const [leads, setLeads] = useState(generateLeads());
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -224,14 +248,34 @@ const LeadReport = () => {
       }
     }
 
-    const headers = ['Lead ID', 'Business Name', 'Business Email', 'Phone Number', 'Status'];
-    const csvData = filteredLeads.map(lead => [
-      lead.id,
-      `"${lead.businessName.replace(/"/g, '""')}"`, // Escape quotes in business name
-      lead.businessEmail,
-      lead.phoneNumber,
-      lead.status
-    ]);
+    // Get visible columns and their data
+    const visibleColumnsData = allColumns.filter(column => visibleColumns.includes(column.id));
+
+    // Create headers from visible columns
+    const headers = visibleColumnsData.map(column => column.label);
+
+    // Create CSV data rows
+    const csvData = filteredLeads.map(lead => {
+      return visibleColumnsData.map(column => {
+        // Handle special columns with custom rendering
+        if (column.id === 'leadId') return lead.id;
+        if (column.id === 'date') return new Date().toLocaleDateString();
+        if (column.id === 'businessName') return `"${lead.businessName.replace(/"/g, '""')}"`; // Escape quotes
+        if (column.id === 'taxNowStatus') return lead.status;
+        if (column.id === 'contactCard') return 'Contact Card';
+        if (column.id === 'bookACall') return 'Book A Call';
+        if (column.id === 'employee') return 'John Doe';
+        if (column.id === 'salesAgent') return 'Sarah Smith';
+        if (column.id === 'salesSupport') return 'Mike Johnson';
+        if (column.id === 'affiliateSource') return 'Website';
+        if (column.id === 'leadCampaign') return 'Email Campaign';
+        if (column.id === 'w2Count') return Math.floor(Math.random() * 10) + 1;
+        if (column.id === 'actions') return 'Actions';
+
+        // Default case
+        return '';
+      });
+    });
 
     const csvContent = [
       headers.join(','),
@@ -259,6 +303,9 @@ const LeadReport = () => {
         }
       }
 
+      // Get visible columns and their data
+      const visibleColumnsData = allColumns.filter(column => visibleColumns.includes(column.id));
+
       // Initialize jsPDF with landscape orientation
       const doc = new jsPDF({
         orientation: 'landscape',
@@ -281,14 +328,40 @@ const LeadReport = () => {
       }
 
       // Create table data
-      const tableColumn = ['Lead ID', 'Business Name', 'Business Email', 'Phone Number', 'Status'];
-      const tableRows = filteredLeads.map(lead => [
-        lead.id,
-        lead.businessName,
-        lead.businessEmail,
-        lead.phoneNumber,
-        lead.status
-      ]);
+      const tableColumn = visibleColumnsData.map(column => column.label);
+
+      // Create table rows with data for visible columns
+      const tableRows = filteredLeads.map(lead => {
+        return visibleColumnsData.map(column => {
+          // Handle special columns with custom rendering
+          if (column.id === 'leadId') return lead.id;
+          if (column.id === 'date') return new Date().toLocaleDateString();
+          if (column.id === 'businessName') return lead.businessName;
+          if (column.id === 'taxNowStatus') return lead.status;
+          if (column.id === 'contactCard') return 'Contact Card';
+          if (column.id === 'bookACall') return 'Book A Call';
+          if (column.id === 'employee') return 'John Doe';
+          if (column.id === 'salesAgent') return 'Sarah Smith';
+          if (column.id === 'salesSupport') return 'Mike Johnson';
+          if (column.id === 'affiliateSource') return 'Website';
+          if (column.id === 'leadCampaign') return 'Email Campaign';
+          if (column.id === 'w2Count') return Math.floor(Math.random() * 10) + 1;
+          if (column.id === 'actions') return 'Actions';
+
+          // Default case
+          return '';
+        });
+      });
+
+      // Calculate column widths based on number of columns
+      const availableWidth = 270; // Approximate available width in mm for A4 landscape
+      const defaultColumnWidth = Math.floor(availableWidth / visibleColumnsData.length);
+
+      // Create column styles object
+      const columnStyles = {};
+      visibleColumnsData.forEach((_, index) => {
+        columnStyles[index] = { cellWidth: defaultColumnWidth };
+      });
 
       // Add table to document using the imported autoTable function
       autoTable(doc, {
@@ -307,13 +380,7 @@ const LeadReport = () => {
           overflow: 'linebreak',
           halign: 'left'
         },
-        columnStyles: {
-          0: { cellWidth: 25 },  // Lead ID
-          1: { cellWidth: 50 },  // Business Name
-          2: { cellWidth: 70 },  // Business Email
-          3: { cellWidth: 40 },  // Phone Number
-          4: { cellWidth: 30 }   // Status
-        }
+        columnStyles: columnStyles
       });
 
       // Save the PDF with date in filename
@@ -334,26 +401,50 @@ const LeadReport = () => {
         }
       }
 
+      // Get visible columns and their data
+      const visibleColumnsData = allColumns.filter(column => visibleColumns.includes(column.id));
+
       // Prepare data for Excel
-      const excelData = filteredLeads.map(lead => ({
-        'Lead ID': lead.id,
-        'Business Name': lead.businessName,
-        'Business Email': lead.businessEmail,
-        'Phone Number': lead.phoneNumber,
-        'Status': lead.status
-      }));
+      const excelData = filteredLeads.map(lead => {
+        const rowData = {};
+
+        // Add data for each visible column
+        visibleColumnsData.forEach(column => {
+          // Handle special columns with custom rendering
+          if (column.id === 'leadId') rowData[column.label] = lead.id;
+          else if (column.id === 'date') rowData[column.label] = new Date().toLocaleDateString();
+          else if (column.id === 'businessName') rowData[column.label] = lead.businessName;
+          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.status;
+          else if (column.id === 'contactCard') rowData[column.label] = 'Contact Card';
+          else if (column.id === 'bookACall') rowData[column.label] = 'Book A Call';
+          else if (column.id === 'employee') rowData[column.label] = 'John Doe';
+          else if (column.id === 'salesAgent') rowData[column.label] = 'Sarah Smith';
+          else if (column.id === 'salesSupport') rowData[column.label] = 'Mike Johnson';
+          else if (column.id === 'affiliateSource') rowData[column.label] = 'Website';
+          else if (column.id === 'leadCampaign') rowData[column.label] = 'Email Campaign';
+          else if (column.id === 'w2Count') rowData[column.label] = Math.floor(Math.random() * 10) + 1;
+          else if (column.id === 'actions') rowData[column.label] = 'Actions';
+          else rowData[column.label] = '';
+        });
+
+        return rowData;
+      });
 
       // Create a worksheet
       const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-      // Set column widths
-      const wscols = [
-        { wch: 10 }, // Lead ID
-        { wch: 25 }, // Business Name
-        { wch: 30 }, // Business Email
-        { wch: 15 }, // Phone Number
-        { wch: 12 }  // Status
-      ];
+      // Set column widths - default 15 characters for all columns
+      const wscols = visibleColumnsData.map(() => ({ wch: 15 }));
+
+      // Adjust specific column widths based on content type
+      visibleColumnsData.forEach((column, index) => {
+        if (column.id === 'leadId') wscols[index] = { wch: 10 };
+        else if (column.id === 'businessName') wscols[index] = { wch: 25 };
+        else if (column.id === 'date') wscols[index] = { wch: 12 };
+        else if (column.id === 'taxNowStatus') wscols[index] = { wch: 15 };
+        else if (column.id === 'actions') wscols[index] = { wch: 20 };
+      });
+
       worksheet['!cols'] = wscols;
 
       // Add header styling
@@ -582,7 +673,7 @@ const LeadReport = () => {
                 <div className="mb-4">
                   <div className="row align-items-center">
                     {/* Search box */}
-                    <div className="col-md-4">
+                    <div className="col-md-3">
                       <div className="input-group input-group-sm">
                         <input
                           type="text"
@@ -597,13 +688,35 @@ const LeadReport = () => {
                       </div>
                     </div>
 
-                    {/* Rows per page */}
-                    <div className="col-md-4">
+                    {/* Status filter */}
+                    <div className="col-md-3">
                       <div className="d-flex align-items-center">
-                        <span className="me-2">Rows per page:</span>
+                        <span className="me-2">Status:</span>
                         <select
                           className="form-select form-select-sm"
-                          style={{ width: '80px' }}
+                          value={filterStatus}
+                          onChange={(e) => {
+                            setFilterStatus(e.target.value);
+                            setCurrentPage(1);
+                          }}
+                        >
+                          <option value="">All</option>
+                          <option value="New">New</option>
+                          <option value="Contacted">Contacted</option>
+                          <option value="Qualified">Qualified</option>
+                          <option value="Active">Active</option>
+                          <option value="Converted">Converted</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Rows per page */}
+                    <div className="col-md-2">
+                      <div className="d-flex align-items-center">
+                        <span className="me-2">Rows:</span>
+                        <select
+                          className="form-select form-select-sm"
+                          style={{ width: '70px' }}
                           value={itemsPerPage}
                           onChange={(e) => {
                             setItemsPerPage(Number(e.target.value));
@@ -622,6 +735,14 @@ const LeadReport = () => {
                     {/* Export buttons and Column Selector */}
                     <div className="col-md-4">
                       <div className="d-flex justify-content-end">
+                        <button
+                          className="btn btn-sm btn-outline-primary me-2"
+                          onClick={fetchLeads}
+                          disabled={loading}
+                          title="Refresh Data"
+                        >
+                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
+                        </button>
                         <div className="dropdown me-2">
                           <button
                             className="column-selector-btn"
@@ -687,205 +808,235 @@ const LeadReport = () => {
                   </div>
                 </div>
 
-                <div className="table-responsive">
-                  <table className="table table-bordered table-hover table-striped">
-                    <thead>
-                      <tr>
-                        {allColumns.map(column => {
-                          // Only render columns that are in the visibleColumns array
-                          if (visibleColumns.includes(column.id)) {
-                            return column.sortable ? (
-                              <SortableTableHeader
-                                key={column.id}
-                                label={column.label}
-                                field={column.field}
-                                currentSortField={sortField}
-                                currentSortDirection={sortDirection}
-                                onSort={handleSort}
-                              />
-                            ) : (
-                              <th key={column.id}>{column.label}</th>
-                            );
-                          }
-                          return null;
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentLeads.length > 0 ? (
-                        currentLeads.map(lead => (
-                          <tr key={lead.id}>
-                            {visibleColumns.includes('leadId') && <td>{lead.id}</td>}
-                            {visibleColumns.includes('date') && <td>{new Date().toLocaleDateString()}</td>}
-                            {visibleColumns.includes('businessName') && <td>{lead.businessName}</td>}
-                            {visibleColumns.includes('contactCard') && (
-                              <td>
-                                <button
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => handleView(lead)}
-                                  title="View Contact Card"
-                                >
-                                  <i className="fas fa-address-card"></i>
-                                </button>
-                              </td>
-                            )}
-                            {visibleColumns.includes('affiliateSource') && <td>Website</td>}
-                            {visibleColumns.includes('employee') && <td>John Doe</td>}
-                            {visibleColumns.includes('salesAgent') && <td>Sarah Smith</td>}
-                            {visibleColumns.includes('salesSupport') && <td>Mike Johnson</td>}
-                            {visibleColumns.includes('taxNowStatus') && (
-                              <td>
-                                <span className={`badge ${
-                                  lead.status === 'New' ? 'bg-info' :
-                                  lead.status === 'Contacted' ? 'bg-primary' :
-                                  lead.status === 'Qualified' ? 'bg-warning' :
-                                  lead.status === 'Active' ? 'bg-success' :
-                                  'bg-secondary'
-                                }`}>
-                                  {lead.status}
-                                </span>
-                              </td>
-                            )}
-                            {visibleColumns.includes('leadCampaign') && <td>Email Campaign</td>}
-                            {visibleColumns.includes('w2Count') && <td>{Math.floor(Math.random() * 10) + 1}</td>}
-                            {visibleColumns.includes('bookACall') && (
-                              <td>
-                                <button
-                                  className="btn btn-sm btn-outline-primary"
-                                  onClick={() => handleBookCall(lead)}
-                                  title="Book A Call"
-                                >
-                                  <i className="fas fa-calendar-alt"></i>
-                                </button>
-                              </td>
-                            )}
-                            {visibleColumns.includes('actions') && (
-                              <td>
-                                <div className="d-flex justify-content-center" style={{ gap: '2px' }}>
+                {/* Loading indicator */}
+                {loading && (
+                  <div className="text-center my-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Loading leads data...</p>
+                  </div>
+                )}
+
+                {/* Error message */}
+                {error && !loading && (
+                  <div className="alert alert-warning" role="alert">
+                    <i className="fas fa-exclamation-triangle me-2"></i>
+                    {error}
+                    <button
+                      className="btn btn-sm btn-outline-primary ms-3"
+                      onClick={fetchLeads}
+                    >
+                      <i className="fas fa-sync-alt me-1"></i> Retry
+                    </button>
+                  </div>
+                )}
+
+                {/* Data table */}
+                {!loading && (
+                  <div className="table-responsive">
+                    <table className="table table-bordered table-hover table-striped">
+                      <thead>
+                        <tr>
+                          {allColumns.map(column => {
+                            // Only render columns that are in the visibleColumns array
+                            if (visibleColumns.includes(column.id)) {
+                              return column.sortable ? (
+                                <SortableTableHeader
+                                  key={column.id}
+                                  label={column.label}
+                                  field={column.field}
+                                  currentSortField={sortField}
+                                  currentSortDirection={sortDirection}
+                                  onSort={handleSort}
+                                />
+                              ) : (
+                                <th key={column.id}>{column.label}</th>
+                              );
+                            }
+                            return null;
+                          })}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentLeads.length > 0 ? (
+                          currentLeads.map(lead => (
+                            <tr key={lead.id}>
+                              {visibleColumns.includes('leadId') && <td>{lead.id}</td>}
+                              {visibleColumns.includes('date') && <td>{lead.date || new Date().toLocaleDateString()}</td>}
+                              {visibleColumns.includes('businessName') && <td>{lead.businessName}</td>}
+                              {visibleColumns.includes('contactCard') && (
+                                <td>
                                   <button
                                     className="btn btn-sm btn-outline-primary"
-                                    title="Call"
-                                    onClick={() => handleCall(lead.phoneNumber, lead.businessName)}
+                                    onClick={() => handleView(lead)}
+                                    title="View Contact Card"
                                   >
-                                    <i className="fas fa-phone"></i>
+                                    <i className="fas fa-address-card"></i>
                                   </button>
+                                </td>
+                              )}
+                              {visibleColumns.includes('affiliateSource') && <td>{lead.affiliateSource || 'Website'}</td>}
+                              {visibleColumns.includes('employee') && <td>{lead.employee || 'John Doe'}</td>}
+                              {visibleColumns.includes('salesAgent') && <td>{lead.salesAgent || 'Sarah Smith'}</td>}
+                              {visibleColumns.includes('salesSupport') && <td>{lead.salesSupport || 'Mike Johnson'}</td>}
+                              {visibleColumns.includes('taxNowStatus') && (
+                                <td>
+                                  <span className={`badge ${
+                                    lead.status === 'New' ? 'bg-info' :
+                                    lead.status === 'Contacted' ? 'bg-primary' :
+                                    lead.status === 'Qualified' ? 'bg-warning' :
+                                    lead.status === 'Active' ? 'bg-success' :
+                                    'bg-secondary'
+                                  }`}>
+                                    {lead.status}
+                                  </span>
+                                </td>
+                              )}
+                              {visibleColumns.includes('leadCampaign') && <td>{lead.leadCampaign || 'Email Campaign'}</td>}
+                              {visibleColumns.includes('w2Count') && <td>{lead.w2Count || '0'}</td>}
+                              {visibleColumns.includes('bookACall') && (
+                                <td>
                                   <button
-                                    className="btn btn-sm btn-outline-info"
-                                    title="Email"
-                                    onClick={() => handleEmail(lead.businessEmail, lead.businessName)}
+                                    className="btn btn-sm btn-outline-primary"
+                                    onClick={() => handleBookCall(lead)}
+                                    title="Book A Call"
                                   >
-                                    <i className="fas fa-envelope"></i>
+                                    <i className="fas fa-calendar-alt"></i>
                                   </button>
-                                  <button
-                                    className="btn btn-sm btn-outline-success"
-                                    title="Message"
-                                    onClick={() => handleMessage(lead.id, lead.businessName)}
-                                  >
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </div>
-                              </td>
-                            )}
+                                </td>
+                              )}
+                              {visibleColumns.includes('actions') && (
+                                <td>
+                                  <div className="d-flex justify-content-center" style={{ gap: '2px' }}>
+                                    <button
+                                      className="btn btn-sm btn-outline-primary"
+                                      title="Call"
+                                      onClick={() => handleCall(lead.phoneNumber, lead.businessName)}
+                                    >
+                                      <i className="fas fa-phone"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-info"
+                                      title="Email"
+                                      onClick={() => handleEmail(lead.businessEmail, lead.businessName)}
+                                    >
+                                      <i className="fas fa-envelope"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-outline-success"
+                                      title="Message"
+                                      onClick={() => handleMessage(lead.id, lead.businessName)}
+                                    >
+                                      <i className="fas fa-comment"></i>
+                                    </button>
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={visibleColumns.length} className="text-center">No leads found</td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={visibleColumns.length} className="text-center">No leads found</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="row mt-3">
-                  <div className="col-md-6">
-                    <p>Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} leads (filtered from {leads.length} total)</p>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="col-md-6">
-                    <nav aria-label="Lead report pagination">
-                      <ul className="pagination justify-content-end">
-                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                          <button
-                            className="page-link"
-                            onClick={goToPreviousPage}
-                            disabled={currentPage === 1}
-                          >
-                            Previous
-                          </button>
-                        </li>
+                )}
 
-                        {/* First page */}
-                        {currentPage > 3 && (
-                          <li className="page-item">
-                            <button className="page-link" onClick={() => paginate(1)}>1</button>
-                          </li>
-                        )}
-
-                        {/* Ellipsis */}
-                        {currentPage > 4 && (
-                          <li className="page-item disabled">
-                            <span className="page-link">...</span>
-                          </li>
-                        )}
-
-                        {/* Page numbers */}
-                        {[...Array(totalPages)].map((_, i) => {
-                          const pageNumber = i + 1;
-                          // Show current page and 1 page before and after
-                          if (
-                            pageNumber === currentPage ||
-                            pageNumber === currentPage - 1 ||
-                            pageNumber === currentPage + 1
-                          ) {
-                            return (
-                              <li
-                                key={pageNumber}
-                                className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                              >
-                                <button
-                                  className="page-link"
-                                  onClick={() => paginate(pageNumber)}
-                                >
-                                  {pageNumber}
-                                </button>
-                              </li>
-                            );
-                          }
-                          return null;
-                        })}
-
-                        {/* Ellipsis */}
-                        {currentPage < totalPages - 3 && (
-                          <li className="page-item disabled">
-                            <span className="page-link">...</span>
-                          </li>
-                        )}
-
-                        {/* Last page */}
-                        {currentPage < totalPages - 2 && (
-                          <li className="page-item">
+                {/* Pagination */}
+                {!loading && (
+                  <div className="row mt-3">
+                    <div className="col-md-6">
+                      <p>Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} leads (filtered from {leads.length} total)</p>
+                    </div>
+                    <div className="col-md-6">
+                      <nav aria-label="Lead report pagination">
+                        <ul className="pagination justify-content-end">
+                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                             <button
                               className="page-link"
-                              onClick={() => paginate(totalPages)}
+                              onClick={goToPreviousPage}
+                              disabled={currentPage === 1}
                             >
-                              {totalPages}
+                              Previous
                             </button>
                           </li>
-                        )}
 
-                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                          <button
-                            className="page-link"
-                            onClick={goToNextPage}
-                            disabled={currentPage === totalPages}
-                          >
-                            Next
-                          </button>
-                        </li>
-                      </ul>
-                    </nav>
+                          {/* First page */}
+                          {currentPage > 3 && (
+                            <li className="page-item">
+                              <button className="page-link" onClick={() => paginate(1)}>1</button>
+                            </li>
+                          )}
+
+                          {/* Ellipsis */}
+                          {currentPage > 4 && (
+                            <li className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          )}
+
+                          {/* Page numbers */}
+                          {[...Array(totalPages)].map((_, i) => {
+                            const pageNumber = i + 1;
+                            // Show current page and 1 page before and after
+                            if (
+                              pageNumber === currentPage ||
+                              pageNumber === currentPage - 1 ||
+                              pageNumber === currentPage + 1
+                            ) {
+                              return (
+                                <li
+                                  key={pageNumber}
+                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
+                                >
+                                  <button
+                                    className="page-link"
+                                    onClick={() => paginate(pageNumber)}
+                                  >
+                                    {pageNumber}
+                                  </button>
+                                </li>
+                              );
+                            }
+                            return null;
+                          })}
+
+                          {/* Ellipsis */}
+                          {currentPage < totalPages - 3 && (
+                            <li className="page-item disabled">
+                              <span className="page-link">...</span>
+                            </li>
+                          )}
+
+                          {/* Last page */}
+                          {currentPage < totalPages - 2 && (
+                            <li className="page-item">
+                              <button
+                                className="page-link"
+                                onClick={() => paginate(totalPages)}
+                              >
+                                {totalPages}
+                              </button>
+                            </li>
+                          )}
+
+                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                            <button
+                              className="page-link"
+                              onClick={goToNextPage}
+                              disabled={currentPage === totalPages}
+                            >
+                              Next
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
