@@ -160,7 +160,8 @@ const LeadReport = () => {
         { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
         { id: 'category', label: 'Category', field: 'category', sortable: false },
         { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false },
-        { id: 'notes', label: 'Notes', field: 'notes', sortable: false }
+        { id: 'notes', label: 'Notes', field: 'notes', sortable: false },
+        { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
       ]
     }
   ];
@@ -168,8 +169,8 @@ const LeadReport = () => {
   // Flatten all columns for easier access
   const allColumns = columnGroups.flatMap(group => group.columns);
 
-  // Default visible columns (first 5)
-  const defaultVisibleColumns = ['leadId', 'businessName', 'taxNowStatus', 'businessEmail', 'businessPhone'];
+  // Default visible columns
+  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'businessEmail', 'businessPhone', 'notes', 'bookACall'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -322,6 +323,7 @@ const LeadReport = () => {
         if (column.id === 'category') return lead.category || '';
         if (column.id === 'leadGroup') return lead.lead_group || '';
         if (column.id === 'notes') return 'Notes';
+        if (column.id === 'bookACall') return 'https://calendly.com/occams-erc-experts/rmj';
 
         // Default case
         return '';
@@ -406,6 +408,7 @@ const LeadReport = () => {
           if (column.id === 'category') return lead.category || '';
           if (column.id === 'leadGroup') return lead.lead_group || '';
           if (column.id === 'notes') return 'Notes';
+          if (column.id === 'bookACall') return 'https://calendly.com/occams-erc-experts/rmj';
 
           // Default case
           return '';
@@ -485,6 +488,7 @@ const LeadReport = () => {
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
           else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
           else if (column.id === 'notes') rowData[column.label] = 'Notes';
+          else if (column.id === 'bookACall') rowData[column.label] = 'https://calendly.com/occams-erc-experts/rmj';
           else rowData[column.label] = '';
         });
 
@@ -541,97 +545,6 @@ const LeadReport = () => {
   };
 
   // Handle action buttons
-  const handleCall = (phoneNumber, businessName) => {
-    Swal.fire({
-      title: 'Calling',
-      text: `Calling ${businessName} at ${phoneNumber}`,
-      icon: 'info',
-      showCancelButton: true,
-      confirmButtonText: 'Call',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Call Initiated', `Call to ${phoneNumber} has been initiated`, 'success');
-      }
-    });
-  };
-
-  const handleEmail = (email, businessName) => {
-    Swal.fire({
-      title: 'Compose Email',
-      html: `
-        <div class="form-group text-start mb-3">
-          <label class="small">To:</label>
-          <input type="text" class="form-control" value="${email}" readonly>
-        </div>
-        <div class="form-group text-start mb-3">
-          <label class="small">Subject:</label>
-          <input type="text" class="form-control" id="email-subject" placeholder="Enter subject">
-        </div>
-        <div class="form-group text-start">
-          <label class="small">Message:</label>
-          <textarea class="form-control" id="email-message" rows="5" placeholder="Type your message here..."></textarea>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Send Email',
-      cancelButtonText: 'Cancel',
-      preConfirm: () => {
-        const subject = document.getElementById('email-subject').value;
-        const message = document.getElementById('email-message').value;
-        if (!subject || !message) {
-          Swal.showValidationMessage('Please fill in all fields');
-          return false;
-        }
-        return { subject, message };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Email Sent', `Email has been sent to ${businessName} at ${email}`, 'success');
-      }
-    });
-  };
-
-  const handleMessage = (id, businessName) => {
-    Swal.fire({
-      title: 'Send Message',
-      html: `
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <div class="form-group text-start">
-              <label class="small">Lead ID:</label>
-              <input type="text" class="form-control" value="${id}" readonly>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group text-start">
-              <label class="small">Business:</label>
-              <input type="text" class="form-control" value="${businessName}" readonly>
-            </div>
-          </div>
-        </div>
-        <div class="form-group text-start">
-          <label class="small">Message:</label>
-          <textarea class="form-control" id="message-text" rows="5" placeholder="Type your message here..."></textarea>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Send Message',
-      cancelButtonText: 'Cancel',
-      preConfirm: () => {
-        const message = document.getElementById('message-text').value;
-        if (!message) {
-          Swal.showValidationMessage('Please enter a message');
-          return false;
-        }
-        return { message };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Message Sent', `Message has been sent to ${businessName}`, 'success');
-      }
-    });
-  };
 
   const handleView = (lead) => {
     // Only show specific fields in the contact card
@@ -682,46 +595,7 @@ const LeadReport = () => {
     });
   };
 
-  const handleBookCall = (lead) => {
-    const businessName = lead.name || lead.business_name || lead.business_legal_name || 'Unknown Business';
 
-    Swal.fire({
-      title: 'Book a Call',
-      html: `
-        <div class="text-start">
-          <p>Schedule a call with <strong>${businessName}</strong></p>
-          <div class="form-group mb-3">
-            <label class="small">Date:</label>
-            <input type="date" class="form-control" id="call-date" min="${new Date().toISOString().split('T')[0]}">
-          </div>
-          <div class="form-group mb-3">
-            <label class="small">Time:</label>
-            <input type="time" class="form-control" id="call-time">
-          </div>
-          <div class="form-group">
-            <label class="small">Notes:</label>
-            <textarea class="form-control" id="call-notes" rows="3" placeholder="Add notes about the call..."></textarea>
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Schedule',
-      cancelButtonText: 'Cancel',
-      preConfirm: () => {
-        const date = document.getElementById('call-date').value;
-        const time = document.getElementById('call-time').value;
-        if (!date || !time) {
-          Swal.showValidationMessage('Please select date and time');
-          return false;
-        }
-        return { date, time, notes: document.getElementById('call-notes').value };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire('Call Scheduled', `Call with ${businessName} scheduled for ${result.value.date} at ${result.value.time}`, 'success');
-      }
-    });
-  };
 
   // Handle viewing notes
   const handleViewNotes = (lead) => {
@@ -1398,6 +1272,22 @@ const LeadReport = () => {
                                           >
                                             <i className="fas fa-plus"></i>
                                           </button>
+                                        </div>
+                                      </td>
+                                    );
+                                  case 'bookACall':
+                                    return (
+                                      <td key={column.id}>
+                                        <div className="d-flex justify-content-center">
+                                          <a
+                                            href="https://calendly.com/occams-erc-experts/rmj"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-sm btn-outline-primary"
+                                            title="Book a Call"
+                                          >
+                                            <i className="fas fa-calendar-alt"></i>
+                                          </a>
                                         </div>
                                       </td>
                                     );
