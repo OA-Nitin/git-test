@@ -295,8 +295,11 @@ const LeadReport = () => {
       }
     }
 
-    // Get visible columns and their data
-    const visibleColumnsData = allColumns.filter(column => visibleColumns.includes(column.id));
+    // Get visible columns and their data, excluding action columns that shouldn't be exported
+    const columnsToExclude = ['bookACall', 'contactCard', 'notes'];
+    const visibleColumnsData = allColumns.filter(column =>
+      visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
+    );
 
     // Create headers from visible columns
     const headers = visibleColumnsData.map(column => column.label);
@@ -314,7 +317,6 @@ const LeadReport = () => {
         if (column.id === 'taxNowStatus') return lead.lead_status || '';
         if (column.id === 'businessEmail') return lead.business_email || '';
         if (column.id === 'businessPhone') return lead.business_phone || '';
-        if (column.id === 'contactCard') return 'Contact Card';
         if (column.id === 'employee') return lead.employee_id || '';
         if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
         if (column.id === 'salesSupport') return lead.internal_sales_support || '';
@@ -322,8 +324,6 @@ const LeadReport = () => {
         if (column.id === 'leadCampaign') return lead.campaign || '';
         if (column.id === 'category') return lead.category || '';
         if (column.id === 'leadGroup') return lead.lead_group || '';
-        if (column.id === 'notes') return 'Notes';
-        if (column.id === 'bookACall') return 'https://calendly.com/occams-erc-experts/rmj';
 
         // Default case
         return '';
@@ -356,8 +356,11 @@ const LeadReport = () => {
         }
       }
 
-      // Get visible columns and their data
-      const visibleColumnsData = allColumns.filter(column => visibleColumns.includes(column.id));
+      // Get visible columns and their data, excluding action columns that shouldn't be exported
+      const columnsToExclude = ['bookACall', 'contactCard', 'notes'];
+      const visibleColumnsData = allColumns.filter(column =>
+        visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
+      );
 
       // Initialize jsPDF with landscape orientation
       const doc = new jsPDF({
@@ -399,7 +402,6 @@ const LeadReport = () => {
           if (column.id === 'taxNowStatus') return lead.lead_status || '';
           if (column.id === 'businessEmail') return lead.business_email || '';
           if (column.id === 'businessPhone') return lead.business_phone || '';
-          if (column.id === 'contactCard') return 'Contact Card';
           if (column.id === 'employee') return lead.employee_id || '';
           if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
           if (column.id === 'salesSupport') return lead.internal_sales_support || '';
@@ -407,8 +409,6 @@ const LeadReport = () => {
           if (column.id === 'leadCampaign') return lead.campaign || '';
           if (column.id === 'category') return lead.category || '';
           if (column.id === 'leadGroup') return lead.lead_group || '';
-          if (column.id === 'notes') return 'Notes';
-          if (column.id === 'bookACall') return 'https://calendly.com/occams-erc-experts/rmj';
 
           // Default case
           return '';
@@ -463,8 +463,11 @@ const LeadReport = () => {
         }
       }
 
-      // Get visible columns and their data
-      const visibleColumnsData = allColumns.filter(column => visibleColumns.includes(column.id));
+      // Get visible columns and their data, excluding action columns that shouldn't be exported
+      const columnsToExclude = ['bookACall', 'contactCard', 'notes'];
+      const visibleColumnsData = allColumns.filter(column =>
+        visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
+      );
 
       // Prepare data for Excel
       const excelData = filteredLeads.map(lead => {
@@ -479,7 +482,6 @@ const LeadReport = () => {
           else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || '';
           else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
           else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
-          else if (column.id === 'contactCard') rowData[column.label] = 'Contact Card';
           else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
           else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
           else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
@@ -487,8 +489,6 @@ const LeadReport = () => {
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
           else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
-          else if (column.id === 'notes') rowData[column.label] = 'Notes';
-          else if (column.id === 'bookACall') rowData[column.label] = 'https://calendly.com/occams-erc-experts/rmj';
           else rowData[column.label] = '';
         });
 
@@ -1276,11 +1276,19 @@ const LeadReport = () => {
                                       </td>
                                     );
                                   case 'bookACall':
+                                    // Get lead data for Calendly URL parameters
+                                    const businessName = encodeURIComponent(lead.business_legal_name || '');
+                                    const email = encodeURIComponent(lead.business_email || '');
+                                    const phone = encodeURIComponent(lead.business_phone || '');
+
+                                    // Construct Calendly URL with parameters
+                                    const calendlyUrl = `https://calendly.com/occams-erc-experts/rmj?name=${businessName}&email=${email}&a1=${phone}`;
+
                                     return (
                                       <td key={column.id}>
                                         <div className="d-flex justify-content-center">
                                           <a
-                                            href="https://calendly.com/occams-erc-experts/rmj"
+                                            href={calendlyUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="btn btn-sm btn-outline-primary"
