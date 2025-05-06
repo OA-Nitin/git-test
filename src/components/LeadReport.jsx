@@ -116,46 +116,47 @@ const LeadReport = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [sortField, setSortField] = useState('id');
+  const [sortField, setSortField] = useState('lead_id');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  // Define all available columns with groups
+  // Define all available columns with groups based on API data structure
   const columnGroups = [
     {
       id: 'basic',
       title: 'Basic Information',
       columns: [
-        { id: 'leadId', label: 'Lead #', field: 'id', sortable: true },
-        { id: 'date', label: 'Date', field: 'date', sortable: false },
-        { id: 'businessName', label: 'Business Name', field: 'businessName', sortable: true },
-        { id: 'taxNowStatus', label: 'TaxNow Signup Status', field: 'status', sortable: true }
+        { id: 'leadId', label: 'Lead #', field: 'lead_id', sortable: true },
+        { id: 'date', label: 'Date', field: 'created', sortable: false },
+        { id: 'businessName', label: 'Business Name', field: 'business_legal_name', sortable: true },
+        { id: 'taxNowStatus', label: 'Lead Status', field: 'lead_status', sortable: true }
       ]
     },
     {
       id: 'contacts',
       title: 'Contact Information',
       columns: [
-        { id: 'contactCard', label: 'Contact Card', field: 'contactCard', sortable: false },
-        { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
+        { id: 'businessEmail', label: 'Email', field: 'business_email', sortable: false },
+        { id: 'businessPhone', label: 'Phone', field: 'business_phone', sortable: false },
+        { id: 'contactCard', label: 'Contact Card', field: 'contactCard', sortable: false }
       ]
     },
     {
       id: 'team',
       title: 'Team Information',
       columns: [
-        { id: 'employee', label: 'Employee', field: 'employee', sortable: false },
-        { id: 'salesAgent', label: 'Sales Agent', field: 'salesAgent', sortable: false },
-        { id: 'salesSupport', label: 'Sales Support', field: 'salesSupport', sortable: false }
+        { id: 'employee', label: 'Employee', field: 'employee_id', sortable: false },
+        { id: 'salesAgent', label: 'Sales Agent', field: 'internal_sales_agent', sortable: false },
+        { id: 'salesSupport', label: 'Sales Support', field: 'internal_sales_support', sortable: false }
       ]
     },
     {
       id: 'additional',
       title: 'Additional Information',
       columns: [
-        { id: 'affiliateSource', label: 'Affiliate/Source', field: 'affiliateSource', sortable: false },
-        { id: 'leadCampaign', label: 'Lead Campaign', field: 'leadCampaign', sortable: false },
-        { id: 'w2Count', label: 'W2 Count', field: 'w2Count', sortable: false },
-        { id: 'actions', label: 'Actions', field: 'actions', sortable: false }
+        { id: 'affiliateSource', label: 'Source', field: 'source', sortable: false },
+        { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
+        { id: 'category', label: 'Category', field: 'category', sortable: false },
+        { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false }
       ]
     }
   ];
@@ -164,7 +165,7 @@ const LeadReport = () => {
   const allColumns = columnGroups.flatMap(group => group.columns);
 
   // Default visible columns (first 5)
-  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'actions'];
+  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'businessEmail'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -273,22 +274,23 @@ const LeadReport = () => {
     const csvData = filteredLeads.map(lead => {
       return visibleColumnsData.map(column => {
         // Handle special columns with custom rendering
-        if (column.id === 'leadId') return lead.lead_id || lead.id || '';
-        if (column.id === 'date') return lead.created || lead.date || new Date().toLocaleDateString();
+        if (column.id === 'leadId') return lead.lead_id || '';
+        if (column.id === 'date') return lead.created || '';
         if (column.id === 'businessName') {
-          const businessName = lead.business_legal_name || lead.business_name || lead.name || '';
+          const businessName = lead.business_legal_name || '';
           return `"${businessName.replace(/"/g, '""')}"`; // Escape quotes
         }
-        if (column.id === 'taxNowStatus') return lead.lead_status || lead.status || '';
+        if (column.id === 'taxNowStatus') return lead.lead_status || '';
+        if (column.id === 'businessEmail') return lead.business_email || '';
+        if (column.id === 'businessPhone') return lead.business_phone || '';
         if (column.id === 'contactCard') return 'Contact Card';
-        if (column.id === 'bookACall') return 'Book A Call';
-        if (column.id === 'employee') return lead.employee_id || lead.employee || '';
-        if (column.id === 'salesAgent') return lead.internal_sales_agent || lead.sales_agent || '';
-        if (column.id === 'salesSupport') return lead.internal_sales_support || lead.sales_support || '';
-        if (column.id === 'affiliateSource') return lead.source || lead.affiliate_source || '';
-        if (column.id === 'leadCampaign') return lead.campaign || lead.lead_campaign || '';
-        if (column.id === 'w2Count') return lead.w2_count || '0';
-        if (column.id === 'actions') return 'Actions';
+        if (column.id === 'employee') return lead.employee_id || '';
+        if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
+        if (column.id === 'salesSupport') return lead.internal_sales_support || '';
+        if (column.id === 'affiliateSource') return lead.source || '';
+        if (column.id === 'leadCampaign') return lead.campaign || '';
+        if (column.id === 'category') return lead.category || '';
+        if (column.id === 'leadGroup') return lead.lead_group || '';
 
         // Default case
         return '';
@@ -352,19 +354,20 @@ const LeadReport = () => {
       const tableRows = filteredLeads.map(lead => {
         return visibleColumnsData.map(column => {
           // Handle special columns with custom rendering
-          if (column.id === 'leadId') return lead.lead_id || lead.id || '';
-          if (column.id === 'date') return lead.created || lead.date || new Date().toLocaleDateString();
-          if (column.id === 'businessName') return lead.business_legal_name || lead.business_name || lead.name || '';
-          if (column.id === 'taxNowStatus') return lead.lead_status || lead.status || '';
+          if (column.id === 'leadId') return lead.lead_id || '';
+          if (column.id === 'date') return lead.created || '';
+          if (column.id === 'businessName') return lead.business_legal_name || '';
+          if (column.id === 'taxNowStatus') return lead.lead_status || '';
+          if (column.id === 'businessEmail') return lead.business_email || '';
+          if (column.id === 'businessPhone') return lead.business_phone || '';
           if (column.id === 'contactCard') return 'Contact Card';
-          if (column.id === 'bookACall') return 'Book A Call';
-          if (column.id === 'employee') return lead.employee_id || lead.employee || '';
-          if (column.id === 'salesAgent') return lead.internal_sales_agent || lead.sales_agent || '';
-          if (column.id === 'salesSupport') return lead.internal_sales_support || lead.sales_support || '';
-          if (column.id === 'affiliateSource') return lead.source || lead.affiliate_source || '';
-          if (column.id === 'leadCampaign') return lead.campaign || lead.lead_campaign || '';
-          if (column.id === 'w2Count') return lead.w2_count || '0';
-          if (column.id === 'actions') return 'Actions';
+          if (column.id === 'employee') return lead.employee_id || '';
+          if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
+          if (column.id === 'salesSupport') return lead.internal_sales_support || '';
+          if (column.id === 'affiliateSource') return lead.source || '';
+          if (column.id === 'leadCampaign') return lead.campaign || '';
+          if (column.id === 'category') return lead.category || '';
+          if (column.id === 'leadGroup') return lead.lead_group || '';
 
           // Default case
           return '';
@@ -429,19 +432,20 @@ const LeadReport = () => {
         // Add data for each visible column
         visibleColumnsData.forEach(column => {
           // Handle special columns with custom rendering
-          if (column.id === 'leadId') rowData[column.label] = lead.lead_id || lead.id || '';
-          else if (column.id === 'date') rowData[column.label] = lead.created || lead.date || new Date().toLocaleDateString();
-          else if (column.id === 'businessName') rowData[column.label] = lead.business_legal_name || lead.business_name || lead.name || '';
-          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || lead.status || '';
+          if (column.id === 'leadId') rowData[column.label] = lead.lead_id || '';
+          else if (column.id === 'date') rowData[column.label] = lead.created || '';
+          else if (column.id === 'businessName') rowData[column.label] = lead.business_legal_name || '';
+          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || '';
+          else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
+          else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
           else if (column.id === 'contactCard') rowData[column.label] = 'Contact Card';
-          else if (column.id === 'bookACall') rowData[column.label] = 'Book A Call';
-          else if (column.id === 'employee') rowData[column.label] = lead.employee_id || lead.employee || '';
-          else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || lead.sales_agent || '';
-          else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || lead.sales_support || '';
-          else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || lead.affiliate_source || '';
-          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || lead.lead_campaign || '';
-          else if (column.id === 'w2Count') rowData[column.label] = lead.w2_count || '0';
-          else if (column.id === 'actions') rowData[column.label] = 'Actions';
+          else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
+          else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
+          else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
+          else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
+          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
+          else if (column.id === 'category') rowData[column.label] = lead.category || '';
+          else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
           else rowData[column.label] = '';
         });
 
@@ -900,10 +904,12 @@ const LeadReport = () => {
                       <tbody>
                         {currentLeads.length > 0 ? (
                           currentLeads.map((lead, index) => (
-                            <tr key={lead.id || lead.lead_id || index}>
-                              {visibleColumns.includes('leadId') && <td>{lead.id || lead.lead_id || ''}</td>}
-                              {visibleColumns.includes('date') && <td>{lead.date || lead.created || new Date().toLocaleDateString()}</td>}
-                              {visibleColumns.includes('businessName') && <td>{lead.name || lead.business_name || lead.business_legal_name || 'Unknown'}</td>}
+                            <tr key={lead.lead_id || lead.id || index}>
+                              {visibleColumns.includes('leadId') && <td>{lead.lead_id || ''}</td>}
+                              {visibleColumns.includes('date') && <td>{lead.created || ''}</td>}
+                              {visibleColumns.includes('businessName') && <td>{lead.business_legal_name || ''}</td>}
+                              {visibleColumns.includes('businessEmail') && <td>{lead.business_email || ''}</td>}
+                              {visibleColumns.includes('businessPhone') && <td>{lead.business_phone || ''}</td>}
                               {visibleColumns.includes('contactCard') && (
                                 <td>
                                   <button
@@ -915,63 +921,26 @@ const LeadReport = () => {
                                   </button>
                                 </td>
                               )}
-                              {visibleColumns.includes('affiliateSource') && <td>{lead.source || lead.affiliate_source || ''}</td>}
-                              {visibleColumns.includes('employee') && <td>{lead.employee || lead.employee_id || ''}</td>}
-                              {visibleColumns.includes('salesAgent') && <td>{lead.sales_agent || lead.internal_sales_agent || ''}</td>}
-                              {visibleColumns.includes('salesSupport') && <td>{lead.sales_support || lead.internal_sales_support || ''}</td>}
+                              {visibleColumns.includes('affiliateSource') && <td>{lead.source || ''}</td>}
+                              {visibleColumns.includes('employee') && <td>{lead.employee_id || ''}</td>}
+                              {visibleColumns.includes('salesAgent') && <td>{lead.internal_sales_agent || ''}</td>}
+                              {visibleColumns.includes('salesSupport') && <td>{lead.internal_sales_support || ''}</td>}
                               {visibleColumns.includes('taxNowStatus') && (
                                 <td>
                                   <span className={`badge ${
-                                    (lead.status || lead.lead_status) === 'New' ? 'bg-info' :
-                                    (lead.status || lead.lead_status) === 'Contacted' ? 'bg-primary' :
-                                    (lead.status || lead.lead_status) === 'Qualified' ? 'bg-warning' :
-                                    (lead.status || lead.lead_status) === 'Active' ? 'bg-success' :
+                                    lead.lead_status === 'New' ? 'bg-info' :
+                                    lead.lead_status === 'Contacted' ? 'bg-primary' :
+                                    lead.lead_status === 'Qualified' ? 'bg-warning' :
+                                    lead.lead_status === 'Active' ? 'bg-success' :
                                     'bg-secondary'
                                   }`}>
-                                    {lead.status || lead.lead_status || ''}
+                                    {lead.lead_status || ''}
                                   </span>
                                 </td>
                               )}
-                              {visibleColumns.includes('leadCampaign') && <td>{lead.campaign || lead.lead_campaign || ''}</td>}
-                              {visibleColumns.includes('w2Count') && <td>{lead.w2_count || ''}</td>}
-                              {visibleColumns.includes('bookACall') && (
-                                <td>
-                                  <button
-                                    className="btn btn-sm btn-outline-primary"
-                                    onClick={() => handleBookCall(lead)}
-                                    title="Book A Call"
-                                  >
-                                    <i className="fas fa-calendar-alt"></i>
-                                  </button>
-                                </td>
-                              )}
-                              {visibleColumns.includes('actions') && (
-                                <td>
-                                  <div className="d-flex justify-content-center" style={{ gap: '2px' }}>
-                                    <button
-                                      className="btn btn-sm btn-outline-primary"
-                                      title="Call"
-                                      onClick={() => handleCall(lead.phone || lead.business_phone || '', lead.name || lead.business_name || '')}
-                                    >
-                                      <i className="fas fa-phone"></i>
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-outline-info"
-                                      title="Email"
-                                      onClick={() => handleEmail(lead.email || lead.business_email || '', lead.name || lead.business_name || '')}
-                                    >
-                                      <i className="fas fa-envelope"></i>
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-outline-success"
-                                      title="Message"
-                                      onClick={() => handleMessage(lead.id || lead.lead_id || '', lead.name || lead.business_name || '')}
-                                    >
-                                      <i className="fas fa-comment"></i>
-                                    </button>
-                                  </div>
-                                </td>
-                              )}
+                              {visibleColumns.includes('leadCampaign') && <td>{lead.campaign || ''}</td>}
+                              {visibleColumns.includes('category') && <td>{lead.category || ''}</td>}
+                              {visibleColumns.includes('leadGroup') && <td>{lead.lead_group || ''}</td>}
                             </tr>
                           ))
                         ) : (

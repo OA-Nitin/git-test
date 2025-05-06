@@ -15,18 +15,18 @@ export const sortArrayByKey = (array, key, direction) => {
   return sortedArray.sort((a, b) => {
     // Map field names to possible API field names
     const fieldMappings = {
-      'id': ['id', 'lead_id'],
-      'businessName': ['name', 'business_name', 'business_legal_name'],
-      'businessEmail': ['email', 'business_email'],
-      'phoneNumber': ['phone', 'business_phone'],
-      'status': ['status', 'lead_status'],
-      'date': ['date', 'created'],
-      'employee': ['employee', 'employee_id'],
-      'salesAgent': ['sales_agent', 'internal_sales_agent'],
-      'salesSupport': ['sales_support', 'internal_sales_support'],
-      'affiliateSource': ['source', 'affiliate_source'],
-      'leadCampaign': ['campaign', 'lead_campaign'],
-      'w2Count': ['w2_count']
+      'lead_id': ['lead_id', 'id'],
+      'business_legal_name': ['business_legal_name', 'business_name', 'name'],
+      'business_email': ['business_email', 'email'],
+      'business_phone': ['business_phone', 'phone'],
+      'lead_status': ['lead_status', 'status'],
+      'created': ['created', 'date'],
+      'employee_id': ['employee_id', 'employee'],
+      'internal_sales_agent': ['internal_sales_agent', 'sales_agent'],
+      'internal_sales_support': ['internal_sales_support', 'sales_support'],
+      'source': ['source', 'affiliate_source'],
+      'campaign': ['campaign', 'lead_campaign'],
+      'w2_count': ['w2_count']
     };
 
     // Get the possible field names for the key
