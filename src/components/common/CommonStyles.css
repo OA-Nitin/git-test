@@ -24,7 +24,7 @@
   text-transform: capitalize;
   position: relative;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
 }
 
 /* Table Header Bottom Border */
@@ -82,7 +82,7 @@
 
 /* Center all content in cells */
 .table td, .table th {
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
 }
 
