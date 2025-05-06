@@ -34,17 +34,27 @@ const Login = () => {
                 password,
             })
             .then((response) => {
-                setResponseMessage("Login successful!"); // Handle successful login
-                localStorage.setItem("user", JSON.stringify(response.data));
                 console.log(response.data); // Log the response data
 
-                // Redirect to dashboard after successful login
-                setTimeout(() => {
-                    navigate('/dashboard'); // Redirect to dashboard page
-                }, 1000); // Short delay to show the success message
+                // Check if login was successful based on the success flag
+                if (response.data.success === true) {
+                    setResponseMessage("Login successful!"); // Handle successful login
+                    localStorage.setItem("user", JSON.stringify(response.data));
+
+                    // Redirect to dashboard after successful login
+                    setTimeout(() => {
+                        navigate('/dashboard'); // Redirect to dashboard page
+                    }, 1000); // Short delay to show the success message
+                } else {
+                    // If success is not true, show the error message from the API
+                    setError(response.data.message || "Invalid username or password");
+                }
             })
             .catch((error) => {
-                setError(error.response ? error.response.data.message : error.message); // Handle errors
+                // Handle network or server errors
+                setError(error.response && error.response.data.message
+                    ? error.response.data.message
+                    : "Invalid username or password");
                 // Don't navigate on error
             })
             .finally(() => {
