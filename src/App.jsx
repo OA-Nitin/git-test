@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -18,9 +18,17 @@ import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
 import MyProfile from "./components/MyProfile";
 
-// Route wrapper component - no authentication check
+// Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
-  // Always render the children components without authentication check
+  // Check if user is logged in by looking for user data in localStorage
+  const isAuthenticated = localStorage.getItem('user') !== null;
+
+  // If not authenticated, redirect to login page
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  // If authenticated, render the protected content
   return children;
 };
 
