@@ -42,13 +42,15 @@ const LeadReport = () => {
       console.log('API Response:', response);
 
       // Check if we have a valid response with data
-      if (response && response.data) {
-        // Use the data directly as it comes from the API
-        setLeads(response.data);
-        console.log('API Leads:', response.data);
+      if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
+        // Use the data array from the API response
+        const apiLeads = response.data.data;
+        console.log('API Leads:', apiLeads);
 
-        if (response.data.length === 0) {
-          console.warn('API returned empty data, using fallback data');
+        if (apiLeads.length > 0) {
+          setLeads(apiLeads);
+        } else {
+          console.warn('API returned empty data array, using fallback data');
           setLeads(generateFallbackLeads());
           setError('No leads found in API response. Using sample data instead.');
         }
@@ -271,18 +273,21 @@ const LeadReport = () => {
     const csvData = filteredLeads.map(lead => {
       return visibleColumnsData.map(column => {
         // Handle special columns with custom rendering
-        if (column.id === 'leadId') return lead.id;
-        if (column.id === 'date') return new Date().toLocaleDateString();
-        if (column.id === 'businessName') return `"${lead.businessName.replace(/"/g, '""')}"`; // Escape quotes
-        if (column.id === 'taxNowStatus') return lead.status;
+        if (column.id === 'leadId') return lead.lead_id || lead.id || '';
+        if (column.id === 'date') return lead.created || lead.date || new Date().toLocaleDateString();
+        if (column.id === 'businessName') {
+          const businessName = lead.business_legal_name || lead.business_name || lead.name || '';
+          return `"${businessName.replace(/"/g, '""')}"`; // Escape quotes
+        }
+        if (column.id === 'taxNowStatus') return lead.lead_status || lead.status || '';
         if (column.id === 'contactCard') return 'Contact Card';
         if (column.id === 'bookACall') return 'Book A Call';
-        if (column.id === 'employee') return 'John Doe';
-        if (column.id === 'salesAgent') return 'Sarah Smith';
-        if (column.id === 'salesSupport') return 'Mike Johnson';
-        if (column.id === 'affiliateSource') return 'Website';
-        if (column.id === 'leadCampaign') return 'Email Campaign';
-        if (column.id === 'w2Count') return Math.floor(Math.random() * 10) + 1;
+        if (column.id === 'employee') return lead.employee_id || lead.employee || '';
+        if (column.id === 'salesAgent') return lead.internal_sales_agent || lead.sales_agent || '';
+        if (column.id === 'salesSupport') return lead.internal_sales_support || lead.sales_support || '';
+        if (column.id === 'affiliateSource') return lead.source || lead.affiliate_source || '';
+        if (column.id === 'leadCampaign') return lead.campaign || lead.lead_campaign || '';
+        if (column.id === 'w2Count') return lead.w2_count || '0';
         if (column.id === 'actions') return 'Actions';
 
         // Default case
@@ -347,18 +352,18 @@ const LeadReport = () => {
       const tableRows = filteredLeads.map(lead => {
         return visibleColumnsData.map(column => {
           // Handle special columns with custom rendering
-          if (column.id === 'leadId') return lead.id;
-          if (column.id === 'date') return new Date().toLocaleDateString();
-          if (column.id === 'businessName') return lead.businessName;
-          if (column.id === 'taxNowStatus') return lead.status;
+          if (column.id === 'leadId') return lead.lead_id || lead.id || '';
+          if (column.id === 'date') return lead.created || lead.date || new Date().toLocaleDateString();
+          if (column.id === 'businessName') return lead.business_legal_name || lead.business_name || lead.name || '';
+          if (column.id === 'taxNowStatus') return lead.lead_status || lead.status || '';
           if (column.id === 'contactCard') return 'Contact Card';
           if (column.id === 'bookACall') return 'Book A Call';
-          if (column.id === 'employee') return 'John Doe';
-          if (column.id === 'salesAgent') return 'Sarah Smith';
-          if (column.id === 'salesSupport') return 'Mike Johnson';
-          if (column.id === 'affiliateSource') return 'Website';
-          if (column.id === 'leadCampaign') return 'Email Campaign';
-          if (column.id === 'w2Count') return Math.floor(Math.random() * 10) + 1;
+          if (column.id === 'employee') return lead.employee_id || lead.employee || '';
+          if (column.id === 'salesAgent') return lead.internal_sales_agent || lead.sales_agent || '';
+          if (column.id === 'salesSupport') return lead.internal_sales_support || lead.sales_support || '';
+          if (column.id === 'affiliateSource') return lead.source || lead.affiliate_source || '';
+          if (column.id === 'leadCampaign') return lead.campaign || lead.lead_campaign || '';
+          if (column.id === 'w2Count') return lead.w2_count || '0';
           if (column.id === 'actions') return 'Actions';
 
           // Default case
@@ -424,18 +429,18 @@ const LeadReport = () => {
         // Add data for each visible column
         visibleColumnsData.forEach(column => {
           // Handle special columns with custom rendering
-          if (column.id === 'leadId') rowData[column.label] = lead.id;
-          else if (column.id === 'date') rowData[column.label] = new Date().toLocaleDateString();
-          else if (column.id === 'businessName') rowData[column.label] = lead.businessName;
-          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.status;
+          if (column.id === 'leadId') rowData[column.label] = lead.lead_id || lead.id || '';
+          else if (column.id === 'date') rowData[column.label] = lead.created || lead.date || new Date().toLocaleDateString();
+          else if (column.id === 'businessName') rowData[column.label] = lead.business_legal_name || lead.business_name || lead.name || '';
+          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || lead.status || '';
           else if (column.id === 'contactCard') rowData[column.label] = 'Contact Card';
           else if (column.id === 'bookACall') rowData[column.label] = 'Book A Call';
-          else if (column.id === 'employee') rowData[column.label] = 'John Doe';
-          else if (column.id === 'salesAgent') rowData[column.label] = 'Sarah Smith';
-          else if (column.id === 'salesSupport') rowData[column.label] = 'Mike Johnson';
-          else if (column.id === 'affiliateSource') rowData[column.label] = 'Website';
-          else if (column.id === 'leadCampaign') rowData[column.label] = 'Email Campaign';
-          else if (column.id === 'w2Count') rowData[column.label] = Math.floor(Math.random() * 10) + 1;
+          else if (column.id === 'employee') rowData[column.label] = lead.employee_id || lead.employee || '';
+          else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || lead.sales_agent || '';
+          else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || lead.sales_support || '';
+          else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || lead.affiliate_source || '';
+          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || lead.lead_campaign || '';
+          else if (column.id === 'w2Count') rowData[column.label] = lead.w2_count || '0';
           else if (column.id === 'actions') rowData[column.label] = 'Actions';
           else rowData[column.label] = '';
         });
