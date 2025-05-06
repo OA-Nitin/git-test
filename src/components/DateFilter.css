@@ -1,0 +1,25 @@
+/* Date filter styles */
+.date-filter-container {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.date-filter-container input[type="date"] {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.date-filter-container .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.date-filter-container .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}

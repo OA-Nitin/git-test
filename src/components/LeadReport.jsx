@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
+import './DateFilter.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 
@@ -119,6 +120,7 @@ const LeadReport = () => {
   const [sortField, setSortField] = useState('lead_id');
   const [sortDirection, setSortDirection] = useState('asc');
 
+
   // Define all available columns with groups based on API data structure
   const columnGroups = [
     {
@@ -204,6 +206,8 @@ const LeadReport = () => {
     // Reset to first page when sorting changes
     setCurrentPage(1);
   };
+
+
 
   // Filter leads based on search term and status
   const filteredLeads = leads.filter(lead => {
@@ -340,11 +344,17 @@ const LeadReport = () => {
       // Add generation date and filter info
       doc.setFontSize(10);
       doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 22);
+
+      let yPos = 27;
+
       if (filterStatus) {
-        doc.text(`Filtered by status: ${filterStatus}`, 15, 27);
+        doc.text(`Filtered by status: ${filterStatus}`, 15, yPos);
+        yPos += 5;
       }
+
       if (searchTerm) {
-        doc.text(`Search term: "${searchTerm}"`, 15, filterStatus ? 32 : 27);
+        doc.text(`Search term: "${searchTerm}"`, 15, yPos);
+        yPos += 5;
       }
 
       // Create table data
@@ -388,7 +398,7 @@ const LeadReport = () => {
       autoTable(doc, {
         head: [tableColumn],
         body: tableRows,
-        startY: (filterStatus || searchTerm) ? 35 : 25,
+        startY: yPos,
         theme: 'grid',
         headStyles: {
           fillColor: [41, 128, 185],
@@ -718,7 +728,7 @@ const LeadReport = () => {
                     </div>
 
                     {/* Export buttons and Column Selector */}
-                    <div className="col-md-8">
+                    <div className="col-md-9">
                       <div className="d-flex justify-content-end">
                         <button
                           className="btn btn-sm btn-outline-primary me-2"
@@ -932,17 +942,6 @@ const LeadReport = () => {
                                     'Try adjusting your search or filter criteria' :
                                     'No lead data is available from the API'}
                                 </p>
-                                {(searchTerm || filterStatus) && (
-                                  <button
-                                    className="btn btn-outline-primary btn-sm"
-                                    onClick={() => {
-                                      setSearchTerm('');
-                                      setFilterStatus('');
-                                    }}
-                                  >
-                                    <i className="fas fa-times me-1"></i> Clear filters
-                                  </button>
-                                )}
                               </div>
                             </td>
                           </tr>
