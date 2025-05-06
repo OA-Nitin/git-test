@@ -159,7 +159,8 @@ const LeadReport = () => {
         { id: 'affiliateSource', label: 'Source', field: 'source', sortable: false },
         { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
         { id: 'category', label: 'Category', field: 'category', sortable: false },
-        { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false }
+        { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false },
+        { id: 'notes', label: 'Notes', field: 'notes', sortable: false }
       ]
     }
   ];
@@ -320,6 +321,7 @@ const LeadReport = () => {
         if (column.id === 'leadCampaign') return lead.campaign || '';
         if (column.id === 'category') return lead.category || '';
         if (column.id === 'leadGroup') return lead.lead_group || '';
+        if (column.id === 'notes') return 'Notes';
 
         // Default case
         return '';
@@ -403,6 +405,7 @@ const LeadReport = () => {
           if (column.id === 'leadCampaign') return lead.campaign || '';
           if (column.id === 'category') return lead.category || '';
           if (column.id === 'leadGroup') return lead.lead_group || '';
+          if (column.id === 'notes') return 'Notes';
 
           // Default case
           return '';
@@ -481,6 +484,7 @@ const LeadReport = () => {
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
           else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
+          else if (column.id === 'notes') rowData[column.label] = 'Notes';
           else rowData[column.label] = '';
         });
 
@@ -717,6 +721,372 @@ const LeadReport = () => {
         Swal.fire('Call Scheduled', `Call with ${businessName} scheduled for ${result.value.date} at ${result.value.time}`, 'success');
       }
     });
+  };
+
+  // Handle viewing notes
+  const handleViewNotes = (lead) => {
+    const leadId = lead.lead_id || lead.id || '';
+    const status = lead.lead_status || lead.status || '';
+
+    // Show loading state
+    Swal.fire({
+      title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
+      html: `
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted">Loading notes...</p>
+        </div>
+      `,
+      showConfirmButton: false,
+      showCloseButton: true,
+      allowOutsideClick: false,
+      customClass: {
+        container: 'swal-wide',
+        popup: 'swal-popup-custom',
+        header: 'swal-header-custom',
+        title: 'swal-title-custom',
+        closeButton: 'swal-close-button-custom',
+        content: 'swal-content-custom'
+      }
+    });
+
+    // Fetch notes from the API
+    axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
+      .then(response => {
+        const notes = response.data || [];
+        console.log('Notes API response:', notes); // For debugging
+
+        let notesHtml = '';
+        if (!notes || notes.length === 0) {
+          notesHtml = `
+            <div class="text-center py-4">
+              <div class="mb-3">
+                <i class="fas fa-sticky-note fa-3x text-muted"></i>
+              </div>
+              <p class="text-muted">No notes available for this lead</p>
+            </div>
+          `;
+        } else {
+          notesHtml = `
+            <div class="notes-list">
+              ${notes.map(note => {
+                // Parse the original date from the note
+                const originalDate = new Date(note.created);
+
+                // Format the date as "Month Day, Year" (e.g., "May 6, 2025")
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const formattedDate = originalDate.toLocaleDateString('en-US', options);
+
+                // Format time in 12-hour format with AM/PM
+                let hour12 = originalDate.getHours() % 12;
+                if (hour12 === 0) hour12 = 12; // Convert 0 to 12 for 12 AM
+                const ampm = originalDate.getHours() >= 12 ? 'PM' : 'AM';
+                const formattedTime = `${hour12}:${String(originalDate.getMinutes()).padStart(2, '0')} ${ampm}`;
+
+                return `
+                  <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <div style="color: #6c757d; font-size: 14px;">${formattedDate}</div>
+                      <div style="color: #6c757d; font-size: 14px;">${formattedTime}</div>
+                    </div>
+                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${note.note || ''}</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+        }
+
+        // Update the modal with the fetched notes
+        Swal.fire({
+          title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
+          html: `
+            <div class="text-start">
+              <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+                <div>
+                  <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
+                </div>
+                <div>
+                  <span class="badge ${
+                    status === 'New' ? 'bg-info' :
+                    status === 'Contacted' ? 'bg-primary' :
+                    status === 'Qualified' ? 'bg-warning' :
+                    status === 'Active' ? 'bg-success' :
+                    'bg-secondary'
+                  }">${status || 'Unknown'}</span>
+                </div>
+              </div>
+              <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                ${notesHtml}
+              </div>
+            </div>
+          `,
+          width: '650px',
+          showCloseButton: false,
+          showConfirmButton: true,
+          confirmButtonText: 'Close',
+          confirmButtonColor: '#0d6efd',
+          customClass: {
+            container: 'swal-wide',
+            popup: 'swal-popup-custom',
+            header: 'swal-header-custom',
+            title: 'swal-title-custom',
+            closeButton: 'swal-close-button-custom',
+            content: 'swal-content-custom',
+            footer: 'swal-footer-custom'
+          }
+        });
+
+        // Add custom CSS for the SweetAlert modal
+        const style = document.createElement('style');
+        style.innerHTML = `
+          .swal-popup-custom {
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          }
+          .swal-title-custom {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+          }
+          .swal-header-custom {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+          }
+          .swal-content-custom {
+            padding: 15px;
+          }
+          .swal-footer-custom {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+          }
+          .note-item {
+            transition: all 0.2s ease;
+          }
+          .note-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+        `;
+        document.head.appendChild(style);
+      })
+      .catch(error => {
+        console.error('Error fetching notes:', error);
+
+        // Show error message
+        Swal.fire({
+          title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
+          html: `
+            <div class="text-center py-3">
+              <div class="mb-3">
+                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+              </div>
+              <p class="text-muted">There was a problem loading notes for this lead.</p>
+            </div>
+          `,
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+      });
+  };
+
+  // Handle adding notes
+  const handleAddNotes = (lead) => {
+    const leadId = lead.lead_id || lead.id || '';
+
+    Swal.fire({
+      title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
+      html: `
+        <div class="text-start">
+          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+            <div>
+              <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <textarea
+              class="form-control"
+              id="note-content"
+              rows="5"
+              placeholder="Enter your note here..."
+              style="resize: vertical; min-height: 100px;"
+            ></textarea>
+          </div>
+          <div class="text-muted small">
+            <i class="fas fa-info-circle me-1"></i>
+            Your note will be saved with the current date and time.
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Save Note',
+      cancelButtonText: 'Cancel',
+      width: '650px',
+      customClass: {
+        container: 'swal-wide',
+        popup: 'swal-popup-custom',
+        header: 'swal-header-custom',
+        title: 'swal-title-custom',
+        closeButton: 'swal-close-button-custom',
+        content: 'swal-content-custom',
+      },
+      preConfirm: () => {
+        const content = document.getElementById('note-content').value;
+
+        if (!content) {
+          Swal.showValidationMessage('<i class="fas fa-exclamation-triangle me-2"></i>Please enter note content');
+          return false;
+        }
+
+        return { content };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Show loading state
+        Swal.fire({
+          title: `<span style="font-size: 1.2rem; color: #333;">Saving Note</span>`,
+          html: `
+            <div class="text-center py-3">
+              <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="text-muted">Saving your note...</p>
+            </div>
+          `,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+
+        // Prepare the data for the API
+        const noteData = {
+          lead_id: leadId,
+          note: result.value.content,
+          user_id: 1  // Adding user_id parameter as required by the API
+        };
+
+        console.log('Sending note data:', noteData); // For debugging
+
+        // Send the data to the API
+        axios.post('https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes', noteData)
+          .then(() => {
+            // Show success message
+            Swal.fire({
+              title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                  </div>
+                  <p class="text-muted">Your note has been saved successfully.</p>
+                </div>
+              `,
+              timer: 2000,
+              showConfirmButton: false,
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+
+            // Refresh the notes view after a short delay
+            setTimeout(() => {
+              handleViewNotes(lead);
+            }, 2100);
+          })
+          .catch(error => {
+            console.error('Error saving note:', error);
+
+            // Show error message
+            Swal.fire({
+              title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+                  </div>
+                  <p class="text-muted mb-3">There was a problem saving your note.</p>
+                  <div class="alert alert-danger py-2">
+                    <small>Please try again later.</small>
+                  </div>
+                </div>
+              `,
+              confirmButtonText: 'OK',
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+          });
+      }
+    });
+
+    // Add custom CSS for the SweetAlert modal
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .swal-popup-custom {
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .swal-title-custom {
+        font-size: 1.5rem;
+        color: #333;
+        font-weight: 600;
+      }
+      .swal-header-custom {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      .swal-content-custom {
+        padding: 15px;
+      }
+      #note-content:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        border-color: #86b7fe;
+      }
+      .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1.1rem;
+      }
+      /* Override SweetAlert button styles directly */
+      .swal2-styled.swal2-confirm {
+        background-color: #6366f1 !important;
+        color: white !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 1.5rem !important;
+        font-weight: 500 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        width: 160px !important;
+        margin: 0.3125em !important;
+        font-size: 1rem !important;
+      }
+      .swal2-styled.swal2-cancel {
+        background-color: #6b7280 !important;
+        color: white !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 1.5rem !important;
+        font-weight: 500 !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        width: 160px !important;
+        margin: 0.3125em !important;
+        font-size: 1rem !important;
+      }
+      /* Fix button container */
+      .swal2-actions {
+        width: 100% !important;
+        justify-content: center !important;
+        gap: 10px !important;
+      }
+    `;
+    document.head.appendChild(style);
   };
 
   return (
@@ -1010,6 +1380,27 @@ const LeadReport = () => {
                                     return <td key={column.id}>{lead.category || ''}</td>;
                                   case 'leadGroup':
                                     return <td key={column.id}>{lead.lead_group || ''}</td>;
+                                  case 'notes':
+                                    return (
+                                      <td key={column.id}>
+                                        <div className="d-flex justify-content-center gap-2">
+                                          <button
+                                            className="btn btn-sm btn-outline-info"
+                                            onClick={() => handleViewNotes(lead)}
+                                            title="View Notes"
+                                          >
+                                            <i className="fas fa-eye"></i>
+                                          </button>
+                                          <button
+                                            className="btn btn-sm btn-outline-success"
+                                            onClick={() => handleAddNotes(lead)}
+                                            title="Add Notes"
+                                          >
+                                            <i className="fas fa-plus"></i>
+                                          </button>
+                                        </div>
+                                      </td>
+                                    );
                                   default:
                                     return <td key={column.id}></td>;
                                 }
