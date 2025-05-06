@@ -7,7 +7,14 @@ const Login = () => {
 
     useEffect(() => {
         document.title = "Log In - Occams Portal"; // Set title for Login page
-    }, []);
+
+        // Check if user is already logged in
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            // User is already logged in, redirect to dashboard
+            navigate('/dashboard');
+        }
+    }, [navigate]);
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -45,9 +52,10 @@ const Login = () => {
             });
     };
 
-    // No automatic redirection on component mount
-    // This ensures the login page is always shown when accessed directly
+    // Automatic redirection on component mount if user is already logged in
+    // This ensures users who are already logged in are redirected to the dashboard
     // After successful login, user will be redirected to the dashboard page
+    // Users cannot access the login page if they are already logged in
 
 
     return (
