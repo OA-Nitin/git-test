@@ -61,7 +61,7 @@
 
 /* Left section with horizontal scroll */
 .left-section-container {
-  max-height: 600px;
+  max-height: 690px;
   overflow-y: auto;
   padding-right: 15px;
   position: relative;
@@ -549,8 +549,6 @@ label a.ms-2:hover svg {
   justify-content: start;
   gap: 15px;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 .save-btn {
   background-color: #ff6600;

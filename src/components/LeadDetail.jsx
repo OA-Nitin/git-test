@@ -446,21 +446,22 @@ const LeadDetail = () => {
             <div className="white_card_body">
               {/* Business Info Tab Content */}
               {activeTab === 'businessInfo' && (
-                <div className="row">
-                  <div className="col-md-8">
-                    <div className="mb-4 left-section-container">
+                <div>
+                  <div className="row">
+                    <div className="col-md-8">
+                      <div className="mb-4 left-section-container">
                       <h5 className="section-title">Business Identity</h5>
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Legal Name*</label>
-                            <input type="text" className="form-control" value="CTCERC Play" readOnly />
+                            <input type="text" className="form-control" defaultValue="CTCERC Play" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Doing Business As</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                       </div>
@@ -468,13 +469,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Category*</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Website URL*</label>
-                            <input type="text" className="form-control" value={lead.website || ''} readOnly />
+                            <input type="text" className="form-control" defaultValue={lead.website || ''} />
                           </div>
                         </div>
                       </div>
@@ -484,13 +485,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Authorized Signatory Name</label>
-                            <input type="text" className="form-control" value="CTCERC Play SP" readOnly />
+                            <input type="text" className="form-control" defaultValue="CTCERC Play SP" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Phone*</label>
-                            <input type="text" className="form-control" value="454-645-6456" readOnly />
+                            <input type="text" className="form-control" defaultValue="454-645-6456" />
                           </div>
                         </div>
                       </div>
@@ -498,13 +499,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Email*</label>
-                            <input type="email" className="form-control" value="shivraj.patil@occmasadvisory.com" readOnly />
+                            <input type="email" className="form-control" defaultValue="shivraj.patil@occmasadvisory.com" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Title*</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                       </div>
@@ -512,13 +513,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Street Address*</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">City*</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                       </div>
@@ -526,13 +527,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">State*</label>
-                            <input type="text" className="form-control" value="Alabama" readOnly />
+                            <input type="text" className="form-control" defaultValue="Alabama" />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">ZIP*</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                       </div>
@@ -542,19 +543,19 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Email</label>
-                            <input type="email" className="form-control" value="shivraj.patil@occmasadvisory.com" readOnly />
+                            <input type="email" className="form-control" defaultValue="shivraj.patil@occmasadvisory.com" />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Phone</label>
-                            <input type="text" className="form-control" value="454-645-6456" readOnly />
+                            <input type="text" className="form-control" defaultValue="454-645-6456" />
                           </div>
                         </div>
                         <div className="col-md-2">
                           <div className="form-group">
                             <label className="form-label">Contact Ext</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                       </div>
@@ -562,7 +563,7 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Contact Phone Type</label>
-                            <input type="text" className="form-control" value="" readOnly />
+                            <input type="text" className="form-control" defaultValue="" />
                           </div>
                         </div>
                       </div>
@@ -1043,12 +1044,14 @@ const LeadDetail = () => {
                       </div>
                     </div>
 
+                    <div className="mt-4">
+                        <div className="action-buttons">
+                          <button className="btn save-btn">Save</button>
+                          <button className="btn cancel-btn">Cancel</button>
+                        </div>
+                    </div>
+
                   </div>
-                </div>
-                <div className="mt-4 mb-2">
-                  <div className="action-buttons">
-                    <button className="btn save-btn">Save</button>
-                    <button className="btn cancel-btn">Cancel</button>
                   </div>
                 </div>
               )}
