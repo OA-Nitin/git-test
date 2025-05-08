@@ -38,6 +38,44 @@ const LeadDetail = () => {
   const [leadCampaign, setLeadCampaign] = useState(null);
   const [leadSource, setLeadSource] = useState(null);
 
+  // Affiliate Commission state
+  const [tier1CommissionBasis, setTier1CommissionBasis] = useState({ value: 'referrer-fixed', label: 'Referrer Fixed' });
+  const [tier1ReferrerType, setTier1ReferrerType] = useState({ value: 'referrer-fixed', label: 'Referrer Fixed' });
+  const [tier1ReferrerFixed, setTier1ReferrerFixed] = useState('');
+  const [tier1ErcChgReceived, setTier1ErcChgReceived] = useState('');
+  const [tier1InvoiceAmount, setTier1InvoiceAmount] = useState('');
+
+  const [tier2CommissionBasis, setTier2CommissionBasis] = useState({ value: 'affiliate-commission', label: 'Affiliate Commission Basis' });
+  const [tier2CommissionType, setTier2CommissionType] = useState({ value: 'affiliate-commission', label: 'Affiliate Commission Type' });
+  const [tier2ReferrerFixed, setTier2ReferrerFixed] = useState('');
+  const [tier2ErcChgReceived, setTier2ErcChgReceived] = useState('');
+  const [tier2InvoiceAmount, setTier2InvoiceAmount] = useState('');
+
+  const [tier3CommissionBasis, setTier3CommissionBasis] = useState({ value: 'affiliate-commission', label: 'Affiliate Commission Basis' });
+  const [tier3CommissionType, setTier3CommissionType] = useState({ value: 'affiliate-commission', label: 'Affiliate Commission Type' });
+  const [tier3ReferrerFixed, setTier3ReferrerFixed] = useState('');
+  const [tier3ErcChgReceived, setTier3ErcChgReceived] = useState('');
+  const [tier3InvoiceAmount, setTier3InvoiceAmount] = useState('');
+
+  const [currentTier, setCurrentTier] = useState({ value: '', label: 'Select Current Tier' });
+
+  // Affiliate Slab Commission state
+  const [slab1AppliedOn, setSlab1AppliedOn] = useState('');
+  const [slab1CommissionType, setSlab1CommissionType] = useState({ value: '', label: 'Slab-1 Commission Type' });
+  const [slab1CommissionValue, setSlab1CommissionValue] = useState('');
+
+  const [slab2AppliedOn, setSlab2AppliedOn] = useState('');
+  const [slab2CommissionType, setSlab2CommissionType] = useState({ value: '', label: 'Slab-2 Commission Type' });
+  const [slab2CommissionValue, setSlab2CommissionValue] = useState('');
+
+  const [slab3AppliedOn, setSlab3AppliedOn] = useState('');
+  const [slab3CommissionType, setSlab3CommissionType] = useState({ value: '', label: 'Slab-3 Commission Type' });
+  const [slab3CommissionValue, setSlab3CommissionValue] = useState('');
+
+  // Master Affiliate Commission state
+  const [masterCommissionType, setMasterCommissionType] = useState({ value: '', label: 'Master Commission Type' });
+  const [masterCommissionValue, setMasterCommissionValue] = useState('');
+
   useEffect(() => {
     document.title = `Lead #${leadId} - Occams Portal`;
     fetchLeadDetails();
@@ -330,6 +368,119 @@ const LeadDetail = () => {
 
   const handleLeadSourceChange = (selectedOption) => {
     setLeadSource(selectedOption);
+  };
+
+  // Handlers for Affiliate Commission form
+  const handleTier1CommissionBasisChange = (selectedOption) => {
+    setTier1CommissionBasis(selectedOption);
+  };
+
+  const handleTier1ReferrerTypeChange = (selectedOption) => {
+    setTier1ReferrerType(selectedOption);
+  };
+
+  const handleTier1ReferrerFixedChange = (e) => {
+    setTier1ReferrerFixed(e.target.value);
+  };
+
+  const handleTier1ErcChgReceivedChange = (e) => {
+    setTier1ErcChgReceived(e.target.value);
+  };
+
+  const handleTier1InvoiceAmountChange = (e) => {
+    setTier1InvoiceAmount(e.target.value);
+  };
+
+  const handleTier2CommissionBasisChange = (selectedOption) => {
+    setTier2CommissionBasis(selectedOption);
+  };
+
+  const handleTier2CommissionTypeChange = (selectedOption) => {
+    setTier2CommissionType(selectedOption);
+  };
+
+  const handleTier2ReferrerFixedChange = (e) => {
+    setTier2ReferrerFixed(e.target.value);
+  };
+
+  const handleTier2ErcChgReceivedChange = (e) => {
+    setTier2ErcChgReceived(e.target.value);
+  };
+
+  const handleTier2InvoiceAmountChange = (e) => {
+    setTier2InvoiceAmount(e.target.value);
+  };
+
+  // Handlers for Tier 3 Affiliate Commission
+  const handleTier3CommissionBasisChange = (selectedOption) => {
+    setTier3CommissionBasis(selectedOption);
+  };
+
+  const handleTier3CommissionTypeChange = (selectedOption) => {
+    setTier3CommissionType(selectedOption);
+  };
+
+  const handleTier3ReferrerFixedChange = (e) => {
+    setTier3ReferrerFixed(e.target.value);
+  };
+
+  const handleTier3ErcChgReceivedChange = (e) => {
+    setTier3ErcChgReceived(e.target.value);
+  };
+
+  const handleTier3InvoiceAmountChange = (e) => {
+    setTier3InvoiceAmount(e.target.value);
+  };
+
+  // Handler for Current Tier
+  const handleCurrentTierChange = (selectedOption) => {
+    setCurrentTier(selectedOption);
+  };
+
+  // Handlers for Affiliate Slab Commission
+  const handleSlab1AppliedOnChange = (e) => {
+    setSlab1AppliedOn(e.target.value);
+  };
+
+  const handleSlab1CommissionTypeChange = (selectedOption) => {
+    setSlab1CommissionType(selectedOption);
+  };
+
+  const handleSlab1CommissionValueChange = (e) => {
+    setSlab1CommissionValue(e.target.value);
+  };
+
+  const handleSlab2AppliedOnChange = (e) => {
+    setSlab2AppliedOn(e.target.value);
+  };
+
+  const handleSlab2CommissionTypeChange = (selectedOption) => {
+    setSlab2CommissionType(selectedOption);
+  };
+
+  const handleSlab2CommissionValueChange = (e) => {
+    setSlab2CommissionValue(e.target.value);
+  };
+
+  const handleSlab3AppliedOnChange = (e) => {
+    setSlab3AppliedOn(e.target.value);
+  };
+
+  const handleSlab3CommissionTypeChange = (selectedOption) => {
+    setSlab3CommissionType(selectedOption);
+  };
+
+  const handleSlab3CommissionValueChange = (e) => {
+    setSlab3CommissionValue(e.target.value);
+  };
+
+  // Handlers for Master Affiliate Commission
+  const handleMasterCommissionTypeChange = (selectedOption) => {
+    setMasterCommissionType(selectedOption);
+  };
+
+  const handleMasterCommissionValueChange = (e) => {
+    setMasterCommissionValue(e.target.value);
   };
 
   if (loading) {
@@ -920,8 +1071,436 @@ const LeadDetail = () => {
                   {/* Affiliate Commission Tab Content */}
                   {activeTab === 'affiliateCommission' && (
                     <div className="mb-4 left-section-container">
-                      <h4>Affiliate Commission</h4>
-                      <p>Affiliate commission information will be displayed here.</p>
+                      <h5 className="section-title">Tier 1 Affiliate Commission</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Commission Basis</label>
+                            <select
+                              className="form-select"
+                              value={tier1CommissionBasis?.value || ''}
+                              onChange={(e) => handleTier1CommissionBasisChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Affiliate Commission Basis</option>
+                              <option value="erc-chq-received">ERC Chq Received</option>
+                              <option value="erc-invoice-amount">ERC Invoice Amount</option>
+                              <option value="lower-of-both">Lower of Both</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={tier1ReferrerType?.value || ''}
+                              onChange={(e) => handleTier1ReferrerTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Affiliate Commission Type</option>
+                              <option value="referrer-fixed">Referrer Fixed</option>
+                              <option value="referrer-percentage">Referrer Percentage</option>
+                              <option value="fixed-percentage">Fixed + Percentage</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Referrer Fixed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier1ReferrerFixed}
+                              onChange={handleTier1ReferrerFixedChange}
+                              placeholder="Enter amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">% On ERC Chg Received</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier1ErcChgReceived}
+                              onChange={handleTier1ErcChgReceivedChange}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">% On Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier1InvoiceAmount}
+                              onChange={handleTier1InvoiceAmountChange}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Tier 2 Affiliate Commission</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Commission Basis</label>
+                            <select
+                              className="form-select"
+                              value={tier2CommissionBasis?.value || ''}
+                              onChange={(e) => handleTier2CommissionBasisChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Affiliate Commission Basis</option>
+                              <option value="affiliate-commission-basis">Affiliate Commission Basis</option>
+                              <option value="erc-chq-received">ERC Chq Received</option>
+                              <option value="erc-invoice-amount">ERC Invoice Amount</option>
+                              <option value="lower-of-both">Lower of Both</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={tier2CommissionType?.value || ''}
+                              onChange={(e) => handleTier2CommissionTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Affiliate Commission Type</option>
+                              <option value="affiliate-commission-type">Affiliate Commission Type</option>
+                              <option value="referrer-fixed">Referrer Fixed</option>
+                              <option value="referrer-percentage">Referrer Percentage</option>
+                              <option value="fixed-percentage">Fixed + Percentage</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Referrer Fixed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier2ReferrerFixed}
+                              onChange={handleTier2ReferrerFixedChange}
+                              placeholder="Enter amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">% On ERC Chg Received</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier2ErcChgReceived}
+                              onChange={handleTier2ErcChgReceivedChange}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">% On Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier2InvoiceAmount}
+                              onChange={handleTier2InvoiceAmountChange}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Tier 3 Affiliate Commission</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Commission Basis</label>
+                            <select
+                              className="form-select"
+                              value={tier3CommissionBasis?.value || ''}
+                              onChange={(e) => handleTier3CommissionBasisChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Affiliate Commission Basis</option>
+                              <option value="affiliate-commission-basis">Affiliate Commission Basis</option>
+                              <option value="erc-chq-received">ERC Chq Received</option>
+                              <option value="erc-invoice-amount">ERC Invoice Amount</option>
+                              <option value="lower-of-both">Lower of Both</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={tier3CommissionType?.value || ''}
+                              onChange={(e) => handleTier3CommissionTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Affiliate Commission Type</option>
+                              <option value="affiliate-commission-type">Affiliate Commission Type</option>
+                              <option value="referrer-fixed">Referrer Fixed</option>
+                              <option value="referrer-percentage">Referrer Percentage</option>
+                              <option value="fixed-percentage">Fixed + Percentage</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Referrer Fixed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier3ReferrerFixed}
+                              onChange={handleTier3ReferrerFixedChange}
+                              placeholder="Enter amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">% On ERC Chg Received</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier3ErcChgReceived}
+                              onChange={handleTier3ErcChgReceivedChange}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">% On Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={tier3InvoiceAmount}
+                              onChange={handleTier3InvoiceAmountChange}
+                              placeholder="Enter percentage"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Current Tier</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <select
+                              className="form-select"
+                              value={currentTier?.value || ''}
+                              onChange={(e) => handleCurrentTierChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Select Current Tier</option>
+                              <option value="tier-1">Tier 1</option>
+                              <option value="tier-2">Tier 2</option>
+                              <option value="tier-3">Tier 3</option>
+                              <option value="slab">Slab</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Affiliate Slab Commission</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-1 Applied On</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={slab1AppliedOn}
+                              onChange={handleSlab1AppliedOnChange}
+                              placeholder="Slab-1 Applied On"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-1 Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={slab1CommissionType?.value || ''}
+                              onChange={(e) => handleSlab1CommissionTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Slab-1 Commission Type</option>
+                              <option value="percentage">Percentage</option>
+                              <option value="fixed">Fixed</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-1 Commission Value</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={slab1CommissionValue}
+                              onChange={handleSlab1CommissionValueChange}
+                              placeholder="Slab-1 Commission Value"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-2 Applied On</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={slab2AppliedOn}
+                              onChange={handleSlab2AppliedOnChange}
+                              placeholder="Slab-2 Applied On"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-2 Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={slab2CommissionType?.value || ''}
+                              onChange={(e) => handleSlab2CommissionTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Slab-2 Commission Type</option>
+                              <option value="percentage">Percentage</option>
+                              <option value="fixed">Fixed</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-2 Commission Value</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={slab2CommissionValue}
+                              onChange={handleSlab2CommissionValueChange}
+                              placeholder="Slab-2 Commission Value"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-3 Applied On</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={slab3AppliedOn}
+                              onChange={handleSlab3AppliedOnChange}
+                              placeholder="Slab-3 Applied On"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-3 Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={slab3CommissionType?.value || ''}
+                              onChange={(e) => handleSlab3CommissionTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Slab-3 Commission Type</option>
+                              <option value="percentage">Percentage</option>
+                              <option value="fixed">Fixed</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Slab-3 Commission Value</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={slab3CommissionValue}
+                              onChange={handleSlab3CommissionValueChange}
+                              placeholder="Slab-3 Commission Value"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Master Affiliate Commission</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Master Commission Type</label>
+                            <select
+                              className="form-select"
+                              value={masterCommissionType?.value || ''}
+                              onChange={(e) => handleMasterCommissionTypeChange({
+                                value: e.target.value,
+                                label: e.target.options[e.target.selectedIndex].text
+                              })}
+                            >
+                              <option value="">Master Commission Type</option>
+                              <option value="master-commission-type">Master Commission Type</option>
+                              <option value="affiliate-fixed">Affiliate Fixed</option>
+                              <option value="percentage-of-subaffiliate-commission">Percentage Of Subaffiliate Commission</option>
+                              <option value="percentage-of-affiliate-invoice">Percentage Of Affiliate Invoice</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Master Commission Value</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={masterCommissionValue}
+                              onChange={handleMasterCommissionValueChange}
+                              placeholder="Master Commission Value"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -1113,13 +1692,11 @@ const LeadDetail = () => {
                     </div>
                   </div>
 
-                  <div className="card mt-4">
-                    <div className="card-body">
+                  <div className=" mt-4">
                       <div className="action-buttons">
                         <button className="btn save-btn">Save</button>
                         <button className="btn cancel-btn">Cancel</button>
                       </div>
-                    </div>
                   </div>
                 </div>
               </div>
