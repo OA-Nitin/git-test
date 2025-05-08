@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { getAssetPath } from './utils/assetUtils';
 
 const Login = () => {
     const navigate = useNavigate(); // Initialize the navigate hook
@@ -77,7 +78,7 @@ const Login = () => {
         <div className="vh-100 login-page">
             <div className="container h-100">
               <div className='row'>
-              <img src="/assets/images/login-logo-360-white.png" className="mb-5 mt-4 login-logo" />
+              <img src={getAssetPath('assets/images/login-logo-360-white.png')} className="mb-5 mt-4 login-logo" />
               </div>
                 <div className="row align-items-center justify-content-between mt-5">
                     {/* Left Section */}

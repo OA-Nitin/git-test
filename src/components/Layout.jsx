@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
+import { getAssetPath } from '../utils/assetUtils';
 
 const Layout = ({ children }) => {
   // Retrieve user data from localStorage
@@ -14,8 +15,12 @@ const Layout = ({ children }) => {
 
   const handleLogout = () => {
     localStorage.clear(); // Clear localStorage
-    // Show a message instead of redirecting
-    window.location.href = '/'; // Use window.location for a full page reload
+
+    // Get the base path from our utility function
+    const basePath = import.meta.env.BASE_URL || '/';
+
+    // Use window.location for a full page reload with the correct base path
+    window.location.href = basePath;
   };
 
   return (

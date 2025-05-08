@@ -466,7 +466,7 @@ const ManageInvoice = () => {
                 <div className="box_header m-0 new_report_header">
                   <div className="d-flex justify-content-between align-items-center w-100">
                     <div className="title_img">
-                      <img src="/assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
+                      <img src="./assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
                       <h4 className="text-white">Manage Invoices</h4>
                     </div>
 

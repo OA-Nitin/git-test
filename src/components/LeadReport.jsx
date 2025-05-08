@@ -4,11 +4,13 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
 import './DateFilter.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
+import { getAssetPath } from '../utils/assetUtils';
 
 const LeadReport = () => {
   // State for API data
@@ -486,6 +488,7 @@ const LeadReport = () => {
           else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
           else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
           else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
+          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
           else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
@@ -972,7 +975,7 @@ const LeadReport = () => {
               <div className="white_card_header">
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
-                    <img src="/assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
+                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
                     <h4 className="text-white">Lead Report</h4>
                   </div>
                 </div>
@@ -1205,11 +1208,33 @@ const LeadReport = () => {
                                 // Render different cell types based on column id
                                 switch (column.id) {
                                   case 'leadId':
-                                    return <td key={column.id}>{lead.lead_id || ''}</td>;
+                                    return (
+                                      <td key={column.id}>
+                                        <Link
+                                          to={`/lead-detail/${lead.lead_id}`}
+                                          target="_blank"
+                                          className="text-primary"
+                                          style={{ textDecoration: 'underline', fontWeight: 'bold' }}
+                                        >
+                                          {lead.lead_id || ''}
+                                        </Link>
+                                      </td>
+                                    );
                                   case 'date':
                                     return <td key={column.id}>{lead.created || ''}</td>;
                                   case 'businessName':
-                                    return <td key={column.id}>{lead.business_legal_name || ''}</td>;
+                                    return (
+                                      <td key={column.id}>
+                                        <Link
+                                          to={`/lead-detail/${lead.lead_id}`}
+                                          target="_blank"
+                                          className="text-primary"
+                                          style={{ textDecoration: 'underline' }}
+                                        >
+                                          {lead.business_legal_name || ''}
+                                        </Link>
+                                      </td>
+                                    );
                                   case 'businessEmail':
                                     return <td key={column.id}>{lead.business_email || ''}</td>;
                                   case 'businessPhone':

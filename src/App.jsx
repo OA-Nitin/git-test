@@ -14,6 +14,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./components/Dashboard";
 import CreateUser from "./components/CreateUser";
 import LeadReport from "./components/LeadReport";
+import LeadDetail from "./components/LeadDetail";
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
 import MyProfile from "./components/MyProfile";
@@ -34,7 +35,7 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <Router>
+    <Router basename="/reporting">
       <Routes>
         <Route path="/" element={<Login />} />
 
@@ -123,6 +124,15 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <CreateInvoice />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Lead Detail Page */}
+        <Route path="/lead-detail/:leadId" element={
+          <ProtectedRoute>
+            <Layout>
+              <LeadDetail />
             </Layout>
           </ProtectedRoute>
         } />

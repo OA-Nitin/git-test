@@ -352,9 +352,6 @@ const LeadDetail = () => {
               <div className="box_header m-0 justify-content-between">
                 <h4 className="iris-lead-name">{lead.lead_id} - {lead.business_legal_name}</h4>
                 <div>
-                  <button className="btn btn-sm btn-outline-light me-2" onClick={() => window.history.back()}>
-                    <i className="fas fa-arrow-left me-1"></i> Back
-                  </button>
                 </div>
                 {/* <h4 className="lead_status">ERC Onboarding - <span>Prospecting</span></h4> */}
               </div>

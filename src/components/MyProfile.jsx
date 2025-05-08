@@ -358,7 +358,7 @@ const MyProfile = () => {
               <div className="white_card_header">
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
-                    <img src="/assets/images/user_details.svg" className="page-title-img" alt="User Details" />
+                    <img src="./assets/images/user_details.svg" className="page-title-img" alt="User Details" />
                     <h4 className="text-white">User Details</h4>
                   </div>
                 </div>

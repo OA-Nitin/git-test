@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/css/sidebar.css';
 import { menuData } from './menuData';
+import { getAssetPath } from '../utils/assetUtils';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -15,7 +16,7 @@ const Sidebar = () => {
       <div id="adminmenuwrap">
         <div className="logo d-flex justify-content-between">
           <Link className="large_logo" to="/dashboard">
-            <img src="/assets/images/logo-blue-360.svg" alt="Occams Logo" />
+            <img src={getAssetPath('assets/images/logo-blue-360.svg')} alt="Occams Logo" />
           </Link>
         </div>
         <ul id="adminmenu" className="metismenu" ref={menuRef}>

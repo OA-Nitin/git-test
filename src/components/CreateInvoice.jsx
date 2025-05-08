@@ -141,7 +141,7 @@ const CreateInvoice = () => {
               <div className="white_card_header">
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
-                    <img src="/assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
+                    <img src="./assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
                     <h4 className="text-white">Create Invoice</h4>
                   </div>
                 </div>
@@ -353,7 +353,7 @@ const CreateInvoice = () => {
                   </div>
 
                   <div className="d-flex justify-content-end">
-                    <a href="/finance/invoices" className="btn btn-sm btn-secondary me-2">Cancel</a>
+                    <a href="./finance/invoices" className="btn btn-sm btn-secondary me-2">Cancel</a>
                     <button type="submit" className="btn btn-sm export-btn">
                       <i className="fas fa-save me-1"></i> Create Invoice
                     </button>

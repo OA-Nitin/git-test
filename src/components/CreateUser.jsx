@@ -70,7 +70,7 @@ const CreateUser = () => {
                 <div className="white_card_header">
                   <div className="box_header m-0 new_report_header">
                     <div className="title_img">
-                      <img src="/assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
+                      <img src="./assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
                       <h4 className="text-white">Create User</h4>
                     </div>
                   </div>
@@ -217,7 +217,7 @@ const CreateUser = () => {
                   </form>
                   {isLoading && (
                     <div id="waiter">
-                      <img src="/assets/images/waiter.gif" alt="Loading..." />
+                      <img src="./assets/images/waiter.gif" alt="Loading..." />
                     </div>
                   )}
                   {message && <div id="creation-message" className="alert alert-success mt-3">{message}</div>}
