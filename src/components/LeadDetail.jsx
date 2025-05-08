@@ -30,6 +30,11 @@ const LeadDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
 
+  // Lead classification state
+  const [leadGroup, setLeadGroup] = useState({ value: 'erc-fprs', label: 'ERC - FPRS' });
+  const [leadCampaign, setLeadCampaign] = useState({ value: 'b2b', label: 'B2B' });
+  const [leadSource, setLeadSource] = useState({ value: 'payment-cloud', label: 'Payment Cloud' });
+
   useEffect(() => {
     document.title = `Lead #${leadId} - Occams Portal`;
     fetchLeadDetails();
@@ -274,6 +279,19 @@ const LeadDetail = () => {
   const handleRemoveUser = (userId) => {
     const updatedUsers = assignedUsers.filter(user => user.id !== userId);
     setAssignedUsers(updatedUsers);
+  };
+
+  // Functions to handle lead classification changes
+  const handleLeadGroupChange = (selectedOption) => {
+    setLeadGroup(selectedOption);
+  };
+
+  const handleLeadCampaignChange = (selectedOption) => {
+    setLeadCampaign(selectedOption);
+  };
+
+  const handleLeadSourceChange = (selectedOption) => {
+    setLeadSource(selectedOption);
   };
 
   if (loading) {
@@ -936,37 +954,91 @@ const LeadDetail = () => {
 
                     <div className="card mb-4">
                       <div className="card-body">
-                        <h5 className="card-title">Lead Group</h5>
-                        <p className="mb-2">{lead.lead_group}</p>
-                        <div className="form-group">
-                          <label className="form-label">ERC - Referrals</label>
-                          <select className="form-select" disabled>
-                            <option>ERC - Referrals</option>
-                          </select>
+                        <h5 className="card-title">Lead Group:</h5>
+                        <div className="form-group mb-4">
+                          <Select
+                            value={leadGroup}
+                            onChange={handleLeadGroupChange}
+                            options={[
+                              { value: 'erc-fprs', label: 'ERC - FPRS' },
+                              { value: 'erc-referrals', label: 'ERC - Referrals' },
+                              { value: 'erc-direct', label: 'ERC - Direct' },
+                              { value: 'erc-partners', label: 'ERC - Partners' }
+                            ]}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            isClearable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                borderRadius: '4px',
+                                borderColor: '#ced4da',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                  borderColor: '#adb5bd'
+                                }
+                              })
+                            }}
+                          />
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="card mb-4">
-                      <div className="card-body">
-                        <h5 className="card-title">Lead Campaign</h5>
-                        <div className="form-group">
-                          <label className="form-label">Referral</label>
-                          <select className="form-select" disabled>
-                            <option>Referral</option>
-                          </select>
+                        <h5 className="card-title">Lead Campaign:</h5>
+                        <div className="form-group mb-4">
+                          <Select
+                            value={leadCampaign}
+                            onChange={handleLeadCampaignChange}
+                            options={[
+                              { value: 'b2b', label: 'B2B' },
+                              { value: 'referral', label: 'Referral' },
+                              { value: 'direct', label: 'Direct' },
+                              { value: 'partner', label: 'Partner' },
+                              { value: 'social', label: 'Social Media' }
+                            ]}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            isClearable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                borderRadius: '4px',
+                                borderColor: '#ced4da',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                  borderColor: '#adb5bd'
+                                }
+                              })
+                            }}
+                          />
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="card mb-4">
-                      <div className="card-body">
-                        <h5 className="card-title">Lead Source</h5>
+                        <h5 className="card-title">Lead Source:</h5>
                         <div className="form-group">
-                          <label className="form-label">None</label>
-                          <select className="form-select" disabled>
-                            <option>None</option>
-                          </select>
+                          <Select
+                            value={leadSource}
+                            onChange={handleLeadSourceChange}
+                            options={[
+                              { value: 'payment-cloud', label: 'Payment Cloud' },
+                              { value: 'website', label: 'Website' },
+                              { value: 'cold-call', label: 'Cold Call' },
+                              { value: 'email', label: 'Email Campaign' },
+                              { value: 'linkedin', label: 'LinkedIn' },
+                              { value: 'facebook', label: 'Facebook' }
+                            ]}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            isClearable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                borderRadius: '4px',
+                                borderColor: '#ced4da',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                  borderColor: '#adb5bd'
+                                }
+                              })
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
