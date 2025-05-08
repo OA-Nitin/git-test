@@ -175,6 +175,73 @@ label a.ms-2:hover svg {
   margin-top: 10px;
 }
 
+.notes-header {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.notes-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+  position: relative;
+  padding-left: 10px;
+}
+
+.notes-title:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 16px;
+  width: 3px;
+  background-color: #6c63ff;
+  border-radius: 2px;
+}
+
+.add-note-btn {
+  background-color: #6c63ff;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(108, 99, 255, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-note-btn span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.add-note-btn i {
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-note-btn:hover {
+  background-color: #5a52d5;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(108, 99, 255, 0.4);
+}
+
+.add-note-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(108, 99, 255, 0.3);
+}
+
 .note-item {
   border-left: 3px solid #0d6efd;
   transition: all 0.2s ease;
@@ -211,6 +278,18 @@ label a.ms-2:hover svg {
 .note-content {
   line-height: 1.5;
   color: #212529;
+}
+
+.note-content span.d-flex {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.note-content .fw-bold {
+  white-space: nowrap;
 }
 
 /* Modal styles for add note */
@@ -262,18 +341,36 @@ label a.ms-2:hover svg {
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.modal .btn-primary {
+.modal-save-btn {
   background-color: #6c63ff;
-  border-color: #6c63ff;
-  min-width: 120px;
+  color: white;
+  border: none;
+  min-width: 140px;
   border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
-.modal .btn-secondary {
+.modal-save-btn:hover {
+  background-color: #5a52d5;
+  color: white;
+}
+
+.modal-cancel-btn {
   background-color: #6c757d;
-  border-color: #6c757d;
-  min-width: 120px;
+  color: white;
+  border: none;
+  min-width: 140px;
   border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.modal-cancel-btn:hover {
+  background-color: #5a6268;
+  color: white;
 }
 
 .modal .bg-light {

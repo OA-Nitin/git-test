@@ -671,13 +671,15 @@ const LeadDetail = () => {
                       {/* Notes Section */}
                       <h5 className="section-title mt-4">Notes</h5>
                       <div className="notes-container p-0">
-                        <div className="d-flex justify-content-between align-items-center mb-4">
-                          <p className="text-muted mb-0">Lead notes and activity history</p>
+                        <div className="d-flex justify-content-between align-items-center mb-4 notes-header">
+                          <h6 className="notes-title mb-0">Lead notes and activity history</h6>
                           <button
-                            className="btn btn-primary btn-sm"
+                            className="btn add-note-btn"
                             onClick={toggleAddNoteModal}
                           >
-                            <i className="fas fa-plus me-2"></i>Add Note
+                            <span className="d-flex align-items-center">
+                              <i className="fas fa-plus me-2"></i>Add Note
+                            </span>
                           </button>
                         </div>
 
@@ -688,10 +690,12 @@ const LeadDetail = () => {
                             </div>
                             <p className="text-muted">No notes available for this lead</p>
                             <button
-                              className="btn btn-outline-primary mt-2"
+                              className="btn add-note-btn mt-3"
                               onClick={toggleAddNoteModal}
                             >
-                              <i className="fas fa-plus me-2"></i>Add First Note
+                              <span className="d-flex align-items-center">
+                                <i className="fas fa-plus me-2"></i>Add First Note
+                              </span>
                             </button>
                           </div>
                         ) : (
@@ -735,7 +739,10 @@ const LeadDetail = () => {
                                     <div className="note-time text-muted">{note.formattedTime}</div>
                                   </div>
                                   <div className="note-content mt-2">
-                                    <span className="fw-bold text-primary">{note.author}</span> added a : {note.text}
+                                    <span className="d-flex align-items-center">
+                                      <span className="fw-bold text-primary">{note.author}</span>
+                                      <span className="ms-1">added a : {note.text}</span>
+                                    </span>
                                   </div>
                                 </div>
                               ))}
@@ -756,11 +763,7 @@ const LeadDetail = () => {
                                   </div>
                                   <div className="modal-body">
                                     <form onSubmit={handleAddNote}>
-                                      <div className="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                                        <div>
-                                          <span className="text-black">Lead ID: <span className="text-dark">{leadId}</span></span>
-                                        </div>
-                                      </div>
+
                                       <div className="mb-3">
                                         <textarea
                                           className="form-control"
@@ -776,8 +779,8 @@ const LeadDetail = () => {
                                         Your note will be saved with the current date and time.
                                       </div>
                                       <div className="d-flex justify-content-center gap-3 mt-4">
-                                        <button type="submit" className="btn btn-primary px-4 py-2">Save Note</button>
-                                        <button type="button" className="btn btn-secondary px-4 py-2" onClick={toggleAddNoteModal}>Cancel</button>
+                                        <button type="submit" className="btn modal-save-btn">Save Note</button>
+                                        <button type="button" className="btn modal-cancel-btn" onClick={toggleAddNoteModal}>Cancel</button>
                                       </div>
                                     </form>
                                   </div>
