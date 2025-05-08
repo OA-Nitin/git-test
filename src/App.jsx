@@ -18,6 +18,7 @@ import LeadReport from "./components/LeadReport";
 import ProjectReport from "./components/ProjectReport";
 import AllProjectsReport from "./components/AllProjectsReport";
 import ERCProjectsReport from "./components/ERCProjectsReport";
+import STCProjectsReport from "./components/STCProjectsReport";
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
 import MyProfile from "./components/MyProfile";
@@ -159,7 +160,7 @@ const App = () => {
         <Route path="/projects/stc" element={
           <ProtectedRoute>
             <Layout>
-              <ProjectReport projectType="stc" />
+              <STCProjectsReport />
             </Layout>
           </ProtectedRoute>
         } />
