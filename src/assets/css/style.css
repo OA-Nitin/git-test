@@ -3042,7 +3042,7 @@ table.dataTable {
 /* line 2, G:/admin_project/8 admin/management_html/scss/_sidebar.scss */
 #adminmenumain {
   height: 100vh;
-  width: 280px;
+  width: 270px;
   left: 0;
   top: 0;
   padding-bottom: 50px;
@@ -3549,7 +3549,7 @@ table.dataTable {
   color: #8890b5;
   font-weight: 400;
   padding: 0;
-  white-space: nowrap;
+  display: block;
   padding: 0;
   padding: 10px 0 10px 8px !important;
   margin-top: 0;
