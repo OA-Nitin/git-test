@@ -982,7 +982,7 @@ const LeadDetail = () => {
                         <div className="d-flex justify-content-between align-items-center mb-4 notes-header">
                           <h6 className="notes-title mb-0">Lead notes and activity history</h6>
                           <button
-                            className="btn add-note-btn"
+                            className="add-note-btn"
                             onClick={toggleAddNoteModal}
                           >
                             <span className="d-flex align-items-center">
