@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import './common/CommonStyles.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
@@ -16,6 +17,13 @@ const LeadDetail = () => {
   const [companyFolderLink, setCompanyFolderLink] = useState('https://bit.ly/3SoyiO1');
   const [documentFolderLink, setDocumentFolderLink] = useState('https://bit.ly/4jZTci8');
 
+  // Notes related state
+  const [notes, setNotes] = useState([]);
+  const [hasMoreNotes, setHasMoreNotes] = useState(true);
+  const [notesPage, setNotesPage] = useState(1);
+  const [newNote, setNewNote] = useState('');
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+
   useEffect(() => {
     document.title = `Lead #${leadId} - Occams Portal`;
     fetchLeadDetails();
@@ -25,6 +33,13 @@ const LeadDetail = () => {
   useEffect(() => {
     setTaxNowOnboardingStatus('');
   }, [taxNowSignupStatus]);
+
+  // Fetch notes when component loads
+  useEffect(() => {
+    if (lead && notes.length === 0) {
+      fetchNotes();
+    }
+  }, [lead]);
 
   const fetchLeadDetails = async () => {
     setLoading(true);
@@ -75,6 +90,119 @@ const LeadDetail = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+  };
+
+  // Function to fetch notes with pagination
+  const fetchNotes = () => {
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      // Mock data for notes with different dates
+      const mockNotes = [
+        {
+          id: 1,
+          text: 'Occams Finance created an invoice for STC with the invoice ID - #6580',
+          author: 'Occams Finance',
+          date: new Date('2025-05-08T09:45:00'),
+          formattedDate: 'May 8, 2025',
+          formattedTime: '9:45 AM'
+        },
+        {
+          id: 2,
+          text: 'Testsng by SP',
+          author: 'VB',
+          date: new Date('2025-05-07T11:07:00'),
+          formattedDate: 'May 7, 2025',
+          formattedTime: '11:07 AM'
+        },
+        {
+          id: 3,
+          text: 'Reminder for the Invoice No.: 6571 has been paused by demomater.ops',
+          author: 'demomater.ops',
+          date: new Date('2025-05-06T17:40:00'),
+          formattedDate: 'May 6, 2025',
+          formattedTime: '5:40 PM'
+        },
+        {
+          id: 4,
+          text: 'Demo Finance sent an invoice reminder using the Invoice: Second Direct Reminder template for Invoice Id #6571',
+          author: 'Demo Finance',
+          date: new Date('2025-05-06T16:16:00'),
+          formattedDate: 'May 6, 2025',
+          formattedTime: '4:16 PM'
+        },
+        {
+          id: 5,
+          text: 'An update was made by Master ops',
+          author: 'Master ops',
+          date: new Date('2025-05-05T14:13:00'),
+          formattedDate: 'May 5, 2025',
+          formattedTime: '2:13 PM'
+        }
+      ];
+
+      // If this is the first page, replace notes
+      // Otherwise append to existing notes
+      if (notesPage === 1) {
+        setNotes(mockNotes);
+      } else {
+        // For demo purposes, we'll add more notes with different dates
+        const moreNotes = mockNotes.map((note, index) => {
+          const newDate = new Date(note.date);
+          newDate.setDate(newDate.getDate() - 5); // 5 days earlier
+
+          return {
+            ...note,
+            id: notes.length + index + 1,
+            date: newDate,
+            formattedDate: newDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+            formattedTime: newDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+          };
+        });
+
+        setNotes([...notes, ...moreNotes]);
+      }
+
+      // For demo purposes, we'll stop loading more after 3 pages
+      if (notesPage >= 3) {
+        setHasMoreNotes(false);
+      }
+    }, 1000);
+  };
+
+  // Function to load more notes when scrolling
+  const loadMoreNotes = () => {
+    setNotesPage(prevPage => prevPage + 1);
+    fetchNotes();
+  };
+
+  // Function to toggle the add note modal
+  const toggleAddNoteModal = () => {
+    setShowAddNoteModal(!showAddNoteModal);
+    setNewNote('');
+  };
+
+  // Function to handle adding a new note
+  const handleAddNote = (e) => {
+    e.preventDefault();
+
+    if (newNote.trim() === '') return;
+
+    // Create a new note object
+    const currentDate = new Date();
+    const newNoteObj = {
+      id: notes.length + 1,
+      text: newNote,
+      author: 'Current User',
+      date: currentDate,
+      formattedDate: currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      formattedTime: currentDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    };
+
+    // Add the new note to the beginning of the notes array
+    setNotes([newNoteObj, ...notes]);
+
+    // Close the modal and reset the new note input
+    toggleAddNoteModal();
   };
 
   if (loading) {
@@ -222,6 +350,7 @@ const LeadDetail = () => {
                     Audit Logs
                   </a>
                 </li>
+
               </ul>
             </div>
 
@@ -538,6 +667,126 @@ const LeadDetail = () => {
                           </div>
                         </div>
                       </div>
+
+                      {/* Notes Section */}
+                      <h5 className="section-title mt-4">Notes</h5>
+                      <div className="notes-container p-0">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                          <p className="text-muted mb-0">Lead notes and activity history</p>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={toggleAddNoteModal}
+                          >
+                            <i className="fas fa-plus me-2"></i>Add Note
+                          </button>
+                        </div>
+
+                        {notes.length === 0 ? (
+                          <div className="text-center py-4 bg-light rounded">
+                            <div className="mb-3">
+                              <i className="fas fa-sticky-note fa-3x text-muted"></i>
+                            </div>
+                            <p className="text-muted">No notes available for this lead</p>
+                            <button
+                              className="btn btn-outline-primary mt-2"
+                              onClick={toggleAddNoteModal}
+                            >
+                              <i className="fas fa-plus me-2"></i>Add First Note
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            id="scrollableNotesDiv"
+                            style={{
+                              height: '300px',
+                              overflow: 'auto',
+                              border: '1px solid #e9ecef',
+                              borderRadius: '8px',
+                              padding: '20px',
+                              backgroundColor: '#f8f9fa'
+                            }}
+                          >
+                            <InfiniteScroll
+                              dataLength={notes.length}
+                              next={loadMoreNotes}
+                              hasMore={hasMoreNotes}
+                              loader={
+                                <div className="text-center py-3">
+                                  <div className="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                  </div>
+                                  <p className="text-muted small mt-2">Loading more notes...</p>
+                                </div>
+                              }
+                              endMessage={
+                                <div className="text-center py-3">
+                                  <p className="text-muted small">No more notes to load</p>
+                                </div>
+                              }
+                              scrollableTarget="scrollableNotesDiv"
+                            >
+                              {notes.map((note, index) => (
+                                <div
+                                  key={note.id}
+                                  className="note-item mb-3 p-3 bg-white rounded shadow-sm"
+                                >
+                                  <div className="d-flex justify-content-between">
+                                    <div className="note-date fw-bold">{note.formattedDate}</div>
+                                    <div className="note-time text-muted">{note.formattedTime}</div>
+                                  </div>
+                                  <div className="note-content mt-2">
+                                    <span className="fw-bold text-primary">{note.author}</span> added a : {note.text}
+                                  </div>
+                                </div>
+                              ))}
+                            </InfiniteScroll>
+                          </div>
+                        )}
+
+                        {/* Add Note Modal */}
+                        {showAddNoteModal && (
+                          <>
+                            <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                            <div className={`modal ${showAddNoteModal ? 'show' : ''}`} style={{ display: 'block' }}>
+                              <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '650px' }}>
+                                <div className="modal-content" style={{ borderRadius: '8px' }}>
+                                  <div className="modal-header pb-2">
+                                    <h5 className="modal-title">Add Note</h5>
+                                    <button type="button" className="btn-close" onClick={toggleAddNoteModal}></button>
+                                  </div>
+                                  <div className="modal-body">
+                                    <form onSubmit={handleAddNote}>
+                                      <div className="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+                                        <div>
+                                          <span className="text-black">Lead ID: <span className="text-dark">{leadId}</span></span>
+                                        </div>
+                                      </div>
+                                      <div className="mb-3">
+                                        <textarea
+                                          className="form-control"
+                                          rows="5"
+                                          placeholder="Enter your note here..."
+                                          value={newNote}
+                                          onChange={(e) => setNewNote(e.target.value)}
+                                          style={{ resize: 'vertical', minHeight: '100px' }}
+                                        ></textarea>
+                                      </div>
+                                      <div className="text-muted small">
+                                        <i className="fas fa-info-circle me-1"></i>
+                                        Your note will be saved with the current date and time.
+                                      </div>
+                                      <div className="d-flex justify-content-center gap-3 mt-4">
+                                        <button type="submit" className="btn btn-primary px-4 py-2">Save Note</button>
+                                        <button type="button" className="btn btn-secondary px-4 py-2" onClick={toggleAddNoteModal}>Cancel</button>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="col-md-4">
@@ -629,6 +878,8 @@ const LeadDetail = () => {
                   <p>Audit logs will be displayed here.</p>
                 </div>
               )}
+
+
             </div>
           </div>
         </div>

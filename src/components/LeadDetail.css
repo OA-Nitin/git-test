@@ -167,17 +167,22 @@ label a.ms-2:hover svg {
 }
 
 /* Notes section styles */
+.notes-container {
+  padding: 20px;
+}
+
 .notes-section {
   margin-top: 10px;
 }
 
 .note-item {
   border-left: 3px solid #0d6efd;
-  transition: transform 0.2s;
+  transition: all 0.2s ease;
 }
 
 .note-item:hover {
-  transform: translateX(5px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 .note-text {
@@ -195,7 +200,103 @@ label a.ms-2:hover svg {
 }
 
 .note-date {
-  margin-left: 5px;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.note-time {
+  font-size: 0.85rem;
+}
+
+.note-content {
+  line-height: 1.5;
+  color: #212529;
+}
+
+/* Modal styles for add note */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0;
+}
+
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.modal-header .btn-close {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  padding: 0.25rem;
+  margin: 0;
+  position: absolute;
+  right: 1.5rem;
+  top: 1.25rem;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+.modal textarea {
+  resize: none;
+  min-height: 120px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+.modal textarea:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.modal .btn-primary {
+  background-color: #6c63ff;
+  border-color: #6c63ff;
+  min-width: 120px;
+  border-radius: 4px;
+}
+
+.modal .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  min-width: 120px;
+  border-radius: 4px;
+}
+
+.modal .bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Infinite scroll styles */
+#scrollableNotesDiv::-webkit-scrollbar {
+  width: 8px;
+}
+
+#scrollableNotesDiv::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#scrollableNotesDiv::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+#scrollableNotesDiv::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
 .text-orange {
