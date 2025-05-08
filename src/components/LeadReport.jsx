@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
 import './DateFilter.css';
+import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
@@ -1213,8 +1214,7 @@ const LeadReport = () => {
                                         <Link
                                           to={`/lead-detail/${lead.lead_id}`}
                                           state={{ leadData: lead }}
-                                          className="text-primary"
-                                          style={{ textDecoration: 'underline', fontWeight: 'bold' }}
+                                          className="lead-link"
                                         >
                                           {lead.lead_id || ''}
                                         </Link>
@@ -1228,8 +1228,7 @@ const LeadReport = () => {
                                         <Link
                                           to={`/lead-detail/${lead.lead_id}`}
                                           state={{ leadData: lead }}
-                                          className="text-primary"
-                                          style={{ textDecoration: 'underline' }}
+                                          className="lead-link"
                                         >
                                           {lead.business_legal_name || ''}
                                         </Link>
