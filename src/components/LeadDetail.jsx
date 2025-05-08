@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
@@ -9,6 +9,9 @@ import { getAssetPath } from '../utils/assetUtils';
 
 const LeadDetail = () => {
   const { leadId } = useParams();
+  const location = useLocation();
+  const passedLeadData = location.state?.leadData;
+
   const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,9 +34,9 @@ const LeadDetail = () => {
   const [userOptions, setUserOptions] = useState([]);
 
   // Lead classification state
-  const [leadGroup, setLeadGroup] = useState({ value: 'erc-fprs', label: 'ERC - FPRS' });
-  const [leadCampaign, setLeadCampaign] = useState({ value: 'b2b', label: 'B2B' });
-  const [leadSource, setLeadSource] = useState({ value: 'payment-cloud', label: 'Payment Cloud' });
+  const [leadGroup, setLeadGroup] = useState(null);
+  const [leadCampaign, setLeadCampaign] = useState(null);
+  const [leadSource, setLeadSource] = useState(null);
 
   useEffect(() => {
     document.title = `Lead #${leadId} - Occams Portal`;
@@ -95,41 +98,76 @@ const LeadDetail = () => {
     setError(null);
 
     try {
-      // In a real application, you would fetch the lead details from your API
-      // For now, we'll simulate a delay and return mock data
-      setTimeout(() => {
-        const mockLead = {
-          lead_id: leadId,
-          business_legal_name: "CTCERC Play SP",
-          business_email: "shivraj.patil@occamsadvisory.com",
-          business_phone: "454-645-6456",
-          business_address: "123 Main St",
-          city: "Birmingham",
-          state: "Alabama",
-          zip: "35201",
-          website: "https://example.com",
-          business_type: "Corporation",
-          lead_status: "Active",
-          created: "2023-05-15",
-          source: "Referral",
-          campaign: "ERC - Referrals",
-          category: "ERC",
-          lead_group: "ERC - Referrals",
-          employee_id: "Master ops",
-          internal_sales_agent: "Leonard El",
-          internal_sales_support: "Varun Kumar",
-          registration_type: "N/A",
-          registration_number: "",
-          registration_date: "",
-          state_of_registration: "",
-          ein: "",
-          billing_profile: "",
-          taxnow_signup_status: "",
-          taxnow_onboarding_status: ""
-        };
-        setLead(mockLead);
+      // If we have lead data passed from the report page, use it
+      if (passedLeadData) {
+        console.log('Using passed lead data:', passedLeadData);
+        setLead(passedLeadData);
+
+        // Set TaxNow status if available
+        if (passedLeadData.taxnow_signup_status) {
+          setTaxNowSignupStatus(passedLeadData.taxnow_signup_status);
+        }
+        if (passedLeadData.taxnow_onboarding_status) {
+          setTaxNowOnboardingStatus(passedLeadData.taxnow_onboarding_status);
+        }
+
+        // Set lead classification data
+        if (passedLeadData.lead_group) {
+          setLeadGroup({ value: passedLeadData.lead_group.toLowerCase().replace(/\s+/g, '-'),
+                         label: passedLeadData.lead_group });
+        }
+
+        if (passedLeadData.campaign) {
+          setLeadCampaign({ value: passedLeadData.campaign.toLowerCase().replace(/\s+/g, '-'),
+                            label: passedLeadData.campaign });
+        }
+
+        if (passedLeadData.source) {
+          setLeadSource({ value: passedLeadData.source.toLowerCase().replace(/\s+/g, '-'),
+                          label: passedLeadData.source });
+        }
+
         setLoading(false);
-      }, 1000);
+      } else {
+        // Otherwise fetch from API or use mock data
+        console.log('No passed data, fetching from API or using mock data');
+
+        // In a real application, you would fetch the lead details from your API
+        // For now, we'll simulate a delay and return mock data
+        setTimeout(() => {
+          const mockLead = {
+            lead_id: leadId,
+            business_legal_name: "CTCERC Play SP",
+            business_email: "shivraj.patil@occamsadvisory.com",
+            business_phone: "454-645-6456",
+            business_address: "123 Main St",
+            city: "Birmingham",
+            state: "Alabama",
+            zip: "35201",
+            website: "https://example.com",
+            business_type: "Corporation",
+            lead_status: "Active",
+            created: "2023-05-15",
+            source: "Referral",
+            campaign: "ERC - Referrals",
+            category: "ERC",
+            lead_group: "ERC - Referrals",
+            employee_id: "Master ops",
+            internal_sales_agent: "Leonard El",
+            internal_sales_support: "Varun Kumar",
+            registration_type: "N/A",
+            registration_number: "",
+            registration_date: "",
+            state_of_registration: "",
+            ein: "",
+            billing_profile: "",
+            taxnow_signup_status: "",
+            taxnow_onboarding_status: ""
+          };
+          setLead(mockLead);
+          setLoading(false);
+        }, 1000);
+      }
     } catch (err) {
       console.error('Error fetching lead details:', err);
       setError(`Failed to fetch lead details: ${err.message}`);
@@ -452,13 +490,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Legal Name*</label>
-                            <input type="text" className="form-control" defaultValue="CTCERC Play" />
+                            <input type="text" className="form-control" defaultValue={lead.business_legal_name || ''} />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Doing Business As</label>
-                            <input type="text" className="form-control" defaultValue="" />
+                            <input type="text" className="form-control" defaultValue={lead.doing_business_as || ''} />
                           </div>
                         </div>
                       </div>
@@ -466,7 +504,7 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Category*</label>
-                            <input type="text" className="form-control" defaultValue="" />
+                            <input type="text" className="form-control" defaultValue={lead.category || ''} />
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -482,13 +520,13 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Authorized Signatory Name</label>
-                            <input type="text" className="form-control" defaultValue="CTCERC Play SP" />
+                            <input type="text" className="form-control" defaultValue={lead.authorized_signatory_name || ''} />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Phone*</label>
-                            <input type="text" className="form-control" defaultValue="454-645-6456" />
+                            <input type="text" className="form-control" defaultValue={lead.business_phone || ''} />
                           </div>
                         </div>
                       </div>
@@ -496,7 +534,7 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Email*</label>
-                            <input type="email" className="form-control" defaultValue="shivraj.patil@occmasadvisory.com" />
+                            <input type="email" className="form-control" defaultValue={lead.business_email || ''} />
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -540,19 +578,19 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Email</label>
-                            <input type="email" className="form-control" defaultValue="shivraj.patil@occmasadvisory.com" />
+                            <input type="email" className="form-control" defaultValue="shivraj.patil@occmasadvisory.com" readOnly />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Phone</label>
-                            <input type="text" className="form-control" defaultValue="454-645-6456" />
+                            <input type="text" className="form-control" defaultValue="454-645-6456" readOnly />
                           </div>
                         </div>
                         <div className="col-md-2">
                           <div className="form-group">
                             <label className="form-label">Contact Ext</label>
-                            <input type="text" className="form-control" defaultValue="" />
+                            <input type="text" className="form-control" defaultValue="" readOnly />
                           </div>
                         </div>
                       </div>
@@ -560,7 +598,7 @@ const LeadDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Contact Phone Type</label>
-                            <input type="text" className="form-control" defaultValue="" />
+                            <input type="text" className="form-control" defaultValue="" readOnly />
                           </div>
                         </div>
                       </div>
@@ -654,27 +692,25 @@ const LeadDetail = () => {
                         </div>
                       </div>
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Registration Date*</label>
                             <input type="date" className="form-control" value="" />
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">State of Registration*</label>
                             <input type="text" className="form-control" value="" />
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">EIN*</label>
                             <input type="text" className="form-control" value="" />
                           </div>
                         </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Tax ID Type*</label>
                             <select className="form-select">
@@ -687,18 +723,19 @@ const LeadDetail = () => {
                         </div>
                       </div>
 
+
                       <h5 className="section-title mt-4">Sales User</h5>
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Internal Sales Agent</label>
-                            <input type="text" className="form-control" value={lead.internal_sales_agent || ''} readOnly />
+                            <input type="text" className="form-control" defaultValue={lead.internal_sales_agent || ''} readOnly />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Internal Sales Support</label>
-                            <input type="text" className="form-control" value={lead.internal_sales_support || ''} readOnly />
+                            <input type="text" className="form-control" defaultValue={lead.internal_sales_support || ''} readOnly />
                           </div>
                         </div>
                       </div>
@@ -816,7 +853,7 @@ const LeadDetail = () => {
                               }
                               scrollableTarget="scrollableNotesDiv"
                             >
-                              {notes.map((note, index) => (
+                              {notes.map((note) => (
                                 <div
                                   key={note.id}
                                   className="note-item mb-3 p-3 bg-white rounded shadow-sm"

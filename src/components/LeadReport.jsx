@@ -1212,7 +1212,7 @@ const LeadReport = () => {
                                       <td key={column.id}>
                                         <Link
                                           to={`/lead-detail/${lead.lead_id}`}
-                                          target="_blank"
+                                          state={{ leadData: lead }}
                                           className="text-primary"
                                           style={{ textDecoration: 'underline', fontWeight: 'bold' }}
                                         >
@@ -1227,7 +1227,7 @@ const LeadReport = () => {
                                       <td key={column.id}>
                                         <Link
                                           to={`/lead-detail/${lead.lead_id}`}
-                                          target="_blank"
+                                          state={{ leadData: lead }}
                                           className="text-primary"
                                           style={{ textDecoration: 'underline' }}
                                         >
