@@ -23,8 +23,9 @@ export const menuData = [
     name: 'Projects',
     icon: 'dashicons-portfolio',
     children: [
-      { key: 'allProjects', name: 'All Projects', path: '/projects/all' },
-      { key: 'ercProjects', name: 'ERC Projects', path: '/projects/erc' },
+
+      { key: 'projectsReport', name: 'Project Reports', path: '/reports/projects' },
+      { key: 'ercProjects', name: 'ERC Projects Report', path: '/projects/erc' },
       { key: 'stcProjects', name: 'STC Projects', path: '/projects/stc' },
       { key: 'taxAmendmentProjects', name: 'Tax Amendment Projects', path: '/projects/tax-amendment' },
       { key: 'auditAdvisoryProjects', name: 'Audit Advisory Projects', path: '/projects/audit-advisory' },
@@ -38,7 +39,6 @@ export const menuData = [
     icon: 'dashicons-chart-bar',
     children: [
       { key: 'leadReports', name: 'Lead Reports', path: '/reports/leads' },
-      { key: 'projectReports', name: 'Project Reports', path: '/reports/projects' },
       { key: 'salesReports', name: 'Sales Reports', path: '/reports/sales' },
       { key: 'analytics', name: 'Analytics', path: '/reports/analytics' },
     ],
