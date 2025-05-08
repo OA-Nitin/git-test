@@ -47,6 +47,25 @@ const LeadDetail = () => {
     initials: 'SP'
   });
 
+  // Projects related state
+  const [project, setProject] = useState({
+    id: '1709',
+    businessName: 'CTCERC Play SP',
+    projectName: '',
+    productName: 'ERC',
+    productId: '935',
+    milestone: 'ERC Fulfillment',
+    milestoneId: '110',
+    stage: 'Success Fees Processing Client Initiate',
+    stageId: '169',
+    fee: '',
+    maxCredit: '',
+    estFee: '',
+    collaborator: 'Master Ops',
+    collaboratorId: '44025',
+    contactId: '6441'
+  });
+
   // Lead classification state
   const [leadGroup, setLeadGroup] = useState(null);
   const [leadCampaign, setLeadCampaign] = useState(null);
@@ -1082,7 +1101,7 @@ const LeadDetail = () => {
                     </div>
                   )}
 
-                 
+
 
                   {/* Affiliate Commission Tab Content */}
                   {activeTab === 'affiliateCommission' && (
@@ -1520,15 +1539,15 @@ const LeadDetail = () => {
                     </div>
                   )}
 
-                   {/* Contacts Tab Content */}
-                   {activeTab === 'contacts' && (
+                  {/* Contacts Tab Content */}
+                  {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
                         <a href="javascript:void(0)">
-                            <i className="fas fa-plus"></i> New Contact
+                            <i className="fa-solid fa-plus"></i> New Contact
                         </a>
-                        <a className="link_contact" href="javascript:void(0)" title="Link a contact">
-                          <i className="fas fa-plus"></i> Link a Contact
+                        <a className="link_contact" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#link-contact" title="Link a contact">
+                          <i className="fa-solid fa-plus"></i> Link a Contact
                         </a>
                       </div>
 
@@ -1548,7 +1567,7 @@ const LeadDetail = () => {
                                 </a>
                               </div>
                             </div>
-                            <div className="d-flex w-100 mt-2 align-items-center">
+                            <div className="d-flex w-100 mt-3 align-items-center">
                               <div className="circle">{primaryContact.initials}</div>
                               <div className="card-exam-title">
                                 <p><a href="javascript:void(0)" target="_blank">{primaryContact.name}</a></p>
@@ -1575,7 +1594,7 @@ const LeadDetail = () => {
                                 </a>
                               </div>
                             </div>
-                            <div className="d-flex w-100 mt-2 align-items-center">
+                            <div className="d-flex w-100 mt-3 align-items-center">
                               <div className="circle">{secondaryContact.initials}</div>
                               <div className="card-exam-title">
                                 <p><a href="javascript:void(0)" target="_blank">{secondaryContact.name}</a></p>
@@ -1593,8 +1612,50 @@ const LeadDetail = () => {
                   {/* Projects Tab Content */}
                   {activeTab === 'projects' && (
                     <div className="mb-4 left-section-container">
-                      <h4>Projects</h4>
-                      <p>Project information will be displayed here.</p>
+                      <div className="row custom_opp_tab">
+                        <div className="col-sm-12">
+                          <div className="custom_opp_tab_header">
+                            <h5><a href="javascript:void(0)"></a></h5>
+                            <div className="opp_edit_dlt_btn projects-iris">
+                              <a
+                                className="edit_project"
+                                data-projid={project.id}
+                                data-projname={project.projectName}
+                                data-businessname={project.businessName}
+                                data-productname={project.productName}
+                                data-productid={project.productId}
+                                data-milestone={project.milestone}
+                                data-milestoneid={project.milestoneId}
+                                data-stage={project.stage}
+                                data-stageid={project.stageId}
+                                data-fee={project.fee}
+                                data-max_credit={project.maxCredit}
+                                data-est_fee={project.estFee}
+                                data-collab={project.collaboratorId}
+                                data-contact={project.contactId}
+                                href="javascript:void(0)"
+                                title="Edit"
+                              >
+                                <i className="fas fa-pen"></i>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-7 text-left">
+                          <div className="lead_des">
+                            <p><b>Business Name:</b> {project.businessName}</p>
+                            <p><b>Project Name:</b> {project.projectName}</p>
+                            <p><b>Product Name:</b> {project.productName}</p>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="lead_des">
+                            <p><b>Milestone:</b> {project.milestone}</p>
+                            <p><b>Stage:</b> {project.stage}</p>
+                            <p><b>Collaborator:</b> {project.collaborator}</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
