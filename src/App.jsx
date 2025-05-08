@@ -8,6 +8,7 @@ import './assets/css/metisMenu.css';
 import './assets/css/themify-icons.css';
 import './assets/css/style.css';
 import './assets/css/header-dropdown.css';
+import './assets/css/custom-menu.css';
 import './assets/js/metisMenu.js';
 import Login from "./Login";
 import Layout from "./components/Layout";
@@ -15,6 +16,10 @@ import Dashboard from "./components/Dashboard";
 import CreateUser from "./components/CreateUser";
 import LeadReport from "./components/LeadReport";
 import LeadDetail from "./components/LeadDetail";
+import ProjectReport from "./components/ProjectReport";
+import AllProjectsReport from "./components/AllProjectsReport";
+import ERCProjectsReport from "./components/ERCProjectsReport";
+import STCProjectsReport from "./components/STCProjectsReport";
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
 import MyProfile from "./components/MyProfile";
@@ -68,6 +73,14 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <LeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/projects" element={
+          <ProtectedRoute>
+            <Layout>
+              <AllProjectsReport />
             </Layout>
           </ProtectedRoute>
         } />
@@ -133,6 +146,63 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <LeadDetail />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Project Routes */}
+        <Route path="/projects/all" element={
+          <ProtectedRoute>
+            <Layout>
+              <ProjectReport projectType="all" />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects/erc" element={
+          <ProtectedRoute>
+            <Layout>
+              <ERCProjectsReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects/stc" element={
+          <ProtectedRoute>
+            <Layout>
+              <STCProjectsReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects/tax-amendment" element={
+          <ProtectedRoute>
+            <Layout>
+              <ProjectReport projectType="tax-amendment" />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects/audit-advisory" element={
+          <ProtectedRoute>
+            <Layout>
+              <ProjectReport projectType="audit-advisory" />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects/rdc" element={
+          <ProtectedRoute>
+            <Layout>
+              <ProjectReport projectType="rdc" />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/projects/settings" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
             </Layout>
           </ProtectedRoute>
         } />

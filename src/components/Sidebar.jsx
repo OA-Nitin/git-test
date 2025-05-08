@@ -53,6 +53,18 @@ const Sidebar = () => {
     }
   }, []);
 
+  // Ensure Projects menu is always expanded
+  useEffect(() => {
+    const projectsMenu = document.getElementById('menu-item-projects');
+    if (projectsMenu) {
+      projectsMenu.classList.add('mm-active');
+      const submenu = projectsMenu.querySelector('.mm-collapse');
+      if (submenu) {
+        submenu.classList.add('mm-show');
+      }
+    }
+  }, []);
+
   // Render
   return (
     <div id="adminmenumain" className="sidebar ps ps--active-y">
@@ -108,7 +120,7 @@ const Sidebar = () => {
                 )}
 
                 {item.children && (
-                  <ul className="mm-collapse">
+                  <ul className={`mm-collapse ${item.key === 'projects' ? 'mm-show' : ''}`}>
                     <li className="wp-submenu-head" aria-hidden="true">{item.name}</li>
                     {item.children.map(child => {
                       const isChildActive = currentPath === child.path;

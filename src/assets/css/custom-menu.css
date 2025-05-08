@@ -1,0 +1,35 @@
+/* Custom styling for the Projects menu */
+#menu-item-projects > a {
+  background-color: #0073aa !important;
+  color: #fff !important;
+}
+
+#menu-item-projects .mm-collapse {
+  background-color: #0073aa !important;
+  display: block !important;
+}
+
+#menu-item-projects .mm-collapse li a {
+  color: #fff !important;
+  padding-left: 35px;
+}
+
+#menu-item-projects .mm-collapse li a:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#menu-item-projects .mm-collapse li.current a {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Make the Projects menu always expanded */
+#menu-item-projects .menu-arrow {
+  transform: rotate(90deg);
+  color: #fff;
+}
+
+/* Add a cyan color for "All Projects" */
+#menu-item-projects .mm-collapse li:first-child a {
+  color: #00ffff !important;
+}
