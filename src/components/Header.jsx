@@ -5,6 +5,7 @@ import '../assets/css/header-logout-button.css';
 import { getAssetPath } from '../utils/assetUtils';
 
 const Header = ({ user, onLogout }) => {
+  console.log('Header - user data:', user);
   return (
     <div id="wpadminbar" className="nojq header_iner">
       <div className="quicklinks" id="wp-toolbar" role="navigation" aria-label="Toolbar">
@@ -38,7 +39,7 @@ const Header = ({ user, onLogout }) => {
                 aria-haspopup="true"
                 href="#"
               >
-                Welcome, <span className="display-name">{user?.display_name || 'User'}</span>
+                Welcome, <span className="display-name">{user?.display_name || user?.username || 'User'}</span>
               </a>
               <div className="ab-sub-wrapper profile_info_iner">
                 <ul id="wp-admin-bar-user-actions" className="ab-submenu profile_info_details">
