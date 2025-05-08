@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import Select from 'react-select';
 import './common/CommonStyles.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
@@ -24,6 +25,11 @@ const LeadDetail = () => {
   const [newNote, setNewNote] = useState('');
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
 
+  // Assigned users related state
+  const [assignedUsers, setAssignedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userOptions, setUserOptions] = useState([]);
+
   useEffect(() => {
     document.title = `Lead #${leadId} - Occams Portal`;
     fetchLeadDetails();
@@ -40,6 +46,44 @@ const LeadDetail = () => {
       fetchNotes();
     }
   }, [lead]);
+
+  // Fetch user data when component loads
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  // Function to fetch dummy user data
+  const fetchUserData = () => {
+    // Dummy user data
+    const dummyUsers = [
+      { id: 1, name: 'Adriana Salcedo', role: 'FPRS ERC Sales Agent', avatar: 'AS' },
+      { id: 2, name: 'Alex Wasyl', role: 'Affiliate', avatar: 'AW' },
+      { id: 3, name: 'Amber Kellogg', role: 'Occams Sales Agents', avatar: 'AK' },
+      { id: 4, name: 'Ambur Hudson', role: 'FPRS ERC Sales Agent', avatar: 'AH' },
+      { id: 5, name: 'Amit Sharma', role: 'MCT Sales Team', avatar: 'AS' },
+      { id: 6, name: 'Andrew Miller', role: 'Affiliate', avatar: 'AM' },
+      { id: 7, name: 'Benjamin Clark', role: 'FPRS ERC Sales Agent', avatar: 'BC' },
+      { id: 8, name: 'Carla Rodriguez', role: 'Occams Sales Agents', avatar: 'CR' },
+      { id: 9, name: 'David Thompson', role: 'MCT Sales Team', avatar: 'DT' },
+      { id: 10, name: 'Emily Johnson', role: 'FPRS ERC Sales Agent', avatar: 'EJ' }
+    ];
+
+    // Set initial assigned user
+    setAssignedUsers([dummyUsers[0]]);
+
+    // Format options for react-select
+    const options = dummyUsers.map(user => ({
+      value: user.id,
+      label: (
+        <div className="d-flex align-items-center">
+          <span>{user.name} ({user.role})</span>
+        </div>
+      ),
+      user: user
+    }));
+
+    setUserOptions(options);
+  };
 
   const fetchLeadDetails = async () => {
     setLoading(true);
@@ -203,6 +247,33 @@ const LeadDetail = () => {
 
     // Close the modal and reset the new note input
     toggleAddNoteModal();
+  };
+
+  // Function to handle user selection
+  const handleUserChange = (selectedOption) => {
+    setSelectedUser(selectedOption);
+  };
+
+  // Function to assign a user
+  const handleAssignUser = () => {
+    if (selectedUser) {
+      // Check if user is already assigned
+      const isAlreadyAssigned = assignedUsers.some(user => user.id === selectedUser.user.id);
+
+      if (!isAlreadyAssigned) {
+        // Add the selected user to the assigned users list
+        setAssignedUsers([...assignedUsers, selectedUser.user]);
+      }
+
+      // Reset the selected user
+      setSelectedUser(null);
+    }
+  };
+
+  // Function to remove an assigned user
+  const handleRemoveUser = (userId) => {
+    const updatedUsers = assignedUsers.filter(user => user.id !== userId);
+    setAssignedUsers(updatedUsers);
   };
 
   if (loading) {
@@ -795,16 +866,71 @@ const LeadDetail = () => {
                   <div className="col-md-4">
                     <div className="card mb-4">
                       <div className="card-body">
-                        <h5 className="card-title">Assigned Users</h5>
-                        <div className="mb-3">
-                          <p className="mb-1">{lead.employee_id} <span className="badge bg-primary">master_ops</span></p>
+                        <h5 className="card-title">Assigned Users:</h5>
+
+                        {/* Display assigned users */}
+                        <div className="assigned-users-list mb-4">
+                          {assignedUsers.map(user => (
+                            <div key={user.id} className="simple-user-item d-flex align-items-center justify-content-between mb-2">
+                              <div className="user-name-simple">{user.name}</div>
+                              <button
+                                className="btn-remove-user"
+                                onClick={() => handleRemoveUser(user.id)}
+                                aria-label="Remove user"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                        <div className="form-group">
-                          <label className="form-label">Select User to Assign</label>
-                          <select className="form-select" disabled>
-                            <option>Select User to Assign</option>
-                          </select>
+
+                        {/* Select2 dropdown for user assignment */}
+                        <div className="form-group mb-3">
+                          <Select
+                            value={selectedUser}
+                            onChange={handleUserChange}
+                            options={userOptions}
+                            className="react-select-container"
+                            classNamePrefix="react-select"
+                            placeholder="Select user to assign..."
+                            isClearable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                borderRadius: '4px',
+                                borderColor: '#ced4da',
+                                boxShadow: 'none',
+                                '&:hover': {
+                                  borderColor: '#adb5bd'
+                                }
+                              }),
+                              option: (base, state) => ({
+                                ...base,
+                                backgroundColor: state.isSelected
+                                  ? '#6c63ff'
+                                  : state.isFocused
+                                    ? '#f0f4ff'
+                                    : 'white',
+                                color: state.isSelected ? 'white' : '#333',
+                                padding: '10px 12px'
+                              }),
+                              menu: (base) => ({
+                                ...base,
+                                zIndex: 9999,
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                              })
+                            }}
+                          />
                         </div>
+
+                        {/* Assign user button */}
+                        <button
+                          className="btn assign-user-btn w-100"
+                          onClick={handleAssignUser}
+                          disabled={!selectedUser}
+                        >
+                          Assign User
+                        </button>
                       </div>
                     </div>
 
