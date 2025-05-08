@@ -53,6 +53,48 @@ const Sidebar = () => {
     }
   }, []);
 
+  // Effect to initialize MetisMenu after menu data changes
+  useEffect(() => {
+    console.log('Menu data changed, initializing MetisMenu...');
+
+    // Wait for the DOM to update with the new menu data
+    const timer = setTimeout(() => {
+      if (window.$ && window.$.fn && window.$.fn.metisMenu) {
+        try {
+          console.log('Sidebar: Initializing MetisMenu after menu data change');
+
+          // First, dispose any existing instance
+          if (window.$('#adminmenu').data('metisMenu')) {
+            window.$('#adminmenu').metisMenu('dispose');
+          }
+
+          // Initialize metisMenu
+          window.$('#adminmenu').metisMenu({
+            toggle: true,
+            preventDefault: false,
+            triggerElement: 'a',
+            parentTrigger: 'li',
+            subMenu: 'ul'
+          });
+
+          // Add active class to current menu items
+          window.$('#adminmenu li a').each(function() {
+            const link = window.$(this).attr('href');
+            if (link && currentPath.includes(link) && link !== '/') {
+              window.$(this).addClass('active');
+              window.$(this).parents('li').addClass('mm-active');
+              window.$(this).parents('ul.mm-collapse').addClass('mm-show');
+            }
+          });
+        } catch (error) {
+          console.error('Error initializing MetisMenu from Sidebar component:', error);
+        }
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [sidebarMenu, currentPath]); // Re-run when menu data or current path changes
+
   // No longer forcing Projects menu to be always expanded
   // Now it behaves the same as Reports menu
 

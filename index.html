@@ -17,47 +17,7 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./src/main.jsx"></script>
-    <script src="./src/assets/js/custom-dropdown.js"></script>
-    <script>
-      // Initialize metisMenu after the React app has loaded
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          if (typeof $ !== 'undefined' && $.fn.metisMenu) {
-            $('#adminmenu').metisMenu({
-              toggle: true,
-              preventDefault: false,
-              triggerElement: 'a',
-              parentTrigger: 'li',
-              subMenu: 'ul'
-            });
-            console.log('MetisMenu initialized with jQuery');
-          } else {
-            console.error('jQuery or metisMenu not available');
-          }
-        }, 1000); // Delay to ensure React has rendered the menu
-      });
-
-      // Initialize dropdown menu
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          if (typeof $ !== 'undefined') {
-            // Initially hide the dropdown
-            $(".ab-sub-wrapper").hide();
-
-            // Hover effect for dropdown menu
-            $("#wp-admin-bar-my-account").hover(
-              function () {
-                $(this).find(".ab-sub-wrapper").stop().fadeIn("slow");
-              },
-              function () {
-                $(this).find(".ab-sub-wrapper").stop().fadeOut("slow");
-              }
-            );
-
-            console.log("Dropdown menu initialized inline");
-          }
-        }, 1500); // Delay to ensure React has rendered the menu
-      });
-    </script>
+    <!-- Load the initialization script -->
+    <script src="./js/init.js"></script>
   </body>
 </html>
