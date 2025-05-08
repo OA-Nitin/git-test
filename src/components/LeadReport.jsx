@@ -1215,6 +1215,8 @@ const LeadReport = () => {
                                           to={`/lead-detail/${lead.lead_id}`}
                                           state={{ leadData: lead }}
                                           className="lead-link"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
                                         >
                                           {lead.lead_id || ''}
                                         </Link>
@@ -1229,6 +1231,8 @@ const LeadReport = () => {
                                           to={`/lead-detail/${lead.lead_id}`}
                                           state={{ leadData: lead }}
                                           className="lead-link"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
                                         >
                                           {lead.business_legal_name || ''}
                                         </Link>
