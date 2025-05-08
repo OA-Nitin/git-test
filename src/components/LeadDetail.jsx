@@ -448,7 +448,7 @@ const LeadDetail = () => {
               {activeTab === 'businessInfo' && (
                 <div className="row">
                   <div className="col-md-8">
-                    <div className="mb-4">
+                    <div className="mb-4 left-section-container">
                       <h5 className="section-title">Business Identity</h5>
                       <div className="row mb-3">
                         <div className="col-md-6">
@@ -1043,12 +1043,12 @@ const LeadDetail = () => {
                       </div>
                     </div>
 
-                    <div className="action-buttons-container mt-4 mb-2">
-                      <div className="action-buttons">
-                        <button className="btn save-btn">Save</button>
-                        <button className="btn cancel-btn">Cancel</button>
-                      </div>
-                    </div>
+                  </div>
+                </div>
+                <div className="action-buttons-container mt-4 mb-2">
+                  <div className="action-buttons">
+                    <button className="btn save-btn">Save</button>
+                    <button className="btn cancel-btn">Cancel</button>
                   </div>
                 </div>
               )}
