@@ -1043,9 +1043,11 @@ const LeadDetail = () => {
                       </div>
                     </div>
 
-                    <div className="d-grid gap-2">
-                      <button className="btn btn-primary" disabled>Save</button>
-                      <button className="btn btn-danger" disabled>Cancel</button>
+                    <div className="action-buttons-container mt-4 mb-2">
+                      <div className="action-buttons">
+                        <button className="btn save-btn">Save</button>
+                        <button className="btn cancel-btn">Cancel</button>
+                      </div>
                     </div>
                   </div>
                 </div>
