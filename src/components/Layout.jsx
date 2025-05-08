@@ -8,7 +8,24 @@ const Layout = ({ children }) => {
   // Retrieve user data from localStorage
   const [userData] = useState(() => {
     const storedData = localStorage.getItem("user");
-    return storedData ? JSON.parse(storedData) : {};
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        console.log('Layout - parsed user data:', parsedData);
+
+        // Extract user data from the nested structure based on the exact JSON format
+        if (parsedData.data && parsedData.data.user) {
+          console.log('Layout - found user data in data.user:', parsedData.data.user);
+          return parsedData.data.user;
+        }
+
+        return parsedData;
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        return {};
+      }
+    }
+    return {};
   });
 
 

@@ -1,16 +1,59 @@
 // src/components/Sidebar.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/css/sidebar.css';
-import { menuData } from './menuData';
+import { menuData as defaultMenuData } from './menuData';
+import { menuData as opsMenuData } from './opsmenuData';
+import { menuData as financeMenuData } from './financemenuData';
 import { getAssetPath } from '../utils/assetUtils';
 
 const Sidebar = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const menuRef = useRef(null);
+  const [sidebarMenu, setSidebarMenu] = useState(defaultMenuData);
 
-  // 4. Render
+  useEffect(() => {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('user');
+    console.log('User data from localStorage:', userData);
+
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        console.log('Parsed user data:', parsedData);
+
+        // Access the roles from the correct nested path based on the JSON structure
+        let userRoles = [];
+
+        if (parsedData.data &&
+            parsedData.data.user &&
+            Array.isArray(parsedData.data.user.roles)) {
+          userRoles = parsedData.data.user.roles;
+          console.log('Found roles in data.user.roles:', userRoles);
+        }
+
+        // Set menu data based on user role
+        if (userRoles.includes('master_ops')) {
+          console.log('Loading ops menu for master_ops role');
+          setSidebarMenu(opsMenuData);
+        } else if (userRoles.includes('echeck_client')) {
+          console.log('Loading finance menu for echeck_client role');
+          setSidebarMenu(financeMenuData);
+        } else {
+          console.log('No matching role found, loading default menu');
+          setSidebarMenu(defaultMenuData);
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setSidebarMenu(defaultMenuData);
+      }
+    } else {
+      console.log('No user data found in localStorage');
+    }
+  }, []);
+
+  // Render
   return (
     <div id="adminmenumain" className="sidebar ps ps--active-y">
       <div id="adminmenuwrap">
@@ -20,7 +63,7 @@ const Sidebar = () => {
           </Link>
         </div>
         <ul id="adminmenu" className="metismenu" ref={menuRef}>
-          {menuData.map(item => {
+          {sidebarMenu.map(item => {
             const isActiveTop = item.path
               ? currentPath === item.path || currentPath === item.path + '/'
               : item.children?.some(c => currentPath.startsWith(c.path));
