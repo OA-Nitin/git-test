@@ -40,6 +40,44 @@
   box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.3);
 }
 
+/* Styled confirm button - Orange for Save Note */
+.swal2-styled.swal2-confirm {
+  background-color: #FF6B00 !important; /* Orange color */
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 24px;
+  margin: 5px;
+  border-radius: 6px; /* Slightly more rounded corners */
+  display: inline-block;
+  min-width: 120px; /* Minimum width */
+}
+
+.swal2-styled.swal2-confirm:hover {
+  background-color: #E86000 !important; /* Slightly darker orange on hover */
+  box-shadow: 0 4px 8px rgba(255, 107, 0, 0.3);
+}
+
+/* Styled cancel button - Red */
+.swal2-styled.swal2-cancel {
+  background-color: #FF0000 !important; /* Red color */
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 24px;
+  margin: 5px;
+  border-radius: 6px; /* Slightly more rounded corners */
+  display: inline-block;
+  min-width: 120px; /* Minimum width */
+}
+
+.swal2-styled.swal2-cancel:hover {
+  background-color: #E60000 !important; /* Slightly darker red on hover */
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+}
+
 /* Custom classes */
 .swal-custom-popup {
   width: 400px;
