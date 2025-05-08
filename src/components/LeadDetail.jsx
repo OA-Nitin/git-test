@@ -1048,7 +1048,7 @@ const LeadDetail = () => {
                                   </div>
                                   <div className="note-content mt-2">
                                     <span className="d-flex align-items-center">
-                                      <span className="fw-bold text-primary">{note.author}</span>
+                                      <span className="fw-bold text-dark">{note.author}</span>
                                       <span className="ms-1">added a : {note.text}</span>
                                     </span>
                                   </div>
