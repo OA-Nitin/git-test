@@ -543,24 +543,14 @@ label a.ms-2:hover svg {
 }
 
 /* Save and Cancel buttons */
-.action-buttons-container {
-  width: 100%;
-  padding: 15px 0;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e9ecef;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-}
 
 .action-buttons {
   display: flex;
-  justify-content: flex-end;
+  justify-content: start;
   gap: 15px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 15px;
 }
 .save-btn {
   background-color: #ff6600;

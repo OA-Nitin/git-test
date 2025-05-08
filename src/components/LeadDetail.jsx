@@ -1045,7 +1045,7 @@ const LeadDetail = () => {
 
                   </div>
                 </div>
-                <div className="action-buttons-container mt-4 mb-2">
+                <div className="mt-4 mb-2">
                   <div className="action-buttons">
                     <button className="btn save-btn">Save</button>
                     <button className="btn cancel-btn">Cancel</button>
