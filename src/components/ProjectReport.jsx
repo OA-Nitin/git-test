@@ -9,6 +9,7 @@ import './ColumnSelector.css';
 import './DateFilter.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
+import { getAssetPath } from '../utils/assetUtils';
 
 const ProjectReport = ({ projectType = 'all' }) => {
   // State for API data
@@ -636,7 +637,8 @@ const ProjectReport = ({ projectType = 'all' }) => {
           <div className="white_card card_height_100 mb_30">
             <div className="white_card_header">
               <div className="box_header m-0">
-                <div className="main-title">
+                <div className="title_img">
+                  <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
                   <h3 className="m-0">{projectType.charAt(0).toUpperCase() + projectType.slice(1)} Projects</h3>
                 </div>
               </div>

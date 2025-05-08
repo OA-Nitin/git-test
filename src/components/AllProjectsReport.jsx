@@ -9,6 +9,7 @@ import './ColumnSelector.css';
 import './DateFilter.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
+import { getAssetPath } from '../utils/assetUtils';
 
 // Function to format date as mm/dd/YYYY H:i:s
 const formatDate = (dateString) => {
@@ -1099,7 +1100,7 @@ const AllProjectsReport = () => {
               <div className="white_card_header">
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
-                    <img src="/assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
+                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
                     <h4 className="text-white">All Projects Report</h4>
                   </div>
                 </div>
