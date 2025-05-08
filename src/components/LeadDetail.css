@@ -85,7 +85,7 @@
 }
 
 .left-section-container::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #1658a5;
 }
 
 .form-label {
@@ -428,7 +428,7 @@ label a.ms-2:hover svg {
 }
 
 #scrollableNotesDiv::-webkit-scrollbar-thumb {
-  background: #1658a5;
+  background: #c1c1c1;
   border-radius: 4px;
 }
 
