@@ -3,8 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import '../assets/css/sidebar.css';
 import { menuData as defaultMenuData } from './menuData';
-import { menuData as opsMenuData } from './opsmenuData';
-import { menuData as financeMenuData } from './financemenuData';
+import opsMenuData from './opsmenuData';
+import financeMenuData from './financemenuData';
 import { getAssetPath } from '../utils/assetUtils';
 
 const Sidebar = () => {
