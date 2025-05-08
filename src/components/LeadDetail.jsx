@@ -33,6 +33,20 @@ const LeadDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
 
+  // Contacts related state
+  const [primaryContact, setPrimaryContact] = useState({
+    name: 'CTCERC Play',
+    email: 'shivraj.patil@occmasadvisory.com',
+    phone: '(454) 645-6456',
+    initials: 'CP'
+  });
+  const [secondaryContact, setSecondaryContact] = useState({
+    name: 'STC Play',
+    email: 'coraja1431@cartep.com',
+    phone: '(234) 234-2342',
+    initials: 'SP'
+  });
+
   // Lead classification state
   const [leadGroup, setLeadGroup] = useState(null);
   const [leadCampaign, setLeadCampaign] = useState(null);
@@ -1068,6 +1082,8 @@ const LeadDetail = () => {
                     </div>
                   )}
 
+                 
+
                   {/* Affiliate Commission Tab Content */}
                   {activeTab === 'affiliateCommission' && (
                     <div className="mb-4 left-section-container">
@@ -1504,11 +1520,73 @@ const LeadDetail = () => {
                     </div>
                   )}
 
-                  {/* Contacts Tab Content */}
-                  {activeTab === 'contacts' && (
+                   {/* Contacts Tab Content */}
+                   {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
-                      <h4>Contacts</h4>
-                      <p>Contact information will be displayed here.</p>
+                      <div className="row custom_opp_create_btn">
+                        <a href="javascript:void(0)">
+                            <i className="fas fa-plus"></i> New Contact
+                        </a>
+                        <a className="link_contact" href="javascript:void(0)" title="Link a contact">
+                          <i className="fas fa-plus"></i> Link a Contact
+                        </a>
+                      </div>
+
+                      <div className="row contact_tab_data mt-4">
+                        <div className="col-md-6 col-sm-12 mb-4 contact-card">
+                          <div className="card-exam shadow">
+                            <div className="custom_opp_tab_header">
+                              <h5>
+                                <i className="fas fa-star"></i> Primary
+                              </h5>
+                              <div className="opp_edit_dlt_btn">
+                                <a className="edit_contact" href="javascript:void(0)" title="Edit" data-contact-id="6441">
+                                  <i className="fas fa-pen"></i>
+                                </a>
+                                <a className="delete_contact" href="javascript:void(0)" data-contact-id="6441" title="Disable">
+                                  <i className="fas fa-ban"></i>
+                                </a>
+                              </div>
+                            </div>
+                            <div className="d-flex w-100 mt-2 align-items-center">
+                              <div className="circle">{primaryContact.initials}</div>
+                              <div className="card-exam-title">
+                                <p><a href="javascript:void(0)" target="_blank">{primaryContact.name}</a></p>
+                                <p>{primaryContact.email}</p>
+                                <p>{primaryContact.phone}</p>
+                                <input type="hidden" name="hidden_contact_name" id="hidden_contact_name_6441" value={primaryContact.name} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="col-md-6 col-sm-12 mb-4 contact-card">
+                          <div className="card-exam shadow">
+                            <div className="custom_opp_tab_header">
+                              <h5>
+                                <i className="fas fa-star"></i> Secondary
+                              </h5>
+                              <div className="opp_edit_dlt_btn">
+                                <a className="edit_contact" href="javascript:void(0)" title="Edit" data-contact-id="6380">
+                                  <i className="fas fa-pen"></i>
+                                </a>
+                                <a className="delete_contact" href="javascript:void(0)" data-contact-id="6380" title="Disable">
+                                  <i className="fas fa-ban"></i>
+                                </a>
+                              </div>
+                            </div>
+                            <div className="d-flex w-100 mt-2 align-items-center">
+                              <div className="circle">{secondaryContact.initials}</div>
+                              <div className="card-exam-title">
+                                <p><a href="javascript:void(0)" target="_blank">{secondaryContact.name}</a></p>
+                                <p>{secondaryContact.email}</p>
+                                <p>{secondaryContact.phone}</p>
+                                <input type="hidden" name="hidden_contact_name" id="hidden_contact_name_6380" value={secondaryContact.name} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
