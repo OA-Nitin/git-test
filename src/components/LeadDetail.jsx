@@ -479,12 +479,12 @@ const LeadDetail = () => {
             </div>
 
             <div className="white_card_body">
-              {/* Business Info Tab Content */}
-              {activeTab === 'businessInfo' && (
-                <div>
-                  <div className="row">
-                    <div className="col-md-8">
-                      <div className="mb-4 left-section-container">
+              <div className="row">
+                {/* Left Content Area - Changes based on active tab */}
+                <div className="col-md-8">
+                  {/* Business Info Tab Content */}
+                  {activeTab === 'businessInfo' && (
+                    <div className="mb-4 left-section-container">
                       <h5 className="section-title">Business Identity</h5>
                       <div className="row mb-3">
                         <div className="col-md-6">
@@ -915,209 +915,214 @@ const LeadDetail = () => {
                         )}
                       </div>
                     </div>
+                  )}
+
+                  {/* Affiliate Commission Tab Content */}
+                  {activeTab === 'affiliateCommission' && (
+                    <div className="mb-4 left-section-container">
+                      <h4>Affiliate Commission</h4>
+                      <p>Affiliate commission information will be displayed here.</p>
+                    </div>
+                  )}
+
+                  {/* Contacts Tab Content */}
+                  {activeTab === 'contacts' && (
+                    <div className="mb-4 left-section-container">
+                      <h4>Contacts</h4>
+                      <p>Contact information will be displayed here.</p>
+                    </div>
+                  )}
+
+                  {/* Projects Tab Content */}
+                  {activeTab === 'projects' && (
+                    <div className="mb-4 left-section-container">
+                      <h4>Projects</h4>
+                      <p>Project information will be displayed here.</p>
+                    </div>
+                  )}
+
+                  {/* Audit Logs Tab Content */}
+                  {activeTab === 'auditLogs' && (
+                    <div className="mb-4 left-section-container">
+                      <h4>Audit Logs</h4>
+                      <p>Audit logs will be displayed here.</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Side Section - Same for all tabs */}
+                <div className="col-md-4">
+                  <div className="card mb-4">
+                    <div className="card-body">
+                      <h5 className="card-title">Assigned Users:</h5>
+
+                      {/* Display assigned users */}
+                      <div className="assigned-users-list mb-4">
+                        {assignedUsers.map(user => (
+                          <div key={user.id} className="simple-user-item d-flex align-items-center justify-content-between mb-2">
+                            <div className="user-name-simple">{user.name}</div>
+                            <button
+                              className="btn-remove-user"
+                              onClick={() => handleRemoveUser(user.id)}
+                              aria-label="Remove user"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Select2 dropdown for user assignment */}
+                      <div className="form-group mb-3">
+                        <Select
+                          value={selectedUser}
+                          onChange={handleUserChange}
+                          options={userOptions}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          placeholder="Select user to assign..."
+                          isClearable
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: '4px',
+                              borderColor: '#ced4da',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#adb5bd'
+                              }
+                            }),
+                            option: (base, state) => ({
+                              ...base,
+                              backgroundColor: state.isSelected
+                                ? '#6c63ff'
+                                : state.isFocused
+                                  ? '#f0f4ff'
+                                  : 'white',
+                              color: state.isSelected ? 'white' : '#333',
+                              padding: '10px 12px'
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              zIndex: 9999,
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                            })
+                          }}
+                        />
+                      </div>
+
+                      {/* Assign user button */}
+                      <button
+                        className="btn assign-user-btn w-100"
+                        onClick={handleAssignUser}
+                        disabled={!selectedUser}
+                      >
+                        Assign User
+                      </button>
+                    </div>
                   </div>
-                  <div className="col-md-4">
-                    <div className="card mb-4">
-                      <div className="card-body">
-                        <h5 className="card-title">Assigned Users:</h5>
 
-                        {/* Display assigned users */}
-                        <div className="assigned-users-list mb-4">
-                          {assignedUsers.map(user => (
-                            <div key={user.id} className="simple-user-item d-flex align-items-center justify-content-between mb-2">
-                              <div className="user-name-simple">{user.name}</div>
-                              <button
-                                className="btn-remove-user"
-                                onClick={() => handleRemoveUser(user.id)}
-                                aria-label="Remove user"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
+                  <div className="card mb-4">
+                    <div className="card-body">
+                      <h5 className="card-title">Lead Group:</h5>
+                      <div className="form-group mb-4">
+                        <Select
+                          value={leadGroup}
+                          onChange={handleLeadGroupChange}
+                          options={[
+                            { value: 'erc-fprs', label: 'ERC - FPRS' },
+                            { value: 'erc-referrals', label: 'ERC - Referrals' },
+                            { value: 'erc-direct', label: 'ERC - Direct' },
+                            { value: 'erc-partners', label: 'ERC - Partners' }
+                          ]}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          isClearable
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: '4px',
+                              borderColor: '#ced4da',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#adb5bd'
+                              }
+                            })
+                          }}
+                        />
+                      </div>
 
-                        {/* Select2 dropdown for user assignment */}
-                        <div className="form-group mb-3">
-                          <Select
-                            value={selectedUser}
-                            onChange={handleUserChange}
-                            options={userOptions}
-                            className="react-select-container"
-                            classNamePrefix="react-select"
-                            placeholder="Select user to assign..."
-                            isClearable
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                borderRadius: '4px',
-                                borderColor: '#ced4da',
-                                boxShadow: 'none',
-                                '&:hover': {
-                                  borderColor: '#adb5bd'
-                                }
-                              }),
-                              option: (base, state) => ({
-                                ...base,
-                                backgroundColor: state.isSelected
-                                  ? '#6c63ff'
-                                  : state.isFocused
-                                    ? '#f0f4ff'
-                                    : 'white',
-                                color: state.isSelected ? 'white' : '#333',
-                                padding: '10px 12px'
-                              }),
-                              menu: (base) => ({
-                                ...base,
-                                zIndex: 9999,
-                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                              })
-                            }}
-                          />
-                        </div>
+                      <h5 className="card-title">Lead Campaign:</h5>
+                      <div className="form-group mb-4">
+                        <Select
+                          value={leadCampaign}
+                          onChange={handleLeadCampaignChange}
+                          options={[
+                            { value: 'b2b', label: 'B2B' },
+                            { value: 'referral', label: 'Referral' },
+                            { value: 'direct', label: 'Direct' },
+                            { value: 'partner', label: 'Partner' },
+                            { value: 'social', label: 'Social Media' }
+                          ]}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          isClearable
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: '4px',
+                              borderColor: '#ced4da',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#adb5bd'
+                              }
+                            })
+                          }}
+                        />
+                      </div>
 
-                        {/* Assign user button */}
-                        <button
-                          className="btn assign-user-btn w-100"
-                          onClick={handleAssignUser}
-                          disabled={!selectedUser}
-                        >
-                          Assign User
-                        </button>
+                      <h5 className="card-title">Lead Source:</h5>
+                      <div className="form-group">
+                        <Select
+                          value={leadSource}
+                          onChange={handleLeadSourceChange}
+                          options={[
+                            { value: 'payment-cloud', label: 'Payment Cloud' },
+                            { value: 'website', label: 'Website' },
+                            { value: 'cold-call', label: 'Cold Call' },
+                            { value: 'email', label: 'Email Campaign' },
+                            { value: 'linkedin', label: 'LinkedIn' },
+                            { value: 'facebook', label: 'Facebook' }
+                          ]}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          isClearable
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: '4px',
+                              borderColor: '#ced4da',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#adb5bd'
+                              }
+                            })
+                          }}
+                        />
                       </div>
                     </div>
+                  </div>
 
-                    <div className="card mb-4">
-                      <div className="card-body">
-                        <h5 className="card-title">Lead Group:</h5>
-                        <div className="form-group mb-4">
-                          <Select
-                            value={leadGroup}
-                            onChange={handleLeadGroupChange}
-                            options={[
-                              { value: 'erc-fprs', label: 'ERC - FPRS' },
-                              { value: 'erc-referrals', label: 'ERC - Referrals' },
-                              { value: 'erc-direct', label: 'ERC - Direct' },
-                              { value: 'erc-partners', label: 'ERC - Partners' }
-                            ]}
-                            className="react-select-container"
-                            classNamePrefix="react-select"
-                            isClearable
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                borderRadius: '4px',
-                                borderColor: '#ced4da',
-                                boxShadow: 'none',
-                                '&:hover': {
-                                  borderColor: '#adb5bd'
-                                }
-                              })
-                            }}
-                          />
-                        </div>
-
-                        <h5 className="card-title">Lead Campaign:</h5>
-                        <div className="form-group mb-4">
-                          <Select
-                            value={leadCampaign}
-                            onChange={handleLeadCampaignChange}
-                            options={[
-                              { value: 'b2b', label: 'B2B' },
-                              { value: 'referral', label: 'Referral' },
-                              { value: 'direct', label: 'Direct' },
-                              { value: 'partner', label: 'Partner' },
-                              { value: 'social', label: 'Social Media' }
-                            ]}
-                            className="react-select-container"
-                            classNamePrefix="react-select"
-                            isClearable
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                borderRadius: '4px',
-                                borderColor: '#ced4da',
-                                boxShadow: 'none',
-                                '&:hover': {
-                                  borderColor: '#adb5bd'
-                                }
-                              })
-                            }}
-                          />
-                        </div>
-
-                        <h5 className="card-title">Lead Source:</h5>
-                        <div className="form-group">
-                          <Select
-                            value={leadSource}
-                            onChange={handleLeadSourceChange}
-                            options={[
-                              { value: 'payment-cloud', label: 'Payment Cloud' },
-                              { value: 'website', label: 'Website' },
-                              { value: 'cold-call', label: 'Cold Call' },
-                              { value: 'email', label: 'Email Campaign' },
-                              { value: 'linkedin', label: 'LinkedIn' },
-                              { value: 'facebook', label: 'Facebook' }
-                            ]}
-                            className="react-select-container"
-                            classNamePrefix="react-select"
-                            isClearable
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                borderRadius: '4px',
-                                borderColor: '#ced4da',
-                                boxShadow: 'none',
-                                '&:hover': {
-                                  borderColor: '#adb5bd'
-                                }
-                              })
-                            }}
-                          />
-                        </div>
+                  <div className="card mt-4">
+                    <div className="card-body">
+                      <div className="action-buttons">
+                        <button className="btn save-btn">Save</button>
+                        <button className="btn cancel-btn">Cancel</button>
                       </div>
                     </div>
-
-                    <div className="mt-4">
-                        <div className="action-buttons">
-                          <button className="btn save-btn">Save</button>
-                          <button className="btn cancel-btn">Cancel</button>
-                        </div>
-                    </div>
-
-                  </div>
                   </div>
                 </div>
-              )}
-
-              {/* Placeholder content for other tabs */}
-              {activeTab === 'affiliateCommission' && (
-                <div>
-                  <h4>Affiliate Commission</h4>
-                  <p>Affiliate commission information will be displayed here.</p>
-                </div>
-              )}
-
-              {activeTab === 'contacts' && (
-                <div>
-                  <h4>Contacts</h4>
-                  <p>Contact information will be displayed here.</p>
-                </div>
-              )}
-
-              {activeTab === 'projects' && (
-                <div>
-                  <h4>Projects</h4>
-                  <p>Project information will be displayed here.</p>
-                </div>
-              )}
-
-              {activeTab === 'auditLogs' && (
-                <div>
-                  <h4>Audit Logs</h4>
-                  <p>Audit logs will be displayed here.</p>
-                </div>
-              )}
+              </div>
 
 
             </div>
