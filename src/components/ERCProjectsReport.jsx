@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
-import './DateFilter.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';

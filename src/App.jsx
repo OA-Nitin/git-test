@@ -8,7 +8,6 @@ import './assets/css/metisMenu.css';
 import './assets/css/themify-icons.css';
 import './assets/css/style.css';
 import './assets/css/header-dropdown.css';
-import './assets/css/custom-menu.css';
 import './assets/js/metisMenu.js';
 import Login from "./Login";
 import Layout from "./components/Layout";

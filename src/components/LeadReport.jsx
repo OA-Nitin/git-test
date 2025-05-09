@@ -7,7 +7,6 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
-import './DateFilter.css';
 import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import Notes from './common/Notes';
