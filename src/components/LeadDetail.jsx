@@ -5,6 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
 import './common/CommonStyles.css';
 import './LeadDetail.css';
+import Notes from './common/Notes';
 import { getAssetPath } from '../utils/assetUtils';
 
 const LeadDetail = () => {
@@ -978,126 +979,14 @@ const LeadDetail = () => {
 
                       {/* Notes Section */}
                       <h5 className="section-title mt-4">Notes</h5>
-                      <div className="notes-container p-0">
-                        <div className="d-flex justify-content-between align-items-center mb-4 notes-header">
-                          <h6 className="notes-title mb-0">Lead notes and activity history</h6>
-                          <button
-                            className="add-note-btn"
-                            onClick={toggleAddNoteModal}
-                          >
-                            <span className="d-flex align-items-center">
-                              <i className="fas fa-plus me-2"></i>Add Note
-                            </span>
-                          </button>
-                        </div>
-
-                        {notes.length === 0 ? (
-                          <div className="text-center py-4 bg-light rounded">
-                            <div className="mb-3">
-                              <i className="fas fa-sticky-note fa-3x text-muted"></i>
-                            </div>
-                            <p className="text-muted">No notes available for this lead</p>
-                            <button
-                              className="btn add-note-btn mt-3"
-                              onClick={toggleAddNoteModal}
-                            >
-                              <span className="d-flex align-items-center">
-                                <i className="fas fa-plus me-2"></i>Add First Note
-                              </span>
-                            </button>
-                          </div>
-                        ) : (
-                          <div
-                            id="scrollableNotesDiv"
-                            style={{
-                              height: '300px',
-                              overflow: 'auto',
-                              border: '1px solid #e9ecef',
-                              borderRadius: '8px',
-                              padding: '20px',
-                              backgroundColor: '#f8f9fa'
-                            }}
-                          >
-                            <InfiniteScroll
-                              dataLength={notes.length}
-                              next={loadMoreNotes}
-                              hasMore={hasMoreNotes}
-                              loader={
-                                <div className="text-center py-3">
-                                  <div className="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                  </div>
-                                  <p className="text-muted small mt-2">Loading more notes...</p>
-                                </div>
-                              }
-                              endMessage={
-                                <div className="text-center py-3">
-                                  <p className="text-muted small">No more notes to load</p>
-                                </div>
-                              }
-                              scrollableTarget="scrollableNotesDiv"
-                            >
-                              {notes.map((note) => (
-                                <div
-                                  key={note.id}
-                                  className="note-item mb-3 p-3 bg-white rounded shadow-sm"
-                                >
-                                  <div className="d-flex justify-content-between">
-                                    <div className="note-date fw-bold">{note.formattedDate}</div>
-                                    <div className="note-time text-muted">{note.formattedTime}</div>
-                                  </div>
-                                  <div className="note-content mt-2">
-                                    <span className="d-flex align-items-center">
-                                      <span className="fw-bold text-dark">{note.author}</span>
-                                      <span className="ms-1">added a : {note.text}</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </InfiniteScroll>
-                          </div>
-                        )}
-
-                        {/* Add Note Modal */}
-                        {showAddNoteModal && (
-                          <>
-                            <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                            <div className={`modal ${showAddNoteModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                              <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '650px' }}>
-                                <div className="modal-content" style={{ borderRadius: '8px' }}>
-                                  <div className="modal-header pb-2">
-                                    <h5 className="modal-title">Add Note</h5>
-                                    <button type="button" className="btn-close" onClick={toggleAddNoteModal}></button>
-                                  </div>
-                                  <div className="modal-body">
-                                    <form onSubmit={handleAddNote}>
-
-                                      <div className="mb-3">
-                                        <textarea
-                                          className="form-control"
-                                          rows="5"
-                                          placeholder="Enter your note here..."
-                                          value={newNote}
-                                          onChange={(e) => setNewNote(e.target.value)}
-                                          style={{ resize: 'vertical', minHeight: '100px' }}
-                                        ></textarea>
-                                      </div>
-                                      <div className="text-muted small">
-                                        <i className="fas fa-info-circle me-1"></i>
-                                        Your note will be saved with the current date and time.
-                                      </div>
-                                      <div className="d-flex justify-content-center gap-3 mt-4">
-                                        <button type="submit" className="btn modal-save-btn">Save Note</button>
-                                        <button type="button" className="btn modal-cancel-btn" onClick={toggleAddNoteModal}>Cancel</button>
-                                      </div>
-                                    </form>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <Notes
+                        entityType="lead"
+                        entityId={leadId}
+                        entityName={lead?.business_legal_name || ''}
+                        showButtons={false}
+                        showNotes={true}
+                        maxHeight={300}
+                      />
                     </div>
                   )}
 
