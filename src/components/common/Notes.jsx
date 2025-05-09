@@ -38,20 +38,24 @@ const Notes = ({
 
   // Determine API endpoints based on entity type
   const getApiEndpoints = () => {
+    // Make sure entityId is not undefined or null
+    const safeEntityId = entityId || '';
+    console.log('Using entityId for API endpoints:', safeEntityId);
+
     switch (entityType) {
       case 'lead':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${entityId}`,
+          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
           post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
       case 'project':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${entityId}`,
+          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
           post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
         };
       default:
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${entityId}`,
+          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
           post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
     }
@@ -182,22 +186,32 @@ const Notes = ({
     // Allow empty notes to be submitted, but trim it for the API call
     const trimmedNote = newNote.trim();
 
+    // Debug information
+    console.log('Adding note for:', { entityType, entityId, trimmedNote });
+
     setLoading(true);
 
     const { post } = getApiEndpoints();
+    console.log('Using API endpoint:', post);
+
+    // Make sure entityId is not undefined or null
+    const safeEntityId = entityId || '';
 
     // Prepare the data for the API based on entity type
     const noteData = entityType === 'project'
       ? {
-          project_id: entityId,
+          project_id: safeEntityId,
           note: trimmedNote,
           user_id: 1  // This should ideally come from a user context
         }
       : {
-          lead_id: entityId,
+          lead_id: safeEntityId,
           note: trimmedNote,
           status: 'active'
         };
+
+    // Log the data being sent
+    console.log('Sending note data:', noteData);
 
     // Send the data to the API
     axios.post(post, noteData, {
@@ -208,6 +222,11 @@ const Notes = ({
     })
       .then(response => {
         console.log('Note added successfully:', response);
+
+        // Check if the response contains an error message
+        if (response.data && response.data.error) {
+          throw new Error(response.data.error);
+        }
 
         // Show success message
         Swal.fire({
@@ -234,11 +253,29 @@ const Notes = ({
         // Refresh the notes
         setTimeout(() => {
           fetchNotes();
-          onNotesUpdated(); // Call the callback function
+          // Call the callback function if provided
+          if (typeof onNotesUpdated === 'function') {
+            onNotesUpdated();
+          }
         }, 2100);
       })
       .catch(err => {
         console.error('Error adding note:', err);
+
+        // Log more detailed error information
+        if (err.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error('Error response data:', err.response.data);
+          console.error('Error response status:', err.response.status);
+          console.error('Error response headers:', err.response.headers);
+        } else if (err.request) {
+          // The request was made but no response was received
+          console.error('Error request:', err.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Error message:', err.message);
+        }
 
         Swal.fire({
           title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
@@ -248,6 +285,7 @@ const Notes = ({
                 <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
               </div>
               <p class="text-muted">There was a problem saving your note. Please try again.</p>
+              <p class="text-muted small">${err.response ? `Error: ${err.response.status} - ${err.response.statusText}` : err.message}</p>
             </div>
           `,
           confirmButtonText: 'OK',
@@ -391,6 +429,7 @@ const Notes = ({
           <div className="d-flex justify-content-center mt-4">
             <SaveButton
               type="submit"
+              text="Save Note"
               onClick={() => {}} // Form will handle submission
               disabled={loading}
               loading={loading}

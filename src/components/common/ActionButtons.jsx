@@ -11,6 +11,7 @@ import './ActionButtons.css';
  * @param {boolean} [props.loading=false] - Whether to show loading state
  * @param {string} [props.className=''] - Additional CSS classes
  * @param {Object} [props.style={}] - Additional inline styles
+ * @param {string} [props.type='button'] - Button type (button, submit, reset)
  * @returns {JSX.Element} - Rendered component
  */
 export const SaveButton = ({
@@ -19,11 +20,12 @@ export const SaveButton = ({
   disabled = false,
   loading = false,
   className = '',
-  style = {}
+  style = {},
+  type = 'button'
 }) => {
   return (
     <button
-      type="button"
+      type={type}
       className={`action-btn save-btn ${className}`}
       onClick={onClick}
       disabled={disabled || loading}
@@ -47,7 +49,8 @@ SaveButton.propTypes = {
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
   className: PropTypes.string,
-  style: PropTypes.object
+  style: PropTypes.object,
+  type: PropTypes.oneOf(['button', 'submit', 'reset'])
 };
 
 /**
