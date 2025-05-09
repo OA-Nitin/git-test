@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// CSS imports
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -9,20 +11,39 @@ import './assets/css/themify-icons.css';
 import './assets/css/style.css';
 import './assets/css/header-dropdown.css';
 import './assets/css/custom-menu.css';
+
+// JS imports
 import './assets/js/metisMenu.js';
+
+// Core components
 import Login from "./Login";
 import Layout from "./components/Layout";
 import Dashboard from "./components/Dashboard";
+import MyProfile from "./components/MyProfile";
 import CreateUser from "./components/CreateUser";
+
+// Lead components
 import LeadReport from "./components/LeadReport";
 import LeadDetail from "./components/LeadDetail";
+import ERCLeadReport from "./components/ERCLeadReport";
+import STCLeadReport from "./components/STCLeadReport";
+import TaxAmendmentLeadReport from "./components/TaxAmendmentLeadReport";
+import AuditAdvisoryLeadReport from "./components/AuditAdvisoryLeadReport";
+import RDCLeadReport from "./components/RDCLeadReport";
+import PartnershipLeadReport from "./components/PartnershipLeadReport";
+
+// Project components
 import ProjectReport from "./components/ProjectReport";
 import AllProjectsReport from "./components/AllProjectsReport";
 import ERCProjectsReport from "./components/ERCProjectsReport";
 import STCProjectsReport from "./components/STCProjectsReport";
+import TaxAmendmentProjectsReport from "./components/TaxAmendmentProjectsReport";
+import AuditAdvisoryProjectsReport from "./components/AuditAdvisoryProjectsReport";
+import RDCProjectsReport from "./components/RDCProjectsReport";
+
+// Finance components
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
-import MyProfile from "./components/MyProfile";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -178,7 +199,7 @@ const App = () => {
         <Route path="/projects/tax-amendment" element={
           <ProtectedRoute>
             <Layout>
-              <ProjectReport projectType="tax-amendment" />
+              <TaxAmendmentProjectsReport />
             </Layout>
           </ProtectedRoute>
         } />
@@ -186,7 +207,7 @@ const App = () => {
         <Route path="/projects/audit-advisory" element={
           <ProtectedRoute>
             <Layout>
-              <ProjectReport projectType="audit-advisory" />
+              <AuditAdvisoryProjectsReport />
             </Layout>
           </ProtectedRoute>
         } />
@@ -194,7 +215,7 @@ const App = () => {
         <Route path="/projects/rdc" element={
           <ProtectedRoute>
             <Layout>
-              <ProjectReport projectType="rdc" />
+              <RDCProjectsReport />
             </Layout>
           </ProtectedRoute>
         } />
@@ -207,6 +228,62 @@ const App = () => {
           </ProtectedRoute>
         } />
 
+        {/* Report Routes */}
+        <Route path="/reports/erc-lead-report" element={
+          <ProtectedRoute>
+            <Layout>
+              <ERCLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/stc-lead-report" element={
+          <ProtectedRoute>
+            <Layout>
+              <STCLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/tax-amendment-lead-report" element={
+          <ProtectedRoute>
+            <Layout>
+              <TaxAmendmentLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/audit-advisory-lead-report" element={
+          <ProtectedRoute>
+            <Layout>
+              <AuditAdvisoryLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/rdc-lead-report" element={
+          <ProtectedRoute>
+            <Layout>
+              <RDCLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/partnership-lead-report" element={
+          <ProtectedRoute>
+            <Layout>
+              <PartnershipLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/reports/advanced-reports" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
       </Routes>
     </Router>
   );

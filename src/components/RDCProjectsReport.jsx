@@ -36,18 +36,18 @@ const formatDate = (dateString) => {
   }
 };
 
-const ProjectReport = ({ projectType = 'all' }) => {
+const RDCProjectsReport = () => {
   // State for API data
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    document.title = `${projectType.charAt(0).toUpperCase() + projectType.slice(1)} Projects Report - Occams Portal`;
+    document.title = "RDC Projects Report - Occams Portal"; // Set title for RDC Projects Report page
 
     // Fetch projects from API
     fetchProjects();
-  }, [projectType]);
+  }, []);
 
   // Function to fetch projects from API
   const fetchProjects = async () => {
@@ -58,12 +58,7 @@ const ProjectReport = ({ projectType = 'all' }) => {
       console.log('Fetching projects from API...');
 
       // Use the updated endpoint provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects?product_id=935';
-
-      // Add project type filter if not 'all'
-      if (projectType !== 'all') {
-        apiUrl += `&project_type=${projectType}`;
-      }
+      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects?product_id=932';
 
       // Make the API request with proper headers
       const response = await axios.get(apiUrl, {
@@ -223,7 +218,7 @@ const ProjectReport = ({ projectType = 'all' }) => {
         business_phone: `${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
         business_email: `test${i}@example.com`,
         taxnow_signup_status: taxNowStatuses[taxNowStatusIndex],
-        product_name: productNames[productIndex],
+        product_name: 'RDC',
         milestone: milestones[milestoneIndex],
         stage_name: stageNames[stageIndex],
         notes: 'Sample notes for testing purposes'
@@ -392,211 +387,6 @@ const ProjectReport = ({ projectType = 'all' }) => {
     }
   };
 
-  // Handle export to CSV
-  const exportToCSV = () => {
-    // Confirm export with user if there are many projects
-    if (filteredProjects.length > 100) {
-      if (!confirm(`You are about to export ${filteredProjects.length} projects. This may take a moment. Continue?`)) {
-        return;
-      }
-    }
-
-    // Get visible columns and their data, excluding action columns that shouldn't be exported
-    const columnsToExclude = ['documents', 'notes', 'contactInfo'];
-    const visibleColumnsData = allColumns.filter(column =>
-      visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
-    );
-
-    // Create headers from visible columns
-    const headers = visibleColumnsData.map(column => column.label);
-
-    // Create CSV data rows
-    const csvData = filteredProjects.map(project => {
-      return visibleColumnsData.map(column => {
-        // Handle special columns with custom rendering
-        if (column.id === 'date') return formatDate(project.created_at) || '';
-        if (column.id === 'businessName') {
-          const businessName = project.business_legal_name || '';
-          // Escape quotes in CSV
-          return `"${businessName.replace(/"/g, '""')}"`;
-        }
-        if (column.id === 'productName') return project.product_name || '';
-        if (column.id === 'projectName') return project.project_name || '';
-        if (column.id === 'collaborators') return project.collaborators || '';
-        if (column.id === 'milestone') return project.milestone || '';
-        if (column.id === 'stageName') return project.stage_name || '';
-        if (column.id === 'projectId') return project.project_id || '';
-        if (column.id === 'taxNowSignupStatus') return project.taxnow_signup_status || '';
-        if (column.id === 'projectFee') return project.project_fee || '';
-
-        // Default case
-        return '';
-      });
-    });
-
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${projectType}_projects_${new Date().toISOString().slice(0, 10)}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Handle export to PDF
-  const exportToPDF = () => {
-    try {
-      // Confirm export with user if there are many projects
-      if (filteredProjects.length > 100) {
-        if (!confirm(`You are about to export ${filteredProjects.length} projects to PDF. This may take a moment and result in a large file. Continue?`)) {
-          return;
-        }
-      }
-
-      // Get visible columns and their data, excluding action columns that shouldn't be exported
-      const columnsToExclude = ['documents', 'notes', 'contactInfo'];
-      const visibleColumnsData = allColumns.filter(column =>
-        visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
-      );
-
-      // Initialize jsPDF with landscape orientation
-      const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      // Add title
-      doc.setFontSize(16);
-      doc.text(`${projectType.charAt(0).toUpperCase() + projectType.slice(1)} Projects Report`, 15, 15);
-
-      // Add generation date and filter info
-      doc.setFontSize(10);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 22);
-
-      let yPos = 27;
-
-      if (filterStatus) {
-        doc.text(`Filtered by status: ${filterStatus}`, 15, yPos);
-        yPos += 5;
-      }
-
-      if (searchTerm) {
-        doc.text(`Search term: "${searchTerm}"`, 15, yPos);
-        yPos += 5;
-      }
-
-      // Create table data
-      const tableColumn = visibleColumnsData.map(column => column.label);
-
-      // Create table rows with data for visible columns
-      const tableRows = filteredProjects.map(project => {
-        return visibleColumnsData.map(column => {
-          // Handle special columns with custom rendering
-          if (column.id === 'date') return formatDate(project.created_at) || '';
-          if (column.id === 'businessName') return project.business_legal_name || '';
-          if (column.id === 'productName') return project.product_name || '';
-          if (column.id === 'projectName') return project.project_name || '';
-          if (column.id === 'collaborators') return project.collaborators || '';
-          if (column.id === 'milestone') return project.milestone || '';
-          if (column.id === 'stageName') return project.stage_name || '';
-          if (column.id === 'projectId') return project.project_id || '';
-          if (column.id === 'taxNowSignupStatus') return project.taxnow_signup_status || '';
-          if (column.id === 'projectFee') return project.project_fee || '';
-
-          // Default case
-          return '';
-        });
-      });
-
-      // Add table to document using the imported autoTable function
-      autoTable(doc, {
-        head: [tableColumn],
-        body: tableRows,
-        startY: yPos,
-        theme: 'grid',
-        headStyles: {
-          fillColor: [41, 128, 185],
-          textColor: 255,
-          fontStyle: 'bold'
-        },
-        styles: {
-          fontSize: 9,
-          cellPadding: 2,
-          overflow: 'linebreak',
-          halign: 'left'
-        }
-      });
-
-      // Save the PDF with date in filename
-      doc.save(`${projectType}_projects_${new Date().toISOString().slice(0, 10)}.pdf`);
-    } catch (error) {
-      console.error('PDF generation error:', error);
-      alert('Error generating PDF: ' + error.message);
-    }
-  };
-
-  // Handle export to Excel
-  const exportToExcel = () => {
-    try {
-      // Confirm export with user if there are many projects
-      if (filteredProjects.length > 100) {
-        if (!confirm(`You are about to export ${filteredProjects.length} projects to Excel. This may take a moment. Continue?`)) {
-          return;
-        }
-      }
-
-      // Get visible columns and their data, excluding action columns that shouldn't be exported
-      const columnsToExclude = ['documents', 'notes', 'contactInfo'];
-      const visibleColumnsData = allColumns.filter(column =>
-        visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
-      );
-
-      // Prepare data for Excel
-      const excelData = filteredProjects.map(project => {
-        const rowData = {};
-
-        // Add data for each visible column
-        visibleColumnsData.forEach(column => {
-          // Handle special columns with custom rendering
-          if (column.id === 'date') rowData[column.label] = formatDate(project.created_at) || '';
-          else if (column.id === 'businessName') rowData[column.label] = project.business_legal_name || '';
-          else if (column.id === 'productName') rowData[column.label] = project.product_name || '';
-          else if (column.id === 'projectName') rowData[column.label] = project.project_name || '';
-          else if (column.id === 'collaborators') rowData[column.label] = project.collaborators || '';
-          else if (column.id === 'milestone') rowData[column.label] = project.milestone || '';
-          else if (column.id === 'stageName') rowData[column.label] = project.stage_name || '';
-          else if (column.id === 'projectId') rowData[column.label] = project.project_id || '';
-          else if (column.id === 'taxNowSignupStatus') rowData[column.label] = project.taxnow_signup_status || '';
-          else if (column.id === 'projectFee') rowData[column.label] = project.project_fee || '';
-          else rowData[column.label] = '';
-        });
-
-        return rowData;
-      });
-
-      // Create a worksheet
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-
-      // Create a workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Projects');
-
-      // Generate Excel file
-      XLSX.writeFile(workbook, `${projectType}_projects_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    } catch (error) {
-      console.error('Excel generation error:', error);
-      alert('Error generating Excel file: ' + error.message);
-    }
-  };
-
   // Handle view contact card
   const handleViewContact = (project) => {
     // Debug: Log the project object to see what data we have
@@ -686,7 +476,6 @@ const ProjectReport = ({ projectType = 'all' }) => {
   // Handle view notes
   const handleViewNotes = (project) => {
     const projectId = project.project_id || '';
-    const leadId = project.lead_id || '';
     const stage = project.stage_name || '';
 
     // Show loading state
@@ -892,67 +681,391 @@ const ProjectReport = ({ projectType = 'all' }) => {
 
   // Handle add notes
   const handleAddNotes = (project) => {
+    const projectId = project.project_id || '';
+
     Swal.fire({
-      title: 'Add Notes',
+      title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
       html: `
-        <textarea id="project-notes" class="form-control" rows="5" placeholder="Enter notes here..."></textarea>
+        <div class="text-start">
+          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+            <div>
+              <span class="text-black">Project ID: <span class="text-dark">${projectId}</span></span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <textarea
+              class="form-control"
+              id="note-content"
+              rows="5"
+              placeholder="Enter your note here..."
+              style="resize: vertical; min-height: 100px;"
+            ></textarea>
+          </div>
+          <div class="text-muted small">
+            <i class="fas fa-info-circle me-1"></i>
+            Your note will be saved with the current date and time.
+          </div>
+        </div>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Save',
-      showLoaderOnConfirm: true,
+      confirmButtonText: 'Save Note',
+      cancelButtonText: 'Cancel',
+      width: '650px',
+      customClass: {
+        container: 'swal-wide',
+        popup: 'swal-popup-custom',
+        header: 'swal-header-custom',
+        title: 'swal-title-custom',
+        closeButton: 'swal-close-button-custom',
+        content: 'swal-content-custom',
+        confirmButton: 'swal-confirm-button-custom',
+        cancelButton: 'swal-cancel-button-custom'
+      },
       preConfirm: () => {
-        const notes = document.getElementById('project-notes').value;
-        if (!notes.trim()) {
-          Swal.showValidationMessage('Please enter some notes');
+        // Get the note content from the textarea
+        const content = document.getElementById('note-content').value;
+
+        // Validate the content
+        if (!content || content.trim() === '') {
+          Swal.showValidationMessage('Please enter a note');
           return false;
         }
-        return notes;
+
+        return {
+          content: content
+        };
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        // Here you would typically save the notes to the API
-        console.log('Saving notes for project:', project.id, 'Business:', project.business_name, 'Note:', result.value);
-
+        // Show loading state
         Swal.fire({
-          title: 'Success!',
-          text: 'Notes have been saved.',
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false
+          title: `<span style="font-size: 1.2rem; color: #333;">Saving Note</span>`,
+          html: `
+            <div class="text-center py-3">
+              <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="text-muted">Saving your note...</p>
+            </div>
+          `,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
         });
+
+        // Prepare the data for the API
+        // For POST requests, we need to include the data in the request body
+        const noteData = {
+          project_id: projectId, // Include project_id in the body
+          note: result.value.content,
+          user_id: 1  // Adding user_id parameter as required by the API
+        };
+
+        console.log('Sending project note data:', noteData); // For debugging
+        console.log('Project ID for adding note:', projectId);
+
+        // Send the data to the API - using the project_id in the URL
+        axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes', noteData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+          .then((response) => {
+            console.log('Note saved successfully:', response);
+            // Show success message
+            Swal.fire({
+              title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                  </div>
+                  <p class="text-muted">Your note has been saved successfully.</p>
+                </div>
+              `,
+              timer: 2000,
+              showConfirmButton: false,
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+
+            // Refresh the notes view after a short delay
+            setTimeout(() => {
+              handleViewNotes(project);
+            }, 2100);
+          })
+          .catch((error) => {
+            console.error('Error saving note:', error);
+            console.error('Error response:', error.response);
+            console.error('Error request:', error.request);
+            console.error('Error config:', error.config);
+
+            // Show error message
+            Swal.fire({
+              title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+                  </div>
+                  <p class="text-muted">There was a problem saving your note.</p>
+                  <div class="alert alert-danger py-2 mt-2">
+                    <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
+                  </div>
+                </div>
+              `,
+              confirmButtonText: 'Try Again',
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // If user clicks "Try Again", reopen the add note dialog
+                handleAddNotes(project);
+              }
+            });
+          });
       }
     });
   };
 
+  // Handle export to CSV
+  const exportToCSV = () => {
+    // Confirm export with user if there are many projects
+    if (filteredProjects.length > 100) {
+      if (!confirm(`You are about to export ${filteredProjects.length} projects. This may take a moment. Continue?`)) {
+        return;
+      }
+    }
+
+    // Get visible columns and their data, excluding action columns that shouldn't be exported
+    const columnsToExclude = ['documents', 'notes', 'contactInfo'];
+    const visibleColumnsData = allColumns.filter(column =>
+      visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
+    );
+
+    // Create headers from visible columns
+    const headers = visibleColumnsData.map(column => column.label);
+
+    // Create CSV data rows
+    const csvData = filteredProjects.map(project => {
+      return visibleColumnsData.map(column => {
+        // Handle special columns with custom rendering
+        if (column.id === 'date') return formatDate(project.created_at) || '';
+        if (column.id === 'businessName') {
+          const businessName = project.business_legal_name || '';
+          // Escape quotes in CSV
+          return `"${businessName.replace(/"/g, '""')}"`;
+        }
+        if (column.id === 'productName') return project.product_name || '';
+        if (column.id === 'projectName') return project.project_name || '';
+        if (column.id === 'collaborators') return project.collaborators || '';
+        if (column.id === 'milestone') return project.milestone || '';
+        if (column.id === 'stageName') return project.stage_name || '';
+        if (column.id === 'projectId') return project.project_id || '';
+        if (column.id === 'taxNowSignupStatus') return project.taxnow_signup_status || '';
+        if (column.id === 'projectFee') return project.project_fee || '';
+
+        // Default case
+        return '';
+      });
+    });
+
+    // Convert to CSV string
+    let csvContent = headers.join(',') + '\n';
+    csvData.forEach(row => {
+      csvContent += row.join(',') + '\n';
+    });
+
+    // Create a blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `rdc_projects_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Handle export to PDF
+  const exportToPDF = () => {
+    try {
+      // Confirm export with user if there are many projects
+      if (filteredProjects.length > 100) {
+        if (!confirm(`You are about to export ${filteredProjects.length} projects to PDF. This may take a moment and result in a large file. Continue?`)) {
+          return;
+        }
+      }
+
+      // Get visible columns and their data, excluding action columns that shouldn't be exported
+      const columnsToExclude = ['documents', 'notes', 'contactInfo'];
+      const visibleColumnsData = allColumns.filter(column =>
+        visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
+      );
+
+      // Initialize jsPDF with landscape orientation
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Add title and date
+      const title = 'RDC Projects Report';
+      const date = new Date().toLocaleDateString();
+      const yPos = 15;
+
+      doc.setFontSize(18);
+      doc.text(title, 14, yPos);
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${date}`, 14, yPos + 7);
+
+      // Create table headers
+      const tableColumn = visibleColumnsData.map(column => column.label);
+
+      // Create table rows with data for visible columns
+      const tableRows = filteredProjects.map(project => {
+        return visibleColumnsData.map(column => {
+          // Handle special columns with custom rendering
+          if (column.id === 'date') return formatDate(project.created_at) || '';
+          if (column.id === 'businessName') return project.business_legal_name || '';
+          if (column.id === 'productName') return project.product_name || '';
+          if (column.id === 'projectName') return project.project_name || '';
+          if (column.id === 'collaborators') return project.collaborators || '';
+          if (column.id === 'milestone') return project.milestone || '';
+          if (column.id === 'stageName') return project.stage_name || '';
+          if (column.id === 'projectId') return project.project_id || '';
+          if (column.id === 'taxNowSignupStatus') return project.taxnow_signup_status || '';
+          if (column.id === 'projectFee') return project.project_fee || '';
+
+          // Default case
+          return '';
+        });
+      });
+
+      // Add table to document using the imported autoTable function
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: yPos + 15,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [41, 128, 185],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 9,
+          cellPadding: 2,
+          overflow: 'linebreak',
+          halign: 'left'
+        }
+      });
+
+      // Save the PDF with date in filename
+      doc.save(`rdc_projects_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      alert('Error generating PDF: ' + error.message);
+    }
+  };
+
+  // Handle export to Excel
+  const exportToExcel = () => {
+    try {
+      // Confirm export with user if there are many projects
+      if (filteredProjects.length > 100) {
+        if (!confirm(`You are about to export ${filteredProjects.length} projects to Excel. This may take a moment. Continue?`)) {
+          return;
+        }
+      }
+
+      // Get visible columns and their data, excluding action columns that shouldn't be exported
+      const columnsToExclude = ['documents', 'notes', 'contactInfo'];
+      const visibleColumnsData = allColumns.filter(column =>
+        visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
+      );
+
+      // Prepare data for Excel
+      const excelData = filteredProjects.map(project => {
+        const rowData = {};
+
+        // Add data for each visible column
+        visibleColumnsData.forEach(column => {
+          // Handle special columns with custom rendering
+          if (column.id === 'date') rowData[column.label] = formatDate(project.created_at) || '';
+          else if (column.id === 'businessName') rowData[column.label] = project.business_legal_name || '';
+          else if (column.id === 'productName') rowData[column.label] = project.product_name || '';
+          else if (column.id === 'projectName') rowData[column.label] = project.project_name || '';
+          else if (column.id === 'collaborators') rowData[column.label] = project.collaborators || '';
+          else if (column.id === 'milestone') rowData[column.label] = project.milestone || '';
+          else if (column.id === 'stageName') rowData[column.label] = project.stage_name || '';
+          else if (column.id === 'projectId') rowData[column.label] = project.project_id || '';
+          else if (column.id === 'taxNowSignupStatus') rowData[column.label] = project.taxnow_signup_status || '';
+          else if (column.id === 'projectFee') rowData[column.label] = project.project_fee || '';
+          else rowData[column.label] = '';
+        });
+
+        return rowData;
+      });
+
+      // Create a new workbook
+      const wb = XLSX.utils.book_new();
+
+      // Convert data to worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'RDC Projects');
+
+      // Generate Excel file and trigger download
+      XLSX.writeFile(wb, `rdc_projects_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    } catch (error) {
+      console.error('Excel generation error:', error);
+      alert('Error generating Excel file: ' + error.message);
+    }
+  };
+
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-12">
-          <div className="white_card card_height_100 mb_30">
-            <div className="white_card_header">
-              <div className="box_header m-0">
-                <div className="title_img">
-                  <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                  <h3 className="m-0">{projectType.charAt(0).toUpperCase() + projectType.slice(1)} Projects</h3>
+    <div className="main_content_iner">
+      <div className="container-fluid p-0">
+        <div className="row justify-content-center">
+          <div className="col-lg-12">
+            <div className="white_card card_height_100 mb_30">
+              <div className="white_card_header">
+                <div className="box_header m-0 new_report_header">
+                  <div className="title_img">
+                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
+                    <h4 className="text-white">RDC Projects Report</h4>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="white_card_body">
-              <div className="QA_section">
-                <div className="QA_table mb_30">
-                  {/* Search, filter, and export controls */}
-                  <div className="row mb-3">
+              <div className="white_card_body">
+                <div className="mb-4">
+                  <div className="row align-items-center">
+                    {/* Search box */}
                     <div className="col-md-3">
-                      <div className="input-group">
-                        <div className="position-relative w-100">
+                      <div className="input-group input-group-sm">
+                        <div className="position-relative flex-grow-1">
                           <input
                             type="text"
-                            className="form-control search-input"
-                            placeholder="Search projects..."
+                            className="form-control"
+                            placeholder="Search projects by any field..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyPress={(e) => {
+                            style={{ paddingRight: '30px' }}
+                            onKeyDown={(e) => {
                               if (e.key === 'Enter') {
+                                e.preventDefault();
                                 setIsSearching(true);
                                 setTimeout(() => setIsSearching(false), 500);
                                 setCurrentPage(1); // Reset to first page when searching
@@ -1089,309 +1202,182 @@ const ProjectReport = ({ projectType = 'all' }) => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Loading indicator */}
-                  {loading && (
-                    <div className="text-center my-5">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                      <p className="mt-2">Loading projects data...</p>
-                    </div>
-                  )}
-
-                  {/* Error message */}
-                  {error && !loading && (
-                    <div className="alert alert-warning" role="alert">
-                      <div className="d-flex align-items-center">
-                        <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-                        <div>
-                          <h5 className="alert-heading mb-1">Data Loading Error</h5>
-                          <p className="mb-0">{error}</p>
-                        </div>
-                      </div>
-                      <hr />
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span>Please try again or contact support if the problem persists.</span>
-                        <button
-                          className="btn btn-primary"
-                          onClick={fetchProjects}
-                        >
-                          <i className="fas fa-sync-alt me-1"></i> Retry
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Fallback data warning */}
-                  {projects.length > 0 && projects[0].isFallbackData && !loading && (
-                    <div className="alert alert-info" role="alert">
-                      <div className="d-flex align-items-center">
-                        <i className="fas fa-info-circle me-3 fs-4"></i>
-                        <div>
-                          <h5 className="alert-heading mb-1">Sample Data</h5>
-                          <p className="mb-0">Showing sample data because the API request failed or returned no results. The highlighted rows contain sample data.</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Data table */}
-                  {!loading && (
-                    <div className="table-responsive">
-                      <table className="table table-bordered table-hover table-striped">
-                        <thead>
-                          <tr>
-                            {allColumns.map(column => {
-                              // Only render columns that are in the visibleColumns array
-                              if (visibleColumns.includes(column.id)) {
-                                return column.sortable ? (
-                                  <SortableTableHeader
-                                    key={column.id}
-                                    label={column.label}
-                                    field={column.field}
-                                    currentSortField={sortField}
-                                    currentSortDirection={sortDirection}
-                                    onSort={handleSort}
-                                  />
-                                ) : (
-                                  <th key={column.id}>{column.label}</th>
-                                );
-                              }
-                              return null;
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentProjects.length > 0 ? (
-                            currentProjects.map((project, index) => (
-                              <tr
-                                key={project.id || index}
-                                className={project.isFallbackData ? 'table-warning' : ''}
-                              >
-                                {/* Render cells in the same order as the column definitions */}
-                                {allColumns.map(column => {
-                                  // Only render columns that are in the visibleColumns array
-                                  if (!visibleColumns.includes(column.id)) {
-                                    return null;
-                                  }
-
-                                  // Render different cell types based on column id
-                                  switch (column.id) {
-                                    case 'projectId':
-                                      return <td key={column.id}>{project.id || ''}</td>;
-                                    case 'date':
-                                      return <td key={column.id}>{project.date || ''}</td>;
-                                    case 'businessName':
-                                      return (
-                                        <td key={column.id}>
-                                          {project.isFallbackData && (
-                                            <span className="badge bg-warning me-1" title="Sample data">
-                                              <i className="fas fa-exclamation-triangle"></i>
-                                            </span>
-                                          )}
-                                          {project.business_name || ''}
-                                        </td>
-                                      );
-                                    case 'contactCard':
-                                      return (
-                                        <td key={column.id} className="text-center">
-                                          <button
-                                            className="btn btn-sm btn-outline-primary"
-                                            onClick={() => handleViewContact(project)}
-                                            title="View Contact Card"
-                                          >
-                                            <i className="fas fa-address-card"></i> View Card
-                                          </button>
-                                        </td>
-                                      );
-                                    case 'product':
-                                      return <td key={column.id}>{project.product || ''}</td>;
-                                    case 'project':
-                                      return <td key={column.id}>{project.project || ''}</td>;
-                                    case 'collaborators':
-                                      return <td key={column.id}>{project.collaborators || ''}</td>;
-                                    case 'milestone':
-                                      return <td key={column.id}>{project.milestone || ''}</td>;
-                                    case 'stage':
-                                      return (
-                                        <td key={column.id}>
-                                          <span className={`badge ${
-                                            project.stage === 'ERC Fulfillment' ? 'bg-primary' :
-                                            project.stage === 'STC Enrollment' ? 'bg-info' :
-                                            'bg-secondary'
-                                          }`}>
-                                            {project.stage || ''}
-                                          </span>
-                                        </td>
-                                      );
-                                    case 'taxNowSignupStatus':
-                                      return (
-                                        <td key={column.id}>
-                                          <span className={`badge ${
-                                            project.taxnow_signup_status === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-                                            project.taxnow_signup_status === 'ERC Fees Fully Paid' ? 'bg-success' :
-                                            project.taxnow_signup_status === 'Documents Pending' ? 'bg-info' :
-                                            project.taxnow_signup_status === 'Payment Processing Client Initiate' ? 'bg-primary' :
-                                            project.taxnow_signup_status === 'Complete' ? 'bg-success' :
-                                            'bg-secondary'
-                                          }`}>
-                                            {project.taxnow_signup_status || ''}
-                                          </span>
-                                        </td>
-                                      );
-                                    case 'notes':
-                                      return (
-                                        <td key={column.id} className="text-center">
-                                          <div className="d-flex justify-content-center gap-2">
-                                            <button
-                                              className="btn btn-sm btn-outline-info"
-                                              onClick={() => handleViewNotes(project)}
-                                              title="View Notes"
-                                            >
-                                              <i className="fas fa-eye"></i>
-                                            </button>
-                                            <button
-                                              className="btn btn-sm btn-outline-success"
-                                              onClick={() => handleAddNotes(project)}
-                                              title="Add Notes"
-                                            >
-                                              <i className="fas fa-plus"></i>
-                                            </button>
-                                          </div>
-                                        </td>
-                                      );
-                                    case 'documents':
-                                      return (
-                                        <td key={column.id} className="text-center">
-                                          <button
-                                            className="btn btn-sm btn-outline-primary"
-                                            onClick={() => alert('Document management not implemented yet')}
-                                            title="Manage Documents"
-                                          >
-                                            <i className="fas fa-file-alt"></i>
-                                          </button>
-                                        </td>
-                                      );
-                                    default:
-                                      return <td key={column.id}></td>;
-                                  }
-                                })}
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan={visibleColumns.length} className="text-center py-5">
-                                <div className="d-flex flex-column align-items-center">
-                                  <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                  <h5 className="text-muted">No projects found</h5>
-                                  <p className="text-muted mb-3">
-                                    {searchTerm || filterStatus ?
-                                      'Try adjusting your search or filter criteria' :
-                                      'No project data is available from the API'}
-                                  </p>
-                                </div>
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* Pagination */}
-                  {!loading && (
-                    <div className="row mt-3">
-                      <div className="col-md-6">
-                        <p>Showing {indexOfFirstProject + 1} to {Math.min(indexOfLastProject, filteredProjects.length)} of {filteredProjects.length} projects (filtered from {projects.length} total)</p>
-                      </div>
-                      <div className="col-md-6">
-                        <nav aria-label="Project report pagination">
-                          <ul className="pagination justify-content-end">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                              <button
-                                className="page-link"
-                                onClick={goToPreviousPage}
-                                disabled={currentPage === 1}
-                              >
-                                Previous
-                              </button>
-                            </li>
-
-                            {/* First page */}
-                            {currentPage > 3 && (
-                              <li className="page-item">
-                                <button className="page-link" onClick={() => paginate(1)}>1</button>
-                              </li>
-                            )}
-
-                            {/* Ellipsis */}
-                            {currentPage > 4 && (
-                              <li className="page-item disabled">
-                                <span className="page-link">...</span>
-                              </li>
-                            )}
-
-                            {/* Page numbers */}
-                            {[...Array(totalPages)].map((_, i) => {
-                              const pageNumber = i + 1;
-                              // Show current page and 1 page before and after
-                              if (
-                                pageNumber === currentPage ||
-                                pageNumber === currentPage - 1 ||
-                                pageNumber === currentPage + 1
-                              ) {
-                                return (
-                                  <li
-                                    key={pageNumber}
-                                    className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                  >
-                                    <button
-                                      className="page-link"
-                                      onClick={() => paginate(pageNumber)}
-                                    >
-                                      {pageNumber}
-                                    </button>
-                                  </li>
-                                );
-                              }
-                              return null;
-                            })}
-
-                            {/* Ellipsis */}
-                            {currentPage < totalPages - 3 && (
-                              <li className="page-item disabled">
-                                <span className="page-link">...</span>
-                              </li>
-                            )}
-
-                            {/* Last page */}
-                            {currentPage < totalPages - 2 && (
-                              <li className="page-item">
-                                <button
-                                  className="page-link"
-                                  onClick={() => paginate(totalPages)}
-                                >
-                                  {totalPages}
-                                </button>
-                              </li>
-                            )}
-
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                              <button
-                                className="page-link"
-                                onClick={goToNextPage}
-                                disabled={currentPage === totalPages}
-                              >
-                                Next
-                              </button>
-                            </li>
-                          </ul>
-                        </nav>
-                      </div>
-                    </div>
-                  )}
                 </div>
+
+                {/* Loading indicator */}
+                {loading && (
+                  <div className="text-center my-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2">Loading projects data...</p>
+                  </div>
+                )}
+
+                {/* Error message */}
+                {error && !loading && (
+                  <div className="alert alert-warning" role="alert">
+                    <div className="d-flex align-items-center">
+                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
+                      <div>
+                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
+                        <p className="mb-0">{error}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Data table */}
+                {!loading && (
+                  <div className="table-responsive">
+                    <table className="table table-bordered table-hover">
+                      <thead>
+                        <tr>
+                          {allColumns.map(column => {
+                            // Only render columns that are in the visibleColumns array
+                            if (visibleColumns.includes(column.id)) {
+                              return column.sortable ? (
+                                <SortableTableHeader
+                                  key={column.id}
+                                  label={column.label}
+                                  field={column.field}
+                                  currentSortField={sortField}
+                                  currentSortDirection={sortDirection}
+                                  onSort={handleSort}
+                                />
+                              ) : (
+                                <th key={column.id}>{column.label}</th>
+                              );
+                            }
+                            return null;
+                          })}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentProjects.length > 0 ? (
+                          currentProjects.map((project, index) => (
+                            <tr key={project.project_id || index}>
+                              {allColumns.map(column => {
+                                // Only render columns that are in the visibleColumns array
+                                if (!visibleColumns.includes(column.id)) {
+                                  return null;
+                                }
+
+                                // Render different cell types based on column id
+                                switch (column.id) {
+                                  case 'projectId':
+                                    return <td key={column.id}>{project.project_id || ''}</td>;
+                                  case 'date':
+                                    return <td key={column.id}>{formatDate(project.created_at) || ''}</td>;
+                                  case 'businessName':
+                                    return <td key={column.id}>{project.business_legal_name || ''}</td>;
+                                  case 'contactCard':
+                                    return (
+                                      <td key={column.id} className="text-center">
+                                        <button
+                                          className="btn btn-sm btn-outline-primary"
+                                          onClick={() => handleViewContact(project)}
+                                        >
+                                          <i className="fas fa-address-card"></i>
+                                        </button>
+                                      </td>
+                                    );
+                                  case 'productName':
+                                    return <td key={column.id}>{project.product_name || ''}</td>;
+                                  case 'projectName':
+                                    return <td key={column.id}>{project.project_name || ''}</td>;
+                                  case 'collaborators':
+                                    return <td key={column.id}>{project.collaborators || ''}</td>;
+                                  case 'milestone':
+                                    return <td key={column.id}>{project.milestone || ''}</td>;
+                                  case 'stageName':
+                                    return (
+                                      <td key={column.id}>
+                                        <span className={`badge ${
+                                          project.stage_name === 'ERC Fees Fully Paid' ? 'bg-success' :
+                                          project.stage_name === 'Documents Pending' ? 'bg-info' :
+                                          project.stage_name === 'Payment Processing Client Initiate' ? 'bg-primary' :
+                                          project.stage_name === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
+                                          project.stage_name === 'Payment Returned' ? 'bg-danger' :
+                                          'bg-secondary'
+                                        }`}>
+                                          {project.stage_name || ''}
+                                        </span>
+                                      </td>
+                                    );
+                                  case 'taxNowSignupStatus':
+                                    return <td key={column.id}>{project.taxnow_signup_status || ''}</td>;
+                                  case 'projectFee':
+                                    return <td key={column.id}>{project.project_fee || ''}</td>;
+                                  case 'notes':
+                                    return (
+                                      <td key={column.id}>
+                                        <div className="d-flex justify-content-center gap-2">
+                                          <button
+                                            className="btn btn-sm btn-outline-info"
+                                            onClick={() => handleViewNotes(project)}
+                                            title="View Notes"
+                                          >
+                                            <i className="fas fa-eye"></i>
+                                          </button>
+                                          <button
+                                            className="btn btn-sm btn-outline-success"
+                                            onClick={() => handleAddNotes(project)}
+                                            title="Add Notes"
+                                          >
+                                            <i className="fas fa-plus"></i>
+                                          </button>
+                                        </div>
+                                      </td>
+                                    );
+                                  default:
+                                    return <td key={column.id}></td>;
+                                }
+                              })}
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={visibleColumns.length} className="text-center py-4">
+                              <i className="fas fa-info-circle me-2"></i>
+                              No projects found
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {!loading && totalPages > 1 && (
+                  <div className="d-flex justify-content-between align-items-center mt-4">
+                    <div>
+                      Showing {indexOfFirstProject + 1} to {Math.min(indexOfLastProject, filteredProjects.length)} of {filteredProjects.length} entries
+                    </div>
+                    <nav>
+                      <ul className="pagination mb-0">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={goToPreviousPage}>
+                            <i className="fas fa-chevron-left"></i>
+                          </button>
+                        </li>
+                        {[...Array(totalPages)].map((_, i) => (
+                          <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => paginate(i + 1)}>
+                              {i + 1}
+                            </button>
+                          </li>
+                        ))}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={goToNextPage}>
+                            <i className="fas fa-chevron-right"></i>
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1401,4 +1387,4 @@ const ProjectReport = ({ projectType = 'all' }) => {
   );
 };
 
-export default ProjectReport;
+export default RDCProjectsReport;

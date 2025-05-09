@@ -13,23 +13,18 @@ import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
 
-const LeadReport = ({ projectType }) => {
+const ERCLeadReport = () => {
   // State for API data
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Set title based on project type
-    const reportTitle = projectType
-      ? `${projectType.toUpperCase()} Lead Report - Occams Portal`
-      : "Lead Report - Occams Portal";
-
-    document.title = reportTitle;
+    document.title = "ERC Lead Report - Occams Portal";
 
     // Fetch leads from API
     fetchLeads();
-  }, [projectType]);
+  }, []);
 
   // Function to fetch leads from API
   const fetchLeads = async () => {
@@ -37,14 +32,11 @@ const LeadReport = ({ projectType }) => {
     setError(null);
 
     try {
-      console.log(`Fetching ${projectType ? projectType + ' ' : ''}leads from API...`);
-
-      // Construct API URL - if projectType is provided, we could add it as a query parameter
-      // For now, we'll fetch all leads and filter them client-side
-      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      console.log('Fetching ERC leads from API...');
 
       // Make the API request with proper headers
-      const response = await axios.get(apiUrl, {
+      // Try without product_id filter first to get all leads
+      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/v1/leads', {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
@@ -60,49 +52,45 @@ const LeadReport = ({ projectType }) => {
         let apiLeads = response.data.data;
         console.log('API Leads (before filtering):', apiLeads);
 
-        // Filter leads by project type if specified
-        if (projectType) {
-          apiLeads = apiLeads.filter(lead => {
-            // Check if the lead's category or product_type matches the projectType
-            // Adjust these fields based on the actual API response structure
-            const category = (lead.category || '').toLowerCase();
-            const productType = (lead.product_type || '').toLowerCase();
-            const leadGroup = (lead.lead_group || '').toLowerCase();
+        // Filter leads for ERC
+        apiLeads = apiLeads.filter(lead => {
+          const category = (lead.category || '').toLowerCase();
+          const productType = (lead.product_type || '').toLowerCase();
+          const leadGroup = (lead.lead_group || '').toLowerCase();
+          const productId = lead.product_id;
 
-            const typeToMatch = projectType.toLowerCase();
+          return category.includes('erc') ||
+                 productType.includes('erc') ||
+                 leadGroup.includes('erc') ||
+                 productId === '935' || productId === 935;
+        });
 
-            return category.includes(typeToMatch) ||
-                   productType.includes(typeToMatch) ||
-                   leadGroup.includes(typeToMatch);
-          });
-
-          console.log(`Filtered leads for ${projectType}:`, apiLeads);
-        }
+        console.log('Filtered leads for ERC:', apiLeads);
 
         if (apiLeads.length > 0) {
           setLeads(apiLeads);
         } else {
-          console.warn(`No ${projectType ? projectType + ' ' : ''}leads found in API response, using fallback data`);
-          setLeads(generateFallbackLeads(projectType));
-          setError(`No ${projectType ? projectType + ' ' : ''}leads found in API response. Using sample data instead.`);
+          console.warn('No ERC leads found in API response, using fallback data');
+          setLeads(generateFallbackLeads());
+          setError('No ERC leads found in API response. Using sample data instead.');
         }
       } else {
         console.error('API response format unexpected:', response);
         // If API returns unexpected format, use fallback data
-        setLeads(generateFallbackLeads(projectType));
-        setError(`API returned unexpected data format. Using sample ${projectType ? projectType + ' ' : ''}data instead.`);
+        setLeads(generateFallbackLeads());
+        setError('API returned unexpected data format. Using sample ERC data instead.');
       }
     } catch (err) {
       console.error('Error fetching leads:', err);
-      setError(`Failed to fetch ${projectType ? projectType + ' ' : ''}leads: ${err.message}. Using sample data instead.`);
-      setLeads(generateFallbackLeads(projectType));
+      setError(`Failed to fetch ERC leads: ${err.message}. Using sample data instead.`);
+      setLeads(generateFallbackLeads());
     } finally {
       setLoading(false);
     }
   };
 
   // Generate fallback lead data if API fails
-  const generateFallbackLeads = (type = null) => {
+  const generateFallbackLeads = () => {
     const companies = [
       { name: 'Acme Corporation', domain: 'acmecorp.com' },
       { name: 'Globex Industries', domain: 'globex.com' },
@@ -117,33 +105,6 @@ const LeadReport = ({ projectType }) => {
     ];
 
     const statuses = ['New', 'Contacted', 'Qualified', 'Active', 'Converted'];
-    const productTypes = ['ERC', 'STC', 'Tax Amendment', 'Audit Advisory', 'RDC', 'Partnership'];
-
-    // Map the projectType to a product type
-    let productType = null;
-    if (type) {
-      // Convert type to proper format (e.g., "tax-amendment" -> "Tax Amendment")
-      const formattedType = type
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-
-      // Find matching product type
-      productType = productTypes.find(pt => pt.toLowerCase() === formattedType.toLowerCase());
-
-      // If no exact match, try partial match
-      if (!productType) {
-        productType = productTypes.find(pt =>
-          pt.toLowerCase().includes(type.toLowerCase()) ||
-          type.toLowerCase().includes(pt.toLowerCase().replace(' ', ''))
-        );
-      }
-
-      // Default to the original type if no match found
-      if (!productType) {
-        productType = formattedType;
-      }
-    }
 
     const dummyLeads = [];
 
@@ -151,10 +112,6 @@ const LeadReport = ({ projectType }) => {
       const companyIndex = Math.floor(Math.random() * companies.length);
       const company = companies[companyIndex];
       const statusIndex = Math.floor(Math.random() * statuses.length);
-
-      // If no specific type is requested, assign random product type
-      // Otherwise, use the specified product type
-      const assignedProductType = productType || productTypes[Math.floor(Math.random() * productTypes.length)];
 
       dummyLeads.push({
         lead_id: `LD${String(i).padStart(3, '0')}`,
@@ -168,16 +125,11 @@ const LeadReport = ({ projectType }) => {
         internal_sales_support: 'Mike Johnson',
         source: 'Website',
         campaign: 'Email Campaign',
-        category: assignedProductType,
-        product_type: assignedProductType,
-        lead_group: assignedProductType,
+        category: 'ERC',
+        product_type: 'ERC',
+        lead_group: 'ERC',
         w2_count: Math.floor(Math.random() * 10) + 1
       });
-    }
-
-    // If a specific type was requested, filter the leads to only include that type
-    if (type) {
-      return dummyLeads;
     }
 
     return dummyLeads;
@@ -409,7 +361,7 @@ const LeadReport = ({ projectType }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `lead_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `erc_lead_report_${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -441,7 +393,7 @@ const LeadReport = ({ projectType }) => {
 
       // Add title
       doc.setFontSize(16);
-      doc.text('Lead Report', 15, 15);
+      doc.text('ERC Lead Report', 15, 15);
 
       // Add generation date and filter info
       doc.setFontSize(10);
@@ -516,7 +468,7 @@ const LeadReport = ({ projectType }) => {
       });
 
       // Save the PDF with date in filename
-      doc.save(`lead_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(`erc_lead_report_${new Date().toISOString().slice(0, 10)}.pdf`);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Error generating PDF: ' + error.message);
@@ -557,7 +509,6 @@ const LeadReport = ({ projectType }) => {
           else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
           else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
-          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
           else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
           else rowData[column.label] = '';
@@ -566,76 +517,27 @@ const LeadReport = ({ projectType }) => {
         return rowData;
       });
 
-      // Create a worksheet
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      // Create a new workbook
+      const wb = XLSX.utils.book_new();
 
-      // Set column widths - default 15 characters for all columns
-      const wscols = visibleColumnsData.map(() => ({ wch: 15 }));
+      // Convert data to worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
 
-      // Adjust specific column widths based on content type
-      visibleColumnsData.forEach((column, index) => {
-        if (column.id === 'leadId') wscols[index] = { wch: 10 };
-        else if (column.id === 'businessName') wscols[index] = { wch: 25 };
-        else if (column.id === 'date') wscols[index] = { wch: 12 };
-        else if (column.id === 'taxNowStatus') wscols[index] = { wch: 15 };
-        else if (column.id === 'actions') wscols[index] = { wch: 20 };
-      });
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'ERC Leads');
 
-      worksheet['!cols'] = wscols;
-
-      // Add header styling
-      const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
-      for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-        const cellRef = XLSX.utils.encode_cell({ r: 0, c: col });
-        if (!worksheet[cellRef]) continue;
-
-        worksheet[cellRef].s = {
-          font: { bold: true, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "4285F4" } }
-        };
-      }
-
-      // Create a workbook
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Lead Report');
-
-      // Add metadata
-      workbook.Props = {
-        Title: "Lead Report",
-        Subject: "Lead Data",
-        Author: "Occams Portal",
-        CreatedDate: new Date()
-      };
-
-      // Generate Excel file and trigger download with date in filename
-      XLSX.writeFile(workbook, `lead_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      // Generate Excel file and trigger download
+      XLSX.writeFile(wb, `erc_lead_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
     } catch (error) {
       console.error('Excel generation error:', error);
       alert('Error generating Excel file: ' + error.message);
     }
   };
 
-  // Handle action buttons
-
-  const handleView = (lead) => {
-    // Only show specific fields in the contact card
-    const businessName = lead.business_legal_name || lead.business_name || lead.name || 'Unknown Business';
-    const status = lead.lead_status || lead.status || '';
-
-    // Create HTML for the specific fields we want to show
+  // Handle view contact card
+  const handleViewContact = (lead) => {
     const contactCardHTML = `
-      <div class="text-start">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">${businessName}</h5>
-          <span class="badge ${
-            status === 'New' ? 'bg-info' :
-            status === 'Contacted' ? 'bg-primary' :
-            status === 'Qualified' ? 'bg-warning' :
-            status === 'Active' ? 'bg-success' :
-            'bg-secondary'
-          }">${status}</span>
-        </div>
-
+      <div class="contact-card">
         <table class="table table-bordered">
           <tr>
             <th>Lead ID</th>
@@ -666,12 +568,10 @@ const LeadReport = ({ projectType }) => {
     });
   };
 
-
-
-  // Handle viewing notes
+  // Handle view notes
   const handleViewNotes = (lead) => {
-    const leadId = lead.lead_id || lead.id || '';
-    const status = lead.lead_status || lead.status || '';
+    const leadId = lead.lead_id || '';
+    const status = lead.lead_status || '';
 
     // Show loading state
     Swal.fire({
@@ -700,8 +600,21 @@ const LeadReport = ({ projectType }) => {
     // Fetch notes from the API
     axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
       .then(response => {
-        const notes = response.data || [];
-        console.log('Notes API response:', notes); // For debugging
+        console.log('Lead Notes API Response:', response);
+
+        // Handle different possible response formats
+        let notes = [];
+        if (Array.isArray(response.data)) {
+          notes = response.data;
+        } else if (response.data && typeof response.data === 'object') {
+          // If response.data is an object with a data property that is an array
+          if (Array.isArray(response.data.data)) {
+            notes = response.data.data;
+          } else {
+            // If it's a single note object, wrap it in an array
+            notes = [response.data];
+          }
+        }
 
         let notesHtml = '';
         if (!notes || notes.length === 0) {
@@ -717,8 +630,8 @@ const LeadReport = ({ projectType }) => {
           notesHtml = `
             <div class="notes-list">
               ${notes.map(note => {
-                // Parse the original date from the note
-                const originalDate = new Date(note.created);
+                // Parse the original date from the note (adjust field name based on API response)
+                const originalDate = new Date(note.created_at || note.date || new Date());
 
                 // Format the date as "Month Day, Year" (e.g., "May 6, 2025")
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -730,13 +643,22 @@ const LeadReport = ({ projectType }) => {
                 const ampm = originalDate.getHours() >= 12 ? 'PM' : 'AM';
                 const formattedTime = `${hour12}:${String(originalDate.getMinutes()).padStart(2, '0')} ${ampm}`;
 
+                // Get the note content (adjust field name based on API response)
+                const noteContent = note.note || note.content || note.text || '';
+
+                // Get the user who created the note (if available)
+                const userName = note.user_name || note.username || note.author || 'System';
+
                 return `
                   <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                       <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedDate}</div>
                       <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedTime}</div>
                     </div>
-                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${note.note || ''}</p>
+                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${noteContent}</p>
+                    <div class="mt-2 text-end">
+                      <small class="text-muted">Added by: ${userName}</small>
+                    </div>
                   </div>
                 `;
               }).join('')}
@@ -829,6 +751,10 @@ const LeadReport = ({ projectType }) => {
                 <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
               </div>
               <p class="text-muted">There was a problem loading notes for this lead.</p>
+              <div class="alert alert-danger py-2 mt-2">
+                <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
+              </div>
+              <p class="text-muted mt-2">Lead ID: ${leadId}</p>
             </div>
           `,
           confirmButtonText: 'OK',
@@ -840,9 +766,9 @@ const LeadReport = ({ projectType }) => {
       });
   };
 
-  // Handle adding notes
+  // Handle add notes
   const handleAddNotes = (lead) => {
-    const leadId = lead.lead_id || lead.id || '';
+    const leadId = lead.lead_id || '';
 
     Swal.fire({
       title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
@@ -879,16 +805,22 @@ const LeadReport = ({ projectType }) => {
         title: 'swal-title-custom',
         closeButton: 'swal-close-button-custom',
         content: 'swal-content-custom',
+        confirmButton: 'swal-confirm-button-custom',
+        cancelButton: 'swal-cancel-button-custom'
       },
       preConfirm: () => {
+        // Get the note content from the textarea
         const content = document.getElementById('note-content').value;
 
-        if (!content) {
-          Swal.showValidationMessage('<i class="fas fa-exclamation-triangle me-2"></i>Please enter note content');
+        // Validate the content
+        if (!content || content.trim() === '') {
+          Swal.showValidationMessage('Please enter a note');
           return false;
         }
 
-        return { content };
+        return {
+          content: content
+        };
       }
     }).then((result) => {
       if (result.isConfirmed) {
@@ -914,11 +846,8 @@ const LeadReport = ({ projectType }) => {
         // Prepare the data for the API
         const noteData = {
           lead_id: leadId,
-          note: result.value.content,
-          user_id: 1  // Adding user_id parameter as required by the API
+          note: result.value.content
         };
-
-        console.log('Sending note data:', noteData); // For debugging
 
         // Send the data to the API
         axios.post('https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes', noteData)
@@ -947,7 +876,7 @@ const LeadReport = ({ projectType }) => {
               handleViewNotes(lead);
             }, 2100);
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('Error saving note:', error);
 
             // Show error message
@@ -958,80 +887,26 @@ const LeadReport = ({ projectType }) => {
                   <div class="mb-3">
                     <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
                   </div>
-                  <p class="text-muted mb-3">There was a problem saving your note.</p>
-                  <div class="alert alert-danger py-2">
-                    <small>Please try again later.</small>
+                  <p class="text-muted">There was a problem saving your note.</p>
+                  <div class="alert alert-danger py-2 mt-2">
+                    <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
                   </div>
                 </div>
               `,
-              confirmButtonText: 'OK',
+              confirmButtonText: 'Try Again',
               customClass: {
                 popup: 'swal-popup-custom',
                 title: 'swal-title-custom'
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // If user clicks "Try Again", reopen the add note dialog
+                handleAddNotes(lead);
               }
             });
           });
       }
     });
-
-    // Add custom CSS for the SweetAlert modal
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .swal-popup-custom {
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-      .swal-title-custom {
-        font-size: 1.5rem;
-        color: #333;
-        font-weight: 600;
-      }
-      .swal-header-custom {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
-      .swal-content-custom {
-        padding: 15px;
-      }
-      #note-content:focus {
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        border-color: #86b7fe;
-      }
-      .btn-lg {
-        padding: 0.5rem 1rem;
-        font-size: 1.1rem;
-      }
-      /* Override SweetAlert button styles directly */
-      .swal2-styled.swal2-confirm {
-        background-color: #6366f1 !important;
-        color: white !important;
-        border-radius: 0.375rem !important;
-        padding: 0.5rem 1.5rem !important;
-        font-weight: 500 !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-        width: 160px !important;
-        margin: 0.3125em !important;
-        font-size: 1rem !important;
-      }
-      .swal2-styled.swal2-cancel {
-        background-color: #6b7280 !important;
-        color: white !important;
-        border-radius: 0.375rem !important;
-        padding: 0.5rem 1.5rem !important;
-        font-weight: 500 !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-        width: 160px !important;
-        margin: 0.3125em !important;
-        font-size: 1rem !important;
-      }
-      /* Fix button container */
-      .swal2-actions {
-        width: 100% !important;
-        justify-content: center !important;
-        gap: 10px !important;
-      }
-    `;
-    document.head.appendChild(style);
   };
 
   return (
@@ -1044,7 +919,7 @@ const LeadReport = ({ projectType }) => {
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
                     <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                    <h4 className="text-white">Lead Report</h4>
+                    <h4 className="text-white">ERC Lead Report</h4>
                   </div>
                 </div>
               </div>
@@ -1057,72 +932,28 @@ const LeadReport = ({ projectType }) => {
                         <div className="position-relative flex-grow-1">
                           <input
                             type="text"
-                            className="form-control"
-                            placeholder="Search leads by any field..."
+                            className="form-control search-input"
+                            placeholder="Search leads..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingRight: '30px' }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                setIsSearching(true);
-                                setTimeout(() => setIsSearching(false), 500);
-                                setCurrentPage(1); // Reset to first page when searching
-
-                                // Show feedback toast if search term is not empty
-                                if (searchTerm.trim() !== '') {
-                                  Swal.fire({
-                                    title: 'Searching...',
-                                    text: `Searching for "${searchTerm}"`,
-                                    icon: 'info',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                  });
-                                }
-                              }
+                            onChange={(e) => {
+                              setSearchTerm(e.target.value);
+                              setCurrentPage(1); // Reset to first page on search
+                              setIsSearching(e.target.value.trim() !== '');
                             }}
                           />
-                          {searchTerm && (
+                          {isSearching && (
                             <button
-                              type="button"
-                              className="btn btn-sm position-absolute"
-                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
+                              className="btn btn-sm btn-link position-absolute end-0 top-0 bottom-0 text-secondary"
                               onClick={() => {
                                 setSearchTerm('');
-                                setCurrentPage(1);
+                                setIsSearching(false);
+                                setCurrentPage(1); // Reset to first page when clearing search
                               }}
+                              title="Clear search"
                             >
-                              <i className="fas fa-times text-muted"></i>
+                              <i className="fas fa-times"></i>
                             </button>
                           )}
-                        </div>
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-sm search-btn"
-                            type="button"
-                            onClick={() => {
-                              setIsSearching(true);
-                              setTimeout(() => setIsSearching(false), 500);
-                              setCurrentPage(1); // Reset to first page when searching
-
-                              // Show feedback toast if search term is not empty
-                              if (searchTerm.trim() !== '') {
-                                Swal.fire({
-                                  title: 'Searching...',
-                                  text: `Searching for "${searchTerm}"`,
-                                  icon: 'info',
-                                  toast: true,
-                                  position: 'top-end',
-                                  showConfirmButton: false,
-                                  timer: 1500
-                                });
-                              }
-                            }}
-                          >
-                            <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -1223,23 +1054,13 @@ const LeadReport = ({ projectType }) => {
                         <p className="mb-0">{error}</p>
                       </div>
                     </div>
-                    <hr />
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>Please try again or contact support if the problem persists.</span>
-                      <button
-                        className="btn btn-primary"
-                        onClick={fetchLeads}
-                      >
-                        <i className="fas fa-sync-alt me-1"></i> Retry
-                      </button>
-                    </div>
                   </div>
                 )}
 
                 {/* Data table */}
                 {!loading && (
                   <div className="table-responsive">
-                    <table className="table table-bordered table-hover table-striped">
+                    <table className="table table-bordered table-hover">
                       <thead>
                         <tr>
                           {allColumns.map(column => {
@@ -1265,8 +1086,7 @@ const LeadReport = ({ projectType }) => {
                       <tbody>
                         {currentLeads.length > 0 ? (
                           currentLeads.map((lead, index) => (
-                            <tr key={lead.lead_id || lead.id || index}>
-                              {/* Render cells in the same order as the column definitions */}
+                            <tr key={lead.lead_id || index}>
                               {allColumns.map(column => {
                                 // Only render columns that are in the visibleColumns array
                                 if (!visibleColumns.includes(column.id)) {
@@ -1278,13 +1098,7 @@ const LeadReport = ({ projectType }) => {
                                   case 'leadId':
                                     return (
                                       <td key={column.id}>
-                                        <Link
-                                          to={`/lead-detail/${lead.lead_id}`}
-                                          state={{ leadData: lead }}
-                                          className="lead-link"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
+                                        <Link to={`/reporting/lead-detail/${lead.lead_id}`} className="lead-link">
                                           {lead.lead_id || ''}
                                         </Link>
                                       </td>
@@ -1305,30 +1119,6 @@ const LeadReport = ({ projectType }) => {
                                         </Link>
                                       </td>
                                     );
-                                  case 'businessEmail':
-                                    return <td key={column.id}>{lead.business_email || ''}</td>;
-                                  case 'businessPhone':
-                                    return <td key={column.id}>{lead.business_phone || ''}</td>;
-                                  case 'contactCard':
-                                    return (
-                                      <td key={column.id}>
-                                        <button
-                                          className="btn btn-sm btn-outline-primary"
-                                          onClick={() => handleView(lead)}
-                                          title="View Contact Card"
-                                        >
-                                          <i className="fas fa-address-card"></i>
-                                        </button>
-                                      </td>
-                                    );
-                                  case 'affiliateSource':
-                                    return <td key={column.id}>{lead.source || ''}</td>;
-                                  case 'employee':
-                                    return <td key={column.id}>{lead.employee_id || ''}</td>;
-                                  case 'salesAgent':
-                                    return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
-                                  case 'salesSupport':
-                                    return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
                                   case 'taxNowStatus':
                                     return (
                                       <td key={column.id}>
@@ -1343,6 +1133,29 @@ const LeadReport = ({ projectType }) => {
                                         </span>
                                       </td>
                                     );
+                                  case 'businessEmail':
+                                    return <td key={column.id}>{lead.business_email || ''}</td>;
+                                  case 'businessPhone':
+                                    return <td key={column.id}>{lead.business_phone || ''}</td>;
+                                  case 'contactCard':
+                                    return (
+                                      <td key={column.id} className="text-center">
+                                        <button
+                                          className="btn btn-sm btn-outline-primary"
+                                          onClick={() => handleViewContact(lead)}
+                                        >
+                                          <i className="fas fa-address-card"></i>
+                                        </button>
+                                      </td>
+                                    );
+                                  case 'employee':
+                                    return <td key={column.id}>{lead.employee_id || ''}</td>;
+                                  case 'salesAgent':
+                                    return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
+                                  case 'salesSupport':
+                                    return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
+                                  case 'affiliateSource':
+                                    return <td key={column.id}>{lead.source || ''}</td>;
                                   case 'leadCampaign':
                                     return <td key={column.id}>{lead.campaign || ''}</td>;
                                   case 'category':
@@ -1402,16 +1215,9 @@ const LeadReport = ({ projectType }) => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={visibleColumns.length} className="text-center py-5">
-                              <div className="d-flex flex-column align-items-center">
-                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No leads found</h5>
-                                <p className="text-muted mb-3">
-                                  {searchTerm || filterStatus ?
-                                    'Try adjusting your search or filter criteria' :
-                                    'No lead data is available from the API'}
-                                </p>
-                              </div>
+                            <td colSpan={visibleColumns.length} className="text-center py-4">
+                              <i className="fas fa-info-circle me-2"></i>
+                              No leads found
                             </td>
                           </tr>
                         )}
@@ -1421,95 +1227,32 @@ const LeadReport = ({ projectType }) => {
                 )}
 
                 {/* Pagination */}
-                {!loading && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <p>Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} leads (filtered from {leads.length} total)</p>
+                {!loading && totalPages > 1 && (
+                  <div className="d-flex justify-content-between align-items-center mt-4">
+                    <div>
+                      Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} entries
                     </div>
-                    <div className="col-md-6">
-                      <nav aria-label="Lead report pagination">
-                        <ul className="pagination justify-content-end">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToPreviousPage}
-                              disabled={currentPage === 1}
-                            >
-                              Previous
+                    <nav>
+                      <ul className="pagination mb-0">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={goToPreviousPage}>
+                            <i className="fas fa-chevron-left"></i>
+                          </button>
+                        </li>
+                        {[...Array(totalPages)].map((_, i) => (
+                          <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                            <button className="page-link" onClick={() => paginate(i + 1)}>
+                              {i + 1}
                             </button>
                           </li>
-
-                          {/* First page */}
-                          {currentPage > 3 && (
-                            <li className="page-item">
-                              <button className="page-link" onClick={() => paginate(1)}>1</button>
-                            </li>
-                          )}
-
-                          {/* Ellipsis */}
-                          {currentPage > 4 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Page numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            // Show current page and 1 page before and after
-                            if (
-                              pageNumber === currentPage ||
-                              pageNumber === currentPage - 1 ||
-                              pageNumber === currentPage + 1
-                            ) {
-                              return (
-                                <li
-                                  key={pageNumber}
-                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                >
-                                  <button
-                                    className="page-link"
-                                    onClick={() => paginate(pageNumber)}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                </li>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Ellipsis */}
-                          {currentPage < totalPages - 3 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Last page */}
-                          {currentPage < totalPages - 2 && (
-                            <li className="page-item">
-                              <button
-                                className="page-link"
-                                onClick={() => paginate(totalPages)}
-                              >
-                                {totalPages}
-                              </button>
-                            </li>
-                          )}
-
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToNextPage}
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
+                        ))}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={goToNextPage}>
+                            <i className="fas fa-chevron-right"></i>
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
                   </div>
                 )}
               </div>
@@ -1519,6 +1262,6 @@ const LeadReport = ({ projectType }) => {
       </div>
     </div>
   );
-};
+}
 
-export default LeadReport;
+export default ERCLeadReport;
