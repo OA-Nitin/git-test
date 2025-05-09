@@ -1,0 +1,83 @@
+/* Action Buttons Styles */
+
+.action-buttons-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Base button styles */
+.action-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Save button styles */
+.save-btn {
+  background-color: #ff6600;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #e55c00;
+  box-shadow: 0 2px 5px rgba(229, 92, 0, 0.3);
+}
+
+.save-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(229, 92, 0, 0.3);
+}
+
+.save-btn:disabled {
+  background-color: #ffaa80;
+}
+
+/* Cancel button styles */
+.cancel-btn {
+  background-color: #ff0000;
+  color: white;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #e60000;
+  box-shadow: 0 2px 5px rgba(230, 0, 0, 0.3);
+}
+
+.cancel-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(230, 0, 0, 0.3);
+}
+
+.cancel-btn:disabled {
+  background-color: #ff8080;
+}
+
+/* Responsive styles */
+@media (max-width: 576px) {
+  .action-buttons-container {
+    flex-direction: column-reverse;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+}

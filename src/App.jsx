@@ -23,6 +23,8 @@ import STCProjectsReport from "./components/STCProjectsReport";
 import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
 import MyProfile from "./components/MyProfile";
+import NotesExample from "./components/common/NotesExample";
+import ButtonsExample from "./components/common/ButtonsExample";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -203,6 +205,24 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Notes Example Page */}
+        <Route path="/examples/notes" element={
+          <ProtectedRoute>
+            <Layout>
+              <NotesExample />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Buttons Example Page */}
+        <Route path="/examples/buttons" element={
+          <ProtectedRoute>
+            <Layout>
+              <ButtonsExample />
             </Layout>
           </ProtectedRoute>
         } />
