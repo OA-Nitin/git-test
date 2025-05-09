@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './MyProfile.css';
 import './SweetAlert.css';
 import Toast from './Toast';
-import Modal from './Modal';
+import Modal from './common/Modal';
 import QRCode from './QRCode';
 
 const MyProfile = () => {
@@ -333,9 +333,10 @@ const MyProfile = () => {
 
       {/* QR Code Modal */}
       <Modal
-        isOpen={qrModal.isOpen}
+        show={qrModal.isOpen}
         onClose={closeQrModal}
         title={`QR Code for ${qrModal.title}`}
+        showFooter={false}
       >
         <div className="qr-code-container">
           <QRCode url={qrModal.url} size={250} />
