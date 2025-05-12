@@ -10,6 +10,7 @@ import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
 import Notes from './common/Notes';
+import ContactCard from './common/ContactCard';
 
 const ProjectReport = ({ projectType = 'all' }) => {
   // State for API data
@@ -549,31 +550,7 @@ const ProjectReport = ({ projectType = 'all' }) => {
     }
   };
 
-  // Handle view contact card
-  const handleViewContact = (project) => {
-    Swal.fire({
-      title: 'Contact Information',
-      html: `
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">
-              ${project.isFallbackData ? '<span class="badge bg-warning me-1"><i class="fas fa-exclamation-triangle"></i> Sample Data</span>' : ''}
-              ${project.business_name || 'N/A'}
-            </h5>
-            <p class="card-text"><strong>Business ID:</strong> ${project.id || 'N/A'}</p>
-            <p class="card-text"><strong>Product:</strong> ${project.product || 'N/A'}</p>
-            <p class="card-text"><strong>Project:</strong> ${project.project || 'N/A'}</p>
-            <p class="card-text"><strong>Collaborators:</strong> ${project.collaborators || 'N/A'}</p>
-            <p class="card-text"><strong>Stage:</strong> ${project.stage || 'N/A'}</p>
-            <p class="card-text"><strong>Status:</strong> ${project.taxnow_signup_status || 'N/A'}</p>
-          </div>
-        </div>
-      `,
-      width: 600,
-      showCloseButton: true,
-      showConfirmButton: false
-    });
-  };
+  // The handleViewContact function is no longer needed as we're using the ContactCard component
 
 
 
@@ -849,13 +826,11 @@ const ProjectReport = ({ projectType = 'all' }) => {
                                     case 'contactCard':
                                       return (
                                         <td key={column.id} className="text-center">
-                                          <button
-                                            className="btn btn-sm btn-outline-primary"
-                                            onClick={() => handleViewContact(project)}
-                                            title="View Contact Card"
-                                          >
-                                            <i className="fas fa-address-card"></i> View Card
-                                          </button>
+                                          <ContactCard
+                                            entity={project}
+                                            entityType="project"
+                                            buttonText="View Card"
+                                          />
                                         </td>
                                       );
                                     case 'product':

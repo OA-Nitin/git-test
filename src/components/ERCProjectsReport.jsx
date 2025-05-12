@@ -10,6 +10,7 @@ import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
 import Notes from './common/Notes';
+import ContactCard from './common/ContactCard';
 
 // Function to format date as mm/dd/YYYY H:i:s
 const formatDate = (dateString) => {
@@ -592,91 +593,7 @@ const ERCProjectsReport = () => {
     }
   };
 
-  // Handle view contact card
-  const handleViewContact = (project) => {
-    // Debug: Log the project object to see what data we have
-    console.log('Project data for contact card:', project);
-
-    // Only show specific fields in the contact card
-    const businessName = project.business_legal_name || 'Unknown Business';
-    const stage = project.stage_name || '';
-    const projectName = project.project_name || 'N/A';
-
-    // Create HTML for the specific fields we want to show
-    const contactCardHTML = `
-      <div class="text-start">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">${businessName}</h5>
-          <span class="badge ${
-            stage === 'ERC Fees Fully Paid' ? 'bg-success' :
-            stage === 'Documents Pending' ? 'bg-info' :
-            stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
-            stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-            stage === 'Payment Returned' ? 'bg-danger' :
-            'bg-secondary'
-          }">${stage}</span>
-        </div>
-
-        <table class="table table-bordered">
-          <tr>
-            <th>Project Name</th>
-            <td>${projectName}</td>
-          </tr>
-          <tr>
-            <th>Business Phone</th>
-            <td>${project.business_phone || 'N/A'}</td>
-          </tr>
-          <tr>
-            <th>Business Email</th>
-            <td>${project.business_email || 'N/A'}</td>
-          </tr>
-        </table>
-      </div>
-    `;
-
-    Swal.fire({
-      title: '<span style="font-size: 1.2rem; color: #333;">Contact Card</span>',
-      html: contactCardHTML,
-      width: '500px',
-      showCloseButton: true,
-      showConfirmButton: false,
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Add custom CSS for the SweetAlert modal
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .swal-popup-custom {
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-      .swal-title-custom {
-        font-size: 1.5rem;
-        color: #333;
-        font-weight: 600;
-      }
-      .swal-header-custom {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
-      .swal-content-custom {
-        padding: 15px;
-      }
-      .table-bordered th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        width: 40%;
-      }
-    `;
-    document.head.appendChild(style);
-  };
+  // The handleViewContact function is no longer needed as we're using the ContactCard component
 
 
 
@@ -953,13 +870,10 @@ const ERCProjectsReport = () => {
                                   case 'contactCard':
                                     return (
                                       <td key={column.id}>
-                                        <button
-                                          className="btn btn-sm btn-outline-primary"
-                                          onClick={() => handleViewContact(project)}
-                                          title="View Contact Card"
-                                        >
-                                          <i className="fas fa-address-card"></i>
-                                        </button>
+                                        <ContactCard
+                                          entity={project}
+                                          entityType="project"
+                                        />
                                       </td>
                                     );
                                   case 'projectName':
