@@ -26,7 +26,8 @@ export const sortArrayByKey = (array, key, direction) => {
       'internal_sales_support': ['internal_sales_support', 'sales_support'],
       'source': ['source', 'affiliate_source'],
       'campaign': ['campaign', 'lead_campaign'],
-      'w2_count': ['w2_count']
+      'w2_count': ['w2_count'],
+      'no_of_days_due': ['no_of_days_due', 'days_due', 'days_past_due']
     };
 
     // Get the possible field names for the key

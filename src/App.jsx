@@ -42,8 +42,10 @@ import AuditAdvisoryProjectsReport from "./components/AuditAdvisoryProjectsRepor
 import RDCProjectsReport from "./components/RDCProjectsReport";
 
 // Finance components
-import ManageInvoice from "./components/ManageInvoice";
+//import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
+
+import ManageFinanceReport from "./components/ManageFinanceReport";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -146,10 +148,17 @@ const App = () => {
           </ProtectedRoute>
         } />
 
-        <Route path="/finance/invoices" element={
+        {/* <Route path="/finance/invoices" element={
           <ProtectedRoute>
             <Layout>
               <ManageInvoice />
+            </Layout>
+          </ProtectedRoute>
+        } /> */}
+        <Route path="/finance/invoices" element={
+          <ProtectedRoute>
+            <Layout>
+              <ManageFinanceReport />
             </Layout>
           </ProtectedRoute>
         } />

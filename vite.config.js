@@ -25,6 +25,28 @@ export default defineConfig({
     fs: {
       // Allow serving files from one level up to the project root
       allow: ['..']
+    },
+    proxy: {
+      '/api': {
+        target: 'https://play.occamsadvisory.com/portal',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/wp-json/oc-login-api/v1'),
+        secure: false,
+        headers: {
+          'x-auth-key': 'qV9@8kJz#2dP!mNc'
+        },
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        }
+      }
     }
   },
   resolve: {
