@@ -9,6 +9,7 @@ import './ColumnSelector.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
+import Notes from './common/Notes';
 
 const ProjectReport = ({ projectType = 'all' }) => {
   // State for API data
@@ -574,60 +575,7 @@ const ProjectReport = ({ projectType = 'all' }) => {
     });
   };
 
-  // Handle view notes
-  const handleViewNotes = (project) => {
-    Swal.fire({
-      title: 'Project Notes',
-      html: `
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">
-              ${project.isFallbackData ? '<span class="badge bg-warning me-1"><i class="fas fa-exclamation-triangle"></i> Sample Data</span>' : ''}
-              ${project.business_name || 'N/A'}
-            </h5>
-            <p class="card-text">${project.notes || 'No notes available for this project.'}</p>
-          </div>
-        </div>
-      `,
-      width: 600,
-      showCloseButton: true,
-      showConfirmButton: false
-    });
-  };
 
-  // Handle add notes
-  const handleAddNotes = (project) => {
-    Swal.fire({
-      title: 'Add Notes',
-      html: `
-        <textarea id="project-notes" class="form-control" rows="5" placeholder="Enter notes here..."></textarea>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Save',
-      showLoaderOnConfirm: true,
-      preConfirm: () => {
-        const notes = document.getElementById('project-notes').value;
-        if (!notes.trim()) {
-          Swal.showValidationMessage('Please enter some notes');
-          return false;
-        }
-        return notes;
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Here you would typically save the notes to the API
-        console.log('Saving notes for project:', project.id, 'Business:', project.business_name, 'Note:', result.value);
-
-        Swal.fire({
-          title: 'Success!',
-          text: 'Notes have been saved.',
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false
-        });
-      }
-    });
-  };
 
   return (
     <div className="container-fluid">
@@ -947,23 +895,12 @@ const ProjectReport = ({ projectType = 'all' }) => {
                                       );
                                     case 'notes':
                                       return (
-                                        <td key={column.id} className="text-center">
-                                          <div className="d-flex justify-content-center gap-2">
-                                            <button
-                                              className="btn btn-sm btn-outline-info"
-                                              onClick={() => handleViewNotes(project)}
-                                              title="View Notes"
-                                            >
-                                              <i className="fas fa-eye"></i>
-                                            </button>
-                                            <button
-                                              className="btn btn-sm btn-outline-success"
-                                              onClick={() => handleAddNotes(project)}
-                                              title="Add Notes"
-                                            >
-                                              <i className="fas fa-plus"></i>
-                                            </button>
-                                          </div>
+                                        <td key={column.id}>
+                                          <Notes
+                                            entityType="project"
+                                            entityId={project.id || ''}
+                                            entityName={project.business_name || ''}
+                                          />
                                         </td>
                                       );
                                     case 'documents':
