@@ -10,7 +10,6 @@ import './assets/css/metisMenu.css';
 import './assets/css/themify-icons.css';
 import './assets/css/style.css';
 import './assets/css/header-dropdown.css';
-import './assets/css/custom-menu.css';
 
 // JS imports
 import './assets/js/metisMenu.js';
@@ -44,8 +43,11 @@ import RDCProjectsReport from "./components/RDCProjectsReport";
 // Finance components
 //import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
-
 import ManageFinanceReport from "./components/ManageFinanceReport";
+
+// Example components
+import NotesExample from "./components/common/NotesExample";
+import ButtonsExample from "./components/common/ButtonsExample";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -246,10 +248,28 @@ const App = () => {
           </ProtectedRoute>
         } />
 
+        {/* Notes Example Page */}
+        <Route path="/examples/notes" element={
+          <ProtectedRoute>
+            <Layout>
+              <NotesExample />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
         <Route path="/reports/stc-lead-report" element={
           <ProtectedRoute>
             <Layout>
               <STCLeadReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Buttons Example Page */}
+        <Route path="/examples/buttons" element={
+          <ProtectedRoute>
+            <Layout>
+              <ButtonsExample />
             </Layout>
           </ProtectedRoute>
         } />

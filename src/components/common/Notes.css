@@ -1,0 +1,213 @@
+/* Notes Component Styles */
+
+/* Notes container styles */
+.notes-container {
+  padding: 20px;
+}
+
+.notes-section {
+  margin-top: 10px;
+}
+
+.notes-header {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.notes-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+  position: relative;
+  padding-left: 10px;
+}
+
+.notes-title:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 16px;
+  width: 3px;
+  background-color: #ff6600;
+  border-radius: 2px;
+}
+
+/* Add note button styles */
+.add-note-btn {
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(255, 102, 0, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-note-btn span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.add-note-btn i {
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-note-btn:hover {
+  background-color: #e55c00;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 102, 0, 0.4);
+}
+
+.add-note-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 102, 0, 0.3);
+}
+
+/* Note item styles */
+.note-item {
+  border-left: 3px solid #1658a5;
+  transition: all 0.2s ease;
+}
+
+.note-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.note-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #212529;
+  word-break: break-word;
+  white-space: normal;
+  flex: 1;
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+}
+
+.note-author {
+  font-weight: 500;
+}
+
+.note-date {
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+.note-time {
+  font-size: 0.85rem;
+}
+
+.note-content {
+  line-height: 1.5;
+  color: #212529;
+}
+
+.note-content .d-flex {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.note-content .fw-bold {
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+/* Scrollable notes container */
+.scrollable-notes-container {
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+/* Scrollbar styling */
+.scrollable-notes-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollable-notes-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.scrollable-notes-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.scrollable-notes-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Note: Modal styles have been moved to Modal.css and ModalHeader.css */
+
+/* Note: Button styles have been moved to ActionButtons.css */
+
+/* SweetAlert custom styles */
+.swal-popup-custom {
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.swal-title-custom {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 0;
+}
+
+.swal-close-button-custom {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  padding: 0.25rem;
+  margin: 0;
+}
+
+.swal-content-custom {
+  padding: 10px 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .notes-title {
+    font-size: 0.9rem;
+  }
+
+  .add-note-btn {
+    padding: 6px 15px;
+    font-size: 0.9rem;
+  }
+
+  .note-date {
+    font-size: 0.8rem;
+  }
+
+  .note-time {
+    font-size: 0.75rem;
+  }
+
+  .note-content {
+    font-size: 0.9rem;
+  }
+}

@@ -6,10 +6,11 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
-import './DateFilter.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
+import Notes from './common/Notes';
+import ContactCard from './common/ContactCard';
 
 // Function to format date as mm/dd/YYYY H:i:s
 const formatDate = (dateString) => {
@@ -597,332 +598,8 @@ const ProjectReport = ({ projectType = 'all' }) => {
     }
   };
 
-  // Handle view contact card
-  const handleViewContact = (project) => {
-    // Debug: Log the project object to see what data we have
-    console.log('Project data for contact card:', project);
+  // The handleViewContact and handleViewNotes functions are no longer needed as we're using the ContactCard and Notes components
 
-    // Only show specific fields in the contact card
-    const businessName = project.business_legal_name || 'Unknown Business';
-    const stage = project.stage_name || '';
-    const projectName = project.project_name || 'N/A';
-
-    // Create HTML for the specific fields we want to show
-    const contactCardHTML = `
-      <div class="text-start">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">${businessName}</h5>
-          <span class="badge ${
-            stage === 'ERC Fees Fully Paid' ? 'bg-success' :
-            stage === 'Documents Pending' ? 'bg-info' :
-            stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
-            stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-            stage === 'Payment Returned' ? 'bg-danger' :
-            'bg-secondary'
-          }">${stage}</span>
-        </div>
-
-        <table class="table table-bordered">
-          <tr>
-            <th>Project Name</th>
-            <td>${projectName}</td>
-          </tr>
-          <tr>
-            <th>Business Phone</th>
-            <td>${project.business_phone || 'N/A'}</td>
-          </tr>
-          <tr>
-            <th>Business Email</th>
-            <td>${project.business_email || 'N/A'}</td>
-          </tr>
-        </table>
-      </div>
-    `;
-
-    Swal.fire({
-      title: '<span style="font-size: 1.2rem; color: #333;">Contact Card</span>',
-      html: contactCardHTML,
-      width: '500px',
-      showCloseButton: true,
-      showConfirmButton: false,
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Add custom CSS for the SweetAlert modal
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .swal-popup-custom {
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-      .swal-title-custom {
-        font-size: 1.5rem;
-        color: #333;
-        font-weight: 600;
-      }
-      .swal-header-custom {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
-      .swal-content-custom {
-        padding: 15px;
-      }
-      .table-bordered th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        width: 40%;
-      }
-    `;
-    document.head.appendChild(style);
-  };
-
-  // Handle view notes
-  const handleViewNotes = (project) => {
-    const projectId = project.project_id || '';
-    const leadId = project.lead_id || '';
-    const stage = project.stage_name || '';
-
-    // Show loading state
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-      html: `
-        <div class="text-center py-4">
-          <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="text-muted">Loading notes...</p>
-        </div>
-      `,
-      showConfirmButton: false,
-      showCloseButton: true,
-      allowOutsideClick: false,
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Fetch notes from the API using project_id directly in the URL path
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${projectId}`)
-      .then(response => {
-        console.log('Project Notes API full response:', response);
-        console.log('Project ID used for fetching notes:', projectId);
-
-        // Handle different possible response formats
-        let notes = [];
-        if (Array.isArray(response.data)) {
-          notes = response.data;
-        } else if (response.data && typeof response.data === 'object') {
-          // If response.data is an object with a data property that is an array
-          if (Array.isArray(response.data.data)) {
-            notes = response.data.data;
-          } else {
-            // If it's a single note object, wrap it in an array
-            notes = [response.data];
-          }
-        }
-
-        console.log('Processed notes array:', notes);
-
-        let notesHtml = '';
-        if (!notes || notes.length === 0) {
-          notesHtml = `
-            <div class="text-center py-4">
-              <div class="mb-3">
-                <i class="fas fa-sticky-note fa-3x text-muted"></i>
-              </div>
-              <p class="text-muted">No notes available for this project</p>
-            </div>
-          `;
-        } else {
-          notesHtml = `
-            <div class="notes-list">
-              ${notes.map(note => {
-                // Parse the original date from the note (adjust field name based on API response)
-                const originalDate = new Date(note.created_at || note.date || new Date());
-
-                // Format the date as "Month Day, Year" (e.g., "May 6, 2025")
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                const formattedDate = originalDate.toLocaleDateString('en-US', options);
-
-                // Format time in 12-hour format with AM/PM
-                let hour12 = originalDate.getHours() % 12;
-                if (hour12 === 0) hour12 = 12; // Convert 0 to 12 for 12 AM
-                const ampm = originalDate.getHours() >= 12 ? 'PM' : 'AM';
-                const formattedTime = `${hour12}:${String(originalDate.getMinutes()).padStart(2, '0')} ${ampm}`;
-
-                // Get the note content (adjust field name based on API response)
-                const noteContent = note.note || note.content || note.text || '';
-
-                // Get the user who created the note (if available)
-                const userName = note.user_name || note.username || note.author || 'System';
-
-                return `
-                  <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedDate}</div>
-                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedTime}</div>
-                    </div>
-                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${noteContent}</p>
-                    <div class="mt-2 text-end">
-                      <small class="text-muted">Added by: ${userName}</small>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          `;
-        }
-
-        // Update the modal with the fetched notes
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-          html: `
-            <div class="text-start">
-              <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                <div>
-                  <span class="text-black">Project ID: <span class="text-dark">${projectId}</span></span>
-                </div>
-                <div>
-                  <span class="badge ${
-                    stage === 'ERC Fees Fully Paid' ? 'bg-success' :
-                    stage === 'Documents Pending' ? 'bg-info' :
-                    stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
-                    stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-                    stage === 'Payment Returned' ? 'bg-danger' :
-                    'bg-secondary'
-                  }">${stage || 'Unknown'}</span>
-                </div>
-              </div>
-              <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
-                ${notesHtml}
-              </div>
-            </div>
-          `,
-          width: '650px',
-          showCloseButton: false,
-          showConfirmButton: true,
-          confirmButtonText: 'Close',
-          confirmButtonColor: '#0d6efd',
-          customClass: {
-            container: 'swal-wide',
-            popup: 'swal-popup-custom',
-            header: 'swal-header-custom',
-            title: 'swal-title-custom',
-            closeButton: 'swal-close-button-custom',
-            content: 'swal-content-custom',
-            footer: 'swal-footer-custom'
-          }
-        });
-
-        // Add custom CSS for the SweetAlert modal
-        const style = document.createElement('style');
-        style.innerHTML = `
-          .swal-popup-custom {
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-          }
-          .swal-title-custom {
-            font-size: 1.5rem;
-            color: #333;
-            font-weight: 600;
-          }
-          .swal-header-custom {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-          }
-          .swal-content-custom {
-            padding: 15px;
-          }
-          .swal-footer-custom {
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-          }
-          .note-item {
-            transition: all 0.2s ease;
-          }
-          .note-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          }
-        `;
-        document.head.appendChild(style);
-      })
-      .catch(error => {
-        console.error('Error fetching notes:', error);
-        console.error('Error response:', error.response);
-        console.error('Error request:', error.request);
-        console.error('Error config:', error.config);
-        console.error('Project ID that caused error:', projectId);
-
-        // Show error message with more details
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-          html: `
-            <div class="text-center py-3">
-              <div class="mb-3">
-                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-              </div>
-              <p class="text-muted">There was a problem loading notes for this project.</p>
-              <div class="alert alert-danger py-2 mt-2">
-                <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
-              </div>
-              <p class="text-muted mt-2">Project ID: ${projectId}</p>
-            </div>
-          `,
-          confirmButtonText: 'OK',
-          customClass: {
-            popup: 'swal-popup-custom',
-            title: 'swal-title-custom'
-          }
-        });
-      });
-  };
-
-  // Handle add notes
-  const handleAddNotes = (project) => {
-    Swal.fire({
-      title: 'Add Notes',
-      html: `
-        <textarea id="project-notes" class="form-control" rows="5" placeholder="Enter notes here..."></textarea>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Save',
-      showLoaderOnConfirm: true,
-      preConfirm: () => {
-        const notes = document.getElementById('project-notes').value;
-        if (!notes.trim()) {
-          Swal.showValidationMessage('Please enter some notes');
-          return false;
-        }
-        return notes;
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Here you would typically save the notes to the API
-        console.log('Saving notes for project:', project.id, 'Business:', project.business_name, 'Note:', result.value);
-
-        Swal.fire({
-          title: 'Success!',
-          text: 'Notes have been saved.',
-          icon: 'success',
-          timer: 1500,
-          showConfirmButton: false
-        });
-      }
-    });
-  };
 
   return (
     <div className="container-fluid">
@@ -1196,13 +873,11 @@ const ProjectReport = ({ projectType = 'all' }) => {
                                     case 'contactCard':
                                       return (
                                         <td key={column.id} className="text-center">
-                                          <button
-                                            className="btn btn-sm btn-outline-primary"
-                                            onClick={() => handleViewContact(project)}
-                                            title="View Contact Card"
-                                          >
-                                            <i className="fas fa-address-card"></i> View Card
-                                          </button>
+                                          <ContactCard
+                                            entity={project}
+                                            entityType="project"
+                                            buttonText="View Card"
+                                          />
                                         </td>
                                       );
                                     case 'product':
@@ -1242,23 +917,12 @@ const ProjectReport = ({ projectType = 'all' }) => {
                                       );
                                     case 'notes':
                                       return (
-                                        <td key={column.id} className="text-center">
-                                          <div className="d-flex justify-content-center gap-2">
-                                            <button
-                                              className="btn btn-sm btn-outline-info"
-                                              onClick={() => handleViewNotes(project)}
-                                              title="View Notes"
-                                            >
-                                              <i className="fas fa-eye"></i>
-                                            </button>
-                                            <button
-                                              className="btn btn-sm btn-outline-success"
-                                              onClick={() => handleAddNotes(project)}
-                                              title="Add Notes"
-                                            >
-                                              <i className="fas fa-plus"></i>
-                                            </button>
-                                          </div>
+                                        <td key={column.id}>
+                                          <Notes
+                                            entityType="project"
+                                            entityId={project.id || ''}
+                                            entityName={project.business_name || ''}
+                                          />
                                         </td>
                                       );
                                     case 'documents':
