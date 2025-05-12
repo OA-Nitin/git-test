@@ -4,44 +4,61 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
 import './DateFilter.css';
-import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
 
-const LeadReport = ({ projectType }) => {
+// Function to format date as mm/dd/YYYY H:i:s
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return dateString;
+
+    // Format as mm/dd/YYYY H:i:s
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+
+    return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
+const AllProjectsReport = () => {
   // State for API data
-  const [leads, setLeads] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Set title based on project type
-    const reportTitle = projectType
-      ? `${projectType.toUpperCase()} Lead Report - Occams Portal`
-      : "Lead Report - Occams Portal";
+    document.title = "All Projects Report - Occams Portal"; // Set title for All Projects Report page
 
-    document.title = reportTitle;
+    // Fetch projects from API
+    fetchProjects();
+  }, []);
 
-    // Fetch leads from API
-    fetchLeads();
-  }, [projectType]);
-
-  // Function to fetch leads from API
-  const fetchLeads = async () => {
+  // Function to fetch projects from API
+  const fetchProjects = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      console.log(`Fetching ${projectType ? projectType + ' ' : ''}leads from API...`);
+      console.log('Fetching projects from API...');
 
-      // Construct API URL - if projectType is provided, we could add it as a query parameter
-      // For now, we'll fetch all leads and filter them client-side
-      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      // Use the updated endpoint provided
+      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
 
       // Make the API request with proper headers
       const response = await axios.get(apiUrl, {
@@ -55,183 +72,206 @@ const LeadReport = ({ projectType }) => {
       console.log('API Response:', response);
 
       // Check if we have a valid response with data
-      if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
-        // Use the data array from the API response
-        let apiLeads = response.data.data;
-        console.log('API Leads (before filtering):', apiLeads);
+      if (response && response.data) {
+        // Check if response.data has a data property that is an array (based on the actual API response structure)
+        if (response.data.data && Array.isArray(response.data.data)) {
+          const apiProjects = response.data.data;
+          console.log('API Projects (nested data):', apiProjects);
+          console.log('Number of projects returned:', apiProjects.length);
 
-        // Filter leads by project type if specified
-        if (projectType) {
-          apiLeads = apiLeads.filter(lead => {
-            // Check if the lead's category or product_type matches the projectType
-            // Adjust these fields based on the actual API response structure
-            const category = (lead.category || '').toLowerCase();
-            const productType = (lead.product_type || '').toLowerCase();
-            const leadGroup = (lead.lead_group || '').toLowerCase();
+          // Use the API data even if it's just a few records
+          setProjects(apiProjects);
 
-            const typeToMatch = projectType.toLowerCase();
-
-            return category.includes(typeToMatch) ||
-                   productType.includes(typeToMatch) ||
-                   leadGroup.includes(typeToMatch);
-          });
-
-          console.log(`Filtered leads for ${projectType}:`, apiLeads);
+          if (apiProjects.length === 0) {
+            setError('No projects found in API response.');
+          }
         }
+        // Check if response.data is an array directly
+        else if (Array.isArray(response.data)) {
+          // Use the data array from the API response
+          const apiProjects = response.data;
+          console.log('API Projects:', apiProjects);
+          console.log('Number of projects returned:', apiProjects.length);
 
-        if (apiLeads.length > 0) {
-          setLeads(apiLeads);
-        } else {
-          console.warn(`No ${projectType ? projectType + ' ' : ''}leads found in API response, using fallback data`);
-          setLeads(generateFallbackLeads(projectType));
-          setError(`No ${projectType ? projectType + ' ' : ''}leads found in API response. Using sample data instead.`);
+          // Use the API data even if it's just a few records
+          setProjects(apiProjects);
+
+          if (apiProjects.length === 0) {
+            setError('No projects found in API response.');
+          }
+        }
+        else {
+          console.error('API response format unexpected:', response);
+          // If API returns unexpected format, use fallback data
+          const errorMsg = 'API returned unexpected data format. Using sample data instead.';
+          setError(errorMsg);
+
+          // Generate fallback data with a clear indicator
+          const fallbackData = generateFallbackProjects();
+          // Add a flag to indicate this is fallback data
+          fallbackData.forEach(project => {
+            project.isFallbackData = true;
+          });
+          setProjects(fallbackData);
         }
       } else {
-        console.error('API response format unexpected:', response);
-        // If API returns unexpected format, use fallback data
-        setLeads(generateFallbackLeads(projectType));
-        setError(`API returned unexpected data format. Using sample ${projectType ? projectType + ' ' : ''}data instead.`);
+        console.error('API response invalid:', response);
+        // If API returns invalid response, use fallback data
+        const errorMsg = 'API returned invalid response. Using sample data instead.';
+        setError(errorMsg);
+
+        // Generate fallback data with a clear indicator
+        const fallbackData = generateFallbackProjects();
+        // Add a flag to indicate this is fallback data
+        fallbackData.forEach(project => {
+          project.isFallbackData = true;
+        });
+        setProjects(fallbackData);
       }
     } catch (err) {
-      console.error('Error fetching leads:', err);
-      setError(`Failed to fetch ${projectType ? projectType + ' ' : ''}leads: ${err.message}. Using sample data instead.`);
-      setLeads(generateFallbackLeads(projectType));
+      console.error('Error fetching projects:', err);
+      const errorMsg = `Failed to fetch projects: ${err.message}. Using sample data instead.`;
+      console.error(errorMsg);
+      setError(errorMsg);
+
+      // Generate fallback data with a clear indicator
+      const fallbackData = generateFallbackProjects();
+      // Add a flag to indicate this is fallback data
+      fallbackData.forEach(project => {
+        project.isFallbackData = true;
+      });
+      setProjects(fallbackData);
     } finally {
       setLoading(false);
     }
   };
 
-  // Generate fallback lead data if API fails
-  const generateFallbackLeads = (type = null) => {
-    const companies = [
-      { name: 'Acme Corporation', domain: 'acmecorp.com' },
-      { name: 'Globex Industries', domain: 'globex.com' },
-      { name: 'Stark Enterprises', domain: 'starkent.com' },
-      { name: 'Wayne Industries', domain: 'wayneindustries.com' },
-      { name: 'Umbrella Corporation', domain: 'umbrellacorp.com' },
-      { name: 'Oscorp Industries', domain: 'oscorp.com' },
-      { name: 'Cyberdyne Systems', domain: 'cyberdyne.com' },
-      { name: 'Initech', domain: 'initech.com' },
-      { name: 'Massive Dynamic', domain: 'massivedynamic.com' },
-      { name: 'Soylent Corp', domain: 'soylent.com' }
+  // Generate fallback project data if API fails
+  const generateFallbackProjects = () => {
+    const businessNames = [
+      'CTCERC Play SP',
+      'ERC SP #',
+      'Updated Comm Cal',
+      'Stu Bharat',
+      'AA play QA',
+      'ERC play sp#12',
+      'ERC Play SP99',
+      'Wayne Industries',
+      'Umbrella Corp',
+      'Oscorp Industries'
     ];
 
-    const statuses = ['New', 'Contacted', 'Qualified', 'Active', 'Converted'];
-    const productTypes = ['ERC', 'STC', 'Tax Amendment', 'Audit Advisory', 'RDC', 'Partnership'];
+    const productNames = ['ERC', 'STC', 'Audit Advisory', 'Tax Amendment', 'RDC'];
+    const projectNames = ['None', 'Updated Comm Cal - ERC', 'Stu Bharat - STC', 'AA play qa - Audit Advisory', 'ERC play sp#12 - ERC'];
+    const milestones = ['ERC Fulfillment', 'STC Enrollment', 'ERC Enrollment', 'ERC Lead Re-engagement'];
+    const stageNames = [
+      'Success Fees Processing Client Initiate',
+      'ERC Fees Fully Paid',
+      'Documents Pending',
+      'Payment Processing Client Initiate',
+      'Payment Returned',
+      'Day 1 Follow-up Complete'
+    ];
+    const taxNowStatuses = [
+      'Complete',
+      ''
+    ];
+    const projectFees = [
+      'Success Fee @10%',
+      'Retainer Fee @$90 Per EE + Success Fee @15%',
+      'Document Fee @$0 + Success Fee @12.5%',
+      'CUSTM FEE',
+      ''
+    ];
 
-    // Map the projectType to a product type
-    let productType = null;
-    if (type) {
-      // Convert type to proper format (e.g., "tax-amendment" -> "Tax Amendment")
-      const formattedType = type
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+    const dummyProjects = [];
 
-      // Find matching product type
-      productType = productTypes.find(pt => pt.toLowerCase() === formattedType.toLowerCase());
+    // Generate only 5 dummy records to make it obvious when we're using fallback data
+    for (let i = 1; i <= 5; i++) {
+      const businessIndex = Math.floor(Math.random() * businessNames.length);
+      const productIndex = Math.floor(Math.random() * productNames.length);
+      const projectIndex = Math.floor(Math.random() * projectNames.length);
+      const milestoneIndex = Math.floor(Math.random() * milestones.length);
+      const stageIndex = Math.floor(Math.random() * stageNames.length);
+      const taxNowStatusIndex = Math.floor(Math.random() * taxNowStatuses.length);
+      const projectFeeIndex = Math.floor(Math.random() * projectFees.length);
 
-      // If no exact match, try partial match
-      if (!productType) {
-        productType = productTypes.find(pt =>
-          pt.toLowerCase().includes(type.toLowerCase()) ||
-          type.toLowerCase().includes(pt.toLowerCase().replace(' ', ''))
-        );
-      }
+      // Generate random date within the last year
+      const date = new Date();
+      date.setDate(date.getDate() - Math.floor(Math.random() * 365));
 
-      // Default to the original type if no match found
-      if (!productType) {
-        productType = formattedType;
-      }
-    }
+      // Format date as YYYY-MM-DD HH:MM:SS
+      const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
 
-    const dummyLeads = [];
+      const businessName = businessNames[businessIndex];
 
-    for (let i = 1; i <= 100; i++) {
-      const companyIndex = Math.floor(Math.random() * companies.length);
-      const company = companies[companyIndex];
-      const statusIndex = Math.floor(Math.random() * statuses.length);
-
-      // If no specific type is requested, assign random product type
-      // Otherwise, use the specified product type
-      const assignedProductType = productType || productTypes[Math.floor(Math.random() * productTypes.length)];
-
-      dummyLeads.push({
-        lead_id: `LD${String(i).padStart(3, '0')}`,
-        business_legal_name: company.name,
-        business_email: `info@${company.domain}`,
-        business_phone: `(${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
-        lead_status: statuses[statusIndex],
-        created: new Date().toLocaleDateString(),
-        employee_id: 'John Doe',
-        internal_sales_agent: 'Sarah Smith',
-        internal_sales_support: 'Mike Johnson',
-        source: 'Website',
-        campaign: 'Email Campaign',
-        category: assignedProductType,
-        product_type: assignedProductType,
-        lead_group: assignedProductType,
-        w2_count: Math.floor(Math.random() * 10) + 1
+      dummyProjects.push({
+        project_id: `${1700 + i}`,
+        lead_id: `${9300 + i}`,
+        product_id: '935',
+        contact_id: `${6400 + i}`,
+        project_name: projectNames[projectIndex],
+        project_fee: projectFees[projectFeeIndex],
+        created_at: formattedDate,
+        business_legal_name: businessName,
+        authorized_signatory_name: businessName,
+        business_phone: `${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
+        business_email: `test${i}@example.com`,
+        taxnow_signup_status: taxNowStatuses[taxNowStatusIndex],
+        product_name: productNames[productIndex],
+        milestone: milestones[milestoneIndex],
+        stage_name: stageNames[stageIndex],
+        notes: 'Sample notes for testing purposes'
       });
     }
 
-    // If a specific type was requested, filter the leads to only include that type
-    if (type) {
-      return dummyLeads;
-    }
-
-    return dummyLeads;
+    return dummyProjects;
   };
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  const [sortField, setSortField] = useState('lead_id');
+  const [sortField, setSortField] = useState('id');
   const [sortDirection, setSortDirection] = useState('asc');
   const [isSearching, setIsSearching] = useState(false);
 
-
-  // Define all available columns with groups based on API data structure
+  // Define all available columns with groups based on API response
   const columnGroups = [
     {
       id: 'basic',
       title: 'Basic Information',
       columns: [
-        { id: 'leadId', label: 'Lead #', field: 'lead_id', sortable: true },
-        { id: 'date', label: 'Date', field: 'created', sortable: false },
+        { id: 'projectId', label: 'ID', field: 'project_id', sortable: true },
+        { id: 'date', label: 'Date', field: 'created_at', sortable: true },
         { id: 'businessName', label: 'Business Name', field: 'business_legal_name', sortable: true },
-        { id: 'taxNowStatus', label: 'Lead Status', field: 'lead_status', sortable: true }
+        { id: 'contactCard', label: 'Contact Info', field: 'contact_card', sortable: false }
       ]
     },
     {
-      id: 'contacts',
-      title: 'Contact Information',
+      id: 'project',
+      title: 'Project Information',
       columns: [
-        { id: 'businessEmail', label: 'Email', field: 'business_email', sortable: false },
-        { id: 'businessPhone', label: 'Phone', field: 'business_phone', sortable: false },
-        { id: 'contactCard', label: 'Contact Card', field: 'contactCard', sortable: false }
+        { id: 'productName', label: 'Product', field: 'product_name', sortable: true },
+        { id: 'projectName', label: 'Project', field: 'project_name', sortable: true },
+        { id: 'collaborators', label: 'Collaborators', field: 'collaborators', sortable: true },
+        { id: 'milestone', label: 'Milestone', field: 'milestone', sortable: true },
+        { id: 'stageName', label: 'Stage', field: 'stage_name', sortable: true }
       ]
     },
     {
-      id: 'team',
-      title: 'Team Information',
+      id: 'status',
+      title: 'Status Information',
       columns: [
-        { id: 'employee', label: 'Employee', field: 'employee_id', sortable: false },
-        { id: 'salesAgent', label: 'Sales Agent', field: 'internal_sales_agent', sortable: false },
-        { id: 'salesSupport', label: 'Sales Support', field: 'internal_sales_support', sortable: false }
+        { id: 'taxNowSignupStatus', label: 'TaxNow Signup Status', field: 'taxnow_signup_status', sortable: true },
+        { id: 'projectFee', label: 'Project Fee', field: 'project_fee', sortable: true }
       ]
     },
     {
-      id: 'additional',
-      title: 'Additional Information',
+      id: 'actions',
+      title: 'Actions',
       columns: [
-        { id: 'affiliateSource', label: 'Source', field: 'source', sortable: false },
-        { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
-        { id: 'category', label: 'Category', field: 'category', sortable: false },
-        { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false },
-        { id: 'notes', label: 'Notes', field: 'notes', sortable: false },
-        { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
+        { id: 'notes', label: 'Notes', field: 'notes', sortable: false }
       ]
     }
   ];
@@ -239,8 +279,8 @@ const LeadReport = ({ projectType }) => {
   // Flatten all columns for easier access
   const allColumns = columnGroups.flatMap(group => group.columns);
 
-  // Default visible columns
-  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'businessEmail', 'businessPhone', 'notes', 'bookACall'];
+  // Default visible columns - 10 columns as specified
+  const defaultVisibleColumns = ['projectId', 'date', 'businessName', 'productName', 'projectName', 'collaborators', 'milestone', 'stageName', 'taxNowSignupStatus', 'notes'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -280,46 +320,37 @@ const LeadReport = ({ projectType }) => {
     setCurrentPage(1);
   };
 
-
-
-  // Filter leads based on search term and status
-  const filteredLeads = leads.filter(lead => {
+  // Filter projects based on search term and status
+  const filteredProjects = projects.filter(project => {
     // Skip filtering if no search term or status filter is applied
     if (searchTerm === '' && filterStatus === '') {
       return true;
     }
 
     // Handle different possible field names in the API response
-    const id = String(lead.id || lead.lead_id || '').toLowerCase();
-    const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
-    const email = String(lead.email || lead.business_email || '').toLowerCase();
-    const phone = String(lead.phone || lead.business_phone || '');
-    const status = String(lead.status || lead.lead_status || '');
-    const signatory = String(lead.authorized_signatory_name || '').toLowerCase();
-    const campaign = String(lead.campaign || '').toLowerCase();
-    const source = String(lead.source || '').toLowerCase();
-    const category = String(lead.category || '').toLowerCase();
-    const leadGroup = String(lead.lead_group || '').toLowerCase();
-    const salesAgent = String(lead.internal_sales_agent || '').toLowerCase();
-    const salesSupport = String(lead.internal_sales_support || '').toLowerCase();
-    const employeeId = String(lead.employee_id || '').toLowerCase();
+    const id = String(project.project_id || '').toLowerCase();
+    const businessName = String(project.business_legal_name || '').toLowerCase();
+    const productName = String(project.product_name || '').toLowerCase();
+    const projectName = String(project.project_name || '').toLowerCase();
+    const milestone = String(project.milestone || '').toLowerCase();
+    const stageName = String(project.stage_name || '').toLowerCase();
+    const status = String(project.taxnow_signup_status || '').toLowerCase();
+    const projectFee = String(project.project_fee || '').toLowerCase();
+    const createdAt = String(project.created_at || '').toLowerCase();
 
     // Check if search term matches any field
     const searchTermLower = searchTerm.toLowerCase().trim();
 
     const matchesSearch = searchTerm === '' ||
       id.includes(searchTermLower) ||
-      name.includes(searchTermLower) ||
-      email.includes(searchTermLower) ||
-      phone.includes(searchTermLower) ||
-      signatory.includes(searchTermLower) ||
-      campaign.includes(searchTermLower) ||
-      source.includes(searchTermLower) ||
-      category.includes(searchTermLower) ||
-      leadGroup.includes(searchTermLower) ||
-      salesAgent.includes(searchTermLower) ||
-      salesSupport.includes(searchTermLower) ||
-      employeeId.includes(searchTermLower);
+      businessName.includes(searchTermLower) ||
+      productName.includes(searchTermLower) ||
+      projectName.includes(searchTermLower) ||
+      milestone.includes(searchTermLower) ||
+      stageName.includes(searchTermLower) ||
+      status.includes(searchTermLower) ||
+      projectFee.includes(searchTermLower) ||
+      createdAt.includes(searchTermLower);
 
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
@@ -328,16 +359,16 @@ const LeadReport = ({ projectType }) => {
     return matchesSearch && matchesStatus;
   });
 
-  // Sort the filtered leads
-  const sortedLeads = sortArrayByKey(filteredLeads, sortField, sortDirection);
+  // Sort the filtered projects
+  const sortedProjects = sortArrayByKey(filteredProjects, sortField, sortDirection);
 
-  // Get current leads for pagination
-  const indexOfLastLead = currentPage * itemsPerPage;
-  const indexOfFirstLead = indexOfLastLead - itemsPerPage;
-  const currentLeads = sortedLeads.slice(indexOfFirstLead, indexOfLastLead);
+  // Get current projects for pagination
+  const indexOfLastProject = currentPage * itemsPerPage;
+  const indexOfFirstProject = indexOfLastProject - itemsPerPage;
+  const currentProjects = sortedProjects.slice(indexOfFirstProject, indexOfLastProject);
 
   // Calculate total pages
-  const totalPages = Math.ceil(sortedLeads.length / itemsPerPage);
+  const totalPages = Math.ceil(sortedProjects.length / itemsPerPage);
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -358,15 +389,15 @@ const LeadReport = ({ projectType }) => {
 
   // Handle export to CSV
   const exportToCSV = () => {
-    // Confirm export with user if there are many leads
-    if (filteredLeads.length > 100) {
-      if (!confirm(`You are about to export ${filteredLeads.length} leads. This may take a moment. Continue?`)) {
+    // Confirm export with user if there are many projects
+    if (filteredProjects.length > 100) {
+      if (!confirm(`You are about to export ${filteredProjects.length} projects. This may take a moment. Continue?`)) {
         return;
       }
     }
 
     // Get visible columns and their data, excluding action columns that shouldn't be exported
-    const columnsToExclude = ['bookACall', 'contactCard', 'notes'];
+    const columnsToExclude = ['documents', 'notes', 'contactInfo'];
     const visibleColumnsData = allColumns.filter(column =>
       visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
     );
@@ -375,25 +406,23 @@ const LeadReport = ({ projectType }) => {
     const headers = visibleColumnsData.map(column => column.label);
 
     // Create CSV data rows
-    const csvData = filteredLeads.map(lead => {
+    const csvData = filteredProjects.map(project => {
       return visibleColumnsData.map(column => {
         // Handle special columns with custom rendering
-        if (column.id === 'leadId') return lead.lead_id || '';
-        if (column.id === 'date') return lead.created || '';
+        if (column.id === 'date') return formatDate(project.created_at) || '';
         if (column.id === 'businessName') {
-          const businessName = lead.business_legal_name || '';
-          return `"${businessName.replace(/"/g, '""')}"`; // Escape quotes
+          const businessName = project.business_legal_name || '';
+          // Escape quotes in CSV
+          return `"${businessName.replace(/"/g, '""')}"`;
         }
-        if (column.id === 'taxNowStatus') return lead.lead_status || '';
-        if (column.id === 'businessEmail') return lead.business_email || '';
-        if (column.id === 'businessPhone') return lead.business_phone || '';
-        if (column.id === 'employee') return lead.employee_id || '';
-        if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
-        if (column.id === 'salesSupport') return lead.internal_sales_support || '';
-        if (column.id === 'affiliateSource') return lead.source || '';
-        if (column.id === 'leadCampaign') return lead.campaign || '';
-        if (column.id === 'category') return lead.category || '';
-        if (column.id === 'leadGroup') return lead.lead_group || '';
+        if (column.id === 'productName') return project.product_name || '';
+        if (column.id === 'projectName') return project.project_name || '';
+        if (column.id === 'collaborators') return project.collaborators || '';
+        if (column.id === 'milestone') return project.milestone || '';
+        if (column.id === 'stageName') return project.stage_name || '';
+        if (column.id === 'projectId') return project.project_id || '';
+        if (column.id === 'taxNowSignupStatus') return project.taxnow_signup_status || '';
+        if (column.id === 'projectFee') return project.project_fee || '';
 
         // Default case
         return '';
@@ -403,13 +432,13 @@ const LeadReport = ({ projectType }) => {
     const csvContent = [
       headers.join(','),
       ...csvData.map(row => row.join(','))
-    ].join('\\n');
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `lead_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `all_projects_report_${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -419,15 +448,15 @@ const LeadReport = ({ projectType }) => {
   // Handle export to PDF
   const exportToPDF = () => {
     try {
-      // Confirm export with user if there are many leads
-      if (filteredLeads.length > 100) {
-        if (!confirm(`You are about to export ${filteredLeads.length} leads to PDF. This may take a moment and result in a large file. Continue?`)) {
+      // Confirm export with user if there are many projects
+      if (filteredProjects.length > 100) {
+        if (!confirm(`You are about to export ${filteredProjects.length} projects to PDF. This may take a moment and result in a large file. Continue?`)) {
           return;
         }
       }
 
       // Get visible columns and their data, excluding action columns that shouldn't be exported
-      const columnsToExclude = ['bookACall', 'contactCard', 'notes'];
+      const columnsToExclude = ['documents', 'notes', 'contactInfo'];
       const visibleColumnsData = allColumns.filter(column =>
         visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
       );
@@ -441,7 +470,7 @@ const LeadReport = ({ projectType }) => {
 
       // Add title
       doc.setFontSize(16);
-      doc.text('Lead Report', 15, 15);
+      doc.text('All Projects Report', 15, 15);
 
       // Add generation date and filter info
       doc.setFontSize(10);
@@ -463,36 +492,23 @@ const LeadReport = ({ projectType }) => {
       const tableColumn = visibleColumnsData.map(column => column.label);
 
       // Create table rows with data for visible columns
-      const tableRows = filteredLeads.map(lead => {
+      const tableRows = filteredProjects.map(project => {
         return visibleColumnsData.map(column => {
           // Handle special columns with custom rendering
-          if (column.id === 'leadId') return lead.lead_id || '';
-          if (column.id === 'date') return lead.created || '';
-          if (column.id === 'businessName') return lead.business_legal_name || '';
-          if (column.id === 'taxNowStatus') return lead.lead_status || '';
-          if (column.id === 'businessEmail') return lead.business_email || '';
-          if (column.id === 'businessPhone') return lead.business_phone || '';
-          if (column.id === 'employee') return lead.employee_id || '';
-          if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
-          if (column.id === 'salesSupport') return lead.internal_sales_support || '';
-          if (column.id === 'affiliateSource') return lead.source || '';
-          if (column.id === 'leadCampaign') return lead.campaign || '';
-          if (column.id === 'category') return lead.category || '';
-          if (column.id === 'leadGroup') return lead.lead_group || '';
+          if (column.id === 'date') return formatDate(project.created_at) || '';
+          if (column.id === 'businessName') return project.business_legal_name || '';
+          if (column.id === 'productName') return project.product_name || '';
+          if (column.id === 'projectName') return project.project_name || '';
+          if (column.id === 'collaborators') return project.collaborators || '';
+          if (column.id === 'milestone') return project.milestone || '';
+          if (column.id === 'stageName') return project.stage_name || '';
+          if (column.id === 'projectId') return project.project_id || '';
+          if (column.id === 'taxNowSignupStatus') return project.taxnow_signup_status || '';
+          if (column.id === 'projectFee') return project.project_fee || '';
 
           // Default case
           return '';
         });
-      });
-
-      // Calculate column widths based on number of columns
-      const availableWidth = 270; // Approximate available width in mm for A4 landscape
-      const defaultColumnWidth = Math.floor(availableWidth / visibleColumnsData.length);
-
-      // Create column styles object
-      const columnStyles = {};
-      visibleColumnsData.forEach((_, index) => {
-        columnStyles[index] = { cellWidth: defaultColumnWidth };
       });
 
       // Add table to document using the imported autoTable function
@@ -511,12 +527,11 @@ const LeadReport = ({ projectType }) => {
           cellPadding: 2,
           overflow: 'linebreak',
           halign: 'left'
-        },
-        columnStyles: columnStyles
+        }
       });
 
       // Save the PDF with date in filename
-      doc.save(`lead_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(`all_projects_report_${new Date().toISOString().slice(0, 10)}.pdf`);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Error generating PDF: ' + error.message);
@@ -526,40 +541,36 @@ const LeadReport = ({ projectType }) => {
   // Handle export to Excel
   const exportToExcel = () => {
     try {
-      // Confirm export with user if there are many leads
-      if (filteredLeads.length > 100) {
-        if (!confirm(`You are about to export ${filteredLeads.length} leads to Excel. This may take a moment. Continue?`)) {
+      // Confirm export with user if there are many projects
+      if (filteredProjects.length > 100) {
+        if (!confirm(`You are about to export ${filteredProjects.length} projects to Excel. This may take a moment. Continue?`)) {
           return;
         }
       }
 
       // Get visible columns and their data, excluding action columns that shouldn't be exported
-      const columnsToExclude = ['bookACall', 'contactCard', 'notes'];
+      const columnsToExclude = ['documents', 'notes', 'contactInfo'];
       const visibleColumnsData = allColumns.filter(column =>
         visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
       );
 
       // Prepare data for Excel
-      const excelData = filteredLeads.map(lead => {
+      const excelData = filteredProjects.map(project => {
         const rowData = {};
 
         // Add data for each visible column
         visibleColumnsData.forEach(column => {
           // Handle special columns with custom rendering
-          if (column.id === 'leadId') rowData[column.label] = lead.lead_id || '';
-          else if (column.id === 'date') rowData[column.label] = lead.created || '';
-          else if (column.id === 'businessName') rowData[column.label] = lead.business_legal_name || '';
-          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || '';
-          else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
-          else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
-          else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
-          else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
-          else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
-          else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
-          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
-          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
-          else if (column.id === 'category') rowData[column.label] = lead.category || '';
-          else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
+          if (column.id === 'date') rowData[column.label] = formatDate(project.created_at) || '';
+          else if (column.id === 'businessName') rowData[column.label] = project.business_legal_name || '';
+          else if (column.id === 'productName') rowData[column.label] = project.product_name || '';
+          else if (column.id === 'projectName') rowData[column.label] = project.project_name || '';
+          else if (column.id === 'collaborators') rowData[column.label] = project.collaborators || '';
+          else if (column.id === 'milestone') rowData[column.label] = project.milestone || '';
+          else if (column.id === 'stageName') rowData[column.label] = project.stage_name || '';
+          else if (column.id === 'projectId') rowData[column.label] = project.project_id || '';
+          else if (column.id === 'taxNowSignupStatus') rowData[column.label] = project.taxnow_signup_status || '';
+          else if (column.id === 'projectFee') rowData[column.label] = project.project_fee || '';
           else rowData[column.label] = '';
         });
 
@@ -569,58 +580,27 @@ const LeadReport = ({ projectType }) => {
       // Create a worksheet
       const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-      // Set column widths - default 15 characters for all columns
-      const wscols = visibleColumnsData.map(() => ({ wch: 15 }));
-
-      // Adjust specific column widths based on content type
-      visibleColumnsData.forEach((column, index) => {
-        if (column.id === 'leadId') wscols[index] = { wch: 10 };
-        else if (column.id === 'businessName') wscols[index] = { wch: 25 };
-        else if (column.id === 'date') wscols[index] = { wch: 12 };
-        else if (column.id === 'taxNowStatus') wscols[index] = { wch: 15 };
-        else if (column.id === 'actions') wscols[index] = { wch: 20 };
-      });
-
-      worksheet['!cols'] = wscols;
-
-      // Add header styling
-      const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
-      for (let col = headerRange.s.c; col <= headerRange.e.c; col++) {
-        const cellRef = XLSX.utils.encode_cell({ r: 0, c: col });
-        if (!worksheet[cellRef]) continue;
-
-        worksheet[cellRef].s = {
-          font: { bold: true, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "4285F4" } }
-        };
-      }
-
       // Create a workbook
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Lead Report');
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'All Projects');
 
-      // Add metadata
-      workbook.Props = {
-        Title: "Lead Report",
-        Subject: "Lead Data",
-        Author: "Occams Portal",
-        CreatedDate: new Date()
-      };
-
-      // Generate Excel file and trigger download with date in filename
-      XLSX.writeFile(workbook, `lead_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      // Generate Excel file
+      XLSX.writeFile(workbook, `all_projects_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
     } catch (error) {
       console.error('Excel generation error:', error);
       alert('Error generating Excel file: ' + error.message);
     }
   };
 
-  // Handle action buttons
+  // Handle view contact card
+  const handleViewContact = (project) => {
+    // Debug: Log the project object to see what data we have
+    console.log('Project data for contact card:', project);
 
-  const handleView = (lead) => {
     // Only show specific fields in the contact card
-    const businessName = lead.business_legal_name || lead.business_name || lead.name || 'Unknown Business';
-    const status = lead.lead_status || lead.status || '';
+    const businessName = project.business_legal_name || 'Unknown Business';
+    const stage = project.stage_name || '';
+    const projectName = project.project_name || 'N/A';
 
     // Create HTML for the specific fields we want to show
     const contactCardHTML = `
@@ -628,50 +608,81 @@ const LeadReport = ({ projectType }) => {
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="mb-0">${businessName}</h5>
           <span class="badge ${
-            status === 'New' ? 'bg-info' :
-            status === 'Contacted' ? 'bg-primary' :
-            status === 'Qualified' ? 'bg-warning' :
-            status === 'Active' ? 'bg-success' :
+            stage === 'ERC Fees Fully Paid' ? 'bg-success' :
+            stage === 'Documents Pending' ? 'bg-info' :
+            stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
+            stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
+            stage === 'Payment Returned' ? 'bg-danger' :
             'bg-secondary'
-          }">${status}</span>
+          }">${stage}</span>
         </div>
 
         <table class="table table-bordered">
           <tr>
-            <th>Lead ID</th>
-            <td>${lead.lead_id || ''}</td>
-          </tr>
-          <tr>
-            <th>Authorized Signatory Name</th>
-            <td>${lead.authorized_signatory_name || ''}</td>
+            <th>Project Name</th>
+            <td>${projectName}</td>
           </tr>
           <tr>
             <th>Business Phone</th>
-            <td>${lead.business_phone || ''}</td>
+            <td>${project.business_phone || 'N/A'}</td>
           </tr>
           <tr>
             <th>Business Email</th>
-            <td>${lead.business_email || ''}</td>
+            <td>${project.business_email || 'N/A'}</td>
           </tr>
         </table>
       </div>
     `;
 
     Swal.fire({
-      title: 'Contact Card',
+      title: '<span style="font-size: 1.2rem; color: #333;">Contact Card</span>',
       html: contactCardHTML,
       width: '500px',
       showCloseButton: true,
-      showConfirmButton: false
+      showConfirmButton: false,
+      customClass: {
+        container: 'swal-wide',
+        popup: 'swal-popup-custom',
+        header: 'swal-header-custom',
+        title: 'swal-title-custom',
+        closeButton: 'swal-close-button-custom',
+        content: 'swal-content-custom'
+      }
     });
+
+    // Add custom CSS for the SweetAlert modal
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .swal-popup-custom {
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+      .swal-title-custom {
+        font-size: 1.5rem;
+        color: #333;
+        font-weight: 600;
+      }
+      .swal-header-custom {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+      .swal-content-custom {
+        padding: 15px;
+      }
+      .table-bordered th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        width: 40%;
+      }
+    `;
+    document.head.appendChild(style);
   };
 
-
-
-  // Handle viewing notes
-  const handleViewNotes = (lead) => {
-    const leadId = lead.lead_id || lead.id || '';
-    const status = lead.lead_status || lead.status || '';
+  // Handle view notes
+  const handleViewNotes = (project) => {
+    const projectId = project.project_id || '';
+    const leadId = project.lead_id || '';
+    const stage = project.stage_name || '';
 
     // Show loading state
     Swal.fire({
@@ -697,11 +708,27 @@ const LeadReport = ({ projectType }) => {
       }
     });
 
-    // Fetch notes from the API
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
+    // Fetch notes from the API using project_id directly in the URL path
+    axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${projectId}`)
       .then(response => {
-        const notes = response.data || [];
-        console.log('Notes API response:', notes); // For debugging
+        console.log('Project Notes API full response:', response);
+        console.log('Project ID used for fetching notes:', projectId);
+
+        // Handle different possible response formats
+        let notes = [];
+        if (Array.isArray(response.data)) {
+          notes = response.data;
+        } else if (response.data && typeof response.data === 'object') {
+          // If response.data is an object with a data property that is an array
+          if (Array.isArray(response.data.data)) {
+            notes = response.data.data;
+          } else {
+            // If it's a single note object, wrap it in an array
+            notes = [response.data];
+          }
+        }
+
+        console.log('Processed notes array:', notes);
 
         let notesHtml = '';
         if (!notes || notes.length === 0) {
@@ -710,15 +737,15 @@ const LeadReport = ({ projectType }) => {
               <div class="mb-3">
                 <i class="fas fa-sticky-note fa-3x text-muted"></i>
               </div>
-              <p class="text-muted">No notes available for this lead</p>
+              <p class="text-muted">No notes available for this project</p>
             </div>
           `;
         } else {
           notesHtml = `
             <div class="notes-list">
               ${notes.map(note => {
-                // Parse the original date from the note
-                const originalDate = new Date(note.created);
+                // Parse the original date from the note (adjust field name based on API response)
+                const originalDate = new Date(note.created_at || note.date || new Date());
 
                 // Format the date as "Month Day, Year" (e.g., "May 6, 2025")
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -730,13 +757,22 @@ const LeadReport = ({ projectType }) => {
                 const ampm = originalDate.getHours() >= 12 ? 'PM' : 'AM';
                 const formattedTime = `${hour12}:${String(originalDate.getMinutes()).padStart(2, '0')} ${ampm}`;
 
+                // Get the note content (adjust field name based on API response)
+                const noteContent = note.note || note.content || note.text || '';
+
+                // Get the user who created the note (if available)
+                const userName = note.user_name || note.username || note.author || 'System';
+
                 return `
                   <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                       <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedDate}</div>
                       <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedTime}</div>
                     </div>
-                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${note.note || ''}</p>
+                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${noteContent}</p>
+                    <div class="mt-2 text-end">
+                      <small class="text-muted">Added by: ${userName}</small>
+                    </div>
                   </div>
                 `;
               }).join('')}
@@ -751,16 +787,17 @@ const LeadReport = ({ projectType }) => {
             <div class="text-start">
               <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
                 <div>
-                  <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
+                  <span class="text-black">Project ID: <span class="text-dark">${projectId}</span></span>
                 </div>
                 <div>
                   <span class="badge ${
-                    status === 'New' ? 'bg-info' :
-                    status === 'Contacted' ? 'bg-primary' :
-                    status === 'Qualified' ? 'bg-warning' :
-                    status === 'Active' ? 'bg-success' :
+                    stage === 'ERC Fees Fully Paid' ? 'bg-success' :
+                    stage === 'Documents Pending' ? 'bg-info' :
+                    stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
+                    stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
+                    stage === 'Payment Returned' ? 'bg-danger' :
                     'bg-secondary'
-                  }">${status || 'Unknown'}</span>
+                  }">${stage || 'Unknown'}</span>
                 </div>
               </div>
               <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
@@ -819,8 +856,12 @@ const LeadReport = ({ projectType }) => {
       })
       .catch(error => {
         console.error('Error fetching notes:', error);
+        console.error('Error response:', error.response);
+        console.error('Error request:', error.request);
+        console.error('Error config:', error.config);
+        console.error('Project ID that caused error:', projectId);
 
-        // Show error message
+        // Show error message with more details
         Swal.fire({
           title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
           html: `
@@ -828,7 +869,11 @@ const LeadReport = ({ projectType }) => {
               <div class="mb-3">
                 <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
               </div>
-              <p class="text-muted">There was a problem loading notes for this lead.</p>
+              <p class="text-muted">There was a problem loading notes for this project.</p>
+              <div class="alert alert-danger py-2 mt-2">
+                <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
+              </div>
+              <p class="text-muted mt-2">Project ID: ${projectId}</p>
             </div>
           `,
           confirmButtonText: 'OK',
@@ -840,9 +885,10 @@ const LeadReport = ({ projectType }) => {
       });
   };
 
-  // Handle adding notes
-  const handleAddNotes = (lead) => {
-    const leadId = lead.lead_id || lead.id || '';
+  // Handle add notes
+  const handleAddNotes = (project) => {
+    const projectId = project.project_id || '';
+    const leadId = project.lead_id || '';
 
     Swal.fire({
       title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
@@ -850,7 +896,7 @@ const LeadReport = ({ projectType }) => {
         <div class="text-start">
           <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
             <div>
-              <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
+              <span class="text-black">Project ID: <span class="text-dark">${projectId}</span></span>
             </div>
           </div>
           <div class="mb-3">
@@ -912,17 +958,25 @@ const LeadReport = ({ projectType }) => {
         });
 
         // Prepare the data for the API
+        // For POST requests, we need to include the data in the request body
         const noteData = {
-          lead_id: leadId,
+          project_id: projectId, // Include project_id in the body
           note: result.value.content,
           user_id: 1  // Adding user_id parameter as required by the API
         };
 
-        console.log('Sending note data:', noteData); // For debugging
+        console.log('Sending project note data:', noteData); // For debugging
+        console.log('Project ID for adding note:', projectId);
 
-        // Send the data to the API
-        axios.post('https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes', noteData)
-          .then(() => {
+        // Send the data to the API - using the project_id in the URL
+        axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes', noteData, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+          .then((response) => {
+            console.log('Note saved successfully:', response);
             // Show success message
             Swal.fire({
               title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
@@ -944,13 +998,16 @@ const LeadReport = ({ projectType }) => {
 
             // Refresh the notes view after a short delay
             setTimeout(() => {
-              handleViewNotes(lead);
+              handleViewNotes(project);
             }, 2100);
           })
           .catch(error => {
             console.error('Error saving note:', error);
+            console.error('Error response:', error.response);
+            console.error('Error request:', error.request);
+            console.error('Error config:', error.config);
 
-            // Show error message
+            // Show error message with more details
             Swal.fire({
               title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
               html: `
@@ -960,7 +1017,7 @@ const LeadReport = ({ projectType }) => {
                   </div>
                   <p class="text-muted mb-3">There was a problem saving your note.</p>
                   <div class="alert alert-danger py-2">
-                    <small>Please try again later.</small>
+                    <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
                   </div>
                 </div>
               `,
@@ -1044,7 +1101,7 @@ const LeadReport = ({ projectType }) => {
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
                     <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                    <h4 className="text-white">Lead Report</h4>
+                    <h4 className="text-white">All Projects Report</h4>
                   </div>
                 </div>
               </div>
@@ -1058,7 +1115,7 @@ const LeadReport = ({ projectType }) => {
                           <input
                             type="text"
                             className="form-control"
-                            placeholder="Search leads by any field..."
+                            placeholder="Search projects by any field..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{ paddingRight: '30px' }}
@@ -1132,7 +1189,7 @@ const LeadReport = ({ projectType }) => {
                       <div className="d-flex justify-content-end">
                         <button
                           className="btn btn-sm btn-outline-primary me-2"
-                          onClick={fetchLeads}
+                          onClick={fetchProjects}
                           disabled={loading}
                           title="Refresh Data"
                         >
@@ -1209,7 +1266,7 @@ const LeadReport = ({ projectType }) => {
                     <div className="spinner-border text-primary" role="status">
                       <span className="visually-hidden">Loading...</span>
                     </div>
-                    <p className="mt-2">Loading leads data...</p>
+                    <p className="mt-2">Loading projects data...</p>
                   </div>
                 )}
 
@@ -1228,10 +1285,23 @@ const LeadReport = ({ projectType }) => {
                       <span>Please try again or contact support if the problem persists.</span>
                       <button
                         className="btn btn-primary"
-                        onClick={fetchLeads}
+                        onClick={fetchProjects}
                       >
                         <i className="fas fa-sync-alt me-1"></i> Retry
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Fallback data warning */}
+                {projects.length > 0 && projects[0].isFallbackData && !loading && (
+                  <div className="alert alert-info" role="alert">
+                    <div className="d-flex align-items-center">
+                      <i className="fas fa-info-circle me-3 fs-4"></i>
+                      <div>
+                        <h5 className="alert-heading mb-1">Sample Data</h5>
+                        <p className="mb-0">Showing sample data because the API request failed or returned no results. The highlighted rows contain sample data.</p>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1263,9 +1333,12 @@ const LeadReport = ({ projectType }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentLeads.length > 0 ? (
-                          currentLeads.map((lead, index) => (
-                            <tr key={lead.lead_id || lead.id || index}>
+                        {currentProjects.length > 0 ? (
+                          currentProjects.map((project, index) => (
+                            <tr
+                              key={project.project_id || index}
+                              className={project.isFallbackData ? 'table-warning' : ''}
+                            >
                               {/* Render cells in the same order as the column definitions */}
                               {allColumns.map(column => {
                                 // Only render columns that are in the visibleColumns array
@@ -1275,122 +1348,88 @@ const LeadReport = ({ projectType }) => {
 
                                 // Render different cell types based on column id
                                 switch (column.id) {
-                                  case 'leadId':
-                                    return (
-                                      <td key={column.id}>
-                                        <Link
-                                          to={`/lead-detail/${lead.lead_id}`}
-                                          state={{ leadData: lead }}
-                                          className="lead-link"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          {lead.lead_id || ''}
-                                        </Link>
-                                      </td>
-                                    );
-                                  case 'date':
-                                    return <td key={column.id}>{lead.created || ''}</td>;
+                                  case 'projectId':
+                                    return <td key={column.id}>{project.project_id || ''}</td>;
                                   case 'businessName':
                                     return (
                                       <td key={column.id}>
-                                        <Link
-                                          to={`/lead-detail/${lead.lead_id}`}
-                                          state={{ leadData: lead }}
-                                          className="lead-link"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          {lead.business_legal_name || ''}
-                                        </Link>
+                                        {project.isFallbackData && (
+                                          <span className="badge bg-warning me-1" title="Sample data">
+                                            <i className="fas fa-exclamation-triangle"></i>
+                                          </span>
+                                        )}
+                                        {project.business_legal_name || ''}
                                       </td>
                                     );
-                                  case 'businessEmail':
-                                    return <td key={column.id}>{lead.business_email || ''}</td>;
-                                  case 'businessPhone':
-                                    return <td key={column.id}>{lead.business_phone || ''}</td>;
                                   case 'contactCard':
                                     return (
                                       <td key={column.id}>
                                         <button
                                           className="btn btn-sm btn-outline-primary"
-                                          onClick={() => handleView(lead)}
+                                          onClick={() => handleViewContact(project)}
                                           title="View Contact Card"
                                         >
                                           <i className="fas fa-address-card"></i>
                                         </button>
                                       </td>
                                     );
-                                  case 'affiliateSource':
-                                    return <td key={column.id}>{lead.source || ''}</td>;
-                                  case 'employee':
-                                    return <td key={column.id}>{lead.employee_id || ''}</td>;
-                                  case 'salesAgent':
-                                    return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
-                                  case 'salesSupport':
-                                    return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
-                                  case 'taxNowStatus':
+                                  case 'projectName':
+                                    return <td key={column.id}>{project.project_name || ''}</td>;
+                                  case 'productName':
+                                    return <td key={column.id}>{project.product_name || ''}</td>;
+                                  case 'collaborators':
+                                    return <td key={column.id}>{project.collaborators || ''}</td>;
+                                  case 'milestone':
+                                    return <td key={column.id}>{project.milestone || ''}</td>;
+                                  case 'stageName':
                                     return (
                                       <td key={column.id}>
                                         <span className={`badge ${
-                                          lead.lead_status === 'New' ? 'bg-info' :
-                                          lead.lead_status === 'Contacted' ? 'bg-primary' :
-                                          lead.lead_status === 'Qualified' ? 'bg-warning' :
-                                          lead.lead_status === 'Active' ? 'bg-success' :
+                                          project.stage_name === 'ERC Fees Fully Paid' ? 'bg-success' :
+                                          project.stage_name === 'Documents Pending' ? 'bg-info' :
+                                          project.stage_name === 'Payment Processing Client Initiate' ? 'bg-primary' :
+                                          project.stage_name === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
+                                          project.stage_name === 'Payment Returned' ? 'bg-danger' :
                                           'bg-secondary'
                                         }`}>
-                                          {lead.lead_status || ''}
+                                          {project.stage_name || ''}
                                         </span>
                                       </td>
                                     );
-                                  case 'leadCampaign':
-                                    return <td key={column.id}>{lead.campaign || ''}</td>;
-                                  case 'category':
-                                    return <td key={column.id}>{lead.category || ''}</td>;
-                                  case 'leadGroup':
-                                    return <td key={column.id}>{lead.lead_group || ''}</td>;
+                                  case 'date':
+                                    return <td key={column.id}>{formatDate(project.created_at) || ''}</td>;
+                                  case 'projectFee':
+                                    return <td key={column.id}>{project.project_fee || ''}</td>;
+                                  case 'taxNowSignupStatus':
+                                    return (
+                                      <td key={column.id}>
+                                        <span className={`badge ${
+                                          project.taxnow_signup_status === 'Complete' ? 'bg-success' :
+                                          project.taxnow_signup_status ? 'bg-info' :
+                                          'bg-secondary'
+                                        }`}>
+                                          {project.taxnow_signup_status || 'N/A'}
+                                        </span>
+                                      </td>
+                                    );
                                   case 'notes':
                                     return (
                                       <td key={column.id}>
                                         <div className="d-flex justify-content-center gap-2">
                                           <button
                                             className="btn btn-sm btn-outline-info"
-                                            onClick={() => handleViewNotes(lead)}
+                                            onClick={() => handleViewNotes(project)}
                                             title="View Notes"
                                           >
                                             <i className="fas fa-eye"></i>
                                           </button>
                                           <button
                                             className="btn btn-sm btn-outline-success"
-                                            onClick={() => handleAddNotes(lead)}
+                                            onClick={() => handleAddNotes(project)}
                                             title="Add Notes"
                                           >
                                             <i className="fas fa-plus"></i>
                                           </button>
-                                        </div>
-                                      </td>
-                                    );
-                                  case 'bookACall':
-                                    // Get lead data for Calendly URL parameters
-                                    const businessName = encodeURIComponent(lead.business_legal_name || '');
-                                    const email = encodeURIComponent(lead.business_email || '');
-                                    const phone = encodeURIComponent(lead.business_phone || '');
-
-                                    // Construct Calendly URL with parameters
-                                    const calendlyUrl = `https://calendly.com/occams-erc-experts/rmj?name=${businessName}&email=${email}&a1=${phone}`;
-
-                                    return (
-                                      <td key={column.id}>
-                                        <div className="d-flex justify-content-center">
-                                          <a
-                                            href={calendlyUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-sm btn-outline-primary"
-                                            title="Book a Call"
-                                          >
-                                            <i className="fas fa-calendar-alt"></i>
-                                          </a>
                                         </div>
                                       </td>
                                     );
@@ -1405,11 +1444,11 @@ const LeadReport = ({ projectType }) => {
                             <td colSpan={visibleColumns.length} className="text-center py-5">
                               <div className="d-flex flex-column align-items-center">
                                 <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No leads found</h5>
+                                <h5 className="text-muted">No projects found</h5>
                                 <p className="text-muted mb-3">
                                   {searchTerm || filterStatus ?
                                     'Try adjusting your search or filter criteria' :
-                                    'No lead data is available from the API'}
+                                    'No project data is available from the API'}
                                 </p>
                               </div>
                             </td>
@@ -1424,10 +1463,10 @@ const LeadReport = ({ projectType }) => {
                 {!loading && (
                   <div className="row mt-3">
                     <div className="col-md-6">
-                      <p>Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} leads (filtered from {leads.length} total)</p>
+                      <p>Showing {indexOfFirstProject + 1} to {Math.min(indexOfLastProject, filteredProjects.length)} of {filteredProjects.length} projects (filtered from {projects.length} total)</p>
                     </div>
                     <div className="col-md-6">
-                      <nav aria-label="Lead report pagination">
+                      <nav aria-label="Project report pagination">
                         <ul className="pagination justify-content-end">
                           <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                             <button
@@ -1521,4 +1560,4 @@ const LeadReport = ({ projectType }) => {
   );
 };
 
-export default LeadReport;
+export default AllProjectsReport;

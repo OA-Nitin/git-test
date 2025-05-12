@@ -53,11 +53,11 @@ const Dashboard = () => {
     ],
   };
 
-  const contactData = {
+  const salesData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
-        label: 'New Contacts',
+        label: 'Sales Growth',
         data: [28, 35, 40, 42, 50, 65],
         backgroundColor: 'rgba(26, 115, 232, 0.8)',
         borderRadius: 6,
@@ -118,18 +118,18 @@ const Dashboard = () => {
 
   // Dashboard statistics
   const [stats, setStats] = useState({
-    totalContacts: 125,
+    totalSales: 125,
     activeLeads: 42,
     completedTasks: 78,
     pendingTasks: 15,
     recentActivity: [
-      { id: 1, title: 'New contact added', subtitle: 'John Doe added a new contact', time: '2 hours ago', icon: 'user-plus', color: 'bg-purple' },
+      { id: 1, title: 'New sale recorded', subtitle: 'John Doe added a new sale', time: '2 hours ago', icon: 'dollar-sign', color: 'bg-purple' },
       { id: 2, title: 'Task completed', subtitle: 'Jane Smith completed a task', time: '3 hours ago', icon: 'check-circle', color: 'bg-green' },
       { id: 3, title: 'Lead converted', subtitle: 'Admin converted a lead to customer', time: '5 hours ago', icon: 'exchange-alt', color: 'bg-blue' },
       { id: 4, title: 'New task assigned', subtitle: 'Bob Johnson assigned a new task', time: '1 day ago', icon: 'tasks', color: 'bg-orange' },
     ],
     supportTickets: [
-      { id: 1, title: 'Need help with contact import', status: 'Open', priority: 'High' },
+      { id: 1, title: 'Need help with invoice generation', status: 'Open', priority: 'High' },
       { id: 2, title: 'Email integration not working', status: 'In Progress', priority: 'Medium' },
     ]
   });
@@ -152,10 +152,10 @@ const Dashboard = () => {
           <div className="stat-grid">
             <div className="stat-card">
               <div className="stat-card-icon bg-purple">
-                <i className="fas fa-address-book"></i>
+                <i className="fas fa-dollar-sign"></i>
               </div>
-              <div className="stat-card-value">{stats.totalContacts}</div>
-              <p className="stat-card-label">Total Contacts</p>
+              <div className="stat-card-value">{stats.totalSales}</div>
+              <p className="stat-card-label">Total Sales</p>
             </div>
 
             <div className="stat-card">
@@ -197,10 +197,10 @@ const Dashboard = () => {
                       Lead Conversion
                     </button>
                     <button
-                      className={`btn btn-sm ms-2 ${chartType === 'contacts' ? 'btn-primary' : 'btn-light'}`}
-                      onClick={() => setChartType('contacts')}
+                      className={`btn btn-sm ms-2 ${chartType === 'sales' ? 'btn-primary' : 'btn-light'}`}
+                      onClick={() => setChartType('sales')}
                     >
-                      Contact Growth
+                      Sales Growth
                     </button>
                   </div>
                 </div>
@@ -209,7 +209,7 @@ const Dashboard = () => {
                     {chartType === 'leads' ? (
                       <Line data={leadData} options={chartOptions} />
                     ) : (
-                      <Bar data={contactData} options={chartOptions} />
+                      <Bar data={salesData} options={chartOptions} />
                     )}
                   </div>
                 </div>

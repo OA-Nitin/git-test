@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { getAssetPath } from './utils/assetUtils';
 
 const Login = () => {
+    const navigate = useNavigate(); // Initialize the navigate hook
+
     useEffect(() => {
         document.title = "Log In - Occams Portal"; // Set title for Login page
-    }, []);
+
+        // Check if user is already logged in
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            // User is already logged in, redirect to dashboard
+            navigate('/dashboard');
+        }
+    }, [navigate]);
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -15,7 +26,9 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent form submission
         setIsLoading(true); // Set loading state to true
-        const apiUrl = "https://play.occamsadvisory.com/portal/wp-json/jwt-auth/v1/token"; // Replace with your API URL
+        setResponseMessage(""); // Clear any existing messages
+        setError(null); // Clear any existing errors
+        const apiUrl = "https://play.occamsadvisory.com/portal/wp-json/oc/v1/login"; // New API endpoint
 
         // POST request with username and password
         axios
@@ -24,13 +37,30 @@ const Login = () => {
                 password,
             })
             .then((response) => {
-                setResponseMessage("Login successful!"); // Handle successful login
-                localStorage.setItem("user", JSON.stringify(response.data));
-                console.log(response.data); // Do something with the response data
-                // No navigation after login - user must manually navigate
+                console.log(response.data); // Log the response data
+
+                // Check if login was successful based on the success flag
+                if (response.data.success === true) {
+                    setError(null); // Clear any existing error
+                    setResponseMessage("Login successful!"); // Handle successful login
+                    localStorage.setItem("user", JSON.stringify(response.data));
+
+                    // Redirect to dashboard after successful login
+                    setTimeout(() => {
+                        navigate('/reports/leads'); // Redirect to dashboard page
+                    }, 1000); // Short delay to show the success message
+                } else {
+                    // If success is not true, show the error message from the API
+                    setResponseMessage(""); // Clear any success message
+                    setError(response.data.message || "Invalid username or password");
+                }
             })
             .catch((error) => {
-                setError(error.response ? error.response.data.message : error.message); // Handle errors
+                // Handle network or server errors
+                setResponseMessage(""); // Clear any success message
+                setError(error.response && error.response.data.message
+                    ? error.response.data.message
+                    : "Invalid username or password");
                 // Don't navigate on error
             })
             .finally(() => {
@@ -38,15 +68,17 @@ const Login = () => {
             });
     };
 
-    // No automatic redirection on component mount
-    // This ensures the login page is always shown when accessed directly
+    // Automatic redirection on component mount if user is already logged in
+    // This ensures users who are already logged in are redirected to the dashboard
+    // After successful login, user will be redirected to the dashboard page
+    // Users cannot access the login page if they are already logged in
 
 
     return (
         <div className="vh-100 login-page">
             <div className="container h-100">
               <div className='row'>
-              <img src="/assets/images/login-logo-360-white.png" className="mb-5 mt-4 login-logo" />
+              <img src={getAssetPath('assets/images/login-logo-360-white.png')} className="mb-5 mt-4 login-logo" />
               </div>
                 <div className="row align-items-center justify-content-between mt-5">
                     {/* Left Section */}
@@ -87,8 +119,8 @@ const Login = () => {
                                 {isLoading ? 'Please wait...' : 'Login'}
                             </button>
                             </form>
-                            {responseMessage && <p className="response-msg">{responseMessage}</p>}
-                        {error && <p className="error-msg">Error: {error}</p>}
+                            {responseMessage && <p className="response-msg text-center text-success fw-bold mt-3" style={{ fontSize: '17px' }}>{responseMessage}</p>}
+                        {error && <p className="error-msg text-center text-danger fw-bold mt-3" style={{ fontSize: '17px' }}>{error}</p>}
                         </div>
                     </div>
                 </div>

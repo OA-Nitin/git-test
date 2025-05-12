@@ -3549,7 +3549,7 @@ table.dataTable {
   color: #8890b5;
   font-weight: 400;
   padding: 0;
-  white-space: nowrap;
+  display: block;
   padding: 0;
   padding: 10px 0 10px 8px !important;
   margin-top: 0;
@@ -13803,7 +13803,7 @@ a:hover {
 }
 
 .login p.footer-style {
-  /* 
+  /*
    Commeted for Occams 360 connect changes
    width: auto !important;
     left: 167px;
@@ -15890,7 +15890,7 @@ html {
   font-size: inherit !important;
 }
 
-#wpadminbar #wp-admin-bar-top-secondary>#wp-admin-bar-my-account>a::after {
+/* #wpadminbar #wp-admin-bar-top-secondary>#wp-admin-bar-my-account>a::after {
   position: absolute !important;
   transform: rotate(0deg) translate(0, -50%) !important;
   transform-origin: top;
@@ -15902,7 +15902,7 @@ html {
   border-right-color: transparent !important;
   font-size: 10px;
   right: -7px;
-}
+} */
 
 .ps__thumb-y {
   background-color: #057cba4d !important;
