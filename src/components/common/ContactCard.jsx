@@ -91,22 +91,6 @@ const ContactCard = ({
   const renderContactCardContent = () => {
     return (
       <div className="contact-card-content">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="mb-0">
-            {entity.isFallbackData && (
-              <span className="badge bg-warning me-1" title="Sample data">
-                <i className="fas fa-exclamation-triangle"></i>
-              </span>
-            )}
-            {businessName}
-          </h5>
-          {stage && (
-            <span className={`badge ${getBadgeClass(stage)}`}>
-              {stage}
-            </span>
-          )}
-        </div>
-
         <table className="table table-bordered">
           <tbody>
             {id && (
@@ -115,7 +99,7 @@ const ContactCard = ({
                 <td>{id}</td>
               </tr>
             )}
-            {projectName && (
+            {projectName && entityType !== 'lead' && (
               <tr>
                 <th>Project Name</th>
                 <td>{projectName}</td>

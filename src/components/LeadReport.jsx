@@ -10,6 +10,7 @@ import './ColumnSelector.css';
 import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import Notes from './common/Notes';
+import ContactCard from './common/ContactCard';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
 
@@ -548,56 +549,7 @@ const LeadReport = () => {
     }
   };
 
-  // Handle action buttons
-
-  const handleView = (lead) => {
-    // Only show specific fields in the contact card
-    const businessName = lead.business_legal_name || lead.business_name || lead.name || 'Unknown Business';
-    const status = lead.lead_status || lead.status || '';
-
-    // Create HTML for the specific fields we want to show
-    const contactCardHTML = `
-      <div class="text-start">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">${businessName}</h5>
-          <span class="badge ${
-            status === 'New' ? 'bg-info' :
-            status === 'Contacted' ? 'bg-primary' :
-            status === 'Qualified' ? 'bg-warning' :
-            status === 'Active' ? 'bg-success' :
-            'bg-secondary'
-          }">${status}</span>
-        </div>
-
-        <table class="table table-bordered">
-          <tr>
-            <th>Lead ID</th>
-            <td>${lead.lead_id || ''}</td>
-          </tr>
-          <tr>
-            <th>Authorized Signatory Name</th>
-            <td>${lead.authorized_signatory_name || ''}</td>
-          </tr>
-          <tr>
-            <th>Business Phone</th>
-            <td>${lead.business_phone || ''}</td>
-          </tr>
-          <tr>
-            <th>Business Email</th>
-            <td>${lead.business_email || ''}</td>
-          </tr>
-        </table>
-      </div>
-    `;
-
-    Swal.fire({
-      title: 'Contact Card',
-      html: contactCardHTML,
-      width: '500px',
-      showCloseButton: true,
-      showConfirmButton: false
-    });
-  };
+  // The handleView function is no longer needed as we're using the ContactCard component
 
 
 
@@ -881,13 +833,10 @@ const LeadReport = () => {
                                   case 'contactCard':
                                     return (
                                       <td key={column.id}>
-                                        <button
-                                          className="btn btn-sm btn-outline-primary"
-                                          onClick={() => handleView(lead)}
-                                          title="View Contact Card"
-                                        >
-                                          <i className="fas fa-address-card"></i>
-                                        </button>
+                                        <ContactCard
+                                          entity={lead}
+                                          entityType="lead"
+                                        />
                                       </td>
                                     );
                                   case 'affiliateSource':
