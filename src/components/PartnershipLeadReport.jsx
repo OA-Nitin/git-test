@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './common/ReportStyle.css';
 
-import './LeadLinkStyles.css';
+
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';

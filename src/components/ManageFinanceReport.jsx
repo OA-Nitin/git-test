@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import './common/ReportStyle.css';
 
 import './FinanceReportStyles.css';
-import './LeadLinkStyles.css';
+
 import SortableTableHeader from './common/SortableTableHeader';
 import { getAssetPath } from '../utils/assetUtils';
 import InvoiceApiClient from '../api/invoice-api-client';

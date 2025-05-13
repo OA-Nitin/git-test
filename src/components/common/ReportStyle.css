@@ -557,3 +557,18 @@
   background-color: #e05a15;
   color: white;
 }
+
+
+/* Styles for lead links in the lead report */
+
+/* Style for lead ID and business name links */
+.lead-link {
+  color: #007bff !important;
+  text-decoration: none !important;
+  font-weight: normal;
+}
+
+/* Hover effect for links */
+.lead-link:hover {
+  opacity: 0.8;
+}
