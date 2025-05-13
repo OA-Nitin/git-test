@@ -7,7 +7,6 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
-import './DateFilter.css';
 import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
@@ -1166,7 +1165,7 @@ const STCLeadReport = () => {
                                         </Link>
                                       </td>
                                     );
-                                                                  
+
                                   case 'taxNowStatus':
                                     return (
                                       <td key={column.id}>

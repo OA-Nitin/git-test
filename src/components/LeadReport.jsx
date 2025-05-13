@@ -8,9 +8,11 @@ import { Link } from 'react-router-dom';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
 import './LeadLinkStyles.css';
+import './common/DateRangePicker.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import Notes from './common/Notes';
 import ContactCard from './common/ContactCard';
+import DateRangePicker from './common/DateRangePicker';
 import { sortArrayByKey } from '../utils/sortUtils';
 import { getAssetPath } from '../utils/assetUtils';
 
@@ -186,6 +188,8 @@ const LeadReport = ({ projectType }) => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('lead_id');
@@ -281,12 +285,40 @@ const LeadReport = ({ projectType }) => {
     setCurrentPage(1);
   };
 
+  // Handle date filter application
+  const handleApplyDateFilter = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    setCurrentPage(1); // Reset to first page when filter changes
+
+    // Show feedback toast
+    if (start || end) {
+      const message = start && end
+        ? `Filtering leads from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`
+        : start
+          ? `Filtering leads from ${new Date(start).toLocaleDateString()}`
+          : `Filtering leads until ${new Date(end).toLocaleDateString()}`;
+
+      Swal.fire({
+        title: 'Date Filter Applied',
+        text: message,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    }
+  };
 
 
-  // Filter leads based on search term and status
+
+
+
+  // Filter leads based on search term, status, and date range
   const filteredLeads = leads.filter(lead => {
-    // Skip filtering if no search term or status filter is applied
-    if (searchTerm === '' && filterStatus === '') {
+    // Skip filtering if no filters are applied
+    if (searchTerm === '' && filterStatus === '' && !startDate && !endDate) {
       return true;
     }
 
@@ -304,6 +336,9 @@ const LeadReport = ({ projectType }) => {
     const salesAgent = String(lead.internal_sales_agent || '').toLowerCase();
     const salesSupport = String(lead.internal_sales_support || '').toLowerCase();
     const employeeId = String(lead.employee_id || '').toLowerCase();
+
+    // Get the created date from the lead
+    const createdDate = lead.created || lead.created_at || lead.date_created || '';
 
     // Check if search term matches any field
     const searchTermLower = searchTerm.toLowerCase().trim();
@@ -325,8 +360,58 @@ const LeadReport = ({ projectType }) => {
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
 
-    // Return true if both conditions are met
-    return matchesSearch && matchesStatus;
+    // Check if date is within range
+    let matchesDateRange = true;
+
+    if (startDate || endDate) {
+      // Try to parse the created date
+      let leadDate;
+      try {
+        // First try to parse as ISO date
+        leadDate = new Date(createdDate);
+
+        // If invalid date, try to parse as MM/DD/YYYY
+        if (isNaN(leadDate.getTime())) {
+          const parts = createdDate.split('/');
+          if (parts.length === 3) {
+            // MM/DD/YYYY format
+            leadDate = new Date(parts[2], parts[0] - 1, parts[1]);
+          }
+        }
+
+        // If still invalid, don't include this lead in date-filtered results
+        if (isNaN(leadDate.getTime())) {
+          matchesDateRange = false;
+        } else {
+          // Set time to midnight for date comparison
+          leadDate.setHours(0, 0, 0, 0);
+
+          // Check start date
+          if (startDate) {
+            const startDateObj = new Date(startDate);
+            startDateObj.setHours(0, 0, 0, 0);
+            if (leadDate < startDateObj) {
+              matchesDateRange = false;
+            }
+          }
+
+          // Check end date
+          if (endDate && matchesDateRange) {
+            const endDateObj = new Date(endDate);
+            endDateObj.setHours(0, 0, 0, 0);
+            if (leadDate > endDateObj) {
+              matchesDateRange = false;
+            }
+          }
+        }
+      } catch (e) {
+        // If there's an error parsing the date, don't include this lead in date-filtered results
+        matchesDateRange = false;
+      }
+    }
+
+    // Return true if all conditions are met
+    return matchesSearch && matchesStatus && matchesDateRange;
   });
 
   // Sort the filtered leads
@@ -457,6 +542,17 @@ const LeadReport = ({ projectType }) => {
 
       if (searchTerm) {
         doc.text(`Search term: "${searchTerm}"`, 15, yPos);
+        yPos += 5;
+      }
+
+      if (startDate || endDate) {
+        const dateFilterText = startDate && endDate
+          ? `Date range: ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`
+          : startDate
+            ? `Date from: ${new Date(startDate).toLocaleDateString()}`
+            : `Date to: ${new Date(endDate).toLocaleDateString()}`;
+
+        doc.text(dateFilterText, 15, yPos);
         yPos += 5;
       }
 
@@ -601,9 +697,17 @@ const LeadReport = ({ projectType }) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Lead Report');
 
       // Add metadata
+      const filterInfo = [];
+      if (searchTerm) filterInfo.push(`Search: "${searchTerm}"`);
+      if (filterStatus) filterInfo.push(`Status: ${filterStatus}`);
+      if (startDate) filterInfo.push(`From: ${new Date(startDate).toLocaleDateString()}`);
+      if (endDate) filterInfo.push(`To: ${new Date(endDate).toLocaleDateString()}`);
+
+      const filterText = filterInfo.length > 0 ? ` (Filtered by ${filterInfo.join(', ')})` : '';
+
       workbook.Props = {
         Title: "Lead Report",
-        Subject: "Lead Data",
+        Subject: `Lead Data${filterText}`,
         Author: "Occams Portal",
         CreatedDate: new Date()
       };
@@ -640,7 +744,7 @@ const LeadReport = ({ projectType }) => {
                 <div className="mb-4">
                   <div className="row align-items-center">
                     {/* Search box */}
-                    <div className="col-md-3">
+                    <div className="col-md-4">
                       <div className="input-group input-group-sm">
                         <div className="position-relative flex-grow-1">
                           <input
@@ -715,8 +819,17 @@ const LeadReport = ({ projectType }) => {
                       </div>
                     </div>
 
+                    {/* Date Range Filter */}
+                    <div className="col-md-3 mb-2 mb-md-0">
+                      <DateRangePicker
+                        onApplyFilter={handleApplyDateFilter}
+                        startDate={startDate}
+                        endDate={endDate}
+                      />
+                    </div>
+
                     {/* Export buttons and Column Selector */}
-                    <div className="col-md-9">
+                    <div className="col-md-5">
                       <div className="d-flex justify-content-end">
                         <button
                           className="btn btn-sm btn-outline-primary me-2"

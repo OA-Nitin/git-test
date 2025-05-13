@@ -5,7 +5,6 @@ import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import './common/CommonStyles.css';
 import './ColumnSelector.css';
-import './DateFilter.css';
 import './FinanceReportStyles.css';
 import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
