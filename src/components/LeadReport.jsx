@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -17,23 +18,40 @@ import ReportPagination from './common/ReportPagination';
 import { sortArrayByKey } from '../utils/sortUtils';
 import PageContainer from './common/PageContainer';
 
+const productIdMap = {
+ erc: 935,
+  stc: 937,
+  rdc: 932,
+  partnership: 104,
+  'tax-amendment': 936,
+  'audit-advisory': 934,
+  all: null, // to fetch all leads without filtering
+};
+
 const LeadReport = ({ projectType }) => {
   // State for API data
+  const { product } = useParams(); // e.g. 'erc', 'stc', etc.
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+   const productId = productIdMap[product?.toLowerCase()] ?? null;
+
   useEffect(() => {
-    // Set title based on project type
-    const reportTitle = projectType
-      ? `${projectType.toUpperCase()} Lead Report - Occams Portal`
+    // Set title based on product parameter or projectType prop
+    const displayType = product || projectType;
+    const reportTitle = displayType
+      ? `${displayType.toUpperCase()} Lead Report - Occams Portal`
       : "Lead Report - Occams Portal";
 
     document.title = reportTitle;
 
     // Fetch leads from API
     fetchLeads();
-  }, [projectType]);
+
+    // Log for debugging
+    console.log('LeadReport useEffect triggered with product:', product, 'productId:', productId);
+  }, [product, projectType, productId]);
 
   // Function to fetch leads from API
   const fetchLeads = async () => {
@@ -41,11 +59,17 @@ const LeadReport = ({ projectType }) => {
     setError(null);
 
     try {
-      console.log(`Fetching ${projectType ? projectType + ' ' : ''}leads from API...`);
+      // Log which type of leads we're fetching (from URL param or prop)
+      const reportType = product || projectType;
+      console.log(`Fetching ${reportType ? reportType + ' ' : ''}leads from API...`);
+      console.log('Using product ID:', productId);
 
       // Construct API URL - if projectType is provided, we could add it as a query parameter
       // For now, we'll fetch all leads and filter them client-side
-      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      if (productId) {
+        apiUrl += `?product_id=${productId}`;
+      }
 
       // Make the API request with proper headers
       const response = await axios.get(apiUrl, {
@@ -64,42 +88,77 @@ const LeadReport = ({ projectType }) => {
         let apiLeads = response.data.data;
         console.log('API Leads (before filtering):', apiLeads);
 
-        // Filter leads by project type if specified
-        if (projectType) {
+        // Filter leads by product parameter or project type prop if specified
+        const filterType = product || projectType;
+
+        // Special case for "all" - don't filter the leads
+        if (filterType && filterType.toLowerCase() !== 'all') {
+          console.log('Filtering leads for specific type:', filterType);
           apiLeads = apiLeads.filter(lead => {
-            // Check if the lead's category or product_type matches the projectType
+            // Check if the lead's category or product_type matches the filterType
             // Adjust these fields based on the actual API response structure
             const category = (lead.category || '').toLowerCase();
             const productType = (lead.product_type || '').toLowerCase();
             const leadGroup = (lead.lead_group || '').toLowerCase();
+            const leadProductId = lead.product_id ? String(lead.product_id).toLowerCase() : '';
 
-            const typeToMatch = projectType.toLowerCase();
+            const typeToMatch = filterType.toLowerCase();
+            const productIdToMatch = productId ? String(productId).toLowerCase() : '';
 
+            // Match by text fields or product ID
             return category.includes(typeToMatch) ||
                    productType.includes(typeToMatch) ||
-                   leadGroup.includes(typeToMatch);
+                   leadGroup.includes(typeToMatch) ||
+                   (productIdToMatch && leadProductId === productIdToMatch);
           });
 
-          console.log(`Filtered leads for ${projectType}:`, apiLeads);
+          console.log(`Filtered leads for ${filterType}:`, apiLeads);
+        } else if (filterType && filterType.toLowerCase() === 'all') {
+          console.log('Showing all leads without filtering by type');
         }
 
         if (apiLeads.length > 0) {
           setLeads(apiLeads);
+          setError(null); // Clear any previous error
         } else {
-          console.warn(`No ${projectType ? projectType + ' ' : ''}leads found in API response, using fallback data`);
-          setLeads(generateFallbackLeads(projectType));
-          setError(`No ${projectType ? projectType + ' ' : ''}leads found in API response. Using sample data instead.`);
+          const reportType = product || projectType;
+          // Special case for "all" - provide a more specific message
+          if (reportType && reportType.toLowerCase() === 'all') {
+            console.warn('No leads found in API response, using fallback data');
+            setLeads(generateFallbackLeads(null));
+            setError('No leads found in API response. Using sample data instead.');
+          } else {
+            console.warn(`No ${reportType ? reportType + ' ' : ''}leads found in API response, using fallback data`);
+            setLeads(generateFallbackLeads(reportType));
+            setError(`No ${reportType ? reportType + ' ' : ''}leads found in API response. Using sample data instead.`);
+          }
         }
       } else {
         console.error('API response format unexpected:', response);
         // If API returns unexpected format, use fallback data
-        setLeads(generateFallbackLeads(projectType));
-        setError(`API returned unexpected data format. Using sample ${projectType ? projectType + ' ' : ''}data instead.`);
+        const reportType = product || projectType;
+
+        // Special case for "all" - provide a more specific message
+        if (reportType && reportType.toLowerCase() === 'all') {
+          setLeads(generateFallbackLeads(null));
+          setError('API returned unexpected data format. Using sample data instead.');
+        } else {
+          setLeads(generateFallbackLeads(reportType));
+          setError(`API returned unexpected data format. Using sample ${reportType ? reportType + ' ' : ''}data instead.`);
+        }
       }
     } catch (err) {
       console.error('Error fetching leads:', err);
-      setError(`Failed to fetch ${projectType ? projectType + ' ' : ''}leads: ${err.message}. Using sample data instead.`);
-      setLeads(generateFallbackLeads(projectType));
+      const reportType = product || projectType;
+
+      // Special case for "all" - provide a more specific message
+      if (reportType && reportType.toLowerCase() === 'all') {
+        setError(`Failed to fetch leads: ${err.message}. Using sample data instead.`);
+        setLeads(generateFallbackLeads(null));
+      } else {
+        setError(`Failed to fetch ${reportType ? reportType + ' ' : ''}leads: ${err.message}. Using sample data instead.`);
+        setLeads(generateFallbackLeads(reportType));
+      }
     } finally {
       setLoading(false);
     }
@@ -729,7 +788,7 @@ const LeadReport = ({ projectType }) => {
 
   return (
 
-     <PageContainer title="Lead Reports">
+     <PageContainer title={`${product ? product.toUpperCase() + ' ' : ''}Lead Report`}>
                 <ReportFilter
                   searchTerm={searchTerm}
                   setSearchTerm={setSearchTerm}
