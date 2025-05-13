@@ -48,6 +48,7 @@ import ManageFinanceReport from "./components/ManageFinanceReport";
 // Example components
 import NotesExample from "./components/common/NotesExample";
 import ButtonsExample from "./components/common/ButtonsExample";
+import PageContainerExample from "./components/common/PageContainerExample";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -270,6 +271,15 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <ButtonsExample />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Page Container Example */}
+        <Route path="/examples/page-container" element={
+          <ProtectedRoute>
+            <Layout>
+              <PageContainerExample />
             </Layout>
           </ProtectedRoute>
         } />

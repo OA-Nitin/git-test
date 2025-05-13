@@ -52,4 +52,14 @@ export const menuData = [
       { key: 'createinvoice', name: 'Create Invoice', path: '/finance/create-invoice' }
     ],
   },
+  {
+    key: 'examples',
+    name: 'Examples',
+    icon: 'dashicons-admin-appearance',
+    children: [
+      { key: 'notesExample', name: 'Notes Example', path: '/examples/notes' },
+      { key: 'buttonsExample', name: 'Buttons Example', path: '/examples/buttons' },
+      { key: 'pageContainerExample', name: 'Page Container', path: '/examples/page-container' }
+    ],
+  },
 ];

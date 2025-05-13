@@ -5,8 +5,8 @@ import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
+import './common/ReportStyle.css';
+
 import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';

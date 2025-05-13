@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
+import './common/ReportStyle.css';
+
 import './LeadLinkStyles.css';
 import './common/DateRangePicker.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import Notes from './common/Notes';
 import ContactCard from './common/ContactCard';
-import DateRangePicker from './common/DateRangePicker';
+import ReportFilter from './common/ReportFilter';
+import ReportPagination from './common/ReportPagination';
 import { sortArrayByKey } from '../utils/sortUtils';
-import { getAssetPath } from '../utils/assetUtils';
+import PageContainer from './common/PageContainer';
 
 const LeadReport = ({ projectType }) => {
   // State for API data
@@ -727,182 +728,28 @@ const LeadReport = ({ projectType }) => {
 
 
   return (
-    <div className="main_content_iner">
-      <div className="container-fluid p-0">
-        <div className="row justify-content-center">
-          <div className="col-lg-12">
-            <div className="white_card card_height_100 mb_30">
-              <div className="white_card_header">
-                <div className="box_header m-0 new_report_header">
-                  <div className="title_img">
-                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                    <h4 className="text-white">Lead Report</h4>
-                  </div>
-                </div>
-              </div>
-              <div className="white_card_body">
-                <div className="mb-4">
-                  <div className="row align-items-center">
-                    {/* Search box */}
-                    <div className="col-md-4">
-                      <div className="input-group input-group-sm">
-                        <div className="position-relative flex-grow-1">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search leads by any field..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingRight: '30px' }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                setIsSearching(true);
-                                setTimeout(() => setIsSearching(false), 500);
-                                setCurrentPage(1); // Reset to first page when searching
 
-                                // Show feedback toast if search term is not empty
-                                if (searchTerm.trim() !== '') {
-                                  Swal.fire({
-                                    title: 'Searching...',
-                                    text: `Searching for "${searchTerm}"`,
-                                    icon: 'info',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                  });
-                                }
-                              }
-                            }}
-                          />
-                          {searchTerm && (
-                            <button
-                              type="button"
-                              className="btn btn-sm position-absolute"
-                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
-                              onClick={() => {
-                                setSearchTerm('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <i className="fas fa-times text-muted"></i>
-                            </button>
-                          )}
-                        </div>
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-sm search-btn"
-                            type="button"
-                            onClick={() => {
-                              setIsSearching(true);
-                              setTimeout(() => setIsSearching(false), 500);
-                              setCurrentPage(1); // Reset to first page when searching
-
-                              // Show feedback toast if search term is not empty
-                              if (searchTerm.trim() !== '') {
-                                Swal.fire({
-                                  title: 'Searching...',
-                                  text: `Searching for "${searchTerm}"`,
-                                  icon: 'info',
-                                  toast: true,
-                                  position: 'top-end',
-                                  showConfirmButton: false,
-                                  timer: 1500
-                                });
-                              }
-                            }}
-                          >
-                            <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Date Range Filter */}
-                    <div className="col-md-3 mb-2 mb-md-0">
-                      <DateRangePicker
-                        onApplyFilter={handleApplyDateFilter}
-                        startDate={startDate}
-                        endDate={endDate}
-                      />
-                    </div>
-
-                    {/* Export buttons and Column Selector */}
-                    <div className="col-md-5">
-                      <div className="d-flex justify-content-end">
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={fetchLeads}
-                          disabled={loading}
-                          title="Refresh Data"
-                        >
-                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
-                        </button>
-                        <div className="dropdown me-2">
-                          <button
-                            className="column-selector-btn"
-                            type="button"
-                            id="columnSelectorDropdown"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="fas fa-columns"></i> Columns
-                          </button>
-                          <div className="dropdown-menu dropdown-menu-end column-selector" aria-labelledby="columnSelectorDropdown">
-                            <div className="column-selector-header">
-                              <span>Table Columns</span>
-                              <i className="fas fa-table"></i>
-                            </div>
-                            <div className="column-selector-content">
-                              {columnGroups.map(group => (
-                                <div key={group.id} className="column-group">
-                                  <div className="column-group-title">{group.title}</div>
-                                  {group.columns.map(column => (
-                                    <div
-                                      key={column.id}
-                                      className={`dropdown-item ${visibleColumns.includes(column.id) ? 'active' : ''}`}
-                                    >
-                                      <div className="form-check">
-                                        <input
-                                          className="form-check-input"
-                                          type="checkbox"
-                                          id={`column-${column.id}`}
-                                          checked={visibleColumns.includes(column.id)}
-                                          onChange={() => toggleColumnVisibility(column.id)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`column-${column.id}`}>
-                                          {column.label}
-                                        </label>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                            <div className="column-selector-footer">
-                              <button className="btn btn-reset" onClick={resetToDefaultColumns}>
-                                Reset
-                              </button>
-                              <button className="btn btn-apply" onClick={selectAllColumns}>
-                                Select All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <button className="btn btn-sm export-btn" onClick={exportToExcel}>
-                          <i className="fas fa-file-excel me-1"></i> Excel
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToPDF}>
-                          <i className="fas fa-file-pdf me-1"></i> PDF
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToCSV}>
-                          <i className="fas fa-file-csv me-1"></i> CSV
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+     <PageContainer title="Lead Reports">
+                <ReportFilter
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  isSearching={isSearching}
+                  setIsSearching={setIsSearching}
+                  setCurrentPage={setCurrentPage}
+                  startDate={startDate}
+                  endDate={endDate}
+                  handleApplyDateFilter={handleApplyDateFilter}
+                  refreshData={fetchLeads}
+                  loading={loading}
+                  columnGroups={columnGroups}
+                  visibleColumns={visibleColumns}
+                  toggleColumnVisibility={toggleColumnVisibility}
+                  resetToDefaultColumns={resetToDefaultColumns}
+                  selectAllColumns={selectAllColumns}
+                  exportToExcel={exportToExcel}
+                  exportToPDF={exportToPDF}
+                  exportToCSV={exportToCSV}
+                />
 
                 {/* Loading indicator */}
                 {loading && (
@@ -1089,16 +936,9 @@ const LeadReport = ({ projectType }) => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={visibleColumns.length} className="text-center py-5">
+                            <td colSpan={visibleColumns.length} className="text-center py-4">
                               <div className="d-flex flex-column align-items-center">
-                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No leads found</h5>
-                                <p className="text-muted mb-3">
-                                  {searchTerm || filterStatus ?
-                                    'Try adjusting your search or filter criteria' :
-                                    'No lead data is available from the API'}
-                                </p>
-                              </div>
+                                <h5 className="text-dark" style={{ fontSize: '15px' }}>No leads found</h5>                              </div>
                             </td>
                           </tr>
                         )}
@@ -1109,102 +949,20 @@ const LeadReport = ({ projectType }) => {
 
                 {/* Pagination */}
                 {!loading && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <p>Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} leads (filtered from {leads.length} total)</p>
-                    </div>
-                    <div className="col-md-6">
-                      <nav aria-label="Lead report pagination">
-                        <ul className="pagination justify-content-end">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToPreviousPage}
-                              disabled={currentPage === 1}
-                            >
-                              Previous
-                            </button>
-                          </li>
-
-                          {/* First page */}
-                          {currentPage > 3 && (
-                            <li className="page-item">
-                              <button className="page-link" onClick={() => paginate(1)}>1</button>
-                            </li>
-                          )}
-
-                          {/* Ellipsis */}
-                          {currentPage > 4 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Page numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            // Show current page and 1 page before and after
-                            if (
-                              pageNumber === currentPage ||
-                              pageNumber === currentPage - 1 ||
-                              pageNumber === currentPage + 1
-                            ) {
-                              return (
-                                <li
-                                  key={pageNumber}
-                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                >
-                                  <button
-                                    className="page-link"
-                                    onClick={() => paginate(pageNumber)}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                </li>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Ellipsis */}
-                          {currentPage < totalPages - 3 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Last page */}
-                          {currentPage < totalPages - 2 && (
-                            <li className="page-item">
-                              <button
-                                className="page-link"
-                                onClick={() => paginate(totalPages)}
-                              >
-                                {totalPages}
-                              </button>
-                            </li>
-                          )}
-
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToNextPage}
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
+                  <ReportPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    paginate={paginate}
+                    goToPreviousPage={goToPreviousPage}
+                    goToNextPage={goToNextPage}
+                    indexOfFirstItem={indexOfFirstLead}
+                    indexOfLastItem={indexOfLastLead}
+                    totalFilteredItems={filteredLeads.length}
+                    totalItems={leads.length}
+                    itemName="leads"
+                  />
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 
