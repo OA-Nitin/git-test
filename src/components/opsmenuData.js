@@ -34,46 +34,46 @@ const opsMenuData = [
       //{ key: 'milestoneStages', name: 'Milestone & Stages', path: '/reports/opportunities/milestone-stages' },
     ],
   },
-  {
-    key: 'documents',
-    name: 'Documents',
-    icon: 'dashicons-upload',
-    children: [
-      { key: 'allDocuments', name: 'All Documents', path: '/documents/all-documents' },
-      { key: 'allStcData', name: 'All STC Data', path: '/documents/all-stc-data' },
-      { key: 'pendingDocuments', name: 'Pending Documents', path: '/documents/pending-documents' },
-      { key: 'ercDocuments', name: 'ERC Documents', path: '/documents/erc-documents' },
-      { key: 'stcDocuments', name: 'STC Documents', path: '/documents/stc-documents' },
-      { key: 'taxDocuments', name: 'Tax Amendment Documents', path: '/documents/tax-documents' },
-    ],
-  },
-  {
-    key: 'newsletter',
-    name: 'Newsletter',
-    icon: 'dashicons-email',
-    children: [
-      { key: 'newsletterList', name: 'Newsletter List', path: '/newsletter/list' },
-      { key: 'newsletterLogs', name: 'Newsletter Logs', path: '/newsletter/logs' },
-      { key: 'sendNewsletter', name: 'Send Newsletter', path: '/newsletter/send' },
-      { key: 'editLogs', name: 'Edit Logs', path: '/newsletter/edit-logs' },
-      { key: 'emailScheduledList', name: 'Email Scheduled List', path: '/newsletter/email-scheduled-list' },
-    ],
-  },
-  {
-    key: 'ercProjects',
-    name: 'ERC Projects',
-    icon: 'dashicons-media-document',
-    children: [
-      { key: 'fileErcClaim', name: 'File ERC Claim', path: '/erc-package/file-claim' },
-      { key: 'fpsoQuestionnaire', name: 'FPSO Questionnaire', path: '/erc-package/fpso-questionnaire' },
-      { key: 'fpsoQuestionnaireReport', name: 'FPSO Questionnaire Report', path: '/erc-package/fpso-questionnaire-report' },
-      { key: '941xRecords', name: '941X Records', path: '/erc-package/941x-records' },
-      { key: 'fpsoList', name: 'FPSO List', path: '/erc-package/fpso-list' },
-      { key: 'uploadFpso', name: 'Upload FPSO', path: '/erc-package/upload-fpso' },
-      { key: 'ercEligibility', name: 'ERC Eligibility', path: '/erc-package/eligibility' },
-      { key: 'eligibilityRecords', name: 'Eligibility Records', path: '/erc-package/eligibility-records' },
-    ],
-  },
+  // {
+  //   key: 'documents',
+  //   name: 'Documents',
+  //   icon: 'dashicons-upload',
+  //   children: [
+  //     { key: 'allDocuments', name: 'All Documents', path: '/documents/all-documents' },
+  //     { key: 'allStcData', name: 'All STC Data', path: '/documents/all-stc-data' },
+  //     { key: 'pendingDocuments', name: 'Pending Documents', path: '/documents/pending-documents' },
+  //     { key: 'ercDocuments', name: 'ERC Documents', path: '/documents/erc-documents' },
+  //     { key: 'stcDocuments', name: 'STC Documents', path: '/documents/stc-documents' },
+  //     { key: 'taxDocuments', name: 'Tax Amendment Documents', path: '/documents/tax-documents' },
+  //   ],
+  // },
+  // {
+  //   key: 'newsletter',
+  //   name: 'Newsletter',
+  //   icon: 'dashicons-email',
+  //   children: [
+  //     { key: 'newsletterList', name: 'Newsletter List', path: '/newsletter/list' },
+  //     { key: 'newsletterLogs', name: 'Newsletter Logs', path: '/newsletter/logs' },
+  //     { key: 'sendNewsletter', name: 'Send Newsletter', path: '/newsletter/send' },
+  //     { key: 'editLogs', name: 'Edit Logs', path: '/newsletter/edit-logs' },
+  //     { key: 'emailScheduledList', name: 'Email Scheduled List', path: '/newsletter/email-scheduled-list' },
+  //   ],
+  // },
+  // {
+  //   key: 'ercProjects',
+  //   name: 'ERC Projects',
+  //   icon: 'dashicons-media-document',
+  //   children: [
+  //     { key: 'fileErcClaim', name: 'File ERC Claim', path: '/erc-package/file-claim' },
+  //     { key: 'fpsoQuestionnaire', name: 'FPSO Questionnaire', path: '/erc-package/fpso-questionnaire' },
+  //     { key: 'fpsoQuestionnaireReport', name: 'FPSO Questionnaire Report', path: '/erc-package/fpso-questionnaire-report' },
+  //     { key: '941xRecords', name: '941X Records', path: '/erc-package/941x-records' },
+  //     { key: 'fpsoList', name: 'FPSO List', path: '/erc-package/fpso-list' },
+  //     { key: 'uploadFpso', name: 'Upload FPSO', path: '/erc-package/upload-fpso' },
+  //     { key: 'ercEligibility', name: 'ERC Eligibility', path: '/erc-package/eligibility' },
+  //     { key: 'eligibilityRecords', name: 'Eligibility Records', path: '/erc-package/eligibility-records' },
+  //   ],
+  // },
   {
     key: 'projects',
     name: 'Projects',
@@ -87,50 +87,50 @@ const opsMenuData = [
       { key: 'rdcProjects', name: 'RDC Projects', path: '/reports/projects/rdc' },
     ],
   },
-  {
-    key: 'leadCommunication',
-    name: 'Lead Communication',
-    icon: 'dashicons-analytics',
-    children: [
-      { key: 'callLogs', name: 'Call Logs', path: '/lead-communication/call-logs' },
-      { key: 'textLogs', name: 'Text Logs', path: '/lead-communication/text-logs' },
-      { key: 'emailLogs', name: 'Email Logs', path: '/lead-communication/email-logs' },
-      { key: 'meetingLogs', name: 'Meeting Logs', path: '/lead-communication/meeting-logs' },
-      { key: 'activitySummary', name: 'Activity Summary', path: '/lead-communication/activity-summary' },
-    ],
-  },
-  {
-    key: 'payroll',
-    name: 'Payroll',
-    icon: 'dashicons-welcome-widgets-menus',
-    children: [
-      { key: 'requestToken', name: 'Request Token', path: '/payroll/request-token' },
-      { key: 'tokenList', name: 'Token List', path: '/payroll/token-list' },
-      { key: 'payrollReport', name: 'Payroll Report', path: '/payroll/report' },
-      { key: 'exportReports', name: 'Export Reports', path: '/payroll/export-reports' },
-      { key: 'payrollSettings', name: 'Payroll Settings', path: '/payroll/settings' },
-    ],
-  },
-  {
-    key: 'affiliates',
-    name: 'Affiliates',
-    icon: 'dashicons-groups',
-    children: [
-      { key: 'eligibleAffiliates', name: 'Eligible Affiliates', path: '/affiliates/eligible' },
-      { key: 'netCommission', name: 'Net Commission', path: '/affiliates/net-commission' },
-      { key: 'affiliatesManagement', name: 'Affiliates Management', path: '/affiliates/management' },
-    ],
-  },
-  {
-    key: 'sales',
-    name: 'Sales',
-    icon: 'dashicons-chart-line',
-    children: [
-      { key: 'eligibleSPFP', name: 'Eligible SPFP', path: '/sales/eligible-spfp' },
-      { key: 'allCommissions', name: 'All Commissions', path: '/sales/all-commissions' },
-      { key: 'salesManagement', name: 'Sales Management', path: '/sales/management' },
-    ],
-  },
+  // {
+  //   key: 'leadCommunication',
+  //   name: 'Lead Communication',
+  //   icon: 'dashicons-analytics',
+  //   children: [
+  //     { key: 'callLogs', name: 'Call Logs', path: '/lead-communication/call-logs' },
+  //     { key: 'textLogs', name: 'Text Logs', path: '/lead-communication/text-logs' },
+  //     { key: 'emailLogs', name: 'Email Logs', path: '/lead-communication/email-logs' },
+  //     { key: 'meetingLogs', name: 'Meeting Logs', path: '/lead-communication/meeting-logs' },
+  //     { key: 'activitySummary', name: 'Activity Summary', path: '/lead-communication/activity-summary' },
+  //   ],
+  // },
+  // {
+  //   key: 'payroll',
+  //   name: 'Payroll',
+  //   icon: 'dashicons-welcome-widgets-menus',
+  //   children: [
+  //     { key: 'requestToken', name: 'Request Token', path: '/payroll/request-token' },
+  //     { key: 'tokenList', name: 'Token List', path: '/payroll/token-list' },
+  //     { key: 'payrollReport', name: 'Payroll Report', path: '/payroll/report' },
+  //     { key: 'exportReports', name: 'Export Reports', path: '/payroll/export-reports' },
+  //     { key: 'payrollSettings', name: 'Payroll Settings', path: '/payroll/settings' },
+  //   ],
+  // },
+  // {
+  //   key: 'affiliates',
+  //   name: 'Affiliates',
+  //   icon: 'dashicons-groups',
+  //   children: [
+  //     { key: 'eligibleAffiliates', name: 'Eligible Affiliates', path: '/affiliates/eligible' },
+  //     { key: 'netCommission', name: 'Net Commission', path: '/affiliates/net-commission' },
+  //     { key: 'affiliatesManagement', name: 'Affiliates Management', path: '/affiliates/management' },
+  //   ],
+  // },
+  // {
+  //   key: 'sales',
+  //   name: 'Sales',
+  //   icon: 'dashicons-chart-line',
+  //   children: [
+  //     { key: 'eligibleSPFP', name: 'Eligible SPFP', path: '/sales/eligible-spfp' },
+  //     { key: 'allCommissions', name: 'All Commissions', path: '/sales/all-commissions' },
+  //     { key: 'salesManagement', name: 'Sales Management', path: '/sales/management' },
+  //   ],
+  // },
   {
     key: 'products',
     name: 'Products',
@@ -143,50 +143,50 @@ const opsMenuData = [
       { key: 'currency', name: 'Currency', path: '/products/currency' },
     ],
   },
-  {
-    key: 'oneDriveSettings',
-    name: 'OneDrive Settings',
-    icon: 'dashicons-cloud',
-    path: '/onedrive-settings'
-  },
-  {
-    key: 'templates',
-    name: 'Templates',
-    icon: 'dashicons-welcome-widgets-menus',
-    children: [
-      { key: 'emailTemplates', name: 'Email Templates', path: '/templates/email-templates' },
-      { key: 'createEmailTemplate', name: 'Create Email Template', path: '/templates/create-email-template' },
-      { key: 'emailSentLog', name: 'Email Sent Log', path: '/templates/email-sent-log' },
-      { key: 'smsTemplates', name: 'SMS Templates', path: '/templates/sms-templates' },
-      { key: 'createSmsTemplate', name: 'Create SMS Templates', path: '/templates/create-sms-template' },
-      { key: 'smsSentLogs', name: 'SMS Sent Logs', path: '/templates/sms-sent-logs' },
-      { key: 'userUpdationForm', name: 'User Updation Form', path: '/templates/user-updation-form' },
-    ],
-  },
+  // {
+  //   key: 'oneDriveSettings',
+  //   name: 'OneDrive Settings',
+  //   icon: 'dashicons-cloud',
+  //   path: '/onedrive-settings'
+  // },
+  // {
+  //   key: 'templates',
+  //   name: 'Templates',
+  //   icon: 'dashicons-welcome-widgets-menus',
+  //   children: [
+  //     { key: 'emailTemplates', name: 'Email Templates', path: '/templates/email-templates' },
+  //     { key: 'createEmailTemplate', name: 'Create Email Template', path: '/templates/create-email-template' },
+  //     { key: 'emailSentLog', name: 'Email Sent Log', path: '/templates/email-sent-log' },
+  //     { key: 'smsTemplates', name: 'SMS Templates', path: '/templates/sms-templates' },
+  //     { key: 'createSmsTemplate', name: 'Create SMS Templates', path: '/templates/create-sms-template' },
+  //     { key: 'smsSentLogs', name: 'SMS Sent Logs', path: '/templates/sms-sent-logs' },
+  //     { key: 'userUpdationForm', name: 'User Updation Form', path: '/templates/user-updation-form' },
+  //   ],
+  // },
   {
     key: 'support',
     name: 'Support',
     icon: 'dashicons-admin-users',
     path: '/support'
   },
-  {
-    key: 'contacts',
-    name: 'Contacts',
-    icon: 'dashicons-smartphone',
-    path: '/contacts'
-  },
-  {
-    key: 'notesConfidentialSetting',
-    name: 'Notes Confidential Setting',
-    icon: 'dashicons-admin-generic',
-    path: '/notes-confidential-setting'
-  },
-  {
-    key: 'affiliateDashboardSetting',
-    name: 'Affiliate Dashboard Setting',
-    icon: 'dashicons-welcome-widgets-menus',
-    path: '/affiliate-dashboard-settings'
-  },
+  // {
+  //   key: 'contacts',
+  //   name: 'Contacts',
+  //   icon: 'dashicons-smartphone',
+  //   path: '/contacts'
+  // },
+  // {
+  //   key: 'notesConfidentialSetting',
+  //   name: 'Notes Confidential Setting',
+  //   icon: 'dashicons-admin-generic',
+  //   path: '/notes-confidential-setting'
+  // },
+  // {
+  //   key: 'affiliateDashboardSetting',
+  //   name: 'Affiliate Dashboard Setting',
+  //   icon: 'dashicons-welcome-widgets-menus',
+  //   path: '/affiliate-dashboard-settings'
+  // },
 ];
 
 export default opsMenuData;
