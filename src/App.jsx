@@ -45,6 +45,15 @@ import RDCProjectsReport from "./components/RDCProjectsReport";
 import CreateInvoice from "./components/CreateInvoice";
 import ManageFinanceReport from "./components/ManageFinanceReport";
 
+// Opportunities components
+import OpportunityReport from "./components/OpportunityReport";
+import ERCOpportunities from "./components/ERCOpportunities";
+import STCOpportunities from "./components/STCOpportunities";
+import TaxAmendmentOpportunities from "./components/TaxAmendmentOpportunities";
+import AuditAdvisoryOpportunities from "./components/AuditAdvisoryOpportunities";
+import RDCOpportunities from "./components/RDCOpportunities";
+import PartnershipOpportunities from "./components/PartnershipOpportunities";
+
 // Example components
 import NotesExample from "./components/common/NotesExample";
 import ButtonsExample from "./components/common/ButtonsExample";
@@ -307,6 +316,71 @@ const App = () => {
         } />
 
         <Route path="/reports/advanced-reports" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Opportunities Routes */}
+        <Route path="/opportunities/report" element={
+          <ProtectedRoute>
+            <Layout>
+              <OpportunityReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/erc" element={
+          <ProtectedRoute>
+            <Layout>
+              <ERCOpportunities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/stc" element={
+          <ProtectedRoute>
+            <Layout>
+              <STCOpportunities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/tax-amendment" element={
+          <ProtectedRoute>
+            <Layout>
+              <TaxAmendmentOpportunities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/audit-advisory" element={
+          <ProtectedRoute>
+            <Layout>
+              <AuditAdvisoryOpportunities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/rdc" element={
+          <ProtectedRoute>
+            <Layout>
+              <RDCOpportunities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/partnership" element={
+          <ProtectedRoute>
+            <Layout>
+              <PartnershipOpportunities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/opportunities/milestone-stages" element={
           <ProtectedRoute>
             <Layout>
               <Dashboard />

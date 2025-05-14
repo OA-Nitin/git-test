@@ -39,10 +39,10 @@ const financeMenuData = [
     icon: 'dashicons-media-document',
     children: [
       { key: 'manageInvoices', name: 'Manage Invoices', path: '/finance/invoices' },
-      { key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
-      { key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
-      { key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
-      { key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
+      //{ key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
+      //{ key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
+      //{ key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
+      //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
     ],
   },
   // {

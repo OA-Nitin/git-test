@@ -46,6 +46,23 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
           });
         }
+      },
+      '/api/opportunities': {
+        target: 'https://play.occamsadvisory.com/portal',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/opportunities/, '/wp-json/productsplugin/v1/opportunities'),
+        secure: false,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('opportunities proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Opportunities Request:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Opportunities Response:', proxyRes.statusCode, req.url);
+          });
+        }
       }
     }
   },
