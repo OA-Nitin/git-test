@@ -297,15 +297,15 @@ const OpportunityReport = ({ projectType }) => {
       } else {
         console.log('No opportunities found in API response');
         const reportType = product || projectType;
-        // Special case for "all" - provide a more specific message
+        // Show no data available message
         if (reportType && reportType.toLowerCase() === 'all') {
-          console.warn('No opportunities found in API response, using fallback data');
-          setOpportunities(generateFallbackOpportunities(null));
-          setError('No opportunities found in API response. Using sample data instead.');
+          console.warn('No opportunities found in API response');
+          setOpportunities([]);
+          setError('No data available.');
         } else {
-          console.warn(`No ${reportType ? reportType + ' ' : ''}opportunities found in API response, using fallback data`);
-          setOpportunities(generateFallbackOpportunities(reportType));
-          setError(`No ${reportType ? reportType + ' ' : ''}opportunities found in API response. Using sample data instead.`);
+          console.warn(`No ${reportType ? reportType + ' ' : ''}opportunities found in API response`);
+          setOpportunities([]);
+          setError(`No ${reportType ? reportType + ' ' : ''}data available.`);
         }
       }
 
@@ -330,13 +330,13 @@ const OpportunityReport = ({ projectType }) => {
       setRetryCount(retryCount + 1);
       const reportType = product || projectType;
 
-      // Special case for "all" - provide a more specific message
+      // Show no data available message
       if (reportType && reportType.toLowerCase() === 'all') {
-        setError(`Failed to fetch opportunities: ${err.message}. Using sample data instead.`);
-        setOpportunities(generateFallbackOpportunities(null));
+        setError(`Data is not available. Failed to fetch opportunities: ${err.message}.`);
+        setOpportunities([]);
       } else {
-        setError(`Failed to fetch ${reportType ? reportType + ' ' : ''}opportunities: ${err.message}. Using sample data instead.`);
-        setOpportunities(generateFallbackOpportunities(reportType));
+        setError(`Data is not available. Failed to fetch ${reportType ? reportType + ' ' : ''}opportunities: ${err.message}.`);
+        setOpportunities([]);
       }
 
       return false; // Failed
@@ -387,8 +387,8 @@ const OpportunityReport = ({ projectType }) => {
   // Flatten all columns for easier access
   const allColumns = columnGroups.flatMap(group => group.columns);
 
-  // Default visible columns - based on the image
-  const defaultVisibleColumns = ['id', 'opportunityName', 'businessName', 'product', 'probability', 'stage', 'amount', 'createdDate', 'closeDate', 'lastActivity', 'notes', 'leadSource', 'action'];
+  // Default visible columns - showing only 8 columns like in LeadReport
+  const defaultVisibleColumns = ['id', 'opportunityName', 'businessName', 'product', 'probability', 'stage', 'amount', 'notes'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -847,34 +847,7 @@ const OpportunityReport = ({ projectType }) => {
                   </div>
                 )}
 
-                {/* Error message */}
-                {error && !loading && (
-                  <div className="alert alert-warning" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
-                        <p className="mb-0">{error}</p>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>Please try again or contact support if the problem persists.</span>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => {
-                          // Clear any existing data and fetch fresh data
-                          setOpportunities([]);
-                          setCurrentPage(1);
-                          fetchOpportunities();
-                        }}
-                        disabled={loading}
-                      >
-                        <i className={`fas fa-sync-alt me-1 ${loading ? 'fa-spin' : ''}`}></i> Retry
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* We've removed the error message as requested */}
 
                 {/* Data table */}
                 {!loading && (
@@ -1063,30 +1036,9 @@ const OpportunityReport = ({ projectType }) => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={visibleColumns.length} className="text-center py-5">
+                            <td colSpan={visibleColumns.length} className="text-center py-4">
                               <div className="d-flex flex-column align-items-center">
-                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No opportunities found</h5>
-                                <p className="text-muted mb-3">
-                                  {searchTerm || filterStatus ?
-                                    'Try adjusting your search or filter criteria' :
-                                    error ? error : 'Unable to load opportunities. Please try again later.'}
-                                </p>
-                                {!searchTerm && !filterStatus && (
-                                  <button
-                                    className="btn btn-primary"
-                                    onClick={() => {
-                                      // Clear any existing data and fetch fresh data
-                                      setOpportunities([]);
-                                      setCurrentPage(1);
-                                      fetchOpportunities();
-                                    }}
-                                    disabled={loading}
-                                  >
-                                    <i className={`fas fa-sync-alt me-2 ${loading ? 'fa-spin' : ''}`}></i>
-                                    Try Again
-                                  </button>
-                                )}
+                                <h5 className="text-dark" style={{ fontSize: '15px' }}>No records found</h5>
                               </div>
                             </td>
                           </tr>
