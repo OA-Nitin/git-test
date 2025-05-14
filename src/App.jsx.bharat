@@ -31,18 +31,18 @@ import LeadReport from "./components/LeadReport";
 import LeadDetail from "./components/LeadDetail";
 
 // Project components
+import ProjectReport from "./components/ProjectReport";
 import AllProjectsReport from "./components/AllProjectsReport";
+import ERCProjectsReport from "./components/ERCProjectsReport";
+import STCProjectsReport from "./components/STCProjectsReport";
+import TaxAmendmentProjectsReport from "./components/TaxAmendmentProjectsReport";
+import AuditAdvisoryProjectsReport from "./components/AuditAdvisoryProjectsReport";
+import RDCProjectsReport from "./components/RDCProjectsReport";
 
 // Finance components
 //import ManageInvoice from "./components/ManageInvoice";
 import CreateInvoice from "./components/CreateInvoice";
 import ManageFinanceReport from "./components/ManageFinanceReport";
-
-// Opportunities components
-import OpportunityReport from "./components/OpportunityReport";
-// Temporarily commented out unused imports
-// import ERCOpportunities from "./components/ERCOpportunities";
-// import AuditAdvisoryOpportunities from "./components/AuditAdvisoryOpportunities";
 
 // Example components
 import NotesExample from "./components/common/NotesExample";
@@ -92,7 +92,6 @@ const App = () => {
           }
         />
 
-        {/* Generic Lead Report Route */}
         <Route
           path="/reports/leads/:product"
           element={
@@ -104,109 +103,8 @@ const App = () => {
           }
         />
 
-        {/* Specific Lead Report Routes */}
-        <Route
-          path="/reports/erc-lead-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadReport product="erc" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/stc-lead-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadReport product="stc" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/tax-amendment-lead-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadReport product="tax-amendment" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/audit-advisory-lead-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadReport product="audit-advisory" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/rdc-lead-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadReport product="rdc" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/partnership-lead-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <LeadReport product="partnership" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/advanced-reports"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports/projects/:product"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AllProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Projects Routes - Legacy format */}
         <Route
           path="/projects/all"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AllProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/:product"
           element={
             <ProtectedRoute>
               <Layout>
@@ -301,7 +199,72 @@ const App = () => {
           }
         />
 
-        {/* Project Settings Route */}
+        {/* Project Routes */}
+        <Route
+          path="/projects/all"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProjectReport projectType="all" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/erc"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ERCProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/stc"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <STCProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/tax-amendment"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <TaxAmendmentProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/audit-advisory"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AuditAdvisoryProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/rdc"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <RDCProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/projects/settings"
@@ -349,25 +312,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
-        {/* Opportunities Routes */}
-        {/* Generic Opportunity Report Route with product parameter */}
-        <Route path="/reports/opportunities/:product" element={
-          <ProtectedRoute>
-            <Layout>
-              <OpportunityReport />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        {/* All Opportunities Report */}
-        <Route path="/reports/opportunities/all" element={
-          <ProtectedRoute>
-            <Layout>
-              <OpportunityReport />
-            </Layout>
-          </ProtectedRoute>
-        } />
       </Routes>
     </Router>
   );
