@@ -120,42 +120,42 @@ const LeadReport = ({ projectType }) => {
           setError(null); // Clear any previous error
         } else {
           const reportType = product || projectType;
-          // Special case for "all" - provide a more specific message
+          // Show no data available message
           if (reportType && reportType.toLowerCase() === 'all') {
-            console.warn('No leads found in API response, using fallback data');
-            setLeads(generateFallbackLeads(null));
-            setError('No leads found in API response. Using sample data instead.');
+            console.warn('No leads found in API response');
+            setLeads([]);
+            setError('No data available.');
           } else {
-            console.warn(`No ${reportType ? reportType + ' ' : ''}leads found in API response, using fallback data`);
-            setLeads(generateFallbackLeads(reportType));
-            setError(`No ${reportType ? reportType + ' ' : ''}leads found in API response. Using sample data instead.`);
+            console.warn(`No ${reportType ? reportType + ' ' : ''}leads found in API response`);
+            setLeads([]);
+            setError(`No ${reportType ? reportType + ' ' : ''}data available.`);
           }
         }
       } else {
         console.error('API response format unexpected:', response);
-        // If API returns unexpected format, use fallback data
+        // If API returns unexpected format, show error message
         const reportType = product || projectType;
 
-        // Special case for "all" - provide a more specific message
+        // Show no data available message
         if (reportType && reportType.toLowerCase() === 'all') {
-          setLeads(generateFallbackLeads(null));
-          setError('API returned unexpected data format. Using sample data instead.');
+          setLeads([]);
+          setError('Data is not available. API returned unexpected data format.');
         } else {
-          setLeads(generateFallbackLeads(reportType));
-          setError(`API returned unexpected data format. Using sample ${reportType ? reportType + ' ' : ''}data instead.`);
+          setLeads([]);
+          setError(`Data is not available. API returned unexpected ${reportType ? reportType + ' ' : ''}data format.`);
         }
       }
     } catch (err) {
       console.error('Error fetching leads:', err);
       const reportType = product || projectType;
 
-      // Special case for "all" - provide a more specific message
+      // Show no data available message
       if (reportType && reportType.toLowerCase() === 'all') {
-        setError(`Failed to fetch leads: ${err.message}. Using sample data instead.`);
-        setLeads(generateFallbackLeads(null));
+        setError(`Data is not available. Failed to fetch leads: ${err.message}.`);
+        setLeads([]);
       } else {
-        setError(`Failed to fetch ${reportType ? reportType + ' ' : ''}leads: ${err.message}. Using sample data instead.`);
-        setLeads(generateFallbackLeads(reportType));
+        setError(`Data is not available. Failed to fetch ${reportType ? reportType + ' ' : ''}leads: ${err.message}.`);
+        setLeads([]);
       }
     } finally {
       setLoading(false);
@@ -818,28 +818,7 @@ const LeadReport = ({ projectType }) => {
                   </div>
                 )}
 
-                {/* Error message */}
-                {error && !loading && (
-                  <div className="alert alert-warning" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
-                        <p className="mb-0">{error}</p>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>Please try again or contact support if the problem persists.</span>
-                      <button
-                        className="btn btn-primary"
-                        onClick={fetchLeads}
-                      >
-                        <i className="fas fa-sync-alt me-1"></i> Retry
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* We've removed the error message as requested */}
 
                 {/* Data table */}
                 {!loading && (
@@ -995,7 +974,8 @@ const LeadReport = ({ projectType }) => {
                           <tr>
                             <td colSpan={visibleColumns.length} className="text-center py-4">
                               <div className="d-flex flex-column align-items-center">
-                                <h5 className="text-dark" style={{ fontSize: '15px' }}>No leads found</h5>                              </div>
+                                <h5 className="text-dark" style={{ fontSize: '15px' }}>No records found</h5>
+                              </div>
                             </td>
                           </tr>
                         )}

@@ -113,7 +113,8 @@ const AllProjectsReport = () => {
           setProjects(apiProjects);
 
           if (apiProjects.length === 0) {
-            setError('No projects found in API response.');
+            setError('No data available.');
+            setProjects([]);
           }
         }
         // Check if response.data is an array directly
@@ -127,50 +128,30 @@ const AllProjectsReport = () => {
           setProjects(apiProjects);
 
           if (apiProjects.length === 0) {
-            setError('No projects found in API response.');
+            setError('No data available.');
+            setProjects([]);
           }
         }
         else {
           console.error('API response format unexpected:', response);
-          // If API returns unexpected format, use fallback data
-          const errorMsg = 'API returned unexpected data format. Using sample data instead.';
+          // If API returns unexpected format, show error message
+          const errorMsg = 'Data is not available. API returned unexpected data format.';
           setError(errorMsg);
-
-          // Generate fallback data with a clear indicator
-          const fallbackData = generateFallbackProjects();
-          // Add a flag to indicate this is fallback data
-          fallbackData.forEach(project => {
-            project.isFallbackData = true;
-          });
-          setProjects(fallbackData);
+          setProjects([]);
         }
       } else {
         console.error('API response invalid:', response);
-        // If API returns invalid response, use fallback data
-        const errorMsg = 'API returned invalid response. Using sample data instead.';
+        // If API returns invalid response, show error message
+        const errorMsg = 'Data is not available. API returned invalid response.';
         setError(errorMsg);
-
-        // Generate fallback data with a clear indicator
-        const fallbackData = generateFallbackProjects();
-        // Add a flag to indicate this is fallback data
-        fallbackData.forEach(project => {
-          project.isFallbackData = true;
-        });
-        setProjects(fallbackData);
+        setProjects([]);
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
-      const errorMsg = `Failed to fetch projects: ${err.message}. Using sample data instead.`;
+      const errorMsg = `Data is not available. Failed to fetch projects: ${err.message}.`;
       console.error(errorMsg);
       setError(errorMsg);
-
-      // Generate fallback data with a clear indicator
-      const fallbackData = generateFallbackProjects();
-      // Add a flag to indicate this is fallback data
-      fallbackData.forEach(project => {
-        project.isFallbackData = true;
-      });
-      setProjects(fallbackData);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
@@ -737,41 +718,7 @@ const AllProjectsReport = () => {
         </div>
       )}
 
-      {/* Error message */}
-      {error && !loading && (
-        <div className="alert alert-warning" role="alert">
-          <div className="d-flex align-items-center">
-            <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-            <div>
-              <h5 className="alert-heading mb-1">Data Loading Error</h5>
-              <p className="mb-0">{error}</p>
-            </div>
-          </div>
-          <hr />
-          <div className="d-flex justify-content-between align-items-center">
-            <span>Please try again or contact support if the problem persists.</span>
-            <button
-              className="btn btn-primary"
-              onClick={fetchProjects}
-            >
-              <i className="fas fa-sync-alt me-1"></i> Retry
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Fallback data warning */}
-      {projects.length > 0 && projects[0].isFallbackData && !loading && (
-        <div className="alert alert-info" role="alert">
-          <div className="d-flex align-items-center">
-            <i className="fas fa-info-circle me-3 fs-4"></i>
-            <div>
-              <h5 className="alert-heading mb-1">Sample Data</h5>
-              <p className="mb-0">Showing sample data because the API request failed or returned no results. The highlighted rows contain sample data.</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* We've removed the error messages as requested */}
 
       {/* Data table */}
       {!loading && (
@@ -804,7 +751,6 @@ const AllProjectsReport = () => {
                 currentProjects.map((project, index) => (
                   <tr
                     key={project.project_id || index}
-                    className={project.isFallbackData ? 'table-warning' : ''}
                   >
                     {/* Render cells in the same order as the column definitions */}
                     {allColumns.map(column => {
@@ -820,11 +766,6 @@ const AllProjectsReport = () => {
                         case 'businessName':
                           return (
                             <td key={column.id}>
-                              {project.isFallbackData && (
-                                <span className="badge bg-warning me-1" title="Sample data">
-                                  <i className="fas fa-exclamation-triangle"></i>
-                                </span>
-                              )}
                               {project.business_legal_name || ''}
                             </td>
                           );
@@ -896,7 +837,8 @@ const AllProjectsReport = () => {
                 <tr>
                   <td colSpan={visibleColumns.length} className="text-center py-4">
                     <div className="d-flex flex-column align-items-center">
-                      <h5 className="text-dark" style={{ fontSize: '15px' }}>No projects found</h5>
+                      <i className="fas fa-database text-muted mb-3" style={{ fontSize: '2rem' }}></i>
+                      <h5 className="text-muted">No records found</h5>
                     </div>
                   </td>
                 </tr>
