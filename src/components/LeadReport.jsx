@@ -7,8 +7,6 @@ import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import './common/ReportStyle.css';
-
-
 import './common/DateRangePicker.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import Notes from './common/Notes';

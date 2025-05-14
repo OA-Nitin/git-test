@@ -31,13 +31,7 @@ import LeadReport from "./components/LeadReport";
 import LeadDetail from "./components/LeadDetail";
 
 // Project components
-import ProjectReport from "./components/ProjectReport";
 import AllProjectsReport from "./components/AllProjectsReport";
-import ERCProjectsReport from "./components/ERCProjectsReport";
-import STCProjectsReport from "./components/STCProjectsReport";
-import TaxAmendmentProjectsReport from "./components/TaxAmendmentProjectsReport";
-import AuditAdvisoryProjectsReport from "./components/AuditAdvisoryProjectsReport";
-import RDCProjectsReport from "./components/RDCProjectsReport";
 
 // Finance components
 //import ManageInvoice from "./components/ManageInvoice";
@@ -104,7 +98,30 @@ const App = () => {
         />
 
         <Route
+          path="/reports/projects/:product"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AllProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Projects Routes - Legacy format */}
+        <Route
           path="/projects/all"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <AllProjectsReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/projects/:product"
           element={
             <ProtectedRoute>
               <Layout>
@@ -199,72 +216,7 @@ const App = () => {
           }
         />
 
-        {/* Project Routes */}
-        <Route
-          path="/projects/all"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ProjectReport projectType="all" />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/erc"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <ERCProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/stc"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <STCProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/tax-amendment"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <TaxAmendmentProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/audit-advisory"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <AuditAdvisoryProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/projects/rdc"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <RDCProjectsReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+        {/* Project Settings Route */}
 
         <Route
           path="/projects/settings"
