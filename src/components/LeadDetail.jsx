@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
-import './common/CommonStyles.css';
+import './common/ReportStyle.css';
 import './LeadDetail.css';
 import Notes from './common/Notes';
 import { getAssetPath } from '../utils/assetUtils';
