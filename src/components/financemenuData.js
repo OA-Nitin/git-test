@@ -121,12 +121,12 @@ const financeMenuData = [
     icon: 'dashicons-admin-users',
     path: '/support'
   },
-  {
-    key: 'contact',
-    name: 'Contact',
-    icon: 'dashicons-smartphone',
-    path: '/contact'
-  },
+  // {
+  //   key: 'contact',
+  //   name: 'Contact',
+  //   icon: 'dashicons-smartphone',
+  //   path: '/contact'
+  // },
 ];
 
 export default financeMenuData;
