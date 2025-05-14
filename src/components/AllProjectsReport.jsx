@@ -894,7 +894,7 @@ const AllProjectsReport = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={visibleColumns.length} className="text-center py-5">
+                  <td colSpan={visibleColumns.length} className="text-center py-4">
                     <div className="d-flex flex-column align-items-center">
                       <h5 className="text-dark" style={{ fontSize: '15px' }}>No projects found</h5>
                     </div>

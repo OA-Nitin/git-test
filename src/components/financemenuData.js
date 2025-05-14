@@ -17,7 +17,6 @@ const financeMenuData = [
     { key: 'partnershipLeadReport', name: 'Partnership Lead Report', path: '/reports/leads/partnership' },
     { key: 'taxAmendmentLeadReport', name: 'Tax Amendment Lead Report', path: '/reports/leads/tax-amendment' },
     { key: 'auditAdvisoryLeadReport', name: 'Audit Advisory Lead Report', path: '/reports/leads/audit-advisory' },
-
     ],
   },
   {
