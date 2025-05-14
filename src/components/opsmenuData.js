@@ -31,7 +31,7 @@ const opsMenuData = [
       { key: 'auditAdvisoryOpportunities', name: 'Audit Advisory Opportunities', path: '/reports/opportunities/audit-advisory' },
       { key: 'rdcOpportunities', name: 'RDC Opportunities', path: '/reports/opportunities/rdc' },
       { key: 'partnershipOpportunities', name: 'Partnership Opportunities', path: '/reports/opportunities/partnership' },
-      { key: 'milestoneStages', name: 'Milestone & Stages', path: '/reports/opportunities/milestone-stages' },
+      //{ key: 'milestoneStages', name: 'Milestone & Stages', path: '/reports/opportunities/milestone-stages' },
     ],
   },
   {

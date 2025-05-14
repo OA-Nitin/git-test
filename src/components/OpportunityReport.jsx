@@ -82,26 +82,45 @@ const OpportunityReport = ({ projectType }) => {
   const processOpportunityData = (data) => {
     if (!data) return [];
 
-    return data.map(opp => ({
-      id: opp.OpportunityID || '',
-      opportunity_name: opp.OpportunityName || '',
-      product: opp.productName || '',
-      product_id: opp.product_ID || '',
-      probability: opp.Probability ? `${Math.round(parseFloat(opp.Probability) * 100)}%` : '0%',
-      stage: opp.milestoneName || opp.Stage || '',
-      stage_status: opp.milestoneStatus || '',
-      amount: opp.currencyName && opp.OpportunityAmount ?
-        `${opp.currencyName}${parseFloat(opp.OpportunityAmount).toLocaleString()}` :
-        opp.OpportunityAmount || '',
-      created_date: formatDate(opp.CreatedAt),
-      close_date: formatDate(opp.ExpectedCloseDate),
-      last_activity: formatDate(opp.ModifiedAt),
-      notes: opp.Description || '',
-      lead_source: opp.AffiliateName || opp.LeadSource || opp.LeadGroup || '',
-      business_name: opp.AccountName || opp.business_name || '',
-      business_email: opp.business_email || '',
-      raw_data: opp
-    }));
+    // Log the first opportunity data for debugging
+    if (data.length > 0) {
+      console.log('Sample opportunity data from API:', data[0]);
+    }
+
+    return data.map(opp => {
+      // Log the opportunity ID for debugging
+      console.log('Processing opportunity with ID:', opp.OpportunityID);
+
+      // Make sure we have a valid ID for the opportunity
+      const opportunityId = opp.OpportunityID || '';
+      if (!opportunityId) {
+        console.warn('Warning: Opportunity has no ID:', opp);
+      }
+
+      // Log the opportunity ID for notes functionality
+      console.log('Processing opportunity with ID for notes:', opportunityId);
+
+      return {
+        id: opp.OpportunityID || '',
+        opportunity_name: opp.OpportunityName || '',
+        product: opp.productName || '',
+        product_id: opp.product_ID || '',
+        probability: opp.Probability ? `${Math.round(parseFloat(opp.Probability) * 100)}%` : '0%',
+        stage: opp.milestoneName || opp.Stage || '',
+        stage_status: opp.milestoneStatus || '',
+        amount: opp.currencyName && opp.OpportunityAmount ?
+          `${opp.currencyName}${parseFloat(opp.OpportunityAmount).toLocaleString()}` :
+          opp.OpportunityAmount || '',
+        created_date: formatDate(opp.CreatedAt),
+        close_date: formatDate(opp.ExpectedCloseDate),
+        last_activity: formatDate(opp.ModifiedAt),
+        notes: opp.Description || '',
+        lead_source: opp.AffiliateName || opp.LeadSource || opp.LeadGroup || '',
+        business_name: opp.AccountName || opp.business_name || '',
+        business_email: opp.business_email || '',
+        raw_data: opp
+      };
+    });
   };
 
   // State to track retry attempts
@@ -784,345 +803,7 @@ const OpportunityReport = ({ projectType }) => {
     }
   };
 
-  // Handle view notes
-  const handleViewNotes = (opportunity) => {
-    const opportunityId = opportunity.id || '';
-    const status = opportunity.stage_status || '';
 
-    // Show loading state
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-      html: `
-        <div class="text-center py-4">
-          <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="text-muted">Loading notes...</p>
-        </div>
-      `,
-      width: '650px',
-      showCloseButton: true,
-      showConfirmButton: false,
-      customClass: {
-        popup: 'swal-popup-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Fetch notes from the API
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes/${opportunityId}`)
-      .then(response => {
-        console.log('Opportunity Notes API Response:', response);
-
-        // Handle different possible response formats
-        let notes = [];
-        if (Array.isArray(response.data)) {
-          notes = response.data;
-        } else if (response.data && typeof response.data === 'object') {
-          // If response.data is an object with a data property that is an array
-          if (Array.isArray(response.data.data)) {
-            notes = response.data.data;
-          } else {
-            // If it's a single note object, wrap it in an array
-            notes = [response.data];
-          }
-        }
-
-        let notesHtml = '';
-        if (!notes || notes.length === 0) {
-          notesHtml = `
-            <div class="text-center py-4">
-              <div class="mb-3">
-                <i class="fas fa-sticky-note fa-3x text-muted"></i>
-              </div>
-              <p class="text-muted">No notes available for this opportunity</p>
-            </div>
-          `;
-        } else {
-          notesHtml = `
-            <div class="notes-list">
-              ${notes.map(note => {
-                // Parse the original date from the note (adjust field name based on API response)
-                const originalDate = new Date(note.created_at || note.date || new Date());
-
-                // Format the date as "Month Day, Year" (e.g., "May 6, 2025")
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                const formattedDate = originalDate.toLocaleDateString('en-US', options);
-
-                // Format time in 12-hour format with AM/PM
-                let hour12 = originalDate.getHours() % 12;
-                if (hour12 === 0) hour12 = 12; // Convert 0 to 12 for 12 AM
-                const ampm = originalDate.getHours() >= 12 ? 'PM' : 'AM';
-                const formattedTime = `${hour12}:${String(originalDate.getMinutes()).padStart(2, '0')} ${ampm}`;
-
-                // Get the note content (adjust field name based on API response)
-                const noteContent = note.note || note.content || note.text || '';
-
-                // Get the user who created the note (if available)
-                const userName = note.user_name || note.username || note.author || 'System';
-
-                return `
-                  <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedDate}</div>
-                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedTime}</div>
-                    </div>
-                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${noteContent}</p>
-                    <div class="mt-2 text-end">
-                      <small class="text-muted">Added by: ${userName}</small>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          `;
-        }
-
-        // Update the modal with the fetched notes
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-          html: `
-            <div class="text-start">
-              <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                <div>
-                  <span class="text-black">Opportunity ID: <span class="text-dark">${opportunityId}</span></span>
-                </div>
-                <div>
-                  <span class="badge ${
-                    status.toLowerCase().includes('cancelled') ? 'bg-danger' :
-                    status.toLowerCase().includes('completed') || status.toLowerCase().includes('won') ? 'bg-success' :
-                    status.toLowerCase().includes('in progress') ? 'bg-primary' :
-                    status.toLowerCase().includes('pending') ? 'bg-warning' :
-                    'bg-secondary'
-                  }">${status || 'Unknown'}</span>
-                </div>
-              </div>
-              <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
-                ${notesHtml}
-              </div>
-            </div>
-          `,
-          width: '650px',
-          showCloseButton: false,
-          showConfirmButton: true,
-          confirmButtonText: 'Close',
-          confirmButtonColor: '#0d6efd',
-          customClass: {
-            container: 'swal-wide',
-            popup: 'swal-popup-custom',
-            header: 'swal-header-custom',
-            title: 'swal-title-custom',
-            closeButton: 'swal-close-button-custom',
-            content: 'swal-content-custom',
-            footer: 'swal-footer-custom'
-          }
-        });
-
-        // Add custom CSS for the SweetAlert modal
-        const style = document.createElement('style');
-        style.innerHTML = `
-          .swal-popup-custom {
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-          }
-          .swal-title-custom {
-            font-size: 1.5rem;
-            color: #333;
-            font-weight: 600;
-          }
-          .swal-header-custom {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-          }
-          .swal-content-custom {
-            padding: 15px;
-          }
-          .swal-footer-custom {
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-          }
-          .note-item {
-            transition: all 0.2s ease;
-          }
-          .note-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          }
-        `;
-        document.head.appendChild(style);
-      })
-      .catch(error => {
-        console.error('Error fetching notes:', error);
-
-        // Show error message
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-          html: `
-            <div class="text-center py-3">
-              <div class="mb-3">
-                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-              </div>
-              <p class="text-muted">There was a problem loading notes for this opportunity.</p>
-              <div class="alert alert-danger py-2 mt-2">
-                <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
-              </div>
-              <p class="text-muted mt-2">Opportunity ID: ${opportunityId}</p>
-            </div>
-          `,
-          confirmButtonText: 'OK',
-          customClass: {
-            popup: 'swal-popup-custom',
-            title: 'swal-title-custom'
-          }
-        });
-      });
-  };
-
-  // Handle add note
-  const handleAddNote = (opportunity) => {
-    const opportunityId = opportunity.id || '';
-
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
-      html: `
-        <div class="text-start">
-          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-            <div>
-              <span class="text-black">Opportunity ID: <span class="text-dark">${opportunityId}</span></span>
-            </div>
-          </div>
-          <div class="mb-3">
-            <textarea
-              class="form-control"
-              id="note-content"
-              rows="5"
-              placeholder="Enter your note here..."
-              style="resize: vertical; min-height: 100px;"
-            ></textarea>
-          </div>
-          <div class="text-muted small">
-            <i class="fas fa-info-circle me-1"></i>
-            Your note will be saved with the current date and time.
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Save Note',
-      cancelButtonText: 'Cancel',
-      width: '650px',
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom',
-        confirmButton: 'swal-confirm-button-custom',
-        cancelButton: 'swal-cancel-button-custom'
-      },
-      preConfirm: () => {
-        // Get the note content from the textarea
-        const content = document.getElementById('note-content').value;
-
-        // Validate the content
-        if (!content || content.trim() === '') {
-          Swal.showValidationMessage('Please enter a note');
-          return false;
-        }
-
-        return {
-          content: content
-        };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Show loading state
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Saving Note</span>`,
-          html: `
-            <div class="text-center py-3">
-              <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="text-muted">Saving your note...</p>
-            </div>
-          `,
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          customClass: {
-            popup: 'swal-popup-custom',
-            title: 'swal-title-custom'
-          }
-        });
-
-        // Prepare the data for the API
-        const noteData = {
-          project_id: opportunityId,
-          note: result.value.content,
-          user_id: 1  // This should ideally come from a user context
-        };
-
-        // Send the data to the API
-        axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes', noteData)
-          .then(() => {
-            // Show success message
-            Swal.fire({
-              title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
-              html: `
-                <div class="text-center py-3">
-                  <div class="mb-3">
-                    <i class="fas fa-check-circle fa-3x text-success"></i>
-                  </div>
-                  <p class="text-muted">Your note has been saved successfully.</p>
-                </div>
-              `,
-              timer: 2000,
-              showConfirmButton: false,
-              customClass: {
-                popup: 'swal-popup-custom',
-                title: 'swal-title-custom'
-              }
-            });
-
-            // Refresh the data after a short delay
-            setTimeout(() => {
-              fetchOpportunities();
-            }, 2100);
-          })
-          .catch((error) => {
-            console.error('Error saving note:', error);
-
-            // Show error message
-            Swal.fire({
-              title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-              html: `
-                <div class="text-center py-3">
-                  <div class="mb-3">
-                    <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-                  </div>
-                  <p class="text-muted">There was a problem saving your note.</p>
-                  <div class="alert alert-danger py-2 mt-2">
-                    <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
-                  </div>
-                </div>
-              `,
-              confirmButtonText: 'Try Again',
-              customClass: {
-                popup: 'swal-popup-custom',
-                title: 'swal-title-custom'
-              }
-            }).then((result) => {
-              if (result.isConfirmed) {
-                // If user clicks "Try Again", reopen the add note dialog
-                handleAddNote(opportunity);
-              }
-            });
-          });
-      }
-    });
-  };
 
   return (
     <PageContainer title={`${product ? product.toUpperCase() + ' ' : ''}Opportunities Report`}>
@@ -1343,9 +1024,31 @@ const OpportunityReport = ({ projectType }) => {
                                             <li>
                                               <button
                                                 className="dropdown-item"
-                                                onClick={() => handleViewNotes(opportunity)}
+                                                onClick={() => {
+                                                  // Show a message directing the user to the Notes column
+                                                  Swal.fire({
+                                                    title: 'Notes',
+                                                    text: 'Please use the Notes column to view notes for this opportunity.',
+                                                    icon: 'info'
+                                                  });
+                                                }}
                                               >
-                                                <i className="fas fa-sticky-note me-2"></i> View Notes
+                                                <i className="fas fa-eye me-2"></i> View Notes
+                                              </button>
+                                            </li>
+                                            <li>
+                                              <button
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                  // Show a message directing the user to the Notes column
+                                                  Swal.fire({
+                                                    title: 'Notes',
+                                                    text: 'Please use the Notes column to add notes for this opportunity.',
+                                                    icon: 'info'
+                                                  });
+                                                }}
+                                              >
+                                                <i className="fas fa-plus me-2"></i> Add Note
                                               </button>
                                             </li>
                                           </ul>

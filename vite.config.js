@@ -26,6 +26,11 @@ export default defineConfig({
       // Allow serving files from one level up to the project root
       allow: ['..']
     },
+    hmr: {
+      // Fix WebSocket connection issues
+      clientPort: 5185,
+      path: '',
+    },
     proxy: {
       '/api': {
         target: 'https://play.occamsadvisory.com/portal',
