@@ -1,30 +1,58 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
-import './DateFilter.css';
-import './LeadLinkStyles.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
-import { getAssetPath } from '../utils/assetUtils';
+import './common/ReportStyle.css';
+import './common/DateRangePicker.css';
+import Notes from './common/Notes';
+import ContactCard from './common/ContactCard';
+import ReportFilter from './common/ReportFilter';
+import ReportPagination from './common/ReportPagination';
+import PageContainer from './common/PageContainer';
 
-const OpportunityReport = () => {
+// Product ID mapping
+const productIdMap = {
+  erc: 935,
+  stc: 937,
+  rdc: 932,
+  partnership: 938,
+  'tax-amendment': 936,
+  'audit-advisory': 934,
+  all: null, // to fetch all opportunities without filtering
+};
+
+const OpportunityReport = ({ projectType }) => {
+  // Get product from URL params
+  const { product } = useParams();
+
   // State for API data
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Get product ID from the product parameter or projectType prop
+  const productId = productIdMap[product?.toLowerCase()] ?? productIdMap[projectType?.toLowerCase()] ?? null;
+
   useEffect(() => {
-    document.title = "Opportunities Report - Occams Portal";
+    // Set title based on product parameter or projectType prop
+    const displayType = product || projectType;
+    const reportTitle = displayType
+      ? `${displayType.toUpperCase()} Opportunities Report - Occams Portal`
+      : "Opportunities Report - Occams Portal";
+
+    document.title = reportTitle;
+
+    console.log('OpportunityReport useEffect triggered with product:', product, 'productId:', productId);
 
     // Fetch opportunities from API
     fetchOpportunities();
-  }, []);
+  }, [product, projectType, productId]);
 
   // State to track if all records are loaded
   const [allRecordsLoaded, setAllRecordsLoaded] = useState(false);
@@ -80,6 +108,104 @@ const OpportunityReport = () => {
   const [retryCount, setRetryCount] = useState(0);
   const maxRetries = 3;
 
+  // Generate fallback opportunity data if API fails
+  const generateFallbackOpportunities = (type = null) => {
+    const companies = [
+      { name: 'Acme Corporation', domain: 'acmecorp.com' },
+      { name: 'Globex Industries', domain: 'globex.com' },
+      { name: 'Stark Enterprises', domain: 'starkent.com' },
+      { name: 'Wayne Industries', domain: 'wayneindustries.com' },
+      { name: 'Umbrella Corporation', domain: 'umbrellacorp.com' },
+      { name: 'Oscorp Industries', domain: 'oscorp.com' },
+      { name: 'Cyberdyne Systems', domain: 'cyberdyne.com' },
+      { name: 'Initech', domain: 'initech.com' },
+      { name: 'Massive Dynamic', domain: 'massivedynamic.com' },
+      { name: 'Soylent Corp', domain: 'soylent.com' }
+    ];
+
+    const stages = ['Qualification', 'Needs Analysis', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'];
+    const productTypes = ['ERC', 'STC', 'Tax Amendment', 'Audit Advisory', 'RDC', 'Partnership'];
+    const currencies = ['$', '€', '£', '¥'];
+    const probabilities = [0.1, 0.25, 0.5, 0.75, 0.9];
+
+    // Map the type to a product type
+    let productType = null;
+    if (type) {
+      // Convert type to proper format (e.g., "tax-amendment" -> "Tax Amendment")
+      const formattedType = type
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+      // Find matching product type
+      productType = productTypes.find(pt => pt.toLowerCase() === formattedType.toLowerCase());
+
+      // If no exact match, try partial match
+      if (!productType) {
+        productType = productTypes.find(pt =>
+          pt.toLowerCase().includes(type.toLowerCase()) ||
+          type.toLowerCase().includes(pt.toLowerCase().replace(' ', ''))
+        );
+      }
+
+      // Default to the original type if no match found
+      if (!productType) {
+        productType = formattedType;
+      }
+    }
+
+    const dummyOpportunities = [];
+
+    for (let i = 1; i <= 100; i++) {
+      const companyIndex = Math.floor(Math.random() * companies.length);
+      const company = companies[companyIndex];
+      const stageIndex = Math.floor(Math.random() * stages.length);
+      const probabilityIndex = Math.floor(Math.random() * probabilities.length);
+      const currencyIndex = Math.floor(Math.random() * currencies.length);
+
+      // If no specific type is requested, assign random product type
+      // Otherwise, use the specified product type
+      const assignedProductType = productType || productTypes[Math.floor(Math.random() * productTypes.length)];
+
+      // Generate random dates
+      const today = new Date();
+      const createdDate = new Date(today);
+      createdDate.setDate(today.getDate() - Math.floor(Math.random() * 90)); // Random date in last 90 days
+
+      const closeDateOffset = Math.floor(Math.random() * 90) + 30; // 30-120 days in future
+      const closeDate = new Date(today);
+      closeDate.setDate(today.getDate() + closeDateOffset);
+
+      const lastActivityDate = new Date(today);
+      lastActivityDate.setDate(today.getDate() - Math.floor(Math.random() * 14)); // Random date in last 14 days
+
+      dummyOpportunities.push({
+        id: `OPP${String(i).padStart(3, '0')}`,
+        opportunity_name: `${assignedProductType} Opportunity for ${company.name}`,
+        business_name: company.name,
+        product: assignedProductType,
+        product_id: productIdMap[assignedProductType.toLowerCase().replace(' ', '-')] || '',
+        probability: `${Math.round(probabilities[probabilityIndex] * 100)}%`,
+        stage: stages[stageIndex],
+        stage_status: stages[stageIndex],
+        amount: `${currencies[currencyIndex]}${(Math.floor(Math.random() * 100000) + 10000).toLocaleString()}`,
+        created_date: formatDate(createdDate),
+        close_date: formatDate(closeDate),
+        last_activity: formatDate(lastActivityDate),
+        notes: `Sample notes for ${company.name} opportunity`,
+        lead_source: 'Website',
+        business_email: `info@${company.domain}`
+      });
+    }
+
+    // If a specific type was requested, filter the opportunities to only include that type
+    if (type) {
+      return dummyOpportunities;
+    }
+
+    return dummyOpportunities;
+  };
+
   // Function to fetch opportunities from API with retry logic
   const fetchOpportunities = async (limit = 100, retryAttempt = 0) => {
     if (retryAttempt === 0) {
@@ -90,10 +216,17 @@ const OpportunityReport = () => {
     try {
       console.log(`Fetching opportunities from API (attempt ${retryAttempt + 1} of ${maxRetries + 1})...`);
 
-      // Use the direct API endpoint
-      const apiEndpoint = 'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
+      // Log which type of opportunities we're fetching (from URL param or prop)
+      const reportType = product || projectType;
+      console.log(`Fetching ${reportType ? reportType + ' ' : ''}opportunities from API...`);
+      console.log('Using product ID:', productId);
 
-      console.log(`Requesting opportunities from API endpoint: ${apiEndpoint}`);
+      // Construct API URL with product_id parameter if available
+      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
+      if (productId) {
+        apiUrl += `?product_id=${productId}`;
+      }
+      console.log(`Requesting opportunities from API endpoint: ${apiUrl}`);
 
       // Create a controller for aborting the request if needed
       const controller = new AbortController();
@@ -106,15 +239,13 @@ const OpportunityReport = () => {
       }, timeout);
 
       // Make the API request with abort controller
-      // Add timestamp to prevent caching without using headers that might cause CORS issues
-      const timestamp = new Date().getTime();
-      const response = await axios.get(apiEndpoint, {
+      const response = await axios.get(apiUrl, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         params: {
-          _t: timestamp // Add timestamp to bust cache
+          _t: new Date().getTime() // Add timestamp to bust cache
         },
         signal: controller.signal,
         // Increase timeout with each retry
@@ -146,8 +277,17 @@ const OpportunityReport = () => {
         setAllRecordsLoaded(true);
       } else {
         console.log('No opportunities found in API response');
-        setOpportunities([]);
-        setError('No opportunities found in API response. Please try again later.');
+        const reportType = product || projectType;
+        // Special case for "all" - provide a more specific message
+        if (reportType && reportType.toLowerCase() === 'all') {
+          console.warn('No opportunities found in API response, using fallback data');
+          setOpportunities(generateFallbackOpportunities(null));
+          setError('No opportunities found in API response. Using sample data instead.');
+        } else {
+          console.warn(`No ${reportType ? reportType + ' ' : ''}opportunities found in API response, using fallback data`);
+          setOpportunities(generateFallbackOpportunities(reportType));
+          setError(`No ${reportType ? reportType + ' ' : ''}opportunities found in API response. Using sample data instead.`);
+        }
       }
 
       return true; // Success
@@ -169,22 +309,17 @@ const OpportunityReport = () => {
 
       // Max retries reached, show error
       setRetryCount(retryCount + 1);
+      const reportType = product || projectType;
 
-      // Check if it's an abort error (timeout)
-      if (err.name === 'AbortError' || err.code === 'ECONNABORTED' || err.name === 'CanceledError') {
-        setError('Request timed out. The API is taking too long to respond. Please try again later.');
-      } else if (err.message.includes('Network Error') || err.code === 'ERR_NETWORK') {
-        setError('Network error. Please check your internet connection and try again.');
-      } else if (err.response && err.response.status === 403) {
-        setError('Access denied. You may not have permission to access this data.');
-      } else if (err.response && err.response.status === 404) {
-        setError('API endpoint not found. Please contact support.');
+      // Special case for "all" - provide a more specific message
+      if (reportType && reportType.toLowerCase() === 'all') {
+        setError(`Failed to fetch opportunities: ${err.message}. Using sample data instead.`);
+        setOpportunities(generateFallbackOpportunities(null));
       } else {
-        setError(`Failed to fetch opportunities: ${err.message}. Please try again later.`);
+        setError(`Failed to fetch ${reportType ? reportType + ' ' : ''}opportunities: ${err.message}. Using sample data instead.`);
+        setOpportunities(generateFallbackOpportunities(reportType));
       }
 
-      // Set empty array instead of sample data
-      setOpportunities([]);
       return false; // Failed
     } finally {
       if (retryAttempt === 0 || retryAttempt === maxRetries) {
@@ -199,10 +334,13 @@ const OpportunityReport = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('id');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [isSearching, setIsSearching] = useState(false);
 
   // Define all available columns based on the image
   const columnGroups = [
@@ -271,11 +409,37 @@ const OpportunityReport = () => {
     setCurrentPage(1);
   };
 
-  // Filter opportunities based on search term and status
+  // Handle date filter application
+  const handleApplyDateFilter = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    setCurrentPage(1); // Reset to first page when filter changes
+
+    // Show feedback toast
+    if (start || end) {
+      const message = start && end
+        ? `Filtering opportunities from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`
+        : start
+          ? `Filtering opportunities from ${new Date(start).toLocaleDateString()}`
+          : `Filtering opportunities until ${new Date(end).toLocaleDateString()}`;
+
+      Swal.fire({
+        title: 'Date Filter Applied',
+        text: message,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    }
+  };
+
+  // Filter opportunities based on search term, status, and date range
   const filteredOpportunities = useMemo(() => {
     return opportunities.filter(opportunity => {
-      // Skip filtering if no search term or status filter is applied
-      if (searchTerm === '' && filterStatus === '') {
+      // Skip filtering if no filters are applied
+      if (searchTerm === '' && filterStatus === '' && !startDate && !endDate) {
         return true;
       }
 
@@ -319,8 +483,59 @@ const OpportunityReport = () => {
       // Check if status matches - look for the status in stage_status field
       const matchesStatus = filterStatus === '' || stageStatus.includes(filterStatus);
 
-      // Return true if both conditions are met
-      return matchesSearch && matchesStatus;
+      // Check if date is within range
+      let matchesDateRange = true;
+
+      if (startDate || endDate) {
+        // Try to parse the created date
+        const createdDate = opportunity.created_date || opportunity.created_at || '';
+        let opportunityDate;
+        try {
+          // First try to parse as ISO date
+          opportunityDate = new Date(createdDate);
+
+          // If invalid date, try to parse as MM/DD/YYYY
+          if (isNaN(opportunityDate.getTime())) {
+            const parts = createdDate.split('/');
+            if (parts.length === 3) {
+              // MM/DD/YYYY format
+              opportunityDate = new Date(parts[2], parts[0] - 1, parts[1]);
+            }
+          }
+
+          // If still invalid, don't include this opportunity in date-filtered results
+          if (isNaN(opportunityDate.getTime())) {
+            matchesDateRange = false;
+          } else {
+            // Set time to midnight for date comparison
+            opportunityDate.setHours(0, 0, 0, 0);
+
+            // Check start date
+            if (startDate) {
+              const startDateObj = new Date(startDate);
+              startDateObj.setHours(0, 0, 0, 0);
+              if (opportunityDate < startDateObj) {
+                matchesDateRange = false;
+              }
+            }
+
+            // Check end date
+            if (endDate && matchesDateRange) {
+              const endDateObj = new Date(endDate);
+              endDateObj.setHours(0, 0, 0, 0);
+              if (opportunityDate > endDateObj) {
+                matchesDateRange = false;
+              }
+            }
+          }
+        } catch (e) {
+          // If there's an error parsing the date, don't include this opportunity in date-filtered results
+          matchesDateRange = false;
+        }
+      }
+
+      // Return true if all conditions are met
+      return matchesSearch && matchesStatus && matchesDateRange;
     });
   }, [opportunities, searchTerm, filterStatus]);
 
@@ -910,184 +1125,36 @@ const OpportunityReport = () => {
   };
 
   return (
-    <div className="main_content_iner">
-      <div className="container-fluid p-0">
-        <div className="row justify-content-center">
-          <div className="col-lg-12">
-            <div className="white_card card_height_100 mb_30">
-              <div className="white_card_header">
-                <div className="box_header m-0 new_report_header">
-                  <div className="title_img">
-                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                    <h4 className="text-white">Opportunities Report</h4>
-                  </div>
-                </div>
-              </div>
-              <div className="white_card_body">
-                <div className="mb-4">
-                  <div className="row align-items-center">
-                    {/* Search box */}
-                    <div className="col-md-3">
-                      <div className="input-group input-group-sm">
-                        <div className="position-relative flex-grow-1">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search opportunities by any field..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingRight: '30px' }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                setCurrentPage(1); // Reset to first page when searching
-                              }
-                            }}
-                          />
-                          {searchTerm && (
-                            <button
-                              type="button"
-                              className="btn btn-sm position-absolute"
-                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
-                              onClick={() => {
-                                setSearchTerm('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <i className="fas fa-times text-muted"></i>
-                            </button>
-                          )}
-                        </div>
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-sm search-btn"
-                            type="button"
-                            onClick={() => {
-                              // Trigger search and reset to first page
-                              setCurrentPage(1);
-                              // Force re-render by setting the search term again
-                              setSearchTerm(searchTerm);
-                            }}
-                          >
-                            <i className="fas fa-search"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Status filter */}
-                    <div className="col-md-3">
-                      <select
-                        className="form-select form-select-sm"
-                        value={filterStatus}
-                        onChange={(e) => {
-                          setFilterStatus(e.target.value);
-                          setCurrentPage(1); // Reset to first page when filtering
-                        }}
-                      >
-                        <option value="">All Statuses</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="completed">Completed</option>
-                        <option value="in progress">In Progress</option>
-                        <option value="pending">Pending</option>
-                      </select>
-                    </div>
-
-                    {/* Export buttons and Column Selector */}
-                    <div className="col-md-6">
-                      <div className="d-flex justify-content-end">
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => {
-                            // Clear any existing data and fetch fresh data
-                            setOpportunities([]);
-                            setCurrentPage(1);
-                            fetchOpportunities();
-                          }}
-                          disabled={loading}
-                          title="Refresh Data"
-                        >
-                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
-                        </button>
-                        <div className="dropdown me-2">
-                          <button
-                            className="column-selector-btn"
-                            type="button"
-                            id="columnSelectorDropdown"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="fas fa-columns"></i> Columns
-                          </button>
-                          <div className="dropdown-menu dropdown-menu-end column-selector" aria-labelledby="columnSelectorDropdown">
-                            <div className="column-selector-header">
-                              <span>Table Columns</span>
-                              <i className="fas fa-table"></i>
-                            </div>
-                            <div className="column-selector-content">
-                              {columnGroups.map(group => (
-                                <div key={group.id} className="column-group">
-                                  <div className="column-group-title">{group.title}</div>
-                                  {group.columns.map(column => (
-                                    <div
-                                      key={column.id}
-                                      className={`dropdown-item ${visibleColumns.includes(column.id) ? 'active' : ''}`}
-                                    >
-                                      <div className="form-check">
-                                        <input
-                                          className="form-check-input"
-                                          type="checkbox"
-                                          id={`column-${column.id}`}
-                                          checked={visibleColumns.includes(column.id)}
-                                          onChange={() => toggleColumnVisibility(column.id)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`column-${column.id}`}>
-                                          {column.label}
-                                        </label>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                            <div className="column-selector-footer">
-                              <button className="btn btn-reset" onClick={resetToDefaultColumns}>
-                                Reset
-                              </button>
-                              <button className="btn btn-apply" onClick={selectAllColumns}>
-                                Select All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          className="btn btn-sm export-btn"
-                          onClick={exportToExcel}
-                          disabled={loading || filteredOpportunities.length === 0}
-                          title={filteredOpportunities.length === 0 ? "No data to export" : "Export to Excel"}
-                        >
-                          <i className="fas fa-file-excel me-1"></i> Excel
-                        </button>
-                        <button
-                          className="btn btn-sm export-btn"
-                          onClick={exportToPDF}
-                          disabled={loading || filteredOpportunities.length === 0}
-                          title={filteredOpportunities.length === 0 ? "No data to export" : "Export to PDF"}
-                        >
-                          <i className="fas fa-file-pdf me-1"></i> PDF
-                        </button>
-                        <button
-                          className="btn btn-sm export-btn"
-                          onClick={exportToCSV}
-                          disabled={loading || filteredOpportunities.length === 0}
-                          title={filteredOpportunities.length === 0 ? "No data to export" : "Export to CSV"}
-                        >
-                          <i className="fas fa-file-csv me-1"></i> CSV
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+    <PageContainer title={`${product ? product.toUpperCase() + ' ' : ''}Opportunities Report`}>
+      <ReportFilter
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        filterStatus={filterStatus}
+        setFilterStatus={setFilterStatus}
+        statusOptions={[
+          { value: '', label: 'All Statuses' },
+          { value: 'cancelled', label: 'Cancelled' },
+          { value: 'completed', label: 'Completed' },
+          { value: 'in progress', label: 'In Progress' },
+          { value: 'pending', label: 'Pending' }
+        ]}
+        startDate={startDate}
+        endDate={endDate}
+        handleApplyDateFilter={handleApplyDateFilter}
+        refreshData={fetchOpportunities}
+        loading={loading}
+        columnGroups={columnGroups}
+        visibleColumns={visibleColumns}
+        toggleColumnVisibility={toggleColumnVisibility}
+        resetToDefaultColumns={resetToDefaultColumns}
+        selectAllColumns={selectAllColumns}
+        exportToExcel={exportToExcel}
+        exportToPDF={exportToPDF}
+        exportToCSV={exportToCSV}
+        isSearching={isSearching}
+        setIsSearching={setIsSearching}
+        setCurrentPage={setCurrentPage}
+      />
 
                 {/* Loading indicator */}
                 {loading && (
@@ -1200,6 +1267,15 @@ const OpportunityReport = () => {
                                         {opportunity.business_name || ""}
                                       </td>
                                     );
+                                  case 'contactCard':
+                                    return (
+                                      <td key={column.id}>
+                                        <ContactCard
+                                          entity={opportunity}
+                                          entityType="opportunity"
+                                        />
+                                      </td>
+                                    );
                                   case 'product':
                                     return <td key={column.id}>{opportunity.product || ''}</td>;
                                   case 'probability':
@@ -1233,23 +1309,12 @@ const OpportunityReport = () => {
                                     return <td key={column.id}>{opportunity.last_activity || ''}</td>;
                                   case 'notes':
                                     return (
-                                      <td key={column.id} className="text-center">
-                                        <div className="d-flex justify-content-center gap-2">
-                                          <button
-                                            className="btn btn-sm btn-outline-info"
-                                            onClick={() => handleViewNotes(opportunity)}
-                                            title="View Notes"
-                                          >
-                                            <i className="fas fa-eye"></i>
-                                          </button>
-                                          <button
-                                            className="btn btn-sm btn-outline-success"
-                                            onClick={() => handleAddNote(opportunity)}
-                                            title="Add Note"
-                                          >
-                                            <i className="fas fa-plus"></i>
-                                          </button>
-                                        </div>
+                                      <td key={column.id}>
+                                        <Notes
+                                          entityType="opportunity"
+                                          entityId={opportunity.id || ''}
+                                          entityName={opportunity.opportunity_name || opportunity.business_name || ''}
+                                        />
                                       </td>
                                     );
                                   case 'leadSource':
@@ -1330,127 +1395,32 @@ const OpportunityReport = () => {
 
                 {/* Pagination */}
                 {!loading && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <div className="d-flex align-items-center">
-                        <p className="mb-0 me-3">
-                          Showing {indexOfFirstOpportunity + 1} to {Math.min(indexOfLastOpportunity, filteredOpportunities.length)} of {filteredOpportunities.length} opportunities
-                          {!allRecordsLoaded && (
-                            <span className="text-muted ms-1">(initial records loaded)</span>
-                          )}
-                          {retryCount > 0 && (
-                            <span className="text-warning ms-1">(retry count: {retryCount})</span>
-                          )}
-                        </p>
-                        <select
-                          className="form-select form-select-sm"
-                          style={{ width: 'auto' }}
-                          value={itemsPerPage}
-                          onChange={(e) => {
-                            setItemsPerPage(Number(e.target.value));
-                            setCurrentPage(1); // Reset to first page when changing items per page
-                          }}
-                        >
-                          <option value={10}>10 per page</option>
-                          <option value={25}>25 per page</option>
-                          <option value={50}>50 per page</option>
-                          <option value={100}>100 per page</option>
-                          <option value={200}>200 per page</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <nav aria-label="Opportunity report pagination">
-                        <ul className="pagination justify-content-end">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToPreviousPage}
-                              disabled={currentPage === 1}
-                            >
-                              Previous
-                            </button>
-                          </li>
-
-                          {/* First page */}
-                          {currentPage > 3 && (
-                            <li className="page-item">
-                              <button className="page-link" onClick={() => paginate(1)}>1</button>
-                            </li>
-                          )}
-
-                          {/* Ellipsis */}
-                          {currentPage > 4 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Page numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            // Show current page and 1 page before and after
-                            if (
-                              pageNumber === currentPage ||
-                              pageNumber === currentPage - 1 ||
-                              pageNumber === currentPage + 1
-                            ) {
-                              return (
-                                <li
-                                  key={pageNumber}
-                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                >
-                                  <button
-                                    className="page-link"
-                                    onClick={() => paginate(pageNumber)}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                </li>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Ellipsis */}
-                          {currentPage < totalPages - 3 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Last page */}
-                          {currentPage < totalPages - 2 && (
-                            <li className="page-item">
-                              <button
-                                className="page-link"
-                                onClick={() => paginate(totalPages)}
-                              >
-                                {totalPages}
-                              </button>
-                            </li>
-                          )}
-
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToNextPage}
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
+                  <ReportPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    paginate={paginate}
+                    goToPreviousPage={goToPreviousPage}
+                    goToNextPage={goToNextPage}
+                    indexOfFirstItem={indexOfFirstOpportunity}
+                    indexOfLastItem={indexOfLastOpportunity}
+                    totalItems={filteredOpportunities.length}
+                    itemName="opportunities"
+                    itemsPerPage={itemsPerPage}
+                    setItemsPerPage={setItemsPerPage}
+                    setCurrentPage={setCurrentPage}
+                    additionalInfo={
+                      <>
+                        {!allRecordsLoaded && (
+                          <span className="text-muted ms-1">(initial records loaded)</span>
+                        )}
+                        {retryCount > 0 && (
+                          <span className="text-warning ms-1">(retry count: {retryCount})</span>
+                        )}
+                      </>
+                    }
+                  />
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

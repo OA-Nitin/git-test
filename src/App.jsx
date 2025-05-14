@@ -46,12 +46,9 @@ import ManageFinanceReport from "./components/ManageFinanceReport";
 
 // Opportunities components
 import OpportunityReport from "./components/OpportunityReport";
-import ERCOpportunities from "./components/ERCOpportunities";
-import STCOpportunities from "./components/STCOpportunities";
-import TaxAmendmentOpportunities from "./components/TaxAmendmentOpportunities";
-import AuditAdvisoryOpportunities from "./components/AuditAdvisoryOpportunities";
-import RDCOpportunities from "./components/RDCOpportunities";
-import PartnershipOpportunities from "./components/PartnershipOpportunities";
+// Temporarily commented out unused imports
+// import ERCOpportunities from "./components/ERCOpportunities";
+// import AuditAdvisoryOpportunities from "./components/AuditAdvisoryOpportunities";
 
 // Example components
 import NotesExample from "./components/common/NotesExample";
@@ -101,12 +98,91 @@ const App = () => {
           }
         />
 
+        {/* Generic Lead Report Route */}
         <Route
           path="/reports/leads/:product"
           element={
             <ProtectedRoute>
               <Layout>
                 <LeadReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Specific Lead Report Routes */}
+        <Route
+          path="/reports/erc-lead-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LeadReport product="erc" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/stc-lead-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LeadReport product="stc" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/tax-amendment-lead-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LeadReport product="tax-amendment" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/audit-advisory-lead-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LeadReport product="audit-advisory" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/rdc-lead-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LeadReport product="rdc" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/partnership-lead-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <LeadReport product="partnership" />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports/advanced-reports"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Dashboard />
               </Layout>
             </ProtectedRoute>
           }
@@ -323,7 +399,8 @@ const App = () => {
         />
 
         {/* Opportunities Routes */}
-        <Route path="/opportunities/report" element={
+        {/* Generic Opportunity Report Route with product parameter */}
+        <Route path="/reports/opportunities/:product" element={
           <ProtectedRoute>
             <Layout>
               <OpportunityReport />
@@ -331,58 +408,11 @@ const App = () => {
           </ProtectedRoute>
         } />
 
-        <Route path="/opportunities/erc" element={
+        {/* All Opportunities Report */}
+        <Route path="/reports/opportunities/all" element={
           <ProtectedRoute>
             <Layout>
-              <ERCOpportunities />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities/stc" element={
-          <ProtectedRoute>
-            <Layout>
-              <STCOpportunities />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities/tax-amendment" element={
-          <ProtectedRoute>
-            <Layout>
-              <TaxAmendmentOpportunities />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities/audit-advisory" element={
-          <ProtectedRoute>
-            <Layout>
-              <AuditAdvisoryOpportunities />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities/rdc" element={
-          <ProtectedRoute>
-            <Layout>
-              <RDCOpportunities />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities/partnership" element={
-          <ProtectedRoute>
-            <Layout>
-              <PartnershipOpportunities />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/opportunities/milestone-stages" element={
-          <ProtectedRoute>
-            <Layout>
-              <Dashboard />
+              <OpportunityReport />
             </Layout>
           </ProtectedRoute>
         } />
