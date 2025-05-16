@@ -1,5 +1,36 @@
 /* Lead Detail Styles */
 
+/* Business Information Styles */
+.business_info_title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.business_info_container {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.info_item {
+  margin-bottom: 20px;
+}
+
+.info_label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.info_value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #212529;
+}
+
 .white_card_header {
   background-color: #0d6efd;
   color: white;

@@ -32,6 +32,7 @@ import LeadDetail from "./components/LeadDetail";
 
 // Project components
 import AllProjectsReport from "./components/AllProjectsReport";
+import ProjectDetail from "./components/ProjectDetail";
 
 // Finance components
 //import ManageInvoice from "./components/ManageInvoice";
@@ -296,6 +297,18 @@ const App = () => {
             <ProtectedRoute>
               <Layout>
                 <LeadDetail />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Project Detail Page */}
+        <Route
+          path="/project-detail/:projectId"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProjectDetail />
               </Layout>
             </ProtectedRoute>
           }

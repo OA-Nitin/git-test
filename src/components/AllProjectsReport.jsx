@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -762,11 +762,31 @@ const AllProjectsReport = () => {
                       // Render different cell types based on column id
                       switch (column.id) {
                         case 'projectId':
-                          return <td key={column.id}>{project.project_id || ''}</td>;
+                          return (
+                            <td key={column.id}>
+                              <Link
+                                to={`/project-detail/${project.project_id}`}
+                                state={{ projectData: project }}
+                                className="lead-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {project.project_id || ''}
+                              </Link>
+                            </td>
+                          );
                         case 'businessName':
                           return (
                             <td key={column.id}>
-                              {project.business_legal_name || ''}
+                              <Link
+                                to={`/project-detail/${project.project_id}`}
+                                state={{ projectData: project }}
+                                className="lead-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {project.business_legal_name || ''}
+                              </Link>
                             </td>
                           );
                         case 'contactCard':
