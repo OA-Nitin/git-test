@@ -1,0 +1,853 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import './EditContactModal.css';
+
+const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
+  const [contactReferrals, setContactReferrals] = useState([]);
+  const [leadId, setLeadId] = useState('');
+  const [formData, setFormData] = useState({
+    first_name: '',
+    middle_name: '',
+    last_name: '',
+    name_alias: '',
+    title: '',
+    birthdate: '',
+    department: '',
+    report_to_id: '',
+    dnd: 'No',
+    contact_type: 'primary',
+    contact_referral: '',
+    referral_type: '',
+    phone: '',
+    phone_type: 'Office',
+    secondary_phone: '',
+    secondary_phone_type: 'Mobile',
+    email: '',
+    secondary_email: '',
+    primary_address_street: '',
+    house_no: '',
+    primary_address_city: '',
+    primary_address_state: '',
+    primary_address_postalcode: '',
+    primary_address_country: '',
+    selected_businesses: [] // Array to store selected businesses
+  });
+
+  // State to store business options from the API
+  const [businessOptions, setBusinessOptions] = useState([]);
+
+  // Extract lead ID from URL or use the prop (for future reference)
+  useEffect(() => {
+    if (propLeadId) {
+      setLeadId(propLeadId);
+    } else {
+      const pathParts = window.location.pathname.split('/');
+      const id = pathParts[pathParts.length - 1];
+      if (id && !isNaN(id)) {
+        setLeadId(id);
+      }
+    }
+  }, [propLeadId]);
+
+  // Fetch contact data when the modal opens
+  useEffect(() => {
+    if (isOpen && contactId) {
+      fetchContactData();
+    }
+  }, [isOpen, contactId]);
+
+  // Fetch default contact referrals when the component mounts
+  useEffect(() => {
+    if (isOpen) {
+      // Default to affiliate_referral on initial load
+      fetchContactReferrals('affiliate_referral');
+    }
+  }, [isOpen]);
+
+  // Fetch contact data from API
+  const fetchContactData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Use the specified API endpoint for contact data
+      console.log('Fetching contact data with leadId:', leadId, 'and contactId:', contactId);
+
+      // Make a POST request to fetch contact details
+      const response = await axios.post(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-contacts`, {
+        lead_id: leadId,
+        contact_id: contactId
+      });
+
+      console.log('Contact API response:', response.data);
+
+      if (response.data) {
+        // Log the entire response structure to understand its format
+        console.log('Full API response structure:', JSON.stringify(response.data, null, 2));
+
+        // Extract contact data from the response
+        // The structure might be different from what we expect, so we need to handle it properly
+        let contactData = null;
+
+        // Check if the response matches the expected format:
+        // {
+        //   "status": 200,
+        //   "message": "Contact detail fetch successfully.",
+        //   "data": { ... contact details ... }
+        // }
+        if (response.data.status === 200 && response.data.data) {
+          contactData = response.data.data;
+        }
+        // Check if the response is an array
+        else if (Array.isArray(response.data)) {
+          // If the response is an array of contacts, find the one with matching contact_id
+          contactData = response.data.find(
+            contact => contact.contact_id === contactId || contact.contact_id === parseInt(contactId)
+          );
+        }
+        // Check if the response has a contacts array
+        else if (response.data.contacts && Array.isArray(response.data.contacts)) {
+          // If the response contains an array of contacts, find the one with matching contact_id
+          contactData = response.data.contacts.find(
+            contact => contact.contact_id === contactId || contact.contact_id === parseInt(contactId)
+          );
+        }
+        // If the response is a single contact object
+        else if (response.data.contact_id) {
+          contactData = response.data;
+        }
+
+        // If no contact data was found
+        if (!contactData) {
+          setError(`Contact with ID ${contactId} not found in the response.`);
+          return;
+        }
+
+        console.log('Extracted contact data:', contactData);
+
+        // Extract business information from the response
+        let businessInfo = [];
+        let selectedBusinesses = [];
+
+        if (contactData.business_info && Array.isArray(contactData.business_info)) {
+          businessInfo = contactData.business_info;
+
+          // Set the business options for the dropdown
+          setBusinessOptions(businessInfo.map(business => ({
+            value: business.lead_id,
+            label: business.business_legal_name
+          })));
+
+          // Set the selected businesses based on report_to_id
+          if (contactData.report_to_id) {
+            // Find the business with matching lead_id
+            const selectedBusiness = businessInfo.find(
+              business => business.lead_id === contactData.report_to_id
+            );
+
+            if (selectedBusiness) {
+              selectedBusinesses = [selectedBusiness.lead_id];
+            }
+          }
+        }
+
+        console.log('Business info:', businessInfo);
+        console.log('Selected businesses:', selectedBusinesses);
+
+        // Set form data with values from API response
+        setFormData({
+          first_name: contactData.first_name || '',
+          middle_name: contactData.middle_name || '',
+          last_name: contactData.last_name || '',
+          name_alias: contactData.name_alias || '',
+          title: contactData.title || '',
+          birthdate: contactData.birthdate || '',
+          department: contactData.department || '',
+          report_to_id: contactData.report_to_id || '', // Keep report_to_id for reference
+          dnd: contactData.dnd === '1' ? 'Yes' : 'No',
+          contact_type: contactData.contact_type || 'primary',
+          contact_referral: contactData.contact_referral || '',
+          referral_type: contactData.referral_type || '',
+          phone: contactData.phone || '',
+          phone_type: contactData.phone_type || 'Office',
+          phone_ext: contactData.ph_extension || '', // Map ph_extension to phone_ext
+          secondary_phone: contactData.secondary_phone || '',
+          secondary_phone_type: contactData.secondary_phone_type || 'Mobile',
+          email: contactData.email || '',
+          secondary_email: contactData.secondary_email || '',
+          primary_address_street: contactData.primary_address_street || '',
+          house_no: contactData.house_no || '',
+          primary_address_city: contactData.primary_address_city || '',
+          primary_address_state: contactData.primary_address_state || '',
+          primary_address_postalcode: contactData.primary_address_postalcode || '',
+          primary_address_country: contactData.primary_address_country || '',
+          job_title: contactData.title || '', // Job title field
+          selected_businesses: selectedBusinesses // Store selected businesses
+        });
+
+        // Fetch contact referrals based on referral type
+        if (contactData.referral_type) {
+          console.log('Referral type from API:', contactData.referral_type);
+
+          // Map referral type value to the correct type parameter
+          let referralTypeParam = '';
+
+          if (contactData.referral_type === '1') {
+            referralTypeParam = 'internal_user';
+          } else if (contactData.referral_type === '2') {
+            referralTypeParam = 'affiliate_referral';
+          }
+
+          if (referralTypeParam) {
+            console.log('Fetching contact referrals for type:', referralTypeParam);
+            fetchContactReferrals(referralTypeParam);
+          }
+        } else {
+          // Default to affiliate_referral if no referral type is specified
+          console.log('No referral type specified, using default: affiliate_referral');
+          fetchContactReferrals('affiliate_referral');
+        }
+      } else {
+        setError('Failed to load contact data. Invalid response format.');
+      }
+    } catch (err) {
+      console.error('Error fetching contact data:', err);
+      setError('Failed to load contact data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Referral types are now hardcoded in the dropdown
+
+  // Fetch contact referrals based on referral type
+  const fetchContactReferrals = async (type) => {
+    try {
+      console.log(`Fetching contact referrals for type: ${type}`);
+
+      // Use the API endpoint with type parameter
+      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`);
+
+      console.log('Contact referrals API response:', response.data);
+
+      if (response.data) {
+        // Process the response data
+        let referrals = [];
+
+        // Handle different response formats
+        if (Array.isArray(response.data)) {
+          referrals = response.data;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          referrals = response.data.data;
+        } else if (typeof response.data === 'object') {
+          // If it's an object with key-value pairs, convert to array
+          referrals = Object.keys(response.data).map(key => ({
+            id: key,
+            name: response.data[key]
+          }));
+        }
+
+        console.log('Processed contact referrals:', referrals);
+
+        // Set the contact referrals
+        setContactReferrals(referrals);
+
+        // Auto-select the first value if available
+        if (referrals.length > 0) {
+          const firstReferral = referrals[0];
+          // Prioritize user_id for the value
+          const firstReferralUserId = firstReferral.user_id || firstReferral.id || '';
+
+          // Only set if we have a valid user ID
+          if (firstReferralUserId) {
+            setFormData(prevData => ({
+              ...prevData,
+              contact_referral: firstReferralUserId
+            }));
+
+            console.log('Auto-selected first referral with userId:', firstReferralUserId);
+          } else {
+            console.warn('First referral has no valid user ID:', firstReferral);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching contact referrals:', err);
+    }
+  };
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Add debug logging for contact referral changes
+    if (name === 'contact_referral') {
+      console.log('Contact referral changed to:', value);
+
+      // Force update for contact_referral
+      const newFormData = {
+        ...formData,
+        contact_referral: value
+      };
+
+      console.log('Updated form data:', newFormData);
+      setFormData(newFormData);
+    } else {
+      // Handle other fields normally
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+  };
+
+  // Handle referral type change
+  const handleReferralTypeChange = (e) => {
+    const value = e.target.value;
+    console.log('Selected referral type:', value);
+
+    setFormData({
+      ...formData,
+      referral_type: value,
+      contact_referral: '' // Reset contact referral when type changes
+    });
+
+    // Map dropdown values to API parameters
+    let referralTypeParam = '';
+
+    if (value === '1') {
+      referralTypeParam = 'internal_user';
+    } else if (value === '2') {
+      referralTypeParam = 'affiliate_referral';
+    }
+
+    if (referralTypeParam) {
+      console.log('Fetching contact referrals for type:', referralTypeParam);
+      fetchContactReferrals(referralTypeParam);
+    } else {
+      setContactReferrals([]);
+    }
+  };
+
+  // Handle business selection change
+  const handleBusinessChange = (e) => {
+    const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+
+    console.log('Selected business values:', selectedValues);
+
+    setFormData({
+      ...formData,
+      selected_businesses: selectedValues
+    });
+  };
+
+  // Handle contact referral change specifically
+  const handleContactReferralChange = (e) => {
+    const value = e.target.value;
+    console.log('Contact referral changed to (specific handler):', value);
+
+    // Update the form data with the new contact referral value
+    setFormData(prevData => ({
+      ...prevData,
+      contact_referral: value
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setUpdateSuccess(false);
+      setUpdateError(null);
+
+      // Convert DND from Yes/No to 1/0
+      // Log the form data before submission
+      console.log('Form data before submission:', formData);
+
+      const submitData = {
+        ...formData,
+        dnd: formData.dnd === 'Yes' ? '1' : '0',
+        contact_id: contactId,
+        // Use the first selected business as the report_to_id
+        report_to_id: formData.selected_businesses && formData.selected_businesses.length > 0
+          ? formData.selected_businesses[0]
+          : formData.report_to_id,
+        // Include all selected businesses
+        selected_businesses: formData.selected_businesses,
+        // Ensure contact_referral is included
+        contact_referral: formData.contact_referral
+      };
+
+      console.log('Submitting contact data:', submitData);
+
+      const response = await axios.put(
+        `https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
+        submitData
+      );
+
+      console.log('Update response:', response.data);
+
+      if (response.data && response.data.success) {
+        setUpdateSuccess(true);
+        setTimeout(() => {
+          onClose();
+        }, 2000);
+      } else {
+        setUpdateError('Failed to update contact. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error updating contact:', err);
+      setUpdateError('An error occurred while updating the contact. Please try again.');
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="contact-modal-header">
+          <h3>{contactId ? `${formData.first_name} ${formData.last_name}` : 'Contact'}</h3>
+        </div>
+        <button
+          className="close-button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
+          aria-label="Close"
+        >
+          &times;
+        </button>
+
+        <div className="contact-modal-body">
+          {loading ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Loading contact data...</p>
+            </div>
+          ) : error ? (
+            <div className="error-message">
+              <p>{error}</p>
+              <button className="btn btn-primary" onClick={fetchContactData}>Retry</button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              {/* Professional Info Section */}
+              <div className="form-section">
+                <h4>Professional Info</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="first_name">First Name:*</label>
+                    <div className="input-group">
+                      <select
+                        className="form-select title-select"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                      >
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Ms">Ms</option>
+                        <option value="Dr">Dr</option>
+                      </select>
+                      <input
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        className="form-control"
+                        value={formData.first_name}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="middle_name">Middle Name:</label>
+                    <input
+                      type="text"
+                      id="middle_name"
+                      name="middle_name"
+                      className="form-control"
+                      value={formData.middle_name}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="last_name">Last Name:*</label>
+                    <input
+                      type="text"
+                      id="last_name"
+                      name="last_name"
+                      className="form-control"
+                      value={formData.last_name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="name_alias">Alias:</label>
+                    <input
+                      type="text"
+                      id="name_alias"
+                      name="name_alias"
+                      className="form-control"
+                      value={formData.name_alias}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="business_name">Business Name:*</label>
+                    <select
+                      id="business_name"
+                      name="selected_businesses"
+                      className="form-select"
+                      value={formData.selected_businesses}
+                      onChange={handleBusinessChange}
+                      multiple
+                      required
+                      disabled={true} // Disable the field
+                      style={{ height: '100px' }} // Make the dropdown taller for multiple selections
+                    >
+                      {businessOptions.map(business => (
+                        <option key={business.value} value={business.value}>
+                          {business.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="job_title">Job Title:</label>
+                    <input
+                      type="text"
+                      id="job_title"
+                      name="job_title"
+                      className="form-control"
+                      value={formData.job_title}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Personal Info Section */}
+              <div className="form-section">
+                <h4>Personal Info</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="birthdate">Birth Date:</label>
+                    <input
+                      type="date"
+                      id="birthdate"
+                      name="birthdate"
+                      className="form-control"
+                      value={formData.birthdate}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Info Section */}
+              <div className="form-section">
+                <h4>Contact Info</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="email">Primary Email:*</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      className="form-control"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="phone">Primary Phone:*</label>
+                    <div className="input-group">
+                      <span className="input-group-text">+1</span>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        className="form-control"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group small-group">
+                    <label htmlFor="phone_ext">Ext.</label>
+                    <input
+                      type="text"
+                      id="phone_ext"
+                      name="phone_ext"
+                      className="form-control"
+                      value={formData.phone_ext}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="phone_type">Primary Phone Type:</label>
+                    <select
+                      id="phone_type"
+                      name="phone_type"
+                      className="form-select"
+                      value={formData.phone_type}
+                      onChange={handleInputChange}
+                    >
+                      <option value="Office">Office</option>
+                      <option value="Mobile">Mobile</option>
+                      <option value="Home">Home</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="secondary_email">Secondary Email:</label>
+                    <input
+                      type="email"
+                      id="secondary_email"
+                      name="secondary_email"
+                      className="form-control"
+                      value={formData.secondary_email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="secondary_phone">Secondary Phone:</label>
+                    <div className="input-group">
+                      <span className="input-group-text">+1</span>
+                      <input
+                        type="tel"
+                        id="secondary_phone"
+                        name="secondary_phone"
+                        className="form-control"
+                        value={formData.secondary_phone}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="secondary_phone_type">Secondary Phone Type:</label>
+                    <select
+                      id="secondary_phone_type"
+                      name="secondary_phone_type"
+                      className="form-select"
+                      value={formData.secondary_phone_type}
+                      onChange={handleInputChange}
+                    >
+                      <option value="Mobile">Mobile</option>
+                      <option value="Office">Office</option>
+                      <option value="Home">Home</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mailing Info Section */}
+              <div className="form-section">
+                <h4>Mailing Info</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="primary_address_postalcode">Zip Code:</label>
+                    <input
+                      type="text"
+                      id="primary_address_postalcode"
+                      name="primary_address_postalcode"
+                      className="form-control"
+                      value={formData.primary_address_postalcode}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="primary_address_city">City:</label>
+                    <input
+                      type="text"
+                      id="primary_address_city"
+                      name="primary_address_city"
+                      className="form-control"
+                      value={formData.primary_address_city}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="primary_address_state">State:</label>
+                    <input
+                      type="text"
+                      id="primary_address_state"
+                      name="primary_address_state"
+                      className="form-control"
+                      value={formData.primary_address_state}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="primary_address_country">Country:</label>
+                    <input
+                      type="text"
+                      id="primary_address_country"
+                      name="primary_address_country"
+                      className="form-control"
+                      value={formData.primary_address_country}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="primary_address_street">Street Address:</label>
+                    <input
+                      type="text"
+                      id="primary_address_street"
+                      name="primary_address_street"
+                      className="form-control"
+                      value={formData.primary_address_street}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="house_no">Apt/Suite/House:</label>
+                    <input
+                      type="text"
+                      id="house_no"
+                      name="house_no"
+                      className="form-control"
+                      value={formData.house_no}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Preferences Section */}
+              <div className="form-section">
+                <h4>Contact Preferences</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="dnd">DND:*</label>
+                    <select
+                      id="dnd"
+                      name="dnd"
+                      className="form-select"
+                      value={formData.dnd}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="No">No</option>
+                      <option value="Yes">Yes</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact_type">Contact Type - Business:*</label>
+                    <select
+                      id="contact_type"
+                      name="contact_type"
+                      className="form-select"
+                      value={formData.contact_type}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="primary">Primary</option>
+                      <option value="secondary">Secondary</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Referral Info Section */}
+              <div className="form-section">
+                <h4>Referral Info</h4>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="referral_type">Referral Type:*</label>
+                    <select
+                      id="referral_type"
+                      name="referral_type"
+                      className="form-select"
+                      value={formData.referral_type}
+                      onChange={handleReferralTypeChange}
+                      required
+                    >
+                      <option value="">Select Referral Type</option>
+                      <option value="1">Internal Users</option>
+                      <option value="2">Affiliate Referral</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="contact_referral">Contact Referral:*</label>
+                    {console.log('Current contact_referral value:', formData.contact_referral)}
+                    <select
+                      id="contact_referral"
+                      name="contact_referral"
+                      className="form-select"
+                      value={formData.contact_referral || ''}
+                      onChange={handleContactReferralChange}
+                      required
+                    >
+                      <option key="default" value="">Select Contact Referral</option>
+                      {contactReferrals.length > 0 ? (
+                        contactReferrals.map((referral, index) => {
+                          // Extract user_id specifically for the value attribute
+                          const userId = referral.user_id || referral.userid || '';
+
+                          // Extract name for display
+                          const name = referral.name || referral.label || referral.full_name || '';
+
+                          // Generate a unique key using index as fallback if userId is empty
+                          const uniqueKey = userId ? `referral-${userId}` : `referral-index-${index}`;
+
+                          console.log(`Rendering option: key=${uniqueKey}, userId=${userId}, name=${name}`);
+
+                          return (
+                            <option key={uniqueKey} value={userId}>
+                              {name}
+                            </option>
+                          );
+                        })
+                      ) : (
+                        <option key="no-referrals" value="" disabled>No referrals available</option>
+                      )}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Update Button */}
+              <div className="form-actions">
+                {updateError && (
+                  <div className="alert alert-danger">{updateError}</div>
+                )}
+                {updateSuccess && (
+                  <div className="alert alert-success">Contact updated successfully!</div>
+                )}
+                <button
+                  type="submit"
+                  className="btn btn-update"
+                  disabled={loading}
+                >
+                  {loading ? 'Updating...' : 'Update'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EditContactModal;
