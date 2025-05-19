@@ -49,10 +49,14 @@ const ProjectDetail = () => {
   });
 
   // Project group, campaign, source, and stage state
-  const [projectGroup, setProjectGroup] = useState(null);
+  const [owner, setOwner] = useState(null);
   const [projectCampaign, setProjectCampaign] = useState(null);
   const [projectSource, setProjectSource] = useState(null);
-  const [projectStage, setProjectStage] = useState(null);
+  const [projectStage, setProjectStage] = useState({ value: 'client-declarations-signed', label: 'Client Declarations Signed' });
+
+  // Milestone and Stage edit state
+  const [milestone, setMilestone] = useState({ value: 'erc-fulfillment', label: 'ERC Fulfillment' });
+  const [isEditing, setIsEditing] = useState(false);
 
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -260,7 +264,12 @@ const ProjectDetail = () => {
 
   // Functions for project group, campaign, and source
   const handleProjectGroupChange = (selectedOption) => {
-    setProjectGroup(selectedOption);
+    // This function is kept for compatibility with other parts of the code
+    console.log("Project group changed:", selectedOption);
+  };
+
+  const handleOwnerChange = (selectedOption) => {
+    setOwner(selectedOption);
   };
 
   const handleProjectCampaignChange = (selectedOption) => {
@@ -273,6 +282,22 @@ const ProjectDetail = () => {
 
   const handleProjectStageChange = (selectedOption) => {
     setProjectStage(selectedOption);
+  };
+
+  // Function to handle milestone change
+  const handleMilestoneChange = (selectedOption) => {
+    setMilestone(selectedOption);
+
+    // Update stage based on milestone selection
+    if (selectedOption.value === 'erc-fulfillment') {
+      setProjectStage({ value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Partially Acknowledged' });
+    } else if (selectedOption.value === 'erc-enrollment') {
+      setProjectStage({ value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' });
+    } else if (selectedOption.value === 'erc-cancelled') {
+      setProjectStage({ value: 'computation-complete', label: 'Computation Complete' });
+    } else if (selectedOption.value === 'erc-lead-lost') {
+      setProjectStage({ value: 'fpso-interview-pending', label: 'FPSO Interview Pending' });
+    }
   };
 
   // Function to toggle edit mode
@@ -3745,83 +3770,144 @@ const ProjectDetail = () => {
 
                   <div className="card mb-4">
                     <div className="card-body">
-                      <h5 className="card-title">Milestone:</h5>
-                      <div className="form-group mb-4">
-                        <Select
-                          value={projectGroup}
-                          onChange={handleProjectGroupChange}
-                          options={[
-                            { value: 'erc-cancelled', label: 'ERC Cancelled' },
-                            { value: 'erc-fulfillment', label: 'ERC - Fulfillment' },
-                            { value: 'erc-enrollment', label: 'ERC - Enrollment' },
-                            { value: 'erc-lead-lost', label: 'ERC - Lead Lost' }
-                          ]}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            })
-                          }}
-                        />
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="card-title mb-0">Milestone:</h5>
+                        {!isEditing && (
+                          <button
+                            className="btn btn-sm btn-link p-0"
+                            onClick={() => setIsEditing(true)}
+                            style={{ fontSize: '16px' }}
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                        )}
                       </div>
 
-                      <h5 className="card-title">Stage:</h5>
-                      <div className="form-group">
-                        <Select
-                          value={projectStage}
-                          onChange={handleProjectStageChange}
-                          options={[
-                            { value: 'client-declarations-signed', label: 'Client Declarations Signed' },
-                            { value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' },
-                            { value: 'pre-fpso-interview-scheduled', label: 'Pre FPSO Interview Scheduled' },
-                            { value: 'pre-fpso-interview-completed', label: 'Pre FPSO Interview Completed' },
-                            { value: 'fpso-interview-pending', label: 'FPSO Interview Pending' },
-                            { value: 'fpso-interview-scheduled', label: 'FPSO Interview Scheduled' },
-                            { value: 'fpso-opinion-sent', label: 'FPSO Opinion Sent' },
-                            { value: 'fpso-opinion-signed', label: 'FPSO Opinion Signed' },
-                            { value: 'fpso-interview-completed', label: 'FPSO Interview Completed' },
-                            { value: 'prepare-941x', label: 'Prepare 941x' },
-                            { value: 'send-941x', label: 'Send 941x' },
-                            { value: '941-x-sent', label: '941-X\'s Sent' },
-                            { value: 'client-signed-941xs-8821', label: 'Client Signed 941xs + 8821' },
-                            { value: 'erc-claim-filed-peo', label: 'ERC Claim Filed - PEO' },
-                            { value: 'irs-letter-of-overpay-received', label: 'IRS Letter Of Overpay Received' },
-                            { value: 'financier-review-done', label: 'Financier Review Done' },
-                            { value: 'erc-package-submitted', label: 'ERC Package Submitted' },
-                            { value: 'computation-complete', label: 'Computation Complete' },
-                            { value: 'send-declaration', label: 'Send Declaration' },
-                            { value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Fully Acknowledged' }
-                          ]}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            })
-                          }}
-                        />
+                      {!isEditing ? (
+                        <div className="milestone-display mb-4 d-flex align-items-center">
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{milestone.label}</span>
+                        </div>
+                      ) : (
+                        <div className="milestone-edit mb-4">
+                          <div className="form-group mb-3">
+                            <Select
+                              value={milestone}
+                              onChange={handleMilestoneChange}
+                              options={[
+                                { value: 'erc-cancelled', label: 'ERC Cancelled' },
+                                { value: 'erc-fulfillment', label: 'ERC Fulfillment' },
+                                { value: 'erc-enrollment', label: 'ERC Enrollment' },
+                                { value: 'erc-lead-lost', label: 'ERC - Lead Lost' }
+                              ]}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  borderRadius: '4px',
+                                  borderColor: '#ced4da',
+                                  boxShadow: 'none',
+                                  '&:hover': {
+                                    borderColor: '#adb5bd'
+                                  }
+                                })
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="card-title mb-0">Stage:</h5>
                       </div>
+
+                      {!isEditing ? (
+                        <div className="stage-display mb-4 d-flex align-items-center">
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{projectStage.label}</span>
+                        </div>
+                      ) : (
+                        <div className="stage-edit mb-4">
+                          <div className="form-group mb-3">
+                            <Select
+                              value={projectStage}
+                              onChange={handleProjectStageChange}
+                              options={[
+                                { value: 'client-declarations-signed', label: 'Client Declarations Signed' },
+                                { value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' },
+                                { value: 'pre-fpso-interview-scheduled', label: 'Pre FPSO Interview Scheduled' },
+                                { value: 'pre-fpso-interview-completed', label: 'Pre FPSO Interview Completed' },
+                                { value: 'fpso-interview-pending', label: 'FPSO Interview Pending' },
+                                { value: 'fpso-interview-scheduled', label: 'FPSO Interview Scheduled' },
+                                { value: 'fpso-opinion-sent', label: 'FPSO Opinion Sent' },
+                                { value: 'fpso-opinion-signed', label: 'FPSO Opinion Signed' },
+                                { value: 'fpso-interview-completed', label: 'FPSO Interview Completed' },
+                                { value: 'prepare-941x', label: 'Prepare 941x' },
+                                { value: 'send-941x', label: 'Send 941x' },
+                                { value: '941-x-sent', label: '941-X\'s Sent' },
+                                { value: 'client-signed-941xs-8821', label: 'Client Signed 941xs + 8821' },
+                                { value: 'erc-claim-filed-peo', label: 'ERC Claim Filed - PEO' },
+                                { value: 'irs-letter-of-overpay-received', label: 'IRS Letter Of Overpay Received' },
+                                { value: 'financier-review-done', label: 'Financier Review Done' },
+                                { value: 'erc-package-submitted', label: 'ERC Package Submitted' },
+                                { value: 'computation-complete', label: 'Computation Complete' },
+                                { value: 'send-declaration', label: 'Send Declaration' },
+                                { value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Partially Acknowledged' }
+                              ]}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  borderRadius: '4px',
+                                  borderColor: '#ced4da',
+                                  boxShadow: 'none',
+                                  '&:hover': {
+                                    borderColor: '#adb5bd'
+                                  }
+                                })
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Update/cancel buttons */}
+                      {isEditing && (
+                        <div className="d-flex justify-content-between mt-3">
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => setIsEditing(false)}
+                            style={{
+                              backgroundColor: 'white',
+                              color: '#ff6a00',
+                              border: '1px solid #ff6a00',
+                              borderRadius: '20px',
+                              padding: '5px 25px'
+                            }}
+                          >
+                            Update
+                          </button>
+                          <button
+                            className="btn btn-sm"
+                            onClick={() => setIsEditing(false)}
+                            style={{
+                              backgroundColor: 'white',
+                              color: '#ff6a00',
+                              border: '1px solid #ff6a00',
+                              borderRadius: '20px',
+                              padding: '5px 25px'
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="card mb-4">
                     <div className="card-body">
-                      <h5 className="card-title">Assigned Users:</h5>
+                      <h5 className="card-title">Assigned Collaborators::</h5>
 
                       {/* Display assigned users */}
                       <div className="assigned-users-list mb-4">
@@ -3891,11 +3977,11 @@ const ProjectDetail = () => {
 
                   <div className="card mb-4">
                     <div className="card-body">
-                      <h5 className="card-title">Project Group:</h5>
+                      <h5 className="card-title">Owner:</h5>
                       <div className="form-group mb-4">
                         <Select
-                          value={projectGroup}
-                          onChange={handleProjectGroupChange}
+                          value={owner}
+                          onChange={handleOwnerChange}
                           options={[
                             { value: 'erc-fprs', label: 'ERC - FPRS' },
                             { value: 'erc-referrals', label: 'ERC - Referrals' },
