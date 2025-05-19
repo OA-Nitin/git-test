@@ -962,68 +962,392 @@ const ProjectDetail = () => {
                   {/* Intake Tab Content */}
                   {activeTab === 'intake' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row custom_opp_create_btn">
-                        <a href="javascript:void(0)">
-                          <i className="fa-solid fa-plus"></i> New Contact
-                        </a>
-                        <a className="link_contact" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#link-contact" title="Link a contact">
-                          <i className="fa-solid fa-plus"></i> Link a Contact
-                        </a>
+                      <h5 className="section-title mt-4">ERC Basic Details</h5>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">W2 Employee Count</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="W2 Employee Count"
+                              defaultValue="23"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Initial Form Fee Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Initial Form Fee Amount"
+                              defaultValue="0"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">W2 EE Difference Count</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="W2 EE Difference Count"
+                              defaultValue="0"
+                            />
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="row contact_tab_data mt-4">
-                        <div className="col-md-6 col-sm-12 mb-4 contact-card">
-                          <div className="card-exam shadow">
-                            <div className="custom_opp_tab_header">
-                              <h5>
-                                <i className="fas fa-star"></i> Primary
-                              </h5>
-                              <div className="opp_edit_dlt_btn">
-                                <a className="edit_contact" href="javascript:void(0)" title="Edit" data-contact-id="6441">
-                                  <i className="fas fa-pen"></i>
-                                </a>
-                                <a className="delete_contact" href="javascript:void(0)" data-contact-id="6441" title="Disable">
-                                  <i className="fas fa-ban"></i>
-                                </a>
-                              </div>
-                            </div>
-                            <div className="d-flex w-100 mt-3 align-items-center">
-                              <div className="circle">{primaryContact.initials}</div>
-                              <div className="card-exam-title">
-                                <p><a href="javascript:void(0)" target="_blank">{primaryContact.name}</a></p>
-                                <p>{primaryContact.email}</p>
-                                <p>{primaryContact.phone}</p>
-                                <input type="hidden" name="hidden_contact_name" id="hidden_contact_name_6441" value={primaryContact.name} />
-                              </div>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Referrer Retainer Fee</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Referrer Retainer Fee"
+                              defaultValue="0.00"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Max ERC Amount"
+                              defaultValue="210,000.00"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Estimated Fees</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Estimated Fees"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Referral Fees</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Affiliate Referral Fees"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label"></label>
+                            <div className="form-check mt-2">
+                              <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id="sourCheck"
+                              />
+                              <label className="form-check-label" htmlFor="sourCheck">SOUR</label>
                             </div>
                           </div>
                         </div>
-
-                        <div className="col-md-6 col-sm-12 mb-4 contact-card">
-                          <div className="card-exam shadow">
-                            <div className="custom_opp_tab_header">
-                              <h5>
-                                <i className="fas fa-star"></i> Secondary
-                              </h5>
-                              <div className="opp_edit_dlt_btn">
-                                <a className="edit_contact" href="javascript:void(0)" title="Edit" data-contact-id="6380">
-                                  <i className="fas fa-pen"></i>
-                                </a>
-                                <a className="delete_contact" href="javascript:void(0)" data-contact-id="6380" title="Disable">
-                                  <i className="fas fa-ban"></i>
-                                </a>
-                              </div>
-                            </div>
-                            <div className="d-flex w-100 mt-3 align-items-center">
-                              <div className="circle">{secondaryContact.initials}</div>
-                              <div className="card-exam-title">
-                                <p><a href="javascript:void(0)" target="_blank">{secondaryContact.name}</a></p>
-                                <p>{secondaryContact.email}</p>
-                                <p>{secondaryContact.phone}</p>
-                                <input type="hidden" name="hidden_contact_name" id="hidden_contact_name_6380" value={secondaryContact.name} />
-                              </div>
-                            </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Average Employee Count in 2019</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="1-10">1-10</option>
+                              <option value="11-50">11-50</option>
+                              <option value="51-100">51-100</option>
+                              <option value="101+">101+</option>
+                            </select>
                           </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Fee Type</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Fixed">Fixed</option>
+                              <option value="Percentage">Percentage</option>
+                              <option value="Hybrid">Hybrid</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Custom Fee</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Custom Fee"
+                              defaultValue="250 Per EE Min $2,000 + Completion @15%"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Company Folder Link</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Company Folder Link"
+                              defaultValue="https://bit.ly/4qJePK"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Document Folder Link</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Document Folder Link"
+                              defaultValue="https://bit.ly/4qJhRmQ"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Eligible Quarters</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Eligible Quarters"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Welcome Email</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Welcome Email"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Invoice Initial Retainer</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice Initial Retainer"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Payment Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Payment Channel</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Retainer Payment Channel"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Payment Returned</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Payment Return Reason</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Ret Payment Return Reason"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Refund Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Refund Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Retainer Refund Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Payment Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Retainer Payment Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retainer Payment Type</label>
+                            <select className="form-select">
+                              <option value="ACH">ACH</option>
+                              <option value="Credit Card">Credit Card</option>
+                              <option value="Check">Check</option>
+                              <option value="Wire">Wire</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Retainer Invoiced</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Ret Retainer Invoiced"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Retainer Sent Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Retainer Pay Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Retainer Clear Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Retainer Return Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Ret Retainer Return Reason</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Ret Retainer Return Reason"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Payment Terms</h5>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Interest Percentage(%)</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Interest Percentage(%)"
+                              defaultValue="0.00"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Net Pay</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Net Pay"
+                              defaultValue="0"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <div className="action-buttons d-flex align-items-center justify-content-center">
+                          <button className="btn save-btn">Update Intake Information</button>
                         </div>
                       </div>
                     </div>
