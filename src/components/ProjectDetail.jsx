@@ -784,66 +784,178 @@ const ProjectDetail = () => {
                   {/* Bank Info Tab */}
                   {activeTab === 'bankInfo' && (
                     <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Project Information</h5>
+                      <h5 className="section-title mt-4">Bank Information</h5>
+
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Project Name*</label>
-                            <input type="text" className="form-control" defaultValue={project?.project_name || 'ERC Project'} />
+                            <label className="form-label">Bank Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Bank Name"
+
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Product Name*</label>
-                            <input type="text" className="form-control" defaultValue={project?.product_name || 'ERC'} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Milestone*</label>
-                            <select className="form-select">
-                              <option>ERC Fulfillment</option>
-                              <option>ERC Onboarding</option>
-                              <option>ERC Completed</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Stage*</label>
-                            <select className="form-select">
-                              <option>Success Fees Processing Client Initiate</option>
-                              <option>Documents Pending</option>
-                              <option>ERC Fees Fully Paid</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Project Fee*</label>
-                            <input type="text" className="form-control" defaultValue={project?.project_fee || '$5,000'} />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Created Date</label>
-                            <input type="text" className="form-control" defaultValue={project?.created_at || '2023-05-15'} readOnly />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Collaborators</label>
-                            <input type="text" className="form-control" defaultValue={project?.collaborators || 'Master Ops'} readOnly />
+                            <label className="form-label">Bank Mailing Address</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Bank Mailing Address"
+
+                            />
                           </div>
                         </div>
                       </div>
 
+                      <div className="row mb-3">
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">City</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="City"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">State</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="State"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Zip</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Zip"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Country</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Country"
+
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Bank Phone</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Bank Phone"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Account Holder Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Account Holder Name"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Account Type</label>
+                            <select
+                              className="form-select"
+
+                            >
+                              <option value="N/A">N/A</option>
+                              <option value="Checking">Checking</option>
+                              <option value="Savings">Savings</option>
+                              <option value="Business">Business</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Other</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Other"
+
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <div className="row mb-3">
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">ABA Routing Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="ABA Routing Number"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">Account Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Account Number"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">SWIFT</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="SWIFT"
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="form-group">
+                            <label className="form-label">IBAN</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="IBAN"
+
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
