@@ -1599,7 +1599,214 @@ const ProjectDetail = () => {
                         </div>
                       </div>
 
+                      <h5 className="section-title mt-4">PPP Details</h5>
 
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">PPP 2020 Information</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2020 Applied</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2020 Start Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2020 Forgiveness Applied</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2020 End Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2020 Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="PPP 2020 Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2020 Wages Allocated</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="PPP 2020 Wages Allocated"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">PPP 2021 Information</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2021 Applied</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2021 Start Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2021 Forgiveness Applied</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Yes">Yes</option>
+                              <option value="No">No</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2021 End Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2021 Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="PPP 2021 Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">PPP 2021 Wages Allocated</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="PPP 2021 Wages Allocated"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-12">
+                          <div className="form-group">
+                            <label className="form-label">Additional Comments</label>
+                            <textarea
+                              className="form-control"
+                              rows="3" style={{ resize: 'vertical', minHeight: '70px' }}
+                              placeholder="Additional Comments"
+                            ></textarea>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">FPSO Details</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Attorney Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Attorney Name"
+                              defaultValue="Michael Y Goldberg"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Call Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="04/02/2025"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Call Time</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Call Time"
+                              defaultValue="TEST"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Memo Received Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Memo Cut Off Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
