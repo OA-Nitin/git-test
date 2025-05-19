@@ -752,11 +752,11 @@ label a.ms-2:hover svg {
 /* Account Info Section Styles */
 .section-subtitle {
   font-size: 15px;
-    margin-bottom: 20px;
-    font-weight: 700;
-    z-index: 1;
-    overflow: hidden;
-    position: relative;
+  margin-bottom: 20px;
+  font-weight: 700;
+  z-index: 1;
+  overflow: hidden;
+  position: relative;
 }
 
 
@@ -773,7 +773,8 @@ label a.ms-2:hover svg {
 }
 
 /* Style for read-only inputs */
-input[readonly], select[disabled] {
+input[readonly],
+select[disabled] {
   background-color: #f8f9fa;
   cursor: not-allowed;
   opacity: 0.8;
@@ -797,4 +798,10 @@ input[readonly], select[disabled] {
   .section-subtitle {
     font-size: 0.9rem;
   }
+}
+
+.custom-checkbox {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
 }

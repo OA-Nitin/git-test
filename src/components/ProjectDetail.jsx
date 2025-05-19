@@ -1048,8 +1048,7 @@ const ProjectDetail = () => {
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label"></label>
-                            <div className="form-check mt-2">
+                            <div className="form-check custom-checkbox">
                               <input
                                 type="checkbox"
                                 className="form-check-input"
@@ -1334,20 +1333,14 @@ const ProjectDetail = () => {
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Net Pay</label>
+                            <label className="form-label">Net No.</label>
                             <input
                               type="text"
                               className="form-control"
-                              placeholder="Net Pay"
+                              placeholder="Net No"
                               defaultValue="0"
                             />
                           </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <div className="action-buttons d-flex align-items-center justify-content-center">
-                          <button className="btn save-btn">Update Intake Information</button>
                         </div>
                       </div>
                     </div>
