@@ -2126,7 +2126,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <h5 className="section-title mt-4">Total Max ERC Amount 2020</h5>
-                      <h6 className="sub-section-title mt-3">2020</h6>
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
@@ -2174,7 +2174,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <h5 className="section-title mt-4">Total Max ERC Amount 2021</h5>
-                      <h6 className="sub-section-title mt-3">2021</h6>
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
@@ -2221,9 +2221,1292 @@ const ProjectDetail = () => {
                         </div>
                       </div>
 
-                      <div className="mt-4">
-                        <div className="action-buttons d-flex align-items-center justify-content-center">
-                          <button className="btn save-btn">Update Fee Information</button>
+                      <h5 className="section-title mt-4">ERC Filed Quarter wise 2020</h5>
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q1-2020-filed-status" />
+                              <label className="form-check-label" htmlFor="q1-2020-filed-status">
+                                Q1 2020 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2020 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2020 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q2-2020-filed-status" />
+                              <label className="form-check-label" htmlFor="q2-2020-filed-status">
+                                Q2 2020 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2020 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2020 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q3-2020-filed-status" />
+                              <label className="form-check-label" htmlFor="q3-2020-filed-status">
+                                Q3 2020 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2020 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2020 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q4-2020-filed-status" />
+                              <label className="form-check-label" htmlFor="q4-2020-filed-status">
+                                Q4 2020 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2020 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2020 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q1-2021-filed-status" />
+                              <label className="form-check-label" htmlFor="q1-2021-filed-status">
+                                Q1 2021 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2021 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2021 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q2-2021-filed-status" />
+                              <label className="form-check-label" htmlFor="q2-2021-filed-status">
+                                Q2 2021 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2021 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2021 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q3-2021-filed-status" />
+                              <label className="form-check-label" htmlFor="q3-2021-filed-status">
+                                Q3 2021 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2021 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2021 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <div className="form-check mt-4">
+                              <input className="form-check-input" type="checkbox" id="q4-2021-filed-status" />
+                              <label className="form-check-label" htmlFor="q4-2021-filed-status">
+                                Q4 2021 Filed Status
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Filing Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Amount Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2021 Amount Filed"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-5">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Benefits</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2021 Benefits"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-7">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Eligibility Basis</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Full Shutdown">Full Shutdown</option>
+                              <option value="Partial Shutdown">Partial Shutdown</option>
+                              <option value="Decline in Gross Receipts">Decline in Gross Receipts</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">ERC Letter, Check & Amount</h5>
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q1-2020-letter" />
+                              <label className="form-check-label" htmlFor="q1-2020-letter">
+                                Q1 2020 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q1-2020-check" />
+                              <label className="form-check-label" htmlFor="q1-2020-check">
+                                Q1 2020 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2020 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q2-2020-letter" />
+                              <label className="form-check-label" htmlFor="q2-2020-letter">
+                                Q2 2020 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q2-2020-check" />
+                              <label className="form-check-label" htmlFor="q2-2020-check">
+                                Q2 2020 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2020 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q3-2020-letter" />
+                              <label className="form-check-label" htmlFor="q3-2020-letter">
+                                Q3 2020 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q3-2020-check" />
+                              <label className="form-check-label" htmlFor="q3-2020-check">
+                                Q3 2020 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2020 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q4-2020-letter" />
+                              <label className="form-check-label" htmlFor="q4-2020-letter">
+                                Q4 2020 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q4-2020-check" />
+                              <label className="form-check-label" htmlFor="q4-2020-check">
+                                Q4 2020 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2020 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q1-2021-letter" />
+                              <label className="form-check-label" htmlFor="q1-2021-letter">
+                                Q1 2021 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q1-2021-check" />
+                              <label className="form-check-label" htmlFor="q1-2021-check">
+                                Q1 2021 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2021 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q2-2021-letter" />
+                              <label className="form-check-label" htmlFor="q2-2021-letter">
+                                Q2 2021 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q2-2021-check" />
+                              <label className="form-check-label" htmlFor="q2-2021-check">
+                                Q2 2021 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2021 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q3-2021-letter" />
+                              <label className="form-check-label" htmlFor="q3-2021-letter">
+                                Q3 2021 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q3-2021-check" />
+                              <label className="form-check-label" htmlFor="q3-2021-check">
+                                Q3 2021 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2021 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Loop</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group mt-4">
+                            <div className="form-check form-check-inline">
+                              <input className="form-check-input" type="checkbox" id="q4-2021-letter" />
+                              <label className="form-check-label" htmlFor="q4-2021-letter">
+                                Q4 2021 Letter
+                              </label>
+                            </div>
+                            <div className="form-check form-check-inline ms-3">
+                              <input className="form-check-input" type="checkbox" id="q4-2021-check" />
+                              <label className="form-check-label" htmlFor="q4-2021-check">
+                                Q4 2021 Check
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Chq Amt</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2021 Chq Amt"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Success Fee Invoice Details</h5>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">I - Invoice Details</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice number"
+                              defaultValue="6614"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoiced Qtrs</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoiced Qtrs"
+                              defaultValue="Initial Retainer Fee Amount"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Sent Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="01/26/2025"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Payment Type</label>
+                            <select className="form-select">
+                              <option value="">Select payment type</option>
+                              <option value="Credit Card">Credit Card</option>
+                              <option value="Check">Check</option>
+                              <option value="ACH">ACH</option>
+                              <option value="Wire">Wire</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Payment Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Pay Cleared</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Pay Returned</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Return Reason</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Return Reason"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">I Invoice AffRef Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="AffRef Share"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">II - Invoice Details</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice number"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoiced Qtrs</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoiced Qtrs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Sent Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Payment Type</label>
+                            <select className="form-select">
+                              <option value="">Select payment type</option>
+                              <option value="Credit Card">Credit Card</option>
+                              <option value="Check">Check</option>
+                              <option value="ACH">ACH</option>
+                              <option value="Wire">Wire</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Payment Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Pay Cleared</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Pay Returned</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Return Reason</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Return Reason"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">II Invoice AffRef Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="AffRef Share"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">III - Invoice Details</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice number"
+                              defaultValue="7513"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice Amount"
+                              defaultValue="0.10"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoiced Qtrs</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoiced Qtrs"
+                              defaultValue="2020 Q2"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Sent Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="05/08/2025"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Payment Type</label>
+                            <select className="form-select">
+                              <option value="">Occams Initiated - eCheck</option>
+                              <option value="Credit Card">Credit Card</option>
+                              <option value="Check">Check</option>
+                              <option value="ACH">ACH</option>
+                              <option value="Wire">Wire</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Payment Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="05/08/2025"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Pay Cleared</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                              defaultValue="05/10/2025"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Pay Returned</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Return Reason</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Return Reason"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">III Invoice AffRef Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="AffRef Share"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">IV - Invoice Details</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice number"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoice Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoiced Qtrs</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Invoiced Qtrs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Sent Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Payment Type</label>
+                            <select className="form-select">
+                              <option value="">Select payment type</option>
+                              <option value="Credit Card">Credit Card</option>
+                              <option value="Check">Check</option>
+                              <option value="ACH">ACH</option>
+                              <option value="Wire">Wire</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Payment Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Pay Cleared</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Pay Returned</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Return Reason</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Return Reason"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">IV Invoice AffRef Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="AffRef Share"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
