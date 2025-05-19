@@ -3574,7 +3574,42 @@ const ProjectDetail = () => {
                   {/* Invoices Tab Content */}
                   {activeTab === 'invoices' && (
                     <div className="mb-4 left-section-container">
+                      <div class="contact_tab_data">
+                          <div class="row custom_opp_tab">
+                            <div class="col-sm-12">
+                              <div class="custom_opp_tab_header">
+                                <h5>
+                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                    Invoice ERC-7335</a> -
+                                  <span class="status cancel badge bg-success"> Paid</span>
+                                </h5>
+                                <div class="opp_edit_dlt_btn projects-iris">
+                                </div>
+                              </div>
+                            </div>
 
+                            <div class="col-md-8 text-left">
+                              <div class="lead_des">
+                                <p><b>Invoice Amount:</b> $219541.10</p>
+                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                                <p><b>Created By: </b> Occams Finance</p>
+                                <p><b>Updated By: </b> Occams Finance</p>
+                              </div>
+                            </div>
+
+                            <div class="col-md-4">
+                              <div class="lead_des">
+                                <p><b>Payment Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Cleared Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Mode:</b> N/A</p>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
                       <div class="contact_tab_data">
                           <div class="row custom_opp_tab">
                             <div class="col-sm-12">
@@ -3647,42 +3682,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                       </div>
-                      <div class="contact_tab_data">
-                          <div class="row custom_opp_tab">
-                            <div class="col-sm-12">
-                              <div class="custom_opp_tab_header">
-                                <h5>
-                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                    Invoice ERC-7335</a> -
-                                  <span class="status cancel badge bg-success"> Paid</span>
-                                </h5>
-                                <div class="opp_edit_dlt_btn projects-iris">
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="col-md-8 text-left">
-                              <div class="lead_des">
-                                <p><b>Invoice Amount:</b> $219541.10</p>
-                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                                <p><b>Created By: </b> Occams Finance</p>
-                                <p><b>Updated By: </b> Occams Finance</p>
-                              </div>
-                            </div>
-
-                            <div class="col-md-4">
-                              <div class="lead_des">
-                                <p><b>Payment Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Cleared Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Mode:</b> N/A</p>
-                              </div>
-                            </div>
-                          </div>
-                      </div>
+                      
                     </div>
                   )}
 
