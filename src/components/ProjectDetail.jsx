@@ -48,10 +48,11 @@ const ProjectDetail = () => {
     initials: 'SP'
   });
 
-  // Project group, campaign, and source state
+  // Project group, campaign, source, and stage state
   const [projectGroup, setProjectGroup] = useState(null);
   const [projectCampaign, setProjectCampaign] = useState(null);
   const [projectSource, setProjectSource] = useState(null);
+  const [projectStage, setProjectStage] = useState(null);
 
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -268,6 +269,10 @@ const ProjectDetail = () => {
 
   const handleProjectSourceChange = (selectedOption) => {
     setProjectSource(selectedOption);
+  };
+
+  const handleProjectStageChange = (selectedOption) => {
+    setProjectStage(selectedOption);
   };
 
   // Function to toggle edit mode
@@ -3682,7 +3687,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                       </div>
-                      
+
                     </div>
                   )}
 
@@ -3734,7 +3739,86 @@ const ProjectDetail = () => {
                 </div>
 
                 {/* Right Side Section - Same for all tabs */}
+
+
                 <div className="col-md-4">
+
+                  <div className="card mb-4">
+                    <div className="card-body">
+                      <h5 className="card-title">Milestone:</h5>
+                      <div className="form-group mb-4">
+                        <Select
+                          value={projectGroup}
+                          onChange={handleProjectGroupChange}
+                          options={[
+                            { value: 'erc-cancelled', label: 'ERC Cancelled' },
+                            { value: 'erc-fulfillment', label: 'ERC - Fulfillment' },
+                            { value: 'erc-enrollment', label: 'ERC - Enrollment' },
+                            { value: 'erc-lead-lost', label: 'ERC - Lead Lost' }
+                          ]}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          isClearable
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: '4px',
+                              borderColor: '#ced4da',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#adb5bd'
+                              }
+                            })
+                          }}
+                        />
+                      </div>
+
+                      <h5 className="card-title">Stage:</h5>
+                      <div className="form-group">
+                        <Select
+                          value={projectStage}
+                          onChange={handleProjectStageChange}
+                          options={[
+                            { value: 'client-declarations-signed', label: 'Client Declarations Signed' },
+                            { value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' },
+                            { value: 'pre-fpso-interview-scheduled', label: 'Pre FPSO Interview Scheduled' },
+                            { value: 'pre-fpso-interview-completed', label: 'Pre FPSO Interview Completed' },
+                            { value: 'fpso-interview-pending', label: 'FPSO Interview Pending' },
+                            { value: 'fpso-interview-scheduled', label: 'FPSO Interview Scheduled' },
+                            { value: 'fpso-opinion-sent', label: 'FPSO Opinion Sent' },
+                            { value: 'fpso-opinion-signed', label: 'FPSO Opinion Signed' },
+                            { value: 'fpso-interview-completed', label: 'FPSO Interview Completed' },
+                            { value: 'prepare-941x', label: 'Prepare 941x' },
+                            { value: 'send-941x', label: 'Send 941x' },
+                            { value: '941-x-sent', label: '941-X\'s Sent' },
+                            { value: 'client-signed-941xs-8821', label: 'Client Signed 941xs + 8821' },
+                            { value: 'erc-claim-filed-peo', label: 'ERC Claim Filed - PEO' },
+                            { value: 'irs-letter-of-overpay-received', label: 'IRS Letter Of Overpay Received' },
+                            { value: 'financier-review-done', label: 'Financier Review Done' },
+                            { value: 'erc-package-submitted', label: 'ERC Package Submitted' },
+                            { value: 'computation-complete', label: 'Computation Complete' },
+                            { value: 'send-declaration', label: 'Send Declaration' },
+                            { value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Fully Acknowledged' }
+                          ]}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                          isClearable
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              borderRadius: '4px',
+                              borderColor: '#ced4da',
+                              boxShadow: 'none',
+                              '&:hover': {
+                                borderColor: '#adb5bd'
+                              }
+                            })
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="card mb-4">
                     <div className="card-body">
                       <h5 className="card-title">Assigned Users:</h5>
