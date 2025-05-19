@@ -1343,6 +1343,263 @@ const ProjectDetail = () => {
                           </div>
                         </div>
                       </div>
+
+                      <h5 className="section-title mt-4">ERC Documents</h5>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Business Docs</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">COI AOI</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Voided Check</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Business Financial Docs</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2019 Tax Return</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2020 Tax Return</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2021 Financials</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">941's - 2020</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2020 Q1</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2020 Q2</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2020 Q3</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2020 Q4</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">941's - 2021</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2021 Q1</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2020 Q4</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2021 Q3</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Register - 2020</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Payroll Register 2020 Q1</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Payroll Register 2020 Q2</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Payroll Register 2020 Q3</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Payroll Register 2020 Q4</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Register - 2021</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Payroll Register 2021 Q1</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">2021 Q2</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Payroll Register 2021 Q3</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">F911 Status</label>
+                            <select className="form-select">
+                              <option value="N/A">N/A</option>
+                              <option value="Received">Received</option>
+                              <option value="Pending">Pending</option>
+                              <option value="Not Required">Not Required</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
                     </div>
                   )}
 

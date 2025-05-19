@@ -759,6 +759,16 @@ label a.ms-2:hover svg {
   position: relative;
 }
 
+.sub-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px dashed #dee2e6;
+  padding-bottom: 8px;
+}
+
 
 
 .card-header {
