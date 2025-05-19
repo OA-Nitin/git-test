@@ -749,6 +749,32 @@ label a.ms-2:hover svg {
   font-weight: 700;
 }
 
+/* Account Info Section Styles */
+.section-subtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 1rem;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h5 {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Style for read-only inputs */
+input[readonly], select[disabled] {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .lead-detail-tabs .nav-link {
@@ -762,5 +788,9 @@ label a.ms-2:hover svg {
 
   .tier-title {
     font-size: 1rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.9rem;
   }
 }

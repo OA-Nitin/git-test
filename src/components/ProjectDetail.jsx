@@ -16,7 +16,7 @@ const ProjectDetail = () => {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('businessInfo');
+  const [activeTab, setActiveTab] = useState('project');
   const [taxNowSignupStatus, setTaxNowSignupStatus] = useState('');
   const [taxNowOnboardingStatus, setTaxNowOnboardingStatus] = useState('');
   const [companyFolderLink, setCompanyFolderLink] = useState('https://bit.ly/3SoyiO1');
@@ -47,6 +47,14 @@ const ProjectDetail = () => {
     phone: '(234) 234-2342',
     initials: 'SP'
   });
+
+  // Project group, campaign, and source state
+  const [projectGroup, setProjectGroup] = useState(null);
+  const [projectCampaign, setProjectCampaign] = useState(null);
+  const [projectSource, setProjectSource] = useState(null);
+
+  // State for edit mode
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
@@ -249,6 +257,24 @@ const ProjectDetail = () => {
     setAssignedUsers(updatedUsers);
   };
 
+  // Functions for project group, campaign, and source
+  const handleProjectGroupChange = (selectedOption) => {
+    setProjectGroup(selectedOption);
+  };
+
+  const handleProjectCampaignChange = (selectedOption) => {
+    setProjectCampaign(selectedOption);
+  };
+
+  const handleProjectSourceChange = (selectedOption) => {
+    setProjectSource(selectedOption);
+  };
+
+  // Function to toggle edit mode
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+  };
+
   // Render loading state
   if (loading) {
     return (
@@ -297,52 +323,100 @@ const ProjectDetail = () => {
                 </div>
               </div>
               <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <li className={`nav-item ${activeTab === 'businessInfo' ? 'active' : ''}`}>
+                <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
-                    id="pills-erc-bus-info"
+                    id="pills-project"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleTabChange('businessInfo');
+                      handleTabChange('project');
                     }}
-                    href="#pills-home"
+                    href="#pills-project"
                     role="tab"
-                    aria-controls="pills-home"
-                    aria-selected={activeTab === 'businessInfo'}
+                    aria-controls="pills-project"
+                    aria-selected={activeTab === 'project'}
                   >
-                    Business Info
+                    Project
                   </a>
                 </li>
-                <li className={`nav-item ${activeTab === 'projectDetails' ? 'active' : ''}`}>
+                <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
-                    id="pills-project-details"
+                    id="pills-bank-info"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleTabChange('projectDetails');
+                      handleTabChange('bankInfo');
                     }}
-                    href="#pills-details"
+                    href="#pills-bank-info"
                     role="tab"
-                    aria-controls="pills-details"
-                    aria-selected={activeTab === 'projectDetails'}
+                    aria-controls="pills-bank-info"
+                    aria-selected={activeTab === 'bankInfo'}
                   >
-                    Project Details
+                    Bank Info
                   </a>
                 </li>
-                <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
+                <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
-                    id="pills-project-contacts"
+                    id="pills-intake"
                     onClick={(e) => {
                       e.preventDefault();
-                      handleTabChange('contacts');
+                      handleTabChange('intake');
                     }}
-                    href="#pills-contacts"
+                    href="#pills-intake"
                     role="tab"
-                    aria-controls="pills-contacts"
-                    aria-selected={activeTab === 'contacts'}
+                    aria-controls="pills-intake"
+                    aria-selected={activeTab === 'intake'}
                   >
-                    Contacts
+                    Intake
+                  </a>
+                </li>
+                <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
+                  <a
+                    className="nav-link"
+                    id="pills-fees"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleTabChange('fees');
+                    }}
+                    href="#pills-fees"
+                    role="tab"
+                    aria-controls="pills-fees"
+                    aria-selected={activeTab === 'fees'}
+                  >
+                    Fees
+                  </a>
+                </li>
+                <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
+                  <a
+                    className="nav-link"
+                    id="pills-documents"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleTabChange('documents');
+                    }}
+                    href="#pills-documents"
+                    role="tab"
+                    aria-controls="pills-documents"
+                    aria-selected={activeTab === 'documents'}
+                  >
+                    Documents
+                  </a>
+                </li>
+                <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
+                  <a
+                    className="nav-link"
+                    id="pills-invoices"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleTabChange('invoices');
+                    }}
+                    href="#pills-invoices"
+                    role="tab"
+                    aria-controls="pills-invoices"
+                    aria-selected={activeTab === 'invoices'}
+                  >
+                    Invoices
                   </a>
                 </li>
                 <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
@@ -368,10 +442,10 @@ const ProjectDetail = () => {
               <div className="row">
                 {/* Left Content Area - Changes based on active tab */}
                 <div className="col-md-8">
-                  {/* Business Info Tab */}
-                  {activeTab === 'businessInfo' && (
+                  {/* Project Tab */}
+                  {activeTab === 'project' && (
                     <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Business Identity</h5>
+                      <h5 className="section-title">Project Details</h5>
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
@@ -400,6 +474,256 @@ const ProjectDetail = () => {
                           </div>
                         </div>
                       </div>
+
+                      {/* Account Info Section */}
+                      <div className='d-flex align-items-center justify-content-between'>
+                        <h5 className="section-title mt-4">Account Info</h5>
+                      <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={toggleEditMode}
+                            title={isEditMode ? "Save changes" : "Edit information"}
+                          >
+                            <i className={`fas ${isEditMode ? "fa-save" : "fa-edit"}`}></i>
+                          </button>
+                        </div>
+
+                          {/* Personal Info Section */}
+                           <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                              Personal Info
+                            </h6>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Full Name</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="Flow Gen test"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Contact No.</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="989-876-5445"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Email</label>
+                                  <input
+                                    type="email"
+                                    className="form-control"
+                                    defaultValue="mekay61011@intady.com"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Title</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="Test"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Street Address</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="1231 Golf Rd"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Zip</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="10001"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">City</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="New York"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">State</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="New York"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Identity Document Type</label>
+                                  <select
+                                    className="form-select"
+                                    disabled={!isEditMode}
+                                  >
+                                    <option value="N/A">N/A</option>
+                                    <option value="Passport">Passport</option>
+                                    <option value="Driver's License">Driver's License</option>
+                                    <option value="State ID">State ID</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Document Number</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue=""
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                          {/* Business Info Section */}
+                            <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                              Business Info
+                            </h6>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Business Legal Name</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="Flow Gen"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Doing Business As</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue=""
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Business Category</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue=""
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Website URL</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue=""
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                          {/* Business Legal Info Section */}
+                            <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                              Business Legal Info
+                            </h6>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Business Entity Type</label>
+                                  <select
+                                    className="form-select"
+                                    disabled={!isEditMode}
+                                  >
+                                    <option value="N/A">N/A</option>
+                                    <option value="LLC">LLC</option>
+                                    <option value="Corporation">Corporation</option>
+                                    <option value="Partnership">Partnership</option>
+                                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Registration Number</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue=""
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="row mb-3">
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">Registration Date</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue="MM/DD/YYYY"
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                              <div className="col-md-6">
+                                <div className="form-group">
+                                  <label className="form-label">State of Registration</label>
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    defaultValue=""
+                                    readOnly={!isEditMode}
+                                  />
+                                </div>
+                              </div>
+                            </div>
 
                       <h5 className="section-title mt-4">Business Contact Info</h5>
                       <div className="row mb-3">
@@ -587,19 +911,11 @@ const ProjectDetail = () => {
                         showNotes={true}
                         maxHeight={300}
                       />
-
-                      {/* Save and Cancel buttons */}
-                      <div className="mt-4">
-                        <div className="action-buttons">
-                          <button className="btn save-btn">Save</button>
-                          <button className="btn cancel-btn">Cancel</button>
-                        </div>
-                      </div>
                     </div>
                   )}
 
-                  {/* Project Details Tab */}
-                  {activeTab === 'projectDetails' && (
+                  {/* Bank Info Tab */}
+                  {activeTab === 'bankInfo' && (
                     <div className="mb-4 left-section-container">
                       <h5 className="section-title">Project Information</h5>
                       <div className="row mb-3">
@@ -661,18 +977,11 @@ const ProjectDetail = () => {
                         </div>
                       </div>
 
-                      {/* Save and Cancel buttons */}
-                      <div className="mt-4">
-                        <div className="action-buttons">
-                          <button className="btn save-btn">Save</button>
-                          <button className="btn cancel-btn">Cancel</button>
-                        </div>
-                      </div>
                     </div>
                   )}
 
-                  {/* Contacts Tab Content */}
-                  {activeTab === 'contacts' && (
+                  {/* Intake Tab Content */}
+                  {activeTab === 'intake' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
                         <a href="javascript:void(0)">
@@ -741,6 +1050,140 @@ const ProjectDetail = () => {
                     </div>
                   )}
 
+                  {/* Fees Tab Content */}
+                  {activeTab === 'fees' && (
+                    <div className="mb-4 left-section-container">
+                      <h5 className="section-title">Fee Information</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Project Fee</label>
+                            <input type="text" className="form-control" defaultValue={project?.project_fee || '$5,000'} />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Fee Type</label>
+                            <select className="form-select">
+                              <option>Fixed</option>
+                              <option>Percentage</option>
+                              <option>Hourly</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Documents Tab Content */}
+                  {activeTab === 'documents' && (
+                    <div className="mb-4 left-section-container">
+                      <h5 className="section-title">Project Documents</h5>
+                      <div className="row mb-3">
+                        <div className="col-12">
+                          <div className="document-upload-area">
+                            <div className="text-center p-4 border rounded">
+                              <i className="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
+                              <h6>Drag & Drop Files Here</h6>
+                              <p className="text-muted small">or</p>
+                              <button className="btn btn-primary">Browse Files</button>
+                              <p className="text-muted small mt-2">Maximum file size: 10MB</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="document-list mt-4">
+                        <h6>Uploaded Documents</h6>
+                        <div className="table-responsive">
+                          <table className="table table-hover">
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Uploaded</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Project_Contract.pdf</td>
+                                <td>PDF</td>
+                                <td>1.2 MB</td>
+                                <td>2023-05-15</td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-download"></i></button>
+                                  <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Requirements.docx</td>
+                                <td>DOCX</td>
+                                <td>0.8 MB</td>
+                                <td>2023-05-16</td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-download"></i></button>
+                                  <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Invoices Tab Content */}
+                  {activeTab === 'invoices' && (
+                    <div className="mb-4 left-section-container">
+                      <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h5 className="section-title mb-0">Project Invoices</h5>
+                        <button className="btn btn-primary btn-sm">
+                          <i className="fas fa-plus me-1"></i> Create Invoice
+                        </button>
+                      </div>
+
+                      <div className="table-responsive">
+                        <table className="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Invoice #</th>
+                              <th>Date</th>
+                              <th>Amount</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>INV-6580</td>
+                              <td>2023-05-15</td>
+                              <td>$5,000</td>
+                              <td><span className="badge bg-success">Paid</span></td>
+                              <td>
+                                <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-eye"></i></button>
+                                <button className="btn btn-sm btn-outline-secondary me-1"><i className="fas fa-print"></i></button>
+                                <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>INV-6581</td>
+                              <td>2023-05-20</td>
+                              <td>$2,500</td>
+                              <td><span className="badge bg-warning">Pending</span></td>
+                              <td>
+                                <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-eye"></i></button>
+                                <button className="btn btn-sm btn-outline-secondary me-1"><i className="fas fa-print"></i></button>
+                                <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
                     <div className="mb-4 left-section-container">
@@ -791,10 +1234,7 @@ const ProjectDetail = () => {
                       <div className="assigned-users-list mb-4">
                         {assignedUsers.map(user => (
                           <div key={user.id} className="simple-user-item d-flex align-items-center justify-content-between mb-2">
-                            <div className="d-flex align-items-center">
-                              <div className="circle me-2 small">{user.avatar}</div>
-                              <div className="user-name-simple">{user.name}</div>
-                            </div>
+                            <div className="user-name-simple">{user.name}</div>
                             <button
                               className="btn-remove-user"
                               onClick={() => handleRemoveUser(user.id)}
@@ -861,8 +1301,8 @@ const ProjectDetail = () => {
                       <h5 className="card-title">Project Group:</h5>
                       <div className="form-group mb-4">
                         <Select
-                          value={null}
-                          onChange={() => {}}
+                          value={projectGroup}
+                          onChange={handleProjectGroupChange}
                           options={[
                             { value: 'erc-fprs', label: 'ERC - FPRS' },
                             { value: 'erc-referrals', label: 'ERC - Referrals' },
@@ -889,8 +1329,8 @@ const ProjectDetail = () => {
                       <h5 className="card-title">Project Campaign:</h5>
                       <div className="form-group mb-4">
                         <Select
-                          value={null}
-                          onChange={() => {}}
+                          value={projectCampaign}
+                          onChange={handleProjectCampaignChange}
                           options={[
                             { value: 'b2b', label: 'B2B' },
                             { value: 'referral', label: 'Referral' },
@@ -918,8 +1358,8 @@ const ProjectDetail = () => {
                       <h5 className="card-title">Project Source:</h5>
                       <div className="form-group">
                         <Select
-                          value={null}
-                          onChange={() => {}}
+                          value={projectSource}
+                          onChange={handleProjectSourceChange}
                           options={[
                             { value: 'payment-cloud', label: 'Payment Cloud' },
                             { value: 'website', label: 'Website' },
@@ -947,11 +1387,11 @@ const ProjectDetail = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <div className="action-buttons">
-                      <button className="btn save-btn">Save</button>
-                      <button className="btn cancel-btn">Cancel</button>
-                    </div>
+                  <div className=" mt-4">
+                      <div className="action-buttons">
+                        <button className="btn save-btn">Save</button>
+                        <button className="btn cancel-btn">Cancel</button>
+                      </div>
                   </div>
                 </div>
               </div>
