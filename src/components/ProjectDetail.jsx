@@ -2893,7 +2893,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                       <div className="col-md-3">
+                        <div className="col-md-3">
                           <div className="form-check custom-checkbox">
                             <input className="form-check-input" type="checkbox" id="q2-2021-letter" />
                             <label className="form-check-label" htmlFor="q2-2021-letter">
@@ -2932,7 +2932,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                       <div className="col-md-3">
+                        <div className="col-md-3">
                           <div className="form-check custom-checkbox">
                             <input className="form-check-input" type="checkbox" id="q3-2021-letter" />
                             <label className="form-check-label" htmlFor="q3-2021-letter">
@@ -3574,49 +3574,114 @@ const ProjectDetail = () => {
                   {/* Invoices Tab Content */}
                   {activeTab === 'invoices' && (
                     <div className="mb-4 left-section-container">
-                      <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h5 className="section-title mb-0">Project Invoices</h5>
-                        <button className="btn btn-primary btn-sm">
-                          <i className="fas fa-plus me-1"></i> Create Invoice
-                        </button>
-                      </div>
 
-                      <div className="table-responsive">
-                        <table className="table table-hover">
-                          <thead>
-                            <tr>
-                              <th>Invoice #</th>
-                              <th>Date</th>
-                              <th>Amount</th>
-                              <th>Status</th>
-                              <th>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>INV-6580</td>
-                              <td>2023-05-15</td>
-                              <td>$5,000</td>
-                              <td><span className="badge bg-success">Paid</span></td>
-                              <td>
-                                <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-eye"></i></button>
-                                <button className="btn btn-sm btn-outline-secondary me-1"><i className="fas fa-print"></i></button>
-                                <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>INV-6581</td>
-                              <td>2023-05-20</td>
-                              <td>$2,500</td>
-                              <td><span className="badge bg-warning">Pending</span></td>
-                              <td>
-                                <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-eye"></i></button>
-                                <button className="btn btn-sm btn-outline-secondary me-1"><i className="fas fa-print"></i></button>
-                                <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                      <div class="contact_tab_data">
+                          <div class="row custom_opp_tab">
+                            <div class="col-sm-12">
+                              <div class="custom_opp_tab_header">
+                                <h5>
+                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                    Invoice ERC-7335</a> -
+                                  <span class="status cancel badge bg-cancel"> Cancelled</span>
+                                </h5>
+                                <div class="opp_edit_dlt_btn projects-iris">
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-8 text-left">
+                              <div class="lead_des">
+                                <p><b>Invoice Amount:</b> $219541.10</p>
+                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                                <p><b>Created By: </b> Occams Finance</p>
+                                <p><b>Updated By: </b> Occams Finance</p>
+                              </div>
+                            </div>
+
+                            <div class="col-md-4">
+                              <div class="lead_des">
+                                <p><b>Payment Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Cleared Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Mode:</b> N/A</p>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+                      <div class="contact_tab_data">
+                          <div class="row custom_opp_tab">
+                            <div class="col-sm-12">
+                              <div class="custom_opp_tab_header">
+                                <h5>
+                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                    Invoice ERC-7335</a> -
+                                  <span class="status cancel badge bg-success"> Paid</span>
+                                </h5>
+                                <div class="opp_edit_dlt_btn projects-iris">
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-8 text-left">
+                              <div class="lead_des">
+                                <p><b>Invoice Amount:</b> $219541.10</p>
+                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                                <p><b>Created By: </b> Occams Finance</p>
+                                <p><b>Updated By: </b> Occams Finance</p>
+                              </div>
+                            </div>
+
+                            <div class="col-md-4">
+                              <div class="lead_des">
+                                <p><b>Payment Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Cleared Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Mode:</b> N/A</p>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+                      <div class="contact_tab_data">
+                          <div class="row custom_opp_tab">
+                            <div class="col-sm-12">
+                              <div class="custom_opp_tab_header">
+                                <h5>
+                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                    Invoice ERC-7335</a> -
+                                  <span class="status cancel badge bg-success"> Paid</span>
+                                </h5>
+                                <div class="opp_edit_dlt_btn projects-iris">
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-8 text-left">
+                              <div class="lead_des">
+                                <p><b>Invoice Amount:</b> $219541.10</p>
+                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                                <p><b>Created By: </b> Occams Finance</p>
+                                <p><b>Updated By: </b> Occams Finance</p>
+                              </div>
+                            </div>
+
+                            <div class="col-md-4">
+                              <div class="lead_des">
+                                <p><b>Payment Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Cleared Date:</b> N/A</p>
+                                <p>
+                                  <b>Payment Mode:</b> N/A</p>
+                              </div>
+                            </div>
+                          </div>
                       </div>
                     </div>
                   )}
