@@ -751,11 +751,15 @@ label a.ms-2:hover svg {
 
 /* Account Info Section Styles */
 .section-subtitle {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 1rem;
+  font-size: 15px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    z-index: 1;
+    overflow: hidden;
+    position: relative;
 }
+
+
 
 .card-header {
   background-color: #f8f9fa;

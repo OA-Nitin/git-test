@@ -278,9 +278,9 @@ const ProjectDetail = () => {
   // Render loading state
   if (loading) {
     return (
-      <div className="container mt-4">
-        <div className="white_card">
-          <div className="white_card_body p-4 text-center">
+      <div className="container-fluid">
+        <div className="row justify-content-center mt-5">
+          <div className="col-md-8 text-center">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Loading...</span>
             </div>
@@ -450,13 +450,13 @@ const ProjectDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Legal Name*</label>
-                            <input type="text" className="form-control" defaultValue={project?.business_legal_name || 'CTCERC Play SP'} />
+                            <input type="text" className="form-control" defaultValue={project?.business_legal_name || 'CTCERC Play SP'} readOnly />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Doing Business As</label>
-                            <input type="text" className="form-control" defaultValue={project?.doing_business_as || ''} />
+                            <input type="text" className="form-control" defaultValue={project?.doing_business_as || ''} readOnly />
                           </div>
                         </div>
                       </div>
@@ -464,13 +464,13 @@ const ProjectDetail = () => {
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Business Category*</label>
-                            <input type="text" className="form-control" defaultValue={project?.category || ''} />
+                            <input type="text" className="form-control" defaultValue={project?.category || ''} readOnly />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Website URL*</label>
-                            <input type="text" className="form-control" defaultValue={project?.website || 'https://example.com'} />
+                            <input type="text" className="form-control" defaultValue={project?.website || 'https://example.com'} readOnly />
                           </div>
                         </div>
                       </div>
@@ -478,373 +478,249 @@ const ProjectDetail = () => {
                       {/* Account Info Section */}
                       <div className='d-flex align-items-center justify-content-between'>
                         <h5 className="section-title mt-4">Account Info</h5>
-                      <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={toggleEditMode}
-                            title={isEditMode ? "Save changes" : "Edit information"}
-                          >
-                            <i className={`fas ${isEditMode ? "fa-save" : "fa-edit"}`}></i>
-                          </button>
-                        </div>
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={toggleEditMode}
+                          title={isEditMode ? "Save changes" : "Edit information"}
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                      </div>
 
-                          {/* Personal Info Section */}
-                           <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                              Personal Info
-                            </h6>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Full Name</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="Flow Gen test"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Contact No.</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="989-876-5445"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Email</label>
-                                  <input
-                                    type="email"
-                                    className="form-control"
-                                    defaultValue="mekay61011@intady.com"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Title</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="Test"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Street Address</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="1231 Golf Rd"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Zip</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="10001"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">City</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="New York"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">State</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="New York"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Identity Document Type</label>
-                                  <select
-                                    className="form-select"
-                                    disabled={!isEditMode}
-                                  >
-                                    <option value="N/A">N/A</option>
-                                    <option value="Passport">Passport</option>
-                                    <option value="Driver's License">Driver's License</option>
-                                    <option value="State ID">State ID</option>
-                                  </select>
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Document Number</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue=""
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                          {/* Business Info Section */}
-                            <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                              Business Info
-                            </h6>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Business Legal Name</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="Flow Gen"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Doing Business As</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue=""
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Business Category</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue=""
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Website URL</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue=""
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                          {/* Business Legal Info Section */}
-                            <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                              Business Legal Info
-                            </h6>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Business Entity Type</label>
-                                  <select
-                                    className="form-select"
-                                    disabled={!isEditMode}
-                                  >
-                                    <option value="N/A">N/A</option>
-                                    <option value="LLC">LLC</option>
-                                    <option value="Corporation">Corporation</option>
-                                    <option value="Partnership">Partnership</option>
-                                    <option value="Sole Proprietorship">Sole Proprietorship</option>
-                                  </select>
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Registration Number</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue=""
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="row mb-3">
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">Registration Date</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue="MM/DD/YYYY"
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                              <div className="col-md-6">
-                                <div className="form-group">
-                                  <label className="form-label">State of Registration</label>
-                                  <input
-                                    type="text"
-                                    className="form-control"
-                                    defaultValue=""
-                                    readOnly={!isEditMode}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                      <h5 className="section-title mt-4">Business Contact Info</h5>
+                      {/* Personal Info Section */}
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                        Personal Info
+                      </h6>
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Authorized Signatory Name</label>
-                            <input type="text" className="form-control" defaultValue={project?.authorized_signatory_name || ''} />
+                            <label className="form-label">Full Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="Flow Gen test"
+                              readOnly={!isEditMode}
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Business Phone*</label>
-                            <input type="text" className="form-control" defaultValue={project?.business_phone || '454-645-6456'} />
+                            <label className="form-label">Contact No.</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="989-876-5445"
+                              readOnly={!isEditMode}
+                            />
                           </div>
                         </div>
                       </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Email*</label>
-                            <input type="email" className="form-control" defaultValue={project?.business_email || 'shivraj.patil@occamsadvisory.com'} />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Title*</label>
-                            <input type="text" className="form-control" defaultValue="" />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Street Address*</label>
-                            <input type="text" className="form-control" defaultValue={project?.business_address || '123 Main St'} />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">City*</label>
-                            <input type="text" className="form-control" defaultValue={project?.city || 'Birmingham'} />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">State*</label>
-                            <input type="text" className="form-control" defaultValue={project?.state || 'Alabama'} />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">ZIP*</label>
-                            <input type="text" className="form-control" defaultValue={project?.zip || '35201'} />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Primary Contact Info</h5>
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Email</label>
-                            <input type="email" className="form-control" defaultValue="shivraj.patil@occamsadvisory.com" readOnly />
+                            <input
+                              type="email"
+                              className="form-control"
+                              defaultValue="mekay61011@intady.com"
+                              readOnly={!isEditMode}
+                            />
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Phone</label>
-                            <input type="text" className="form-control" defaultValue="454-645-6456" readOnly />
+                            <label className="form-label">Title</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="Test"
+                              readOnly={!isEditMode}
+                            />
                           </div>
                         </div>
-                        <div className="col-md-2">
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Contact Ext</label>
-                            <input type="text" className="form-control" defaultValue="" readOnly />
+                            <label className="form-label">Street Address</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="1231 Golf Rd"
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Zip</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="10001"
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">City</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="New York"
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">State</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="New York"
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Identity Document Type</label>
+                            <select
+                              className="form-select"
+                              disabled={!isEditMode}
+                            >
+                              <option value="N/A">N/A</option>
+                              <option value="Passport">Passport</option>
+                              <option value="Driver's License">Driver's License</option>
+                              <option value="State ID">State ID</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Document Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue=""
+                              readOnly={!isEditMode}
+                            />
                           </div>
                         </div>
                       </div>
 
-                      <h5 className="section-title mt-4">TaxNow</h5>
+                      {/* Business Info Section */}
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                        Business Info
+                      </h6>
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Select TaxNow Signup Status</label>
+                            <label className="form-label">Business Legal Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="Flow Gen"
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Doing Business As</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue=""
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Business Category</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue=""
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Website URL</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue=""
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Business Legal Info Section */}
+                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                        Business Legal Info
+                      </h6>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Business Entity Type</label>
                             <select
                               className="form-select"
-                              value={taxNowSignupStatus}
-                              onChange={(e) => setTaxNowSignupStatus(e.target.value)}
+                              disabled={!isEditMode}
                             >
-                              <option value="">Select TaxNow Signup Status</option>
-                              <option value="Complete">Complete</option>
-                              <option value="Incomplete">Incomplete</option>
+                              <option value="N/A">N/A</option>
+                              <option value="LLC">LLC</option>
+                              <option value="Corporation">Corporation</option>
+                              <option value="Partnership">Partnership</option>
+                              <option value="Sole Proprietorship">Sole Proprietorship</option>
                             </select>
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Select TaxNow Onboarding Status</label>
-                            <select
-                              className="form-select"
-                              value={taxNowOnboardingStatus}
-                              onChange={(e) => setTaxNowOnboardingStatus(e.target.value)}
-                            >
-                              <option value="">Select TaxNow Onboarding Status</option>
-                              {taxNowSignupStatus === 'Complete' ? (
-                                <>
-                                  <option value="Awaiting IRS">Awaiting IRS</option>
-                                  <option value="Active">Active</option>
-                                </>
-                              ) : taxNowSignupStatus === 'Incomplete' ? (
-                                <>
-                                  <option value="Invite Sent">Invite Sent</option>
-                                  <option value="KYC Verification">KYC Verification</option>
-                                  <option value="KYB Verification">KYB Verification</option>
-                                  <option value="TIA Unsigned">TIA Unsigned</option>
-                                  <option value="Blank">Blank</option>
-                                </>
-                              ) : null}
-                            </select>
+                            <label className="form-label">Registration Number</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue=""
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">Registration Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue="MM/DD/YYYY"
+                              readOnly={!isEditMode}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-group">
+                            <label className="form-label">State of Registration</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              defaultValue=""
+                              readOnly={!isEditMode}
+                            />
                           </div>
                         </div>
                       </div>
@@ -862,8 +738,8 @@ const ProjectDetail = () => {
                                 className="ms-2"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
+                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
                                 </svg>
                               </a>
                             </label>
@@ -886,8 +762,8 @@ const ProjectDetail = () => {
                                 className="ms-2"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
+                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
                                 </svg>
                               </a>
                             </label>
@@ -901,16 +777,7 @@ const ProjectDetail = () => {
                         </div>
                       </div>
 
-                      {/* Notes Section */}
-                      <h5 className="section-title mt-4">Notes</h5>
-                      <Notes
-                        entityType="project"
-                        entityId={projectId}
-                        entityName={project?.business_legal_name || ''}
-                        showButtons={false}
-                        showNotes={true}
-                        maxHeight={300}
-                      />
+
                     </div>
                   )}
 
@@ -985,7 +852,7 @@ const ProjectDetail = () => {
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
                         <a href="javascript:void(0)">
-                            <i className="fa-solid fa-plus"></i> New Contact
+                          <i className="fa-solid fa-plus"></i> New Contact
                         </a>
                         <a className="link_contact" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#link-contact" title="Link a contact">
                           <i className="fa-solid fa-plus"></i> Link a Contact
@@ -1222,6 +1089,13 @@ const ProjectDetail = () => {
                       </div>
                     </div>
                   )}
+
+                  <div className="mt-4">
+                    <div className="action-buttons d-flex align-items-center justify-content-center">
+                      <button className="btn save-btn">Update</button>
+                    </div>
+                  </div>
+
                 </div>
 
                 {/* Right Side Section - Same for all tabs */}
@@ -1387,13 +1261,24 @@ const ProjectDetail = () => {
                     </div>
                   </div>
 
-                  <div className=" mt-4">
-                      <div className="action-buttons">
-                        <button className="btn save-btn">Save</button>
-                        <button className="btn cancel-btn">Cancel</button>
-                      </div>
-                  </div>
+
                 </div>
+              </div>
+
+              <div className='row mt-4'>
+                <div className='col-md-8'>
+                  {/* Notes Section */}
+                  <h5 className="section-title mt-4">Notes</h5>
+                  <Notes
+                    entityType="project"
+                    entityId={projectId}
+                    entityName={project?.business_legal_name || ''}
+                    showButtons={false}
+                    showNotes={true}
+                    maxHeight={300}
+                  />
+                </div>
+
               </div>
             </div>
           </div>
