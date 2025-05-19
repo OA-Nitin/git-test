@@ -815,3 +815,7 @@ select[disabled] {
   display: flex;
   align-items: center;
 }
+
+.custom-checkbox label {
+  margin-bottom: 0;
+}

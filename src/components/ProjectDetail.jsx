@@ -2102,7 +2102,7 @@ const ProjectDetail = () => {
                           </div>
                         </div>
                       </div>
-                       <div className="row mb-3">
+                      <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Total Occams Share Pending</label>
@@ -2227,7 +2227,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q1-2020-filed-status" />
                               <label className="form-check-label" htmlFor="q1-2020-filed-status">
                                 Q1 2020 Filed Status
@@ -2235,7 +2235,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Filing Date</label>
                             <input
@@ -2245,7 +2245,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Amount Filed</label>
                             <input
@@ -2258,7 +2258,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Benefits</label>
                             <input
@@ -2268,7 +2268,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Eligibility Basis</label>
                             <select className="form-select">
@@ -2284,7 +2284,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q2-2020-filed-status" />
                               <label className="form-check-label" htmlFor="q2-2020-filed-status">
                                 Q2 2020 Filed Status
@@ -2292,7 +2292,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Filing Date</label>
                             <input
@@ -2302,7 +2302,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Amount Filed</label>
                             <input
@@ -2315,7 +2315,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Benefits</label>
                             <input
@@ -2325,7 +2325,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Eligibility Basis</label>
                             <select className="form-select">
@@ -2341,7 +2341,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q3-2020-filed-status" />
                               <label className="form-check-label" htmlFor="q3-2020-filed-status">
                                 Q3 2020 Filed Status
@@ -2349,7 +2349,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Filing Date</label>
                             <input
@@ -2359,7 +2359,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Amount Filed</label>
                             <input
@@ -2372,7 +2372,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Benefits</label>
                             <input
@@ -2382,7 +2382,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Eligibility Basis</label>
                             <select className="form-select">
@@ -2398,7 +2398,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q4-2020-filed-status" />
                               <label className="form-check-label" htmlFor="q4-2020-filed-status">
                                 Q4 2020 Filed Status
@@ -2406,7 +2406,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Filing Date</label>
                             <input
@@ -2416,7 +2416,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Amount Filed</label>
                             <input
@@ -2429,7 +2429,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Benefits</label>
                             <input
@@ -2439,7 +2439,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Eligibility Basis</label>
                             <select className="form-select">
@@ -2457,7 +2457,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q1-2021-filed-status" />
                               <label className="form-check-label" htmlFor="q1-2021-filed-status">
                                 Q1 2021 Filed Status
@@ -2465,7 +2465,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Filing Date</label>
                             <input
@@ -2475,7 +2475,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Amount Filed</label>
                             <input
@@ -2488,7 +2488,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Benefits</label>
                             <input
@@ -2498,7 +2498,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Eligibility Basis</label>
                             <select className="form-select">
@@ -2514,7 +2514,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q2-2021-filed-status" />
                               <label className="form-check-label" htmlFor="q2-2021-filed-status">
                                 Q2 2021 Filed Status
@@ -2522,7 +2522,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Filing Date</label>
                             <input
@@ -2532,7 +2532,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Amount Filed</label>
                             <input
@@ -2545,7 +2545,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Benefits</label>
                             <input
@@ -2555,7 +2555,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Eligibility Basis</label>
                             <select className="form-select">
@@ -2571,7 +2571,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q3-2021-filed-status" />
                               <label className="form-check-label" htmlFor="q3-2021-filed-status">
                                 Q3 2021 Filed Status
@@ -2579,7 +2579,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Filing Date</label>
                             <input
@@ -2589,7 +2589,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Amount Filed</label>
                             <input
@@ -2602,7 +2602,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Benefits</label>
                             <input
@@ -2612,7 +2612,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Eligibility Basis</label>
                             <select className="form-select">
@@ -2628,7 +2628,7 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
-                            <div className="form-check mt-4">
+                            <div className="form-check custom-checkbox">
                               <input className="form-check-input" type="checkbox" id="q4-2021-filed-status" />
                               <label className="form-check-label" htmlFor="q4-2021-filed-status">
                                 Q4 2021 Filed Status
@@ -2636,7 +2636,7 @@ const ProjectDetail = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Filing Date</label>
                             <input
@@ -2646,7 +2646,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Amount Filed</label>
                             <input
@@ -2659,7 +2659,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-5">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Benefits</label>
                             <input
@@ -2669,7 +2669,7 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-7">
+                        <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Eligibility Basis</label>
                             <select className="form-select">
@@ -2686,7 +2686,7 @@ const ProjectDetail = () => {
                       <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Loop</label>
                             <input
@@ -2696,23 +2696,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q1-2020-letter" />
-                              <label className="form-check-label" htmlFor="q1-2020-letter">
-                                Q1 2020 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q1-2020-check" />
-                              <label className="form-check-label" htmlFor="q1-2020-check">
-                                Q1 2020 Check
-                              </label>
-                            </div>
+                        <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q1-2020-letter" />
+                            <label className="form-check-label" htmlFor="q1-2020-letter">
+                              Q1 2020 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q1-2020-check" />
+                            <label className="form-check-label" htmlFor="q1-2020-check">
+                              Q1 2020 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Chq Amt</label>
                             <input
@@ -2725,7 +2725,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Loop</label>
                             <input
@@ -2735,23 +2735,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q2-2020-letter" />
-                              <label className="form-check-label" htmlFor="q2-2020-letter">
-                                Q2 2020 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q2-2020-check" />
-                              <label className="form-check-label" htmlFor="q2-2020-check">
-                                Q2 2020 Check
-                              </label>
-                            </div>
+                        <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q2-2020-letter" />
+                            <label className="form-check-label" htmlFor="q2-2020-letter">
+                              Q2 2020 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q2-2020-check" />
+                            <label className="form-check-label" htmlFor="q2-2020-check">
+                              Q2 2020 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Chq Amt</label>
                             <input
@@ -2764,7 +2764,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Loop</label>
                             <input
@@ -2774,23 +2774,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q3-2020-letter" />
-                              <label className="form-check-label" htmlFor="q3-2020-letter">
-                                Q3 2020 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q3-2020-check" />
-                              <label className="form-check-label" htmlFor="q3-2020-check">
-                                Q3 2020 Check
-                              </label>
-                            </div>
+                        <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q3-2020-letter" />
+                            <label className="form-check-label" htmlFor="q3-2020-letter">
+                              Q3 2020 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q3-2020-check" />
+                            <label className="form-check-label" htmlFor="q3-2020-check">
+                              Q3 2020 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Chq Amt</label>
                             <input
@@ -2803,7 +2803,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Loop</label>
                             <input
@@ -2813,23 +2813,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q4-2020-letter" />
-                              <label className="form-check-label" htmlFor="q4-2020-letter">
-                                Q4 2020 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q4-2020-check" />
-                              <label className="form-check-label" htmlFor="q4-2020-check">
-                                Q4 2020 Check
-                              </label>
-                            </div>
+                        <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q4-2020-letter" />
+                            <label className="form-check-label" htmlFor="q4-2020-letter">
+                              Q4 2020 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q4-2020-check" />
+                            <label className="form-check-label" htmlFor="q4-2020-check">
+                              Q4 2020 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Chq Amt</label>
                             <input
@@ -2844,7 +2844,7 @@ const ProjectDetail = () => {
                       <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Loop</label>
                             <input
@@ -2854,23 +2854,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q1-2021-letter" />
-                              <label className="form-check-label" htmlFor="q1-2021-letter">
-                                Q1 2021 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q1-2021-check" />
-                              <label className="form-check-label" htmlFor="q1-2021-check">
-                                Q1 2021 Check
-                              </label>
-                            </div>
+                        <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q1-2021-letter" />
+                            <label className="form-check-label" htmlFor="q1-2021-letter">
+                              Q1 2021 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q1-2021-check" />
+                            <label className="form-check-label" htmlFor="q1-2021-check">
+                              Q1 2021 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Chq Amt</label>
                             <input
@@ -2883,7 +2883,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Loop</label>
                             <input
@@ -2893,23 +2893,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q2-2021-letter" />
-                              <label className="form-check-label" htmlFor="q2-2021-letter">
-                                Q2 2021 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q2-2021-check" />
-                              <label className="form-check-label" htmlFor="q2-2021-check">
-                                Q2 2021 Check
-                              </label>
-                            </div>
+                       <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q2-2021-letter" />
+                            <label className="form-check-label" htmlFor="q2-2021-letter">
+                              Q2 2021 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q2-2021-check" />
+                            <label className="form-check-label" htmlFor="q2-2021-check">
+                              Q2 2021 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Chq Amt</label>
                             <input
@@ -2922,7 +2922,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Loop</label>
                             <input
@@ -2932,23 +2932,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q3-2021-letter" />
-                              <label className="form-check-label" htmlFor="q3-2021-letter">
-                                Q3 2021 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q3-2021-check" />
-                              <label className="form-check-label" htmlFor="q3-2021-check">
-                                Q3 2021 Check
-                              </label>
-                            </div>
+                       <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q3-2021-letter" />
+                            <label className="form-check-label" htmlFor="q3-2021-letter">
+                              Q3 2021 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q3-2021-check" />
+                            <label className="form-check-label" htmlFor="q3-2021-check">
+                              Q3 2021 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Chq Amt</label>
                             <input
@@ -2961,7 +2961,7 @@ const ProjectDetail = () => {
                       </div>
 
                       <div className="row mb-3">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Loop</label>
                             <input
@@ -2971,23 +2971,23 @@ const ProjectDetail = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-md-4">
-                          <div className="form-group mt-4">
-                            <div className="form-check form-check-inline">
-                              <input className="form-check-input" type="checkbox" id="q4-2021-letter" />
-                              <label className="form-check-label" htmlFor="q4-2021-letter">
-                                Q4 2021 Letter
-                              </label>
-                            </div>
-                            <div className="form-check form-check-inline ms-3">
-                              <input className="form-check-input" type="checkbox" id="q4-2021-check" />
-                              <label className="form-check-label" htmlFor="q4-2021-check">
-                                Q4 2021 Check
-                              </label>
-                            </div>
+                        <div className="col-md-3">
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q4-2021-letter" />
+                            <label className="form-check-label" htmlFor="q4-2021-letter">
+                              Q4 2021 Letter
+                            </label>
                           </div>
                         </div>
-                        <div className="col-md-4">
+                        <div className='col-md-3'>
+                          <div className="form-check custom-checkbox">
+                            <input className="form-check-input" type="checkbox" id="q4-2021-check" />
+                            <label className="form-check-label" htmlFor="q4-2021-check">
+                              Q4 2021 Check
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Chq Amt</label>
                             <input
