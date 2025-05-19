@@ -49,14 +49,17 @@ const ProjectDetail = () => {
   });
 
   // Project group, campaign, source, and stage state
-  const [owner, setOwner] = useState(null);
+  const [owner, setOwner] = useState({ value: 'erc-fprs', label: 'ERC - FPRS' });
   const [projectCampaign, setProjectCampaign] = useState(null);
   const [projectSource, setProjectSource] = useState(null);
   const [projectStage, setProjectStage] = useState({ value: 'client-declarations-signed', label: 'Client Declarations Signed' });
 
-  // Milestone and Stage edit state
+  // Milestone, Stage, Owner, and Contact edit state
   const [milestone, setMilestone] = useState({ value: 'erc-fulfillment', label: 'ERC Fulfillment' });
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingOwner, setIsEditingOwner] = useState(false);
+  const [selectedContact, setSelectedContact] = useState({ value: 'sunny-shekhar', label: 'Sunny Shekhar' });
+  const [isEditingContact, setIsEditingContact] = useState(false);
 
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -272,6 +275,10 @@ const ProjectDetail = () => {
     setOwner(selectedOption);
   };
 
+  const handleContactChange = (selectedOption) => {
+    setSelectedContact(selectedOption);
+  };
+
   const handleProjectCampaignChange = (selectedOption) => {
     setProjectCampaign(selectedOption);
   };
@@ -471,7 +478,7 @@ const ProjectDetail = () => {
             <div className="white_card_body">
               <div className="row">
                 {/* Left Content Area - Changes based on active tab */}
-                <div className="col-md-8">
+                <div className="col-md-9">
                   {/* Project Tab */}
                   {activeTab === 'project' && (
                     <div className="mb-4 left-section-container">
@@ -3766,15 +3773,15 @@ const ProjectDetail = () => {
                 {/* Right Side Section - Same for all tabs */}
 
 
-                <div className="col-md-4">
+                <div className="col-md-3">
 
-                  <div className="card mb-4">
-                    <div className="card-body">
+                  <div className="card mb-4 p-2">
+                    <div className="card-body p-2">
                       <div className="d-flex justify-content-between align-items-center mb-3">
                         <h5 className="card-title mb-0">Milestone:</h5>
                         {!isEditing && (
                           <button
-                            className="btn btn-sm btn-link p-0"
+                            className="btn btn-sm btn-outline-primary"
                             onClick={() => setIsEditing(true)}
                             style={{ fontSize: '16px' }}
                           >
@@ -3905,8 +3912,8 @@ const ProjectDetail = () => {
                     </div>
                   </div>
 
-                  <div className="card mb-4">
-                    <div className="card-body">
+                  <div className="card mb-4 p-2">
+                    <div className="card-body p-2">
                       <h5 className="card-title">Assigned Collaborators::</h5>
 
                       {/* Display assigned users */}
@@ -3975,94 +3982,161 @@ const ProjectDetail = () => {
                     </div>
                   </div>
 
-                  <div className="card mb-4">
-                    <div className="card-body">
-                      <h5 className="card-title">Owner:</h5>
-                      <div className="form-group mb-4">
-                        <Select
-                          value={owner}
-                          onChange={handleOwnerChange}
-                          options={[
-                            { value: 'erc-fprs', label: 'ERC - FPRS' },
-                            { value: 'erc-referrals', label: 'ERC - Referrals' },
-                            { value: 'erc-direct', label: 'ERC - Direct' },
-                            { value: 'erc-partners', label: 'ERC - Partners' }
-                          ]}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            })
-                          }}
-                        />
+                  <div className="card mb-4 p-2">
+                    <div className="card-body p-2">
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="card-title mb-0">Select Owner:</h5>
+                        {!isEditingOwner && (
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => setIsEditingOwner(true)}
+                            style={{ fontSize: '16px' }}
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                        )}
                       </div>
 
-                      <h5 className="card-title">Project Campaign:</h5>
-                      <div className="form-group mb-4">
-                        <Select
-                          value={projectCampaign}
-                          onChange={handleProjectCampaignChange}
-                          options={[
-                            { value: 'b2b', label: 'B2B' },
-                            { value: 'referral', label: 'Referral' },
-                            { value: 'direct', label: 'Direct' },
-                            { value: 'partner', label: 'Partner' },
-                            { value: 'social', label: 'Social Media' }
-                          ]}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            })
-                          }}
-                        />
+                      {!isEditingOwner ? (
+                        <div className="owner-display mb-4 d-flex align-items-center">
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{owner.label}</span>
+                        </div>
+                      ) : (
+                        <div className="owner-edit mb-4">
+                          <div className="form-group mb-3">
+                            <Select
+                              value={owner}
+                              onChange={handleOwnerChange}
+                              options={[
+                                { value: 'erc-fprs', label: 'ERC - FPRS' },
+                                { value: 'erc-referrals', label: 'ERC - Referrals' },
+                                { value: 'erc-direct', label: 'ERC - Direct' },
+                                { value: 'erc-partners', label: 'ERC - Partners' }
+                              ]}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  borderRadius: '4px',
+                                  borderColor: '#ced4da',
+                                  boxShadow: 'none',
+                                  '&:hover': {
+                                    borderColor: '#adb5bd'
+                                  }
+                                })
+                              }}
+                            />
+                          </div>
+                          <div className="d-flex justify-content-between mt-3">
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => setIsEditingOwner(false)}
+                              style={{
+                                backgroundColor: 'white',
+                                color: '#ff6a00',
+                                border: '1px solid #ff6a00',
+                                borderRadius: '20px',
+                                padding: '5px 25px'
+                              }}
+                            >
+                              Update
+                            </button>
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => setIsEditingOwner(false)}
+                              style={{
+                                backgroundColor: 'white',
+                                color: '#ff6a00',
+                                border: '1px solid #ff6a00',
+                                borderRadius: '20px',
+                                padding: '5px 25px'
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="card mb-4 p-2">
+                    <div className="card-body p-2">
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="card-title mb-0">Select Contact:</h5>
+                        {!isEditingContact && (
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => setIsEditingContact(true)}
+                            style={{ fontSize: '16px' }}
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                        )}
                       </div>
 
-                      <h5 className="card-title">Project Source:</h5>
-                      <div className="form-group">
-                        <Select
-                          value={projectSource}
-                          onChange={handleProjectSourceChange}
-                          options={[
-                            { value: 'payment-cloud', label: 'Payment Cloud' },
-                            { value: 'website', label: 'Website' },
-                            { value: 'cold-call', label: 'Cold Call' },
-                            { value: 'email', label: 'Email Campaign' },
-                            { value: 'linkedin', label: 'LinkedIn' },
-                            { value: 'facebook', label: 'Facebook' }
-                          ]}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            })
-                          }}
-                        />
-                      </div>
+                      {!isEditingContact ? (
+                        <div className="contact-display mb-4 d-flex align-items-center">
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{selectedContact.label}</span>
+                        </div>
+                      ) : (
+                        <div className="contact-edit mb-4">
+                          <div className="form-group mb-3">
+                            <Select
+                              value={selectedContact}
+                              onChange={handleContactChange}
+                              options={[
+                                { value: 'sunny-shekhar', label: 'Sunny Shekhar' },
+                                { value: 'rahul-sharma', label: 'Rahul Sharma' },
+                                { value: 'priya-patel', label: 'Priya Patel' },
+                                { value: 'amit-kumar', label: 'Amit Kumar' }
+                              ]}
+                              className="react-select-container"
+                              classNamePrefix="react-select"
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  borderRadius: '4px',
+                                  borderColor: '#ced4da',
+                                  boxShadow: 'none',
+                                  '&:hover': {
+                                    borderColor: '#adb5bd'
+                                  }
+                                })
+                              }}
+                            />
+                          </div>
+                          <div className="d-flex justify-content-between mt-3">
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => setIsEditingContact(false)}
+                              style={{
+                                backgroundColor: 'white',
+                                color: '#ff6a00',
+                                border: '1px solid #ff6a00',
+                                borderRadius: '20px',
+                                padding: '5px 25px'
+                              }}
+                            >
+                              Update
+                            </button>
+                            <button
+                              className="btn btn-sm"
+                              onClick={() => setIsEditingContact(false)}
+                              style={{
+                                backgroundColor: 'white',
+                                color: '#ff6a00',
+                                border: '1px solid #ff6a00',
+                                borderRadius: '20px',
+                                padding: '5px 25px'
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
