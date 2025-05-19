@@ -1813,23 +1813,417 @@ const ProjectDetail = () => {
                   {/* Fees Tab Content */}
                   {activeTab === 'fees' && (
                     <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Fee Information</h5>
+                      <h5 className="section-title">941 Details</h5>
                       <div className="row mb-3">
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label">Project Fee</label>
-                            <input type="text" className="form-control" defaultValue={project?.project_fee || '$5,000'} />
+                            <label className="form-label">ERC Discovered Date</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="MM/DD/YYYY"
+                            />
                           </div>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label">Fee Type</label>
-                            <select className="form-select">
-                              <option>Fixed</option>
-                              <option>Percentage</option>
-                              <option>Hourly</option>
-                            </select>
+                            <label className="form-label">Q3 2020 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2020 941 Wages"
+                            />
                           </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2021 941 Wages"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2020 941 Wages"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2021 941 Wages"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2021 941 Wages"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2021 941 Wages"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 941 Wages</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2021 941 Wages"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">TOTAL ERC AMOUNT AND FEES</h5>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Internal Sales Agent</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Internal Sales Agent"
+                              defaultValue="Lorenzo Oliver" readOnly
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Internal Sales Support</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Internal Sales Support"
+                              defaultValue="Varun Kumar" readOnly
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Name</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Affiliate Name"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Affiliate Percentage</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Affiliate Percentage"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">ERC Claim Filed</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="ERC Claim Filed"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">ERC Amount Received</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="ERC Amount Received"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total ERC Fee</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total ERC Fee"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Legal Fees</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Legal Fees"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total ERC Fees Paid</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total ERC Fees Paid"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total ERC Fees Pending</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total ERC Fees Pending"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Aff_Ref Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Aff_Ref Share"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retain Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Retain Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retain Aff_Ref Share  </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Retain Aff_Ref Share "
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Bal Retain Occams Share  </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Bal Retain Occams Share "
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Retain Occams Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Retain Occams Share"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Occams Share Paid  </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Occams Share Paid "
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Aff_Ref Share Paid </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Aff_Ref Share Paid"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                       <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Occams Share Pending</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Occams Share Pending"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Total Aff_Ref Share Pending  </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Total Aff_Ref Share Pending "
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Total Max ERC Amount 2020</h5>
+                      <h6 className="sub-section-title mt-3">2020</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2020 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2020 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2020 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2020 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2020 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2020 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2020 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2020 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <h5 className="section-title mt-4">Total Max ERC Amount 2021</h5>
+                      <h6 className="sub-section-title mt-3">2021</h6>
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q1 2021 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q1 2021 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q2 2021 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q2 2021 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q3 2021 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q3 2021 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <div className="form-group">
+                            <label className="form-label">Q4 2021 Max ERC Amount</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Q4 2021 Max ERC Amount"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <div className="action-buttons d-flex align-items-center justify-content-center">
+                          <button className="btn save-btn">Update Fee Information</button>
                         </div>
                       </div>
                     </div>
