@@ -37,7 +37,7 @@ const LeadReport = () => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 second timeout
+        timeout: 40000 // 40 second timeout
       });
 
       console.log('API Response:', response);
@@ -627,7 +627,7 @@ const LeadReport = () => {
     });
 
     // Fetch notes from the API
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
+    axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes/${leadId}`)
       .then(response => {
         const notes = response.data || [];
         console.log('Notes API response:', notes); // For debugging
@@ -844,13 +844,14 @@ const LeadReport = () => {
         const noteData = {
           lead_id: leadId,
           note: result.value.content,
-          user_id: 1  // Adding user_id parameter as required by the API
+          user_id: 1,  // Adding user_id parameter as required by the API
+          user_name: 'Current User' // Adding user_name parameter
         };
 
         console.log('Sending note data:', noteData); // For debugging
 
         // Send the data to the API
-        axios.post('https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes', noteData)
+        axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData)
           .then(() => {
             // Show success message
             Swal.fire({
