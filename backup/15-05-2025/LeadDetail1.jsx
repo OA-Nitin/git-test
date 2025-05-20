@@ -3,12 +3,9 @@ import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
-import Swal from 'sweetalert2';
 import './common/CommonStyles.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
-import EditContactModal from './EditContactModal';
-import AuditLogsMultiSection from './AuditLogsMultiSection';
 
 const LeadDetail = () => {
   const { leadId } = useParams();
@@ -64,10 +61,6 @@ const LeadDetail = () => {
   // State for all contacts
   const [contacts, setContacts] = useState([]);
 
-  // State for edit contact modal
-  const [showEditContactModal, setShowEditContactModal] = useState(false);
-  const [currentContactId, setCurrentContactId] = useState(null);
-
   // Projects related state
   const [projects, setProjects] = useState([]);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
@@ -83,48 +76,9 @@ const LeadDetail = () => {
     ContactList: '',
     collaborators: []
   });
-
-  // State for milestone stages
-  const [milestoneStages, setMilestoneStages] = useState([]);
   const [projectUpdateLoading, setProjectUpdateLoading] = useState(false);
   const [projectUpdateSuccess, setProjectUpdateSuccess] = useState(false);
   const [projectUpdateError, setProjectUpdateError] = useState(null);
-
-  // Opportunities related state
-  const [opportunities, setOpportunities] = useState([]);
-  const [showEditOpportunityModal, setShowEditOpportunityModal] = useState(false);
-  const [currentOpportunity, setCurrentOpportunity] = useState(null);
-  const [opportunityFormData, setOpportunityFormData] = useState({
-    id: '',
-    opportunity_name: '',
-    lead_name: '',
-    product: '',
-    milestone: '',
-    created_date: '',
-    created_by: '',
-    stage: '',
-    currency: '',
-    opportunity_amount: '',
-    probability: '',
-    expected_close_date: '',
-    next_step: '',
-    description: ''
-  });
-  const [opportunityUpdateLoading, setOpportunityUpdateLoading] = useState(false);
-  const [opportunityUpdateSuccess, setOpportunityUpdateSuccess] = useState(false);
-  const [opportunityUpdateError, setOpportunityUpdateError] = useState(null);
-  const [milestones, setMilestones] = useState([]);
-
-  // Delete opportunity related state
-  const [showDeleteOpportunityModal, setShowDeleteOpportunityModal] = useState(false);
-  const [opportunityToDelete, setOpportunityToDelete] = useState(null);
-  const [deleteOpportunityLoading, setDeleteOpportunityLoading] = useState(false);
-  const [deleteOpportunityError, setDeleteOpportunityError] = useState(null);
-  const [deleteOpportunitySuccess, setDeleteOpportunitySuccess] = useState(false);
-
-  // Notes related state (already defined above)
-  const [notesLoading, setNotesLoading] = useState(false);
-  const [notesError, setNotesError] = useState(null);
 
   // Lead classification state
   const [leadGroup, setLeadGroup] = useState(null);
@@ -135,7 +89,6 @@ const LeadDetail = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
-  const [billingProfileOptions, setBillingProfileOptions] = useState([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
 
   // Affiliate Commission state
@@ -336,40 +289,6 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to fetch billing profiles from API
-  const fetchBillingProfiles = async () => {
-    try {
-      setIsLoadingOptions(true);
-      console.log('Fetching billing profiles...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
-
-      console.log('Billing Profiles API response:', response);
-
-      if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
-        const profilesData = response.data.data;
-
-        if (profilesData.length > 0) {
-          // Map the data using id as value and profile_name as label
-          const profiles = profilesData.map(profile => ({
-            value: profile.id.toString(),
-            label: profile.profile_name
-          }));
-
-          console.log('Setting billing profile options:', profiles);
-          setBillingProfileOptions(profiles);
-        } else {
-          console.warn('No billing profiles found in response');
-        }
-      } else {
-        console.warn('Failed to fetch billing profiles:', response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching billing profiles:', err);
-    } finally {
-      setIsLoadingOptions(false);
-    }
-  };
-
 
 
   useEffect(() => {
@@ -388,9 +307,6 @@ const LeadDetail = () => {
         console.log('Campaigns fetched, now fetching sources...');
 
         await fetchSources();
-        console.log('Sources fetched, now fetching billing profiles...');
-
-        await fetchBillingProfiles();
         console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
@@ -400,7 +316,6 @@ const LeadDetail = () => {
         console.log('Group options:', groupOptions);
         console.log('Campaign options:', campaignOptions);
         console.log('Source options:', sourceOptions);
-        console.log('Billing profile options:', billingProfileOptions);
 
         // Then fetch lead details after dropdown options are loaded
         console.log('Starting data fetch sequence for lead ID:', leadId);
@@ -424,14 +339,6 @@ const LeadDetail = () => {
         // Also fetch affiliate commission data
         await fetchAffiliateCommissionData();
         console.log('Affiliate commission data fetched');
-
-        // Fetch opportunities data
-        await fetchOpportunities();
-        console.log('Opportunities data fetched');
-
-        // Fetch milestones data with default product_id
-        await fetchOpportunityMilestones('');
-        console.log('Opportunity milestones data fetched');
 
         console.log('All data fetched successfully for lead ID:', leadId);
 
@@ -485,9 +392,6 @@ const LeadDetail = () => {
     };
   }, []);
 
-  // We no longer need to fetch milestones when component loads
-  // They are now fetched when the edit modals are opened
-
   // Reset onboarding status when signup status changes
   useEffect(() => {
     setTaxNowOnboardingStatus('');
@@ -505,7 +409,6 @@ const LeadDetail = () => {
     if (leadId) {
       fetchUserData();
       fetchAssignedUsers();
-      fetchOpportunities();
     }
   }, [leadId]);
 
@@ -656,8 +559,6 @@ const LeadDetail = () => {
             billing_profile: businessData.billing_profile || '',
             taxnow_signup_status: businessData.taxnow_signup_status || '',
             taxnow_onboarding_status: businessData.taxnow_onboarding_status || '',
-            company_folder_link: businessData.company_folder_link || '',
-            document_folder_link: businessData.document_folder_link || '',
             lead_id: leadId
           };
 
@@ -674,8 +575,13 @@ const LeadDetail = () => {
           setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
-          setCompanyFolderLink(businessData.company_folder_link || '');
-          setDocumentFolderLink(businessData.document_folder_link || '');
+          if (businessData.company_folder_link) {
+            setCompanyFolderLink(businessData.company_folder_link);
+          }
+
+          if (businessData.document_folder_link) {
+            setDocumentFolderLink(businessData.document_folder_link);
+          }
 
           // Update primary contact info if available
           if (businessData.primary_contact) {
@@ -859,97 +765,6 @@ const LeadDetail = () => {
       }
     } catch (err) {
       console.error('Error fetching affiliate commission data:', err);
-    }
-  };
-
-  // Function to handle edit contact
-  const handleEditContact = (contactId) => {
-    setCurrentContactId(contactId);
-    setShowEditContactModal(true);
-  };
-
-  // Function to close the edit contact modal
-  const handleCloseEditContactModal = () => {
-    setShowEditContactModal(false);
-    setCurrentContactId(null);
-    // Refresh contact data after closing the modal
-    fetchContactData();
-  };
-
-  // Function to handle disable contact
-  const handleDisableContact = (contactId, contactName) => {
-    // Show confirmation dialog
-    Swal.fire({
-      title: 'Are you sure?',
-      html: `You want to disable the contact '${contactName}'?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, disable it!',
-      cancelButtonText: 'Cancel',
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call API to disable contact
-        disableContact(contactId);
-      }
-    });
-  };
-
-  // Function to disable contact via API
-  const disableContact = async (contactId) => {
-    try {
-      // Show loading state
-      Swal.fire({
-        title: 'Disabling contact...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      // Call the API to disable the contact
-      const response = await axios.delete(`https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
-
-      console.log('Disable contact API response:', response);
-      
-      // Check if the API call was successful
-      if (response.data && JSON.parse(response.data).code=="success") {
-        // Show success message
-        Swal.fire({
-          title: 'Success!',
-          text: 'Contact has been disabled successfully.',
-          icon: 'success',
-          confirmButtonColor: '#4CAF50'
-        });
-
-        // Refresh contact data
-        fetchContactData();
-      } else {
-        // Show error message
-        Swal.fire({
-          title: 'Error!',
-          text: response.data?.message || 'Failed to disable contact.',
-          icon: 'error',
-          confirmButtonColor: '#d33'
-        });
-      }
-    } catch (error) {
-      console.error('Error disabling contact:', error);
-
-      // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: error.message || 'An error occurred while disabling the contact.',
-        icon: 'error',
-        confirmButtonColor: '#d33'
-      });
     }
   };
 
@@ -1423,59 +1238,39 @@ const LeadDetail = () => {
   const fetchNotes = async () => {
     try {
       console.log('Fetching notes for lead ID:', leadId);
-      setNotesLoading(true);
-      setNotesError(null);
 
-      // Fetch notes from the API
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
-      console.log('Notes API response:', response);
+      // In a real implementation, you would fetch notes from an API
+      // For example:
+      // const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}?page=${notesPage}`);
+      // if (response.data && response.data.success) {
+      //   const apiNotes = response.data.data;
+      //
+      //   // Format dates and times
+      //   const formattedNotes = apiNotes.map(note => ({
+      //     ...note,
+      //     formattedDate: new Date(note.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      //     formattedTime: new Date(note.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+      //   }));
+      //
+      //   // If this is the first page, replace notes, otherwise append
+      //   if (notesPage === 1) {
+      //     setNotes(formattedNotes);
+      //   } else {
+      //     setNotes([...notes, ...formattedNotes]);
+      //   }
+      //
+      //   // Check if there are more notes to load
+      //   setHasMoreNotes(response.data.has_more || false);
+      // }
 
-      let notesData = [];
-
-      // Handle different possible response formats
-      if (Array.isArray(response.data)) {
-        notesData = response.data;
-      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        notesData = response.data.data;
-      } else if (response.data && typeof response.data === 'object') {
-        // If it's a single note object, wrap it in an array
-        notesData = [response.data];
-      }
-
-      console.log('Processed notes data:', notesData);
-
-      // Format dates and times
-      const formattedNotes = notesData.map(note => ({
-        id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
-        text: note.note || note.text || note.content || '',
-        author: note.user_name || note.author || 'User',
-        date: note.created_at || note.date || new Date().toISOString(),
-        formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-        formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-      }));
-
-      console.log('Formatted notes:', formattedNotes);
-
-      // If this is the first page, replace notes, otherwise append
-      if (notesPage === 1) {
-        setNotes(formattedNotes);
-      } else {
-        setNotes(prevNotes => [...prevNotes, ...formattedNotes]);
-      }
-
-      // Check if there are more notes to load
-      setHasMoreNotes(response.data && response.data.has_more ? true : false);
-
-    } catch (err) {
-      console.error('Error fetching notes:', err);
-      setNotesError('Failed to load notes. Please try again later.');
-      // Set empty array if there's an error
+      // For now, we'll just set an empty array
       if (notesPage === 1) {
         setNotes([]);
       }
       setHasMoreNotes(false);
-    } finally {
-      setNotesLoading(false);
+
+    } catch (err) {
+      console.error('Error fetching notes:', err);
     }
   };
 
@@ -1491,342 +1286,29 @@ const LeadDetail = () => {
     setNewNote('');
   };
 
-  // Function to handle adding a note
-  const handleAddNote = () => {
-    console.log('handleAddNote called');
+  // Function to handle adding a new note
+  const handleAddNote = (e) => {
+    e.preventDefault();
 
-    // Use a flag to prevent multiple calls
-    if (window.isAddingNote) {
-      console.log('Add note modal is already open, ignoring duplicate call');
-      return;
-    }
+    if (newNote.trim() === '') return;
 
-    window.isAddingNote = true;
+    // Create a new note object
+    const currentDate = new Date();
+    const newNoteObj = {
+      id: notes.length + 1,
+      text: newNote,
+      author: 'Current User',
+      date: currentDate,
+      formattedDate: currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+      formattedTime: currentDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    };
 
-    // Use SweetAlert2 for the add note popup
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
-      html: `
-        <div class="text-start">
-          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-            <div>
-              <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
-            </div>
-          </div>
-          <div class="mb-3">
-            <textarea
-              class="form-control"
-              id="note-content"
-              rows="5"
-              placeholder="Enter your note here..."
-              style="resize: vertical; min-height: 100px;"
-            ></textarea>
-          </div>
-          <div class="text-muted small">
-            <i class="fas fa-info-circle me-1"></i>
-            Your note will be saved with the current date and time.
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Save Note',
-      cancelButtonText: 'Cancel',
-      width: '650px',
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom',
-        confirmButton: 'btn btn-primary',
-        cancelButton: 'btn btn-secondary'
-      },
-      preConfirm: () => {
-        const content = document.getElementById('note-content').value;
-        if (!content.trim()) {
-          Swal.showValidationMessage('Please enter a note');
-          return false;
-        }
-        return { content };
-      },
-      willClose: () => {
-        // Reset the flag when the modal is closed
-        window.isAddingNote = false;
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        saveNote(result.value.content);
-      } else {
-        // Reset the flag if the user cancels
-        window.isAddingNote = false;
-      }
-    });
+    // Add the new note to the beginning of the notes array
+    setNotes([newNoteObj, ...notes]);
+
+    // Close the modal and reset the new note input
+    toggleAddNoteModal();
   };
-
-  // Function to save a note to the API
-  const saveNote = async (noteContent) => {
-    try {
-      // Show loading state
-      Swal.fire({
-        title: `<span style="font-size: 1.2rem; color: #333;">Saving Note</span>`,
-        html: `
-          <div class="text-center py-3">
-            <div class="spinner-border text-primary mb-3" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="text-muted">Saving your note...</p>
-          </div>
-        `,
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        customClass: {
-          popup: 'swal-popup-custom',
-          title: 'swal-title-custom'
-        }
-      });
-
-      // Prepare the data for the API
-      const noteData = {
-        lead_id: leadId,
-        note: noteContent,
-        user_id: 1,  // Adding user_id parameter as required by the API
-        user_name: 'Current User' // Adding user_name parameter
-      };
-
-      console.log('Sending note data:', noteData); // For debugging
-
-      // Send the data to the API
-      const response = await axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData);
-      console.log('Add note API response:', response);
-
-      // Show success message
-      Swal.fire({
-        title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
-        html: `
-          <div class="text-center py-3">
-            <div class="mb-3">
-              <i class="fas fa-check-circle fa-3x text-success"></i>
-            </div>
-            <p class="text-muted">Your note has been saved successfully.</p>
-          </div>
-        `,
-        timer: 2000,
-        showConfirmButton: false,
-        customClass: {
-          popup: 'swal-popup-custom',
-          title: 'swal-title-custom'
-        }
-      });
-
-      // Refresh the notes
-      setTimeout(() => {
-        setNotesPage(1);
-        fetchNotes();
-      }, 2100);
-    } catch (error) {
-      console.error('Error saving note:', error);
-
-      // Show error message
-      Swal.fire({
-        title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-        html: `
-          <div class="text-center py-3">
-            <div class="mb-3">
-              <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-            </div>
-            <p class="text-muted">There was a problem saving your note. Please try again.</p>
-            <p class="text-danger small">${error.message || 'Unknown error'}</p>
-          </div>
-        `,
-        confirmButtonText: 'OK',
-        customClass: {
-          popup: 'swal-popup-custom',
-          title: 'swal-title-custom',
-          confirmButton: 'btn btn-primary'
-        }
-      });
-    }
-  };
-
-  // Function to view all notes
-  const handleViewNotes = () => {
-    // Show loading state
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-      html: `
-        <div class="text-center py-4">
-          <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="text-muted">Loading notes...</p>
-        </div>
-      `,
-      showConfirmButton: false,
-      showCloseButton: true,
-      allowOutsideClick: false,
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Fetch notes from the API
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
-      .then(response => {
-        const notes = response.data || [];
-        console.log('Notes API response for modal:', notes);
-
-        let notesData = [];
-
-        // Handle different possible response formats
-        if (Array.isArray(response.data)) {
-          notesData = response.data;
-        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-          notesData = response.data.data;
-        } else if (response.data && typeof response.data === 'object') {
-          // If it's a single note object, wrap it in an array
-          notesData = [response.data];
-        }
-
-        // Format the notes for display
-        const formattedNotes = notesData.map(note => ({
-          id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
-          text: note.note || note.text || note.content || '',
-          author: note.user_name || note.author || 'User',
-          date: note.created_at || note.date || new Date().toISOString(),
-          formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-          formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-        }));
-
-        // Generate HTML for the notes
-        let notesHtml = '';
-        if (formattedNotes.length === 0) {
-          notesHtml = `
-            <div class="text-center py-4">
-              <div class="mb-3">
-                <i class="fas fa-sticky-note fa-3x text-muted"></i>
-              </div>
-              <p class="text-muted">No notes available for this lead</p>
-              <button id="add-first-note-btn" class="btn btn-primary mt-3">
-                <i class="fas fa-plus me-2"></i>Add First Note
-              </button>
-            </div>
-          `;
-        } else {
-          notesHtml = formattedNotes.map(note => `
-            <div class="note-item mb-3 p-3 bg-white rounded shadow-sm">
-              <div class="d-flex justify-content-between">
-                <div class="note-date fw-bold">${note.formattedDate}</div>
-                <div class="note-time text-muted">${note.formattedTime}</div>
-              </div>
-              <div class="note-content mt-2">
-                <div class="d-flex align-items-center mb-1">
-                  <span class="fw-bold text-dark">${note.author}</span>
-                </div>
-                <div class="note-text">${note.text}</div>
-              </div>
-            </div>
-          `).join('');
-        }
-
-        // Show the notes in a modal
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-          html: `
-            <div class="text-start">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                  <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
-                </div>
-                <button id="add-note-btn" class="btn btn-primary btn-sm">
-                  <i class="fas fa-plus me-1"></i>Add Note
-                </button>
-              </div>
-              <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
-                ${notesHtml}
-              </div>
-            </div>
-          `,
-          width: '650px',
-          showCloseButton: false,
-          showConfirmButton: true,
-          confirmButtonText: 'Close',
-          confirmButtonColor: '#0d6efd',
-          customClass: {
-            container: 'swal-wide',
-            popup: 'swal-popup-custom',
-            header: 'swal-header-custom',
-            title: 'swal-title-custom',
-            closeButton: 'swal-close-button-custom',
-            content: 'swal-content-custom',
-            footer: 'swal-footer-custom'
-          },
-          didOpen: () => {
-            // Remove any existing event listeners first
-            const addNoteBtn = document.getElementById('add-note-btn');
-            const addFirstNoteBtn = document.getElementById('add-first-note-btn');
-
-            // Clone and replace the buttons to remove any existing event listeners
-            if (addNoteBtn) {
-              const newAddNoteBtn = addNoteBtn.cloneNode(true);
-              addNoteBtn.parentNode.replaceChild(newAddNoteBtn, addNoteBtn);
-
-              // Add event listener to the new button
-              newAddNoteBtn.addEventListener('click', () => {
-                console.log('Add Note button clicked');
-                Swal.close();
-                setTimeout(() => {
-                  handleAddNote();
-                }, 300);
-              });
-            }
-
-            // Do the same for the Add First Note button if it exists
-            if (addFirstNoteBtn) {
-              const newAddFirstNoteBtn = addFirstNoteBtn.cloneNode(true);
-              addFirstNoteBtn.parentNode.replaceChild(newAddFirstNoteBtn, addFirstNoteBtn);
-
-              // Add event listener to the new button
-              newAddFirstNoteBtn.addEventListener('click', () => {
-                console.log('Add First Note button clicked');
-                Swal.close();
-                setTimeout(() => {
-                  handleAddNote();
-                }, 300);
-              });
-            }
-          }
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching notes:', error);
-
-        // Show error message
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-          html: `
-            <div class="text-center py-3">
-              <div class="mb-3">
-                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-              </div>
-              <p class="text-muted">There was a problem loading notes for this lead.</p>
-            </div>
-          `,
-          confirmButtonText: 'OK',
-          customClass: {
-            popup: 'swal-popup-custom',
-            title: 'swal-title-custom'
-          }
-        });
-      });
-  };
-
-  // This function is replaced by the SweetAlert2 version above
 
   // Function to handle user selection
   const handleUserChange = (selectedOption) => {
@@ -2132,289 +1614,12 @@ const LeadDetail = () => {
     setMasterCommissionValue(e.target.value);
   };
 
-  // Function to fetch milestone stages from API
-  const fetchMilestoneStages = async (milestone_id = '', product_id = '') => {
-    try {
-      console.log('Fetching milestone stages for milestone_id:', milestone_id, 'and product_id:', product_id);
-
-      // Set default milestone stages in case API fails
-      const defaultMilestoneStages = [
-        { id: '1', name: 'Stage 1' },
-        { id: '2', name: 'Stage 2' },
-        { id: '3', name: 'Stage 3' }
-      ];
-
-      // If no milestone_id is provided, return default stages
-      if (!milestone_id) {
-        console.log('No milestone_id provided, returning default milestone stages');
-        return defaultMilestoneStages;
-      }
-
-      // Build the API URL with the milestone_id parameter
-      let apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${encodeURIComponent(milestone_id)}`;
-
-      // Add product_id parameter if provided
-      if (product_id) {
-        apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
-      }
-
-      console.log('Calling milestone stages API with URL:', apiUrl);
-
-      // Make the API call
-      const response = await axios.get(apiUrl);
-
-      console.log('Milestone stages API response:', response);
-      console.log('Milestone stages API response data type:', typeof response.data);
-      console.log('Milestone stages API response data:', JSON.stringify(response.data, null, 2));
-
-      // Process the response similar to milestones
-      let formattedStages = [];
-
-      if (response.data && response.data.success && response.data.data && response.data.data.data) {
-        // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
-
-        const stagesData = response.data.data.data;
-        if (Array.isArray(stagesData)) {
-          formattedStages = stagesData.map(stage => ({
-            id: stage.stage_id || stage.id || '',
-            name: stage.stage_name || stage.name || ''
-          })).filter(s => s.id && s.name);
-
-          console.log('Formatted milestone stages from API data:', formattedStages);
-        }
-      } else if (response.data && response.data.data) {
-        // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
-
-        const stagesData = response.data.data;
-        if (Array.isArray(stagesData)) {
-          formattedStages = stagesData.map(stage => ({
-            id: stage.stage_id || stage.id || '',
-            name: stage.stage_name || stage.name || ''
-          })).filter(s => s.id && s.name);
-
-          console.log('Formatted milestone stages from data array:', formattedStages);
-        } else if (typeof stagesData === 'object') {
-          // Handle case where data is an object with stage objects
-          formattedStages = Object.values(stagesData)
-            .filter(stage => stage && typeof stage === 'object')
-            .map(stage => ({
-              id: stage.stage_id || stage.id || '',
-              name: stage.stage_name || stage.name || stage.title || ''
-            }))
-            .filter(s => s.id && s.name);
-
-          console.log('Formatted milestone stages from data object:', formattedStages);
-        }
-      } else if (Array.isArray(response.data)) {
-        // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
-
-        formattedStages = response.data.map(stage => ({
-          id: stage.stage_id || stage.id || '',
-          name: stage.stage_name || stage.name || ''
-        })).filter(s => s.id && s.name);
-
-        console.log('Formatted milestone stages from direct array:', formattedStages);
-      } else if (typeof response.data === 'object') {
-        // Response.data is an object, try to extract stages
-        console.log('Response data is an object, checking its properties');
-
-        formattedStages = Object.values(response.data)
-          .filter(stage => stage && typeof stage === 'object')
-          .map(stage => ({
-            id: stage.stage_id || stage.id || '',
-            name: stage.stage_name || stage.name || stage.title || ''
-          }))
-          .filter(s => s.id && s.name);
-
-        console.log('Formatted milestone stages from object:', formattedStages);
-      }
-
-      console.log('Final formatted milestone stages:', formattedStages);
-
-      // If we couldn't extract any valid stages, use the default ones
-      if (formattedStages.length === 0) {
-        console.log('No valid milestone stages extracted, using default stages');
-        return defaultMilestoneStages;
-      } else {
-        return formattedStages;
-      }
-    } catch (err) {
-      console.error('Error fetching milestone stages:', err);
-      // Return default milestone stages in case of error
-      const defaultMilestoneStages = [
-        { id: '1', name: 'Stage 1' },
-        { id: '2', name: 'Stage 2' },
-        { id: '3', name: 'Stage 3' }
-      ];
-      return defaultMilestoneStages;
-    }
-  };
-
-  // Function to fetch project milestones from API
-  const fetchProjectMilestones = async (product_id = '') => {
-    try {
-      console.log('Fetching milestones for projects with product_id:', product_id);
-
-      // Set default milestones in case API fails
-      const defaultMilestones = [
-        { id: '1', name: 'ERC Onboarding' },
-        { id: '2', name: 'STC Onboarding' },
-        { id: '3', name: 'R&D Onboarding' }
-      ];
-
-      // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
-      if (product_id) {
-        apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
-      }
-
-      console.log('Calling project milestones API with URL:', apiUrl);
-
-      // Make the API call with the project-specific endpoint
-      const response = await axios.get(apiUrl);
-
-      console.log('Project milestones API response:', response);
-      console.log('Project milestones API response data type:', typeof response.data);
-      console.log('Project milestones API response data:', JSON.stringify(response.data, null, 2));
-
-      // Direct approach - assume the API returns an array of objects with milestone_id and milestone_name
-      let formattedMilestones = [];
-
-      if (response.data && response.data.success && response.data.data && response.data.data.data) {
-        // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
-
-        const milestonesData = response.data.data.data;
-        if (Array.isArray(milestonesData)) {
-          formattedMilestones = milestonesData.map(milestone => ({
-            id: milestone.milestone_id || milestone.id || '',
-            name: milestone.milestone_name || milestone.name || ''
-          })).filter(m => m.id && m.name);
-
-          console.log('Formatted project milestones from API data:', formattedMilestones);
-        }
-      } else if (response.data && response.data.data) {
-        // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
-
-        const milestonesData = response.data.data;
-        if (Array.isArray(milestonesData)) {
-          formattedMilestones = milestonesData.map(milestone => ({
-            id: milestone.milestone_id || milestone.id || '',
-            name: milestone.milestone_name || milestone.name || ''
-          })).filter(m => m.id && m.name);
-
-          console.log('Formatted project milestones from data array:', formattedMilestones);
-        } else if (typeof milestonesData === 'object') {
-          // Handle case where data is an object with milestone objects
-          formattedMilestones = Object.values(milestonesData)
-            .filter(milestone => milestone && typeof milestone === 'object')
-            .map(milestone => ({
-              id: milestone.milestone_id || milestone.id || '',
-              name: milestone.milestone_name || milestone.name || milestone.title || ''
-            }))
-            .filter(m => m.id && m.name);
-
-          console.log('Formatted project milestones from data object:', formattedMilestones);
-        }
-      } else if (Array.isArray(response.data)) {
-        // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
-
-        formattedMilestones = response.data.map(milestone => ({
-          id: milestone.milestone_id || milestone.id || '',
-          name: milestone.milestone_name || milestone.name || ''
-        })).filter(m => m.id && m.name);
-
-        console.log('Formatted project milestones from direct array:', formattedMilestones);
-      } else if (typeof response.data === 'object') {
-        // Response.data is an object, try to extract milestones
-        console.log('Response data is an object, checking its properties');
-
-        formattedMilestones = Object.values(response.data)
-          .filter(milestone => milestone && typeof milestone === 'object')
-          .map(milestone => ({
-            id: milestone.milestone_id || milestone.id || '',
-            name: milestone.milestone_name || milestone.name || milestone.title || ''
-          }))
-          .filter(m => m.id && m.name);
-
-        console.log('Formatted project milestones from object:', formattedMilestones);
-      }
-
-      console.log('Final formatted project milestones:', formattedMilestones);
-
-      // If we couldn't extract any valid milestones, use the default ones
-      if (formattedMilestones.length === 0) {
-        console.log('No valid project milestones extracted, using default milestones');
-        setMilestones(defaultMilestones);
-      } else {
-        setMilestones(formattedMilestones);
-      }
-    } catch (err) {
-      console.error('Error fetching project milestones:', err);
-      // Set default milestones in case of error
-      const defaultMilestones = [
-        { id: '1', name: 'ERC Onboarding' },
-        { id: '2', name: 'STC Onboarding' },
-        { id: '3', name: 'R&D Onboarding' }
-      ];
-      setMilestones(defaultMilestones);
-    }
-  };
-
   // Function to open the edit project modal
-  const handleEditProject = async (project) => {
+  const handleEditProject = (project) => {
     console.log('Opening edit project modal for project:', project);
 
     // Log the project object to see its structure
     console.log('Project object structure:', JSON.stringify(project, null, 2));
-
-    // Always fetch fresh milestones when opening the modal
-    try {
-      setMilestones([]); // Clear existing milestones
-      setMilestoneStages([]); // Clear existing milestone stages
-
-      // Map product names to product IDs
-      const productIdMap = {
-        'ERC': '936',
-        'STC': '937',
-        'R&D': '938'
-      };
-
-      // Get the product_id from the project if available, or map from the product name, or use a fallback
-      let product_id = project.product_id || project.productId;
-
-      // If no product_id is available, try to map from the product name
-      if (!product_id && project.productName) {
-        product_id = productIdMap[project.productName] || '936'; // Use 936 (ERC) as a fallback
-        console.log('Mapped product name', project.productName, 'to product_id:', product_id);
-      } else {
-        product_id = '936'; // Default fallback to ERC product ID
-      }
-
-      console.log('Fetching fresh milestones for project modal with product_id:', product_id);
-
-      // Pass the product_id to the fetchProjectMilestones function
-      await fetchProjectMilestones(product_id);
-      console.log('Project milestones fetched successfully for project modal');
-
-      // If the project has a milestone_id, fetch the milestone stages
-      if (project.milestone_id || project.milestoneId) {
-        const milestone_id = project.milestone_id || project.milestoneId;
-        console.log('Fetching milestone stages for project modal with milestone_id:', milestone_id, 'and product_id:', product_id);
-
-        // Fetch milestone stages
-        const stages = await fetchMilestoneStages(milestone_id, product_id);
-        setMilestoneStages(stages);
-        console.log('Milestone stages fetched successfully for project modal:', stages);
-      }
-    } catch (error) {
-      console.error('Error fetching data for project modal:', error);
-    }
 
     setCurrentProject(project);
 
@@ -2496,401 +1701,6 @@ const LeadDetail = () => {
       setProjectUpdateError(error.response?.data?.message || error.message || 'An error occurred while updating the project');
     } finally {
       setProjectUpdateLoading(false);
-    }
-  };
-
-
-
-  // Function to fetch opportunities
-  const fetchOpportunities = async () => {
-    try {
-      console.log('Fetching opportunities for lead ID:', leadId);
-
-      // Mock data for now - replace with actual API call
-      const mockOpportunities = [
-        {
-          id: '1',
-          opportunity_name: 'STC Live Sp - STC',
-          lead_name: 'Test New Lead',
-          product: 'STC',
-          milestone: 'STC Onboarding',
-          milestone_id: '2', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '04/18/2024',
-          created_by: 'Master Ops',
-          stage: 'Opportunity Identified',
-          currency: '$',
-          opportunity_amount: '0.00',
-          probability: '30',
-          expected_close_date: '06/26/2024',
-          next_step: '',
-          description: 'Initial opportunity for STC'
-        },
-        {
-          id: '2',
-          opportunity_name: 'STC Live Sp - ERC',
-          lead_name: 'Test New Lead',
-          product: 'ERC',
-          milestone: 'ERC Onboarding',
-          milestone_id: '1', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '08/26/2024',
-          created_by: 'Demomoter ops',
-          stage: 'Won-Agreement Signed',
-          currency: '$',
-          opportunity_amount: '1.00',
-          probability: '100',
-          expected_close_date: '09/30/2024',
-          next_step: '',
-          description: 'ERC opportunity'
-        }
-      ];
-
-      // Log the mock opportunities for debugging
-      console.log('Mock opportunities:', mockOpportunities);
-
-      setOpportunities(mockOpportunities);
-      console.log('Opportunities set:', mockOpportunities);
-
-      // Uncomment and modify when API is available
-      /*
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
-
-      console.log('Opportunities API response:', response);
-
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        setOpportunities(response.data.data);
-        console.log('Opportunities set:', response.data.data);
-      } else {
-        console.warn('No opportunities found or invalid response format');
-        setOpportunities([]);
-      }
-      */
-    } catch (err) {
-      console.error('Error fetching opportunities:', err);
-      setOpportunities([]);
-    }
-  };
-
-  // Function to fetch opportunity milestones from API
-  const fetchOpportunityMilestones = async (product_id = '') => {
-    try {
-      console.log('Fetching milestones for opportunities with product_id:', product_id);
-
-      // Set default milestones in case API fails
-      const defaultMilestones = [
-        { id: '1', name: 'ERC Onboarding' },
-        { id: '2', name: 'STC Onboarding' },
-        { id: '3', name: 'R&D Onboarding' }
-      ];
-
-      // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
-      if (product_id) {
-        apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
-      }
-
-      console.log('Calling opportunity milestones API with URL:', apiUrl);
-
-      // Make the API call with the opportunity-specific endpoint
-      const response = await axios.get(apiUrl);
-
-      console.log('Opportunity milestones API response:', response);
-      console.log('Opportunity milestones API response data type:', typeof response.data);
-      console.log('Opportunity milestones API response data:', JSON.stringify(response.data, null, 2));
-
-      // Direct approach - assume the API returns an array of objects with milestone_id and milestone_name
-      let formattedMilestones = [];
-
-      if (response.data && response.data.success && response.data.data && response.data.data.data) {
-        // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
-
-        const milestonesData = response.data.data.data;
-        if (Array.isArray(milestonesData)) {
-          formattedMilestones = milestonesData.map(milestone => ({
-            id: milestone.milestone_id || milestone.id || '',
-            name: milestone.milestone_name || milestone.name || ''
-          })).filter(m => m.id && m.name);
-
-          console.log('Formatted opportunity milestones from API data:', formattedMilestones);
-        }
-      } else if (response.data && response.data.data) {
-        // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
-
-        const milestonesData = response.data.data;
-        if (Array.isArray(milestonesData)) {
-          formattedMilestones = milestonesData.map(milestone => ({
-            id: milestone.milestone_id || milestone.id || '',
-            name: milestone.milestone_name || milestone.name || ''
-          })).filter(m => m.id && m.name);
-
-          console.log('Formatted opportunity milestones from data array:', formattedMilestones);
-        } else if (typeof milestonesData === 'object') {
-          // Handle case where data is an object with milestone objects
-          formattedMilestones = Object.values(milestonesData)
-            .filter(milestone => milestone && typeof milestone === 'object')
-            .map(milestone => ({
-              id: milestone.milestone_id || milestone.id || '',
-              name: milestone.milestone_name || milestone.name || milestone.title || ''
-            }))
-            .filter(m => m.id && m.name);
-
-          console.log('Formatted opportunity milestones from data object:', formattedMilestones);
-        }
-      } else if (Array.isArray(response.data)) {
-        // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
-
-        formattedMilestones = response.data.map(milestone => ({
-          id: milestone.milestone_id || milestone.id || '',
-          name: milestone.milestone_name || milestone.name || ''
-        })).filter(m => m.id && m.name);
-
-        console.log('Formatted opportunity milestones from direct array:', formattedMilestones);
-      } else if (typeof response.data === 'object') {
-        // Response.data is an object, try to extract milestones
-        console.log('Response data is an object, checking its properties');
-
-        formattedMilestones = Object.values(response.data)
-          .filter(milestone => milestone && typeof milestone === 'object')
-          .map(milestone => ({
-            id: milestone.milestone_id || milestone.id || '',
-            name: milestone.milestone_name || milestone.name || milestone.title || ''
-          }))
-          .filter(m => m.id && m.name);
-
-        console.log('Formatted opportunity milestones from object:', formattedMilestones);
-      }
-
-      console.log('Final formatted opportunity milestones:', formattedMilestones);
-
-      // If we couldn't extract any valid milestones, use the default ones
-      if (formattedMilestones.length === 0) {
-        console.log('No valid opportunity milestones extracted, using default milestones');
-        setMilestones(defaultMilestones);
-      } else {
-        setMilestones(formattedMilestones);
-      }
-    } catch (err) {
-      console.error('Error fetching opportunity milestones:', err);
-      // Set default milestones in case of error
-      const defaultMilestones = [
-        { id: '1', name: 'ERC Onboarding' },
-        { id: '2', name: 'STC Onboarding' },
-        { id: '3', name: 'R&D Onboarding' }
-      ];
-      setMilestones(defaultMilestones);
-    }
-  };
-
-  // Function to open the edit opportunity modal
-  const handleEditOpportunity = async (opportunity) => {
-    console.log('Opening edit opportunity modal for opportunity:', opportunity);
-
-    // Log the opportunity object to see its structure
-    console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
-
-    // Always fetch fresh milestones when opening the modal
-    try {
-      setMilestones([]); // Clear existing milestones
-      setMilestoneStages([]); // Clear existing milestone stages
-
-      // Map product names to product IDs
-      const productIdMap = {
-        'ERC': '936',
-        'STC': '937',
-        'R&D': '938'
-      };
-
-      // Get the product_id from the opportunity if available, or map from the product name, or use a fallback
-      let product_id = opportunity.product_id || opportunity.productId;
-
-      // If no product_id is available, try to map from the product name
-      if (!product_id && opportunity.product) {
-        product_id = productIdMap[opportunity.product] || '936'; // Use 936 (ERC) as a fallback
-        console.log('Mapped product name', opportunity.product, 'to product_id:', product_id);
-      } else {
-        product_id = '936'; // Default fallback to ERC product ID
-      }
-
-      console.log('Fetching fresh milestones for opportunity modal with product_id:', product_id);
-
-      // Pass the product_id to the fetchOpportunityMilestones function
-      await fetchOpportunityMilestones(product_id);
-      console.log('Opportunity milestones fetched successfully for opportunity modal');
-
-      // If the opportunity has a milestone_id, fetch the milestone stages
-      if (opportunity.milestone_id || opportunity.milestoneId) {
-        const milestone_id = opportunity.milestone_id || opportunity.milestoneId;
-        console.log('Fetching milestone stages for opportunity modal with milestone_id:', milestone_id, 'and product_id:', product_id);
-
-        // Fetch milestone stages
-        const stages = await fetchMilestoneStages(milestone_id, product_id);
-        setMilestoneStages(stages);
-        console.log('Milestone stages fetched successfully for opportunity modal:', stages);
-      }
-    } catch (error) {
-      console.error('Error fetching data for opportunity modal:', error);
-    }
-
-    setCurrentOpportunity(opportunity);
-
-    // Set the opportunity form data
-    // Use the milestone name directly
-    const milestoneName = opportunity.milestone || '';
-
-    console.log('Original opportunity milestone name:', milestoneName);
-    console.log('Available milestones:', milestones);
-
-    setOpportunityFormData({
-      id: opportunity.id || '',
-      opportunity_name: opportunity.opportunity_name || '',
-      lead_name: opportunity.lead_name || '',
-      product: opportunity.product || '',
-      milestone: milestoneName,
-      created_date: opportunity.created_date || '',
-      created_by: opportunity.created_by || '',
-      stage: opportunity.stage || '',
-      currency: opportunity.currency || '',
-      opportunity_amount: opportunity.opportunity_amount || '',
-      probability: opportunity.probability || '',
-      expected_close_date: opportunity.expected_close_date || '',
-      next_step: opportunity.next_step || '',
-      description: opportunity.description || ''
-    });
-
-    // Show the modal
-    setShowEditOpportunityModal(true);
-  };
-
-  // Function to close the edit opportunity modal
-  const handleCloseEditOpportunityModal = () => {
-    setShowEditOpportunityModal(false);
-    setCurrentOpportunity(null);
-    setOpportunityUpdateSuccess(false);
-    setOpportunityUpdateError(null);
-  };
-
-  // Function to update the opportunity
-  const handleUpdateOpportunity = async () => {
-    try {
-      setOpportunityUpdateLoading(true);
-      setOpportunityUpdateError(null);
-      setOpportunityUpdateSuccess(false);
-
-      console.log('Updating opportunity with data:', opportunityFormData);
-
-      // Mock API call for now - replace with actual API call
-      // Simulate a successful update
-      setTimeout(() => {
-        // Update the opportunity in the opportunities array
-        const updatedOpportunities = opportunities.map(opp => {
-          if (opp.id === opportunityFormData.id) {
-            return {
-              ...opp,
-              ...opportunityFormData,
-              // Use the milestone name directly
-              milestone: opportunityFormData.milestone
-            };
-          }
-          return opp;
-        });
-
-        setOpportunities(updatedOpportunities);
-        setOpportunityUpdateSuccess(true);
-
-        // Close the modal after a delay
-        setTimeout(() => {
-          handleCloseEditOpportunityModal();
-        }, 2000);
-
-        setOpportunityUpdateLoading(false);
-      }, 1000);
-
-      // Uncomment and modify when API is available
-      /*
-      const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
-        opportunityFormData
-      );
-
-      console.log('Opportunity update API response:', response);
-
-      if (response.data && response.data.success) {
-        // Update the opportunity in the opportunities array
-        const updatedOpportunities = opportunities.map(opp => {
-          if (opp.id === opportunityFormData.id) {
-            return {
-              ...opp,
-              ...opportunityFormData
-            };
-          }
-          return opp;
-        });
-
-        setOpportunities(updatedOpportunities);
-        setOpportunityUpdateSuccess(true);
-
-        // Close the modal after a delay
-        setTimeout(() => {
-          handleCloseEditOpportunityModal();
-        }, 2000);
-      } else {
-        setOpportunityUpdateError(response.data?.message || 'Failed to update opportunity');
-      }
-      */
-    } catch (error) {
-      console.error('Error updating opportunity:', error);
-      setOpportunityUpdateError(error.message || 'An error occurred while updating the opportunity');
-      setOpportunityUpdateLoading(false);
-    }
-  };
-
-  // Function to show delete confirmation dialog
-  const showDeleteConfirmation = (opportunity) => {
-    if (window.confirm(`Are you sure you want to delete the opportunity "${opportunity.opportunity_name}"?`)) {
-      deleteOpportunity(opportunity.id);
-    }
-  };
-
-  // Function to handle deleting an opportunity
-  const deleteOpportunity = async (opportunityId) => {
-    try {
-      console.log('Deleting opportunity with ID:', opportunityId);
-      setDeleteOpportunityLoading(true);
-      setDeleteOpportunityError(null);
-      setDeleteOpportunitySuccess(false);
-
-      // Make the DELETE request to the API
-      const response = await axios.delete('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
-        data: { id: opportunityId }
-      });
-
-      console.log('Delete opportunity API response:', response);
-
-      // Check if the deletion was successful
-      if (response.data && response.data.success) {
-        console.log('Opportunity deleted successfully');
-
-        // Remove the deleted opportunity from the state
-        const updatedOpportunities = opportunities.filter(opp => opp.id !== opportunityId);
-        setOpportunities(updatedOpportunities);
-
-        setDeleteOpportunitySuccess(true);
-
-        // Reset the delete state after a delay
-        setTimeout(() => {
-          setDeleteOpportunitySuccess(false);
-        }, 3000);
-      } else {
-        console.error('Failed to delete opportunity:', response.data);
-        setDeleteOpportunityError('Failed to delete opportunity. Please try again.');
-      }
-    } catch (err) {
-      console.error('Error deleting opportunity:', err);
-      setDeleteOpportunityError(err.message || 'An error occurred while deleting the opportunity.');
-    } finally {
-      setDeleteOpportunityLoading(false);
     }
   };
 
@@ -3296,22 +2106,6 @@ const LeadDetail = () => {
                     Contacts
                   </a>
                 </li>
-                <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-opportunities"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('opportunities');
-                    }}
-                    href="#pills-opportunities"
-                    role="tab"
-                    aria-controls="pills-opportunities"
-                    aria-selected={activeTab === 'opportunities'}
-                  >
-                    Opportunities
-                  </a>
-                </li>
                 <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -3581,11 +2375,9 @@ const LeadDetail = () => {
                               onChange={handleInputChange}
                             >
                               <option value="">Select Billing Profile</option>
-                              {billingProfileOptions.map(profile => (
-                                <option key={profile.value} value={profile.value}>
-                                  {profile.label}
-                                </option>
-                              ))}
+                              <option value="Reporting Head - Production">Reporting Head - Production</option>
+                              <option value="Quickbook Play">Quickbook Play</option>
+                              <option value="Reporting Head">Reporting Head</option>
                             </select>
                           </div>
                         </div>
@@ -4437,20 +3229,10 @@ const LeadDetail = () => {
                                     <i className="fas fa-star"></i> {contact.contact_type === 'primary' ? 'Primary' : 'Secondary'}
                                   </h5>
                                   <div className="opp_edit_dlt_btn">
-                                    <a
-                                      className="edit_contact"
-                                      href="javascript:void(0)"
-                                      title="Edit"
-                                      onClick={() => handleEditContact(contact.contact_id)}
-                                    >
+                                    <a className="edit_contact" href="javascript:void(0)" title="Edit" data-contact-id={contact.contact_id}>
                                       <i className="fas fa-pen"></i>
                                     </a>
-                                    <a
-                                      className="delete_contact"
-                                      href="javascript:void(0)"
-                                      title="Disable"
-                                      onClick={() => handleDisableContact(contact.contact_id, contact.name)}
-                                    >
+                                    <a className="delete_contact" href="javascript:void(0)" data-contact-id={contact.contact_id} title="Disable">
                                       <i className="fas fa-ban"></i>
                                     </a>
                                   </div>
@@ -4483,8 +3265,6 @@ const LeadDetail = () => {
                             <i className="fa-solid fa-plus"></i> New Project
                         </a>
                       </div>
-
-
 
                       {projects.length === 0 ? (
                         <div className="text-center mt-4">
@@ -4535,7 +3315,7 @@ const LeadDetail = () => {
                         </div>
                       )}
 
-      {/* Edit Project Modal */}
+                      {/* Edit Project Modal */}
                       {showEditProjectModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
@@ -4648,129 +3428,41 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Milestone:*</label>
-                                          {console.log('Project milestone dropdown - current value:', projectFormData.Milestone)}
-                                          {console.log('Project milestone dropdown - available milestones:', milestones)}
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className="form-select"
-                                              name="Milestone"
-                                              value={projectFormData.Milestone}
-                                              onChange={async (e) => {
-                                                console.log('Project milestone selected:', e.target.value);
-
-                                                // Find the selected milestone to get its ID
-                                                const selectedMilestone = milestones.find(m => m.name === e.target.value);
-                                                console.log('Selected milestone object:', selectedMilestone);
-
-                                                // Update the form data with the selected milestone
-                                                setProjectFormData(prev => ({
-                                                  ...prev,
-                                                  Milestone: e.target.value,
-                                                  // Clear the milestone stage when milestone changes
-                                                  MilestoneStage: ''
-                                                }));
-
-                                                // If a milestone is selected, fetch its stages
-                                                if (selectedMilestone && selectedMilestone.id) {
-                                                  try {
-                                                    // Map product names to product IDs
-                                                    const productIdMap = {
-                                                      'ERC': '936',
-                                                      'STC': '937',
-                                                      'R&D': '938'
-                                                    };
-
-                                                    // Get the product_id from the current project
-                                                    let product_id = currentProject?.product_id || currentProject?.productId;
-
-                                                    // If no product_id is available, try to map from the product name
-                                                    if (!product_id && currentProject?.productName) {
-                                                      product_id = productIdMap[currentProject.productName] || '936';
-                                                      console.log('Mapped product name', currentProject.productName, 'to product_id:', product_id);
-                                                    } else {
-                                                      product_id = '936'; // Default fallback to ERC product ID
-                                                    }
-
-                                                    console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
-
-                                                    // Fetch milestone stages using the API endpoint with milestone_id
-                                                    const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL:', apiUrl);
-
-                                                    const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response:', response);
-
-                                                    // Process the response
-                                                    let stages = [];
-                                                    if (response.data && response.data.success && response.data.data && response.data.data.data) {
-                                                      const stagesData = response.data.data.data;
-                                                      if (Array.isArray(stagesData)) {
-                                                        stages = stagesData.map(stage => ({
-                                                          id: stage.milestone_stage_id || stage.id || '',
-                                                          name: stage.stage_name || stage.name || ''
-                                                        })).filter(s => s.id && s.name);
-                                                      }
-                                                    }
-
-                                                    if (stages.length === 0) {
-                                                      // Fallback to the fetchMilestoneStages function if direct API call fails
-                                                      stages = await fetchMilestoneStages(selectedMilestone.id, product_id);
-                                                    }
-
-                                                    setMilestoneStages(stages);
-                                                    console.log('Milestone stages fetched successfully for project:', stages);
-                                                  } catch (error) {
-                                                    console.error('Error fetching milestone stages for project:', error);
-                                                    setMilestoneStages([]);
-                                                  }
-                                                } else {
-                                                  // Clear milestone stages if no milestone is selected
-                                                  setMilestoneStages([]);
-                                                }
-                                              }}
-                                              required
-                                            >
-                                              <option value="">Select Milestone</option>
-                                              {milestones.map((milestone, index) => (
-                                                <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
-                                                  {milestone.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
-                                          </div>
+                                          <select
+                                            className="form-select"
+                                            name="Milestone"
+                                            value={projectFormData.Milestone}
+                                            onChange={(e) => setProjectFormData(prev => ({
+                                              ...prev,
+                                              Milestone: e.target.value
+                                            }))}
+                                            required
+                                          >
+                                            <option value="">Select Milestone</option>
+                                            <option value="STC Enrollment">STC Enrollment</option>
+                                            <option value="ERC Enrollment">ERC Enrollment</option>
+                                            <option value="R&D Enrollment">R&D Enrollment</option>
+                                          </select>
                                         </div>
                                       </div>
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Stage:*</label>
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className="form-select"
-                                              name="MilestoneStage"
-                                              value={projectFormData.MilestoneStage}
-                                              onChange={(e) => {
-                                                console.log('Project milestone stage selected:', e.target.value);
-                                                setProjectFormData(prev => ({
-                                                  ...prev,
-                                                  MilestoneStage: e.target.value
-                                                }));
-                                              }}
-                                              required
-                                            >
-                                              <option value="">Select Stage</option>
-                                              {milestoneStages.map((stage, index) => (
-                                                <option key={`project-stage-${index}-${stage.id}`} value={stage.name}>
-                                                  {stage.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
-                                          </div>
+                                          <select
+                                            className="form-select"
+                                            name="MilestoneStage"
+                                            value={projectFormData.MilestoneStage}
+                                            onChange={(e) => setProjectFormData(prev => ({
+                                              ...prev,
+                                              MilestoneStage: e.target.value
+                                            }))}
+                                            required
+                                          >
+                                            <option value="">Select Stage</option>
+                                            <option value="ERC Fees Partially Paid">ERC Fees Partially Paid</option>
+                                            <option value="ERC Fees Fully Paid">ERC Fees Fully Paid</option>
+                                            <option value="ERC Refund Received">ERC Refund Received</option>
+                                          </select>
                                         </div>
                                       </div>
                                     </div>
@@ -4860,499 +3552,11 @@ const LeadDetail = () => {
                     </div>
                   )}
 
-                  {/* Opportunities Tab Content */}
-                  {activeTab === 'opportunities' && (
-                    <div className="mb-4 left-section-container">
-                      <div className="row mb-3">
-                        <div className="col-12">
-                          <button className="btn btn-new-opportunity">
-                            <i className="fa-solid fa-plus"></i> New Opportunity
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="row opportunity_tab_data mt-4">
-                        {opportunities.length === 0 ? (
-                          <div className="col-12 text-center">
-                            <p>No opportunities found for this lead.</p>
-                          </div>
-                        ) : (
-                          opportunities.map((opportunity) => (
-                            <div key={opportunity.id} className="col-md-12 mb-3">
-                              <div className="opportunity-card">
-                                <div className="opportunity-header">
-                                  <div className="opportunity-title">
-                                    {opportunity.opportunity_name}
-                                  </div>
-                                  <div className="opportunity-actions">
-                                    <button
-                                      className="btn btn-sm btn-icon edit-btn"
-                                      onClick={() => handleEditOpportunity(opportunity)}
-                                      title="Edit Opportunity"
-                                    >
-                                      <i className="fas fa-pen"></i>
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-icon delete-btn"
-                                      onClick={() => showDeleteConfirmation(opportunity)}
-                                      title="Delete Opportunity"
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                </div>
-                                <div className="opportunity-body">
-                                  <div className="row">
-                                    <div className="col-md-6">
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Created Date:</span>
-                                        <span className="detail-value">{opportunity.created_date}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Current Stage:</span>
-                                        <span className="detail-value stage-value">{opportunity.stage}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Next Step:</span>
-                                        <span className="detail-value">{opportunity.next_step || '-'}</span>
-                                      </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Opportunity Owner:</span>
-                                        <span className="detail-value">{opportunity.created_by}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Opportunity Amount:</span>
-                                        <span className="detail-value">{opportunity.currency} {opportunity.opportunity_amount}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Expected Close date:</span>
-                                        <span className="detail-value">{opportunity.expected_close_date}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {/* Delete Opportunity Confirmation */}
-                      {deleteOpportunityLoading && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
-                            <div className="spinner-border text-primary mb-3" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </div>
-                            <p className="mb-0">Deleting opportunity...</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {deleteOpportunitySuccess && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
-                            <div className="text-success mb-3">
-                              <i className="fas fa-check-circle fa-3x"></i>
-                            </div>
-                            <p className="mb-0">Opportunity deleted successfully!</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {deleteOpportunityError && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg" style={{ maxWidth: '400px' }}>
-                            <div className="text-danger mb-3 text-center">
-                              <i className="fas fa-exclamation-circle fa-3x"></i>
-                            </div>
-                            <p className="mb-3 text-center">{deleteOpportunityError}</p>
-                            <div className="text-center">
-                              <button
-                                className="btn btn-secondary"
-                                onClick={() => setDeleteOpportunityError(null)}
-                              >
-                                Close
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Edit Opportunity Modal */}
-                      {showEditOpportunityModal && (
-                        <>
-                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                          <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div className="modal-content" style={{ borderRadius: '8px' }}>
-                                <div className="modal-header pb-2">
-                                  <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
-                                  <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
-                                </div>
-                                <div className="modal-body">
-                                  {console.log('Current milestone value in form:', opportunityFormData.milestone)}
-                                  {console.log('Available milestones:', milestones)}
-                                  <form onSubmit={(e) => { e.preventDefault(); handleUpdateOpportunity(); }}>
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Opportunity Name:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.opportunity_name}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              opportunity_name: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Lead Name:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.lead_name}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              lead_name: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Products:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.product}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              product: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Milestone:*</label>
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className="form-select milestone-select"
-                                              value={opportunityFormData.milestone}
-                                              onChange={async (e) => {
-                                                console.log('Opportunity milestone selected:', e.target.value);
-
-                                                // Find the selected milestone to get its ID
-                                                const selectedMilestone = milestones.find(m => m.name === e.target.value);
-                                                console.log('Selected opportunity milestone object:', selectedMilestone);
-
-                                                // Update the form data with the selected milestone
-                                                setOpportunityFormData(prev => ({
-                                                  ...prev,
-                                                  milestone: e.target.value,
-                                                  // Clear the stage when milestone changes
-                                                  stage: ''
-                                                }));
-
-                                                // If a milestone is selected, fetch its stages
-                                                if (selectedMilestone && selectedMilestone.id) {
-                                                  try {
-                                                    // Map product names to product IDs
-                                                    const productIdMap = {
-                                                      'ERC': '936',
-                                                      'STC': '937',
-                                                      'R&D': '938'
-                                                    };
-
-                                                    // Get the product_id from the current opportunity
-                                                    let product_id = currentOpportunity?.product_id || currentOpportunity?.productId;
-
-                                                    // If no product_id is available, try to map from the product name
-                                                    if (!product_id && currentOpportunity?.product) {
-                                                      product_id = productIdMap[currentOpportunity.product] || '936';
-                                                      console.log('Mapped product name', currentOpportunity.product, 'to product_id:', product_id);
-                                                    } else {
-                                                      product_id = '936'; // Default fallback to ERC product ID
-                                                    }
-
-                                                    console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
-
-                                                    // Fetch milestone stages using the API endpoint with milestone_id
-                                                    const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL:', apiUrl);
-
-                                                    const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response:', response);
-
-                                                    // Process the response
-                                                    let stages = [];
-                                                    if (response.data && response.data.success && response.data.data && response.data.data.data) {
-                                                      const stagesData = response.data.data.data;
-                                                      if (Array.isArray(stagesData)) {
-                                                        stages = stagesData.map(stage => ({
-                                                          id: stage.milestone_stage_id || stage.id || '',
-                                                          name: stage.stage_name || stage.name || ''
-                                                        })).filter(s => s.id && s.name);
-                                                      }
-                                                    }
-
-                                                    if (stages.length === 0) {
-                                                      // Fallback to the fetchMilestoneStages function if direct API call fails
-                                                      stages = await fetchMilestoneStages(selectedMilestone.id, product_id);
-                                                    }
-
-                                                    setMilestoneStages(stages);
-                                                    console.log('Milestone stages fetched successfully for opportunity:', stages);
-                                                  } catch (error) {
-                                                    console.error('Error fetching milestone stages for opportunity:', error);
-                                                    setMilestoneStages([]);
-                                                  }
-                                                } else {
-                                                  // Clear milestone stages if no milestone is selected
-                                                  setMilestoneStages([]);
-                                                }
-                                              }}
-                                              required
-                                            >
-                                              <option value="">Select Milestone</option>
-                                              {milestones.map((milestone, index) => (
-                                                <option key={`opportunity-milestone-${index}-${milestone.id}`} value={milestone.name}>
-                                                  {milestone.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Created Date:*</label>
-                                          <input
-                                            type="date"
-                                            className="form-control"
-                                            value={opportunityFormData.created_date}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              created_date: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Created By:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.created_by}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              created_by: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Stage:*</label>
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className="form-select"
-                                              value={opportunityFormData.stage}
-                                              onChange={(e) => {
-                                                console.log('Opportunity stage selected:', e.target.value);
-                                                setOpportunityFormData(prev => ({
-                                                  ...prev,
-                                                  stage: e.target.value
-                                                }));
-                                              }}
-                                              required
-                                            >
-                                              <option value="">Select Stage</option>
-                                              {milestoneStages.map((stage, index) => (
-                                                <option key={`opportunity-stage-${index}-${stage.id}`} value={stage.name}>
-                                                  {stage.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Currency:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.currency}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              currency: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Opportunity Amount:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.opportunity_amount}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              opportunity_amount: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Probability (%):*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.probability}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              probability: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Expected Close Date:*</label>
-                                          <input
-                                            type="date"
-                                            className="form-control"
-                                            value={opportunityFormData.expected_close_date}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              expected_close_date: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Next Step:</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.next_step}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              next_step: e.target.value
-                                            }))}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-12">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Description:</label>
-                                          <textarea
-                                            className="form-control"
-                                            rows="3"
-                                            value={opportunityFormData.description}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              description: e.target.value
-                                            }))}
-                                          ></textarea>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {opportunityUpdateSuccess && (
-                                      <div className="alert alert-success" role="alert">
-                                        <strong><i className="fas fa-check-circle me-2"></i>Opportunity updated successfully!</strong>
-                                      </div>
-                                    )}
-
-                                    {opportunityUpdateError && (
-                                      <div className="alert alert-danger" role="alert">
-                                        <strong><i className="fas fa-exclamation-triangle me-2"></i>Error!</strong>
-                                        <p className="mb-0 mt-1">{opportunityUpdateError}</p>
-                                      </div>
-                                    )}
-
-                                    <div className="d-flex justify-content-center gap-3 mt-4">
-                                      <button
-                                        type="submit"
-                                        className="btn modal-save-btn"
-                                        disabled={opportunityUpdateLoading}
-                                      >
-                                        {opportunityUpdateLoading ? (
-                                          <>
-                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                            Updating...
-                                          </>
-                                        ) : 'Update'}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="btn modal-cancel-btn"
-                                        onClick={handleCloseEditOpportunityModal}
-                                        disabled={opportunityUpdateLoading}
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container Audit-logs-class">
-                      <AuditLogsMultiSection leadId={leadId || '9020'} />
+                    <div className="mb-4 left-section-container">
+                      <h4>Audit Logs</h4>
+                      <p>Audit logs will be displayed here.</p>
                     </div>
                   )}
                 </div>
@@ -5618,19 +3822,10 @@ const LeadDetail = () => {
               </div>
 
 
-
             </div>
           </div>
         </div>
       </div>
-
-      {/* Edit Contact Modal */}
-      <EditContactModal
-        isOpen={showEditContactModal}
-        onClose={handleCloseEditContactModal}
-        contactId={currentContactId}
-        leadId={leadId}
-      />
     </div>
   );
 };

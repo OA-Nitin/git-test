@@ -8,7 +8,110 @@ import './common/CommonStyles.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
-import AuditLogsMultiSection from './AuditLogsMultiSection';
+
+// AuditLogsContent component for displaying audit logs
+const AuditLogsContent = ({ leadId }) => {
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAuditLogs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Use the specified API endpoint for audit logs
+        const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity?lead_id=${leadId || '9020'}`);
+
+        console.log('Audit logs API response:', response.data);
+
+        if (response.data) {
+          setAuditLogs(response.data);
+        } else {
+          setError('No audit logs found');
+        }
+      } catch (err) {
+        console.error('Error fetching audit logs:', err);
+        setError('Failed to load audit logs. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAuditLogs();
+  }, [leadId]);
+
+  // Format date and time
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return 'N/A';
+
+    try {
+      const date = new Date(dateTimeString);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateTimeString;
+    }
+  };
+
+  return (
+    <div className="audit-logs-wrapper">
+      {loading ? (
+        <div className="text-center p-4">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading audit logs...</p>
+        </div>
+      ) : error ? (
+        <div className="alert alert-danger" role="alert">
+          <i className="fas fa-exclamation-circle me-2"></i>
+          {error}
+        </div>
+      ) : auditLogs.length === 0 ? (
+        <div className="alert alert-info" role="alert">
+          <i className="fas fa-info-circle me-2"></i>
+          No audit logs available for this lead.
+        </div>
+      ) : (
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>User</th>
+                <th>Field</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {auditLogs.map((log, index) => (
+                <tr key={`log-${index}`}>
+                  <td>{formatDateTime(log.created_at || log.timestamp || log.date)}</td>
+                  <td>{log.user_name || log.username || 'System'}</td>
+                  <td>{log.field_name || log.field || 'N/A'}</td>
+                  <td>{log.old_value || 'N/A'}</td>
+                  <td>{log.new_value || 'N/A'}</td>
+                  <td>{log.action || 'Update'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const LeadDetail = () => {
   const { leadId } = useParams();
@@ -135,7 +238,6 @@ const LeadDetail = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
-  const [billingProfileOptions, setBillingProfileOptions] = useState([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
 
   // Affiliate Commission state
@@ -336,40 +438,6 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to fetch billing profiles from API
-  const fetchBillingProfiles = async () => {
-    try {
-      setIsLoadingOptions(true);
-      console.log('Fetching billing profiles...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
-
-      console.log('Billing Profiles API response:', response);
-
-      if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
-        const profilesData = response.data.data;
-
-        if (profilesData.length > 0) {
-          // Map the data using id as value and profile_name as label
-          const profiles = profilesData.map(profile => ({
-            value: profile.id.toString(),
-            label: profile.profile_name
-          }));
-
-          console.log('Setting billing profile options:', profiles);
-          setBillingProfileOptions(profiles);
-        } else {
-          console.warn('No billing profiles found in response');
-        }
-      } else {
-        console.warn('Failed to fetch billing profiles:', response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching billing profiles:', err);
-    } finally {
-      setIsLoadingOptions(false);
-    }
-  };
-
 
 
   useEffect(() => {
@@ -388,9 +456,6 @@ const LeadDetail = () => {
         console.log('Campaigns fetched, now fetching sources...');
 
         await fetchSources();
-        console.log('Sources fetched, now fetching billing profiles...');
-
-        await fetchBillingProfiles();
         console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
@@ -400,7 +465,6 @@ const LeadDetail = () => {
         console.log('Group options:', groupOptions);
         console.log('Campaign options:', campaignOptions);
         console.log('Source options:', sourceOptions);
-        console.log('Billing profile options:', billingProfileOptions);
 
         // Then fetch lead details after dropdown options are loaded
         console.log('Starting data fetch sequence for lead ID:', leadId);
@@ -656,8 +720,6 @@ const LeadDetail = () => {
             billing_profile: businessData.billing_profile || '',
             taxnow_signup_status: businessData.taxnow_signup_status || '',
             taxnow_onboarding_status: businessData.taxnow_onboarding_status || '',
-            company_folder_link: businessData.company_folder_link || '',
-            document_folder_link: businessData.document_folder_link || '',
             lead_id: leadId
           };
 
@@ -674,8 +736,13 @@ const LeadDetail = () => {
           setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
-          setCompanyFolderLink(businessData.company_folder_link || '');
-          setDocumentFolderLink(businessData.document_folder_link || '');
+          if (businessData.company_folder_link) {
+            setCompanyFolderLink(businessData.company_folder_link);
+          }
+
+          if (businessData.document_folder_link) {
+            setDocumentFolderLink(businessData.document_folder_link);
+          }
 
           // Update primary contact info if available
           if (businessData.primary_contact) {
@@ -874,83 +941,6 @@ const LeadDetail = () => {
     setCurrentContactId(null);
     // Refresh contact data after closing the modal
     fetchContactData();
-  };
-
-  // Function to handle disable contact
-  const handleDisableContact = (contactId, contactName) => {
-    // Show confirmation dialog
-    Swal.fire({
-      title: 'Are you sure?',
-      html: `You want to disable the contact '${contactName}'?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, disable it!',
-      cancelButtonText: 'Cancel',
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call API to disable contact
-        disableContact(contactId);
-      }
-    });
-  };
-
-  // Function to disable contact via API
-  const disableContact = async (contactId) => {
-    try {
-      // Show loading state
-      Swal.fire({
-        title: 'Disabling contact...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      // Call the API to disable the contact
-      const response = await axios.delete(`https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
-
-      console.log('Disable contact API response:', response);
-      
-      // Check if the API call was successful
-      if (response.data && JSON.parse(response.data).code=="success") {
-        // Show success message
-        Swal.fire({
-          title: 'Success!',
-          text: 'Contact has been disabled successfully.',
-          icon: 'success',
-          confirmButtonColor: '#4CAF50'
-        });
-
-        // Refresh contact data
-        fetchContactData();
-      } else {
-        // Show error message
-        Swal.fire({
-          title: 'Error!',
-          text: response.data?.message || 'Failed to disable contact.',
-          icon: 'error',
-          confirmButtonColor: '#d33'
-        });
-      }
-    } catch (error) {
-      console.error('Error disabling contact:', error);
-
-      // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: error.message || 'An error occurred while disabling the contact.',
-        icon: 'error',
-        confirmButtonColor: '#d33'
-      });
-    }
   };
 
   const fetchContactData = async () => {
@@ -3581,11 +3571,9 @@ const LeadDetail = () => {
                               onChange={handleInputChange}
                             >
                               <option value="">Select Billing Profile</option>
-                              {billingProfileOptions.map(profile => (
-                                <option key={profile.value} value={profile.value}>
-                                  {profile.label}
-                                </option>
-                              ))}
+                              <option value="Reporting Head - Production">Reporting Head - Production</option>
+                              <option value="Quickbook Play">Quickbook Play</option>
+                              <option value="Reporting Head">Reporting Head</option>
                             </select>
                           </div>
                         </div>
@@ -4445,12 +4433,7 @@ const LeadDetail = () => {
                                     >
                                       <i className="fas fa-pen"></i>
                                     </a>
-                                    <a
-                                      className="delete_contact"
-                                      href="javascript:void(0)"
-                                      title="Disable"
-                                      onClick={() => handleDisableContact(contact.contact_id, contact.name)}
-                                    >
+                                    <a className="delete_contact" href="javascript:void(0)" data-contact-id={contact.contact_id} title="Disable">
                                       <i className="fas fa-ban"></i>
                                     </a>
                                   </div>
@@ -4534,6 +4517,24 @@ const LeadDetail = () => {
                           ))}
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Audit Logs Tab Content */}
+                  {activeTab === 'auditLogs' && (
+                    <AuditLogTab leadId={leadId} isActive={activeTab === 'auditLogs'} />
+                  )}
+                </div>
+
+                {/* Right sidebar content - keep existing sidebar content */}
+                <div className="col-md-4">
+                  {/* Existing sidebar content will remain here */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Edit Project Modal */}
                       {showEditProjectModal && (
@@ -5351,8 +5352,11 @@ const LeadDetail = () => {
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container Audit-logs-class">
-                      <AuditLogsMultiSection leadId={leadId || '9020'} />
+                    <div className="mb-4 left-section-container">
+                      <h4 className="audit-logs-title">Audit Logs</h4>
+                      <div className="audit-logs-container">
+                        <AuditLogsContent leadId={leadId} />
+                      </div>
                     </div>
                   )}
                 </div>

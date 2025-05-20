@@ -7,8 +7,6 @@ import Swal from 'sweetalert2';
 import './common/CommonStyles.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
-import EditContactModal from './EditContactModal';
-import AuditLogsMultiSection from './AuditLogsMultiSection';
 
 const LeadDetail = () => {
   const { leadId } = useParams();
@@ -63,10 +61,6 @@ const LeadDetail = () => {
 
   // State for all contacts
   const [contacts, setContacts] = useState([]);
-
-  // State for edit contact modal
-  const [showEditContactModal, setShowEditContactModal] = useState(false);
-  const [currentContactId, setCurrentContactId] = useState(null);
 
   // Projects related state
   const [projects, setProjects] = useState([]);
@@ -135,7 +129,6 @@ const LeadDetail = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
-  const [billingProfileOptions, setBillingProfileOptions] = useState([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
 
   // Affiliate Commission state
@@ -336,40 +329,6 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to fetch billing profiles from API
-  const fetchBillingProfiles = async () => {
-    try {
-      setIsLoadingOptions(true);
-      console.log('Fetching billing profiles...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
-
-      console.log('Billing Profiles API response:', response);
-
-      if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
-        const profilesData = response.data.data;
-
-        if (profilesData.length > 0) {
-          // Map the data using id as value and profile_name as label
-          const profiles = profilesData.map(profile => ({
-            value: profile.id.toString(),
-            label: profile.profile_name
-          }));
-
-          console.log('Setting billing profile options:', profiles);
-          setBillingProfileOptions(profiles);
-        } else {
-          console.warn('No billing profiles found in response');
-        }
-      } else {
-        console.warn('Failed to fetch billing profiles:', response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching billing profiles:', err);
-    } finally {
-      setIsLoadingOptions(false);
-    }
-  };
-
 
 
   useEffect(() => {
@@ -388,9 +347,6 @@ const LeadDetail = () => {
         console.log('Campaigns fetched, now fetching sources...');
 
         await fetchSources();
-        console.log('Sources fetched, now fetching billing profiles...');
-
-        await fetchBillingProfiles();
         console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
@@ -400,7 +356,6 @@ const LeadDetail = () => {
         console.log('Group options:', groupOptions);
         console.log('Campaign options:', campaignOptions);
         console.log('Source options:', sourceOptions);
-        console.log('Billing profile options:', billingProfileOptions);
 
         // Then fetch lead details after dropdown options are loaded
         console.log('Starting data fetch sequence for lead ID:', leadId);
@@ -656,8 +611,6 @@ const LeadDetail = () => {
             billing_profile: businessData.billing_profile || '',
             taxnow_signup_status: businessData.taxnow_signup_status || '',
             taxnow_onboarding_status: businessData.taxnow_onboarding_status || '',
-            company_folder_link: businessData.company_folder_link || '',
-            document_folder_link: businessData.document_folder_link || '',
             lead_id: leadId
           };
 
@@ -674,8 +627,13 @@ const LeadDetail = () => {
           setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
-          setCompanyFolderLink(businessData.company_folder_link || '');
-          setDocumentFolderLink(businessData.document_folder_link || '');
+          if (businessData.company_folder_link) {
+            setCompanyFolderLink(businessData.company_folder_link);
+          }
+
+          if (businessData.document_folder_link) {
+            setDocumentFolderLink(businessData.document_folder_link);
+          }
 
           // Update primary contact info if available
           if (businessData.primary_contact) {
@@ -859,97 +817,6 @@ const LeadDetail = () => {
       }
     } catch (err) {
       console.error('Error fetching affiliate commission data:', err);
-    }
-  };
-
-  // Function to handle edit contact
-  const handleEditContact = (contactId) => {
-    setCurrentContactId(contactId);
-    setShowEditContactModal(true);
-  };
-
-  // Function to close the edit contact modal
-  const handleCloseEditContactModal = () => {
-    setShowEditContactModal(false);
-    setCurrentContactId(null);
-    // Refresh contact data after closing the modal
-    fetchContactData();
-  };
-
-  // Function to handle disable contact
-  const handleDisableContact = (contactId, contactName) => {
-    // Show confirmation dialog
-    Swal.fire({
-      title: 'Are you sure?',
-      html: `You want to disable the contact '${contactName}'?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, disable it!',
-      cancelButtonText: 'Cancel',
-      customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call API to disable contact
-        disableContact(contactId);
-      }
-    });
-  };
-
-  // Function to disable contact via API
-  const disableContact = async (contactId) => {
-    try {
-      // Show loading state
-      Swal.fire({
-        title: 'Disabling contact...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      // Call the API to disable the contact
-      const response = await axios.delete(`https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
-
-      console.log('Disable contact API response:', response);
-      
-      // Check if the API call was successful
-      if (response.data && JSON.parse(response.data).code=="success") {
-        // Show success message
-        Swal.fire({
-          title: 'Success!',
-          text: 'Contact has been disabled successfully.',
-          icon: 'success',
-          confirmButtonColor: '#4CAF50'
-        });
-
-        // Refresh contact data
-        fetchContactData();
-      } else {
-        // Show error message
-        Swal.fire({
-          title: 'Error!',
-          text: response.data?.message || 'Failed to disable contact.',
-          icon: 'error',
-          confirmButtonColor: '#d33'
-        });
-      }
-    } catch (error) {
-      console.error('Error disabling contact:', error);
-
-      // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: error.message || 'An error occurred while disabling the contact.',
-        icon: 'error',
-        confirmButtonColor: '#d33'
-      });
     }
   };
 
@@ -1427,7 +1294,7 @@ const LeadDetail = () => {
       setNotesError(null);
 
       // Fetch notes from the API
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
+      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes/${leadId}`);
       console.log('Notes API response:', response);
 
       let notesData = [];
@@ -1676,7 +1543,7 @@ const LeadDetail = () => {
     });
 
     // Fetch notes from the API
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
+    axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes/${leadId}`)
       .then(response => {
         const notes = response.data || [];
         console.log('Notes API response for modal:', notes);
@@ -3581,11 +3448,9 @@ const LeadDetail = () => {
                               onChange={handleInputChange}
                             >
                               <option value="">Select Billing Profile</option>
-                              {billingProfileOptions.map(profile => (
-                                <option key={profile.value} value={profile.value}>
-                                  {profile.label}
-                                </option>
-                              ))}
+                              <option value="Reporting Head - Production">Reporting Head - Production</option>
+                              <option value="Quickbook Play">Quickbook Play</option>
+                              <option value="Reporting Head">Reporting Head</option>
                             </select>
                           </div>
                         </div>
@@ -4437,20 +4302,10 @@ const LeadDetail = () => {
                                     <i className="fas fa-star"></i> {contact.contact_type === 'primary' ? 'Primary' : 'Secondary'}
                                   </h5>
                                   <div className="opp_edit_dlt_btn">
-                                    <a
-                                      className="edit_contact"
-                                      href="javascript:void(0)"
-                                      title="Edit"
-                                      onClick={() => handleEditContact(contact.contact_id)}
-                                    >
+                                    <a className="edit_contact" href="javascript:void(0)" title="Edit" data-contact-id={contact.contact_id}>
                                       <i className="fas fa-pen"></i>
                                     </a>
-                                    <a
-                                      className="delete_contact"
-                                      href="javascript:void(0)"
-                                      title="Disable"
-                                      onClick={() => handleDisableContact(contact.contact_id, contact.name)}
-                                    >
+                                    <a className="delete_contact" href="javascript:void(0)" data-contact-id={contact.contact_id} title="Disable">
                                       <i className="fas fa-ban"></i>
                                     </a>
                                   </div>
@@ -4535,7 +4390,7 @@ const LeadDetail = () => {
                         </div>
                       )}
 
-      {/* Edit Project Modal */}
+                      {/* Edit Project Modal */}
                       {showEditProjectModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
@@ -5351,8 +5206,9 @@ const LeadDetail = () => {
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container Audit-logs-class">
-                      <AuditLogsMultiSection leadId={leadId || '9020'} />
+                    <div className="mb-4 left-section-container">
+                      <h4>Audit Logs</h4>
+                      <p>Audit logs will be displayed here.</p>
                     </div>
                   )}
                 </div>
@@ -5623,14 +5479,6 @@ const LeadDetail = () => {
           </div>
         </div>
       </div>
-
-      {/* Edit Contact Modal */}
-      <EditContactModal
-        isOpen={showEditContactModal}
-        onClose={handleCloseEditContactModal}
-        contactId={currentContactId}
-        leadId={leadId}
-      />
     </div>
   );
 };

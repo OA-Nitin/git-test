@@ -75,7 +75,7 @@ const LeadReport = ({ projectType }) => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 second timeout
+        timeout: 40000 // 40 second timeout
       });
 
       console.log('API Response:', response);
@@ -779,6 +779,7 @@ const LeadReport = ({ projectType }) => {
   };
 
   // The handleView function is no longer needed as we're using the ContactCard component
+
 
 
 
