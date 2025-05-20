@@ -5,6 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
 import './common/ReportStyle.css';
 import './LeadDetail.css'; // Reusing the same CSS
+import './DocumentTable.css'; // Document table styling
 import Notes from './common/Notes';
 import { getAssetPath } from '../utils/assetUtils';
 
@@ -3552,59 +3553,1405 @@ const ProjectDetail = () => {
                   {/* Documents Tab Content */}
                   {activeTab === 'documents' && (
                     <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Project Documents</h5>
-                      <div className="row mb-3">
-                        <div className="col-12">
-                          <div className="document-upload-area">
-                            <div className="text-center p-4 border rounded">
-                              <i className="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
-                              <h6>Drag & Drop Files Here</h6>
-                              <p className="text-muted small">or</p>
-                              <button className="btn btn-primary">Browse Files</button>
-                              <p className="text-muted small mt-2">Maximum file size: 10MB</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <h5 class="section-title">ERC Documents</h5>
 
-                      <div className="document-list mt-4">
-                        <h6>Uploaded Documents</h6>
+                      <div className="document-list">
                         <div className="table-responsive">
-                          <table className="table table-hover">
+                          <table className="table document-table">
                             <thead>
                               <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Size</th>
-                                <th>Uploaded</th>
-                                <th>Actions</th>
+                                <th>Documents</th>
+                                <th>PPP Loan <i class="fa-solid fa-circle-info" title='Did your company apply for PPP Loan in 2020 and / or 2021?'></i></th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
                               </tr>
                             </thead>
                             <tbody>
-                              <tr>
-                                <td>Project_Contract.pdf</td>
-                                <td>PDF</td>
-                                <td>1.2 MB</td>
-                                <td>2023-05-15</td>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Form 3508 for 2020 PPP Forgiveness under CARES Act</span>
+                                </td>
                                 <td>
-                                  <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-download"></i></button>
-                                  <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
                                 </td>
                               </tr>
-                              <tr>
-                                <td>Requirements.docx</td>
-                                <td>DOCX</td>
-                                <td>0.8 MB</td>
-                                <td>2023-05-16</td>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Form 941 for Q1 2020</span>
+                                </td>
                                 <td>
-                                  <button className="btn btn-sm btn-outline-primary me-1"><i className="fas fa-download"></i></button>
-                                  <button className="btn btn-sm btn-outline-danger"><i className="fas fa-trash"></i></button>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Form 941 for Q2 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Form 941 for Q3 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-rejected">Rejected</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
                                 </td>
                               </tr>
                             </tbody>
                           </table>
                         </div>
                       </div>
+
+                      <h5 class="section-title mt-4">Company Documents</h5>
+
+                      <div className="document-list">
+                        <div className="table-responsive">
+                          <table className="table document-table">
+                            <thead>
+                              <tr>
+                                <th>Documents</th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Company Incorporation Document – Certificate or Articles of Incorporation</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Tax Id – Employee Identification Number (EIN) Issued by IRS</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Additional Document 1</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>TaxNow Sign-up</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-rejected">Rejected</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <h5 class="section-title mt-4">Payroll Documents</h5>
+                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Quarterly Payroll Tax Return 941’s for Eligible Quarters – 2020: Q1-Q4 & 2021: Q1-Q3</h6>
+
+                      <div className="document-list">
+                        <div className="table-responsive">
+                          <table className="table document-table">
+                            <thead>
+                              <tr>
+                                <th>Quarters</th>
+                                <th>W2 Employee <i class="fa-solid fa-circle-info" title='Did your Company have W2 Employee in this Quarter?	'></i></th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q1 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q2 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q3 2020	</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q4 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-rejected">Rejected</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q1 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q2 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q3 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Registers for all Eligible Quarters – 2020: Q1-Q4 & 2021: Q1-Q3</h6>
+
+                      <div className="document-list">
+                        <div className="table-responsive">
+                          <table className="table document-table">
+                            <thead>
+                              <tr>
+                                <th>Quarters</th>
+                                <th>W2 Employee <i class="fa-solid fa-circle-info" title='Did your Company have W2 Employee in this Quarter?	'></i></th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q1 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q2 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q3 2020	</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q4 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-rejected">Rejected</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q1 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q2 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q3 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Total Health Care Expenses per Employee per Payroll for 2020: Q1-Q4 & 2021: Q1-Q3</h6>
+
+                      <div className="document-list">
+                        <div className="table-responsive">
+                          <table className="table document-table">
+                            <thead>
+                              <tr>
+                                <th>Quarters</th>
+                                <th>W2 Employee <i class="fa-solid fa-circle-info" title='Did your Company have W2 Employee in this Quarter?	'></i></th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q1 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q2 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q3 2020	</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q4 2020</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-rejected">Rejected</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q1 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        defaultChecked
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q2 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Q3 2021</span>
+                                </td>
+                                <td>
+                                  <div className="toggle-container">
+                                    <span className="toggle-option disabled">No</span>
+                                    <label className="toggle-switch disabled">
+                                      <input
+                                        type="checkbox"
+                                        disabled
+                                      />
+                                      <span className="toggle-slider"></span>
+                                    </label>
+                                    <span className="toggle-option disabled">Yes</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Additional Documents</h6>
+
+                      <div className="document-list">
+                        <div className="table-responsive">
+                          <table className="table document-table">
+                            <thead>
+                              <tr>
+                                <th>Quarters</th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>2019 Average FTE (Full Time Employee)</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Additional Document 1</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Additional Document 2	</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      
+                      <h5 class="section-title mt-4">Other Documents</h5>
+
+                      <div className="document-list">
+                        <div className="table-responsive">
+                          <table className="table document-table">
+                            <thead>
+                              <tr>
+                                <th>Documents</th>
+                                <th>Files</th>
+                                <th>Status</th>
+                                <th>Comments</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>2019 - Business Tax Returns - Filed Federal Tax Return 1120, 1120 - S or 1065</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-review">In Review</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>2020 - Business Tax Returns - Filed Federal Tax Return 1120, 1120 - S or 1065</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-image"></i>
+                                    </div>
+                                    <span>demo.png</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-pending">Pending</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>2021 - Business Tax Returns - Filed Federal Tax Return 1120, 1120 - S or 1065</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Additional Document 1</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr className="document-row">
+                                <td className="document-name">
+                                  <span>Additional Document 2</span>
+                                </td>
+                                <td>
+                                  <a
+                                    href="#"
+                                    className="file-link"
+                                    target="_blank"
+                                  >
+                                    <div className="file-icon">
+                                      <i className="fas fa-file-pdf"></i>
+                                    </div>
+                                    <span>q2_form.pdf</span>
+                                  </a>
+                                </td>
+                                <td>
+                                  <span className="status-badge status-approved">Approved</span>
+                                </td>
+                                <td>
+                                  <button className="btn btn-sm btn-outline-primary">
+                                    <i className="fas fa-comment"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
                     </div>
                   )}
 
@@ -3612,112 +4959,112 @@ const ProjectDetail = () => {
                   {activeTab === 'invoices' && (
                     <div className="mb-4 left-section-container">
                       <div class="contact_tab_data">
-                          <div class="row custom_opp_tab">
-                            <div class="col-sm-12">
-                              <div class="custom_opp_tab_header">
-                                <h5>
-                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                    Invoice ERC-7335</a> -
-                                  <span class="status cancel badge bg-success"> Paid</span>
-                                </h5>
-                                <div class="opp_edit_dlt_btn projects-iris">
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="col-md-8 text-left">
-                              <div class="lead_des">
-                                <p><b>Invoice Amount:</b> $219541.10</p>
-                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                                <p><b>Created By: </b> Occams Finance</p>
-                                <p><b>Updated By: </b> Occams Finance</p>
-                              </div>
-                            </div>
-
-                            <div class="col-md-4">
-                              <div class="lead_des">
-                                <p><b>Payment Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Cleared Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Mode:</b> N/A</p>
+                        <div class="row custom_opp_tab">
+                          <div class="col-sm-12">
+                            <div class="custom_opp_tab_header">
+                              <h5>
+                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                  Invoice ERC-7335</a> -
+                                <span class="status cancel badge bg-success"> Paid</span>
+                              </h5>
+                              <div class="opp_edit_dlt_btn projects-iris">
                               </div>
                             </div>
                           </div>
+
+                          <div class="col-md-8 text-left">
+                            <div class="lead_des">
+                              <p><b>Invoice Amount:</b> $219541.10</p>
+                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                              <p><b>Created By: </b> Occams Finance</p>
+                              <p><b>Updated By: </b> Occams Finance</p>
+                            </div>
+                          </div>
+
+                          <div class="col-md-4">
+                            <div class="lead_des">
+                              <p><b>Payment Date:</b> N/A</p>
+                              <p>
+                                <b>Payment Cleared Date:</b> N/A</p>
+                              <p>
+                                <b>Payment Mode:</b> N/A</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div class="contact_tab_data">
-                          <div class="row custom_opp_tab">
-                            <div class="col-sm-12">
-                              <div class="custom_opp_tab_header">
-                                <h5>
-                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                    Invoice ERC-7335</a> -
-                                  <span class="status cancel badge bg-cancel"> Cancelled</span>
-                                </h5>
-                                <div class="opp_edit_dlt_btn projects-iris">
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="col-md-8 text-left">
-                              <div class="lead_des">
-                                <p><b>Invoice Amount:</b> $219541.10</p>
-                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                                <p><b>Created By: </b> Occams Finance</p>
-                                <p><b>Updated By: </b> Occams Finance</p>
-                              </div>
-                            </div>
-
-                            <div class="col-md-4">
-                              <div class="lead_des">
-                                <p><b>Payment Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Cleared Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Mode:</b> N/A</p>
+                        <div class="row custom_opp_tab">
+                          <div class="col-sm-12">
+                            <div class="custom_opp_tab_header">
+                              <h5>
+                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                  Invoice ERC-7335</a> -
+                                <span class="status cancel badge bg-cancel"> Cancelled</span>
+                              </h5>
+                              <div class="opp_edit_dlt_btn projects-iris">
                               </div>
                             </div>
                           </div>
+
+                          <div class="col-md-8 text-left">
+                            <div class="lead_des">
+                              <p><b>Invoice Amount:</b> $219541.10</p>
+                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                              <p><b>Created By: </b> Occams Finance</p>
+                              <p><b>Updated By: </b> Occams Finance</p>
+                            </div>
+                          </div>
+
+                          <div class="col-md-4">
+                            <div class="lead_des">
+                              <p><b>Payment Date:</b> N/A</p>
+                              <p>
+                                <b>Payment Cleared Date:</b> N/A</p>
+                              <p>
+                                <b>Payment Mode:</b> N/A</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <div class="contact_tab_data">
-                          <div class="row custom_opp_tab">
-                            <div class="col-sm-12">
-                              <div class="custom_opp_tab_header">
-                                <h5>
-                                  <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                    Invoice ERC-7335</a> -
-                                  <span class="status cancel badge bg-success"> Paid</span>
-                                </h5>
-                                <div class="opp_edit_dlt_btn projects-iris">
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="col-md-8 text-left">
-                              <div class="lead_des">
-                                <p><b>Invoice Amount:</b> $219541.10</p>
-                                <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                                <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                                <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                                <p><b>Created By: </b> Occams Finance</p>
-                                <p><b>Updated By: </b> Occams Finance</p>
-                              </div>
-                            </div>
-
-                            <div class="col-md-4">
-                              <div class="lead_des">
-                                <p><b>Payment Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Cleared Date:</b> N/A</p>
-                                <p>
-                                  <b>Payment Mode:</b> N/A</p>
+                        <div class="row custom_opp_tab">
+                          <div class="col-sm-12">
+                            <div class="custom_opp_tab_header">
+                              <h5>
+                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
+                                  Invoice ERC-7335</a> -
+                                <span class="status cancel badge bg-success"> Paid</span>
+                              </h5>
+                              <div class="opp_edit_dlt_btn projects-iris">
                               </div>
                             </div>
                           </div>
+
+                          <div class="col-md-8 text-left">
+                            <div class="lead_des">
+                              <p><b>Invoice Amount:</b> $219541.10</p>
+                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
+                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
+                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
+                              <p><b>Created By: </b> Occams Finance</p>
+                              <p><b>Updated By: </b> Occams Finance</p>
+                            </div>
+                          </div>
+
+                          <div class="col-md-4">
+                            <div class="lead_des">
+                              <p><b>Payment Date:</b> N/A</p>
+                              <p>
+                                <b>Payment Cleared Date:</b> N/A</p>
+                              <p>
+                                <b>Payment Mode:</b> N/A</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                     </div>
@@ -4143,7 +5490,7 @@ const ProjectDetail = () => {
               </div>
 
               <div className='row mt-4'>
-                <div className='col-md-8'>
+                <div className='col-md-9'>
                   {/* Notes Section */}
                   <h5 className="section-title mt-4">Notes</h5>
                   <Notes
