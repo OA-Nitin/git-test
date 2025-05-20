@@ -3771,8 +3771,6 @@ const ProjectDetail = () => {
                 </div>
 
                 {/* Right Side Section - Same for all tabs */}
-
-
                 <div className="col-md-3">
 
                   <div className="card mb-4 p-2">
