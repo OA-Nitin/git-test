@@ -1,0 +1,33 @@
+/* ContactCard Component Styles */
+
+.contact-card-component {
+  display: inline-block;
+}
+
+.contact-card-content {
+  padding: 0.5rem;
+}
+
+.contact-card-content h5 {
+      font-size: 15px;
+}
+
+.contact-card-content .table {
+  margin-bottom: 0;
+}
+
+.contact-card-content .table th {
+  width: 40%;
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.contact-card-content .table td {
+  word-break: break-word;
+}
+
+/* Badge styles */
+.contact-card-content .badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}

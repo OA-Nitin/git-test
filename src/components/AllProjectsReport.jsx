@@ -1,14 +1,31 @@
+import { useParams, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
-import './DateFilter.css';
+import './common/ReportStyle.css';
+import './common/DateRangePicker.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
+import Notes from './common/Notes';
+import ContactCard from './common/ContactCard';
+import ReportFilter from './common/ReportFilter';
+import ReportPagination from './common/ReportPagination';
+import PageContainer from './common/PageContainer';
+
+// Map product names to their respective IDs
+const productIdMap = {
+  erc: 935,
+  stc: 937,
+  rdc: 932,
+  partnership: 104,
+  'tax-amendment': 936,
+  'audit-advisory': 934,
+  all: null // to fetch all projects without filtering
+};
+
 
 // Function to format date as mm/dd/YYYY H:i:s
 const formatDate = (dateString) => {
@@ -36,17 +53,26 @@ const formatDate = (dateString) => {
 };
 
 const AllProjectsReport = () => {
+  // Get product parameter from URL
+  const { product } = useParams();
+
   // State for API data
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Get product ID from the product name in URL
+  const productId = product ? productIdMap[product.toLowerCase()] : null;
+
   useEffect(() => {
-    document.title = "All Projects Report - Occams Portal"; // Set title for All Projects Report page
+    // Set document title based on product
+    const displayType = product || 'All';
+    const reportTitle = `${displayType.toUpperCase()} Projects Report - Occams Portal`;
+    document.title = reportTitle;
 
     // Fetch projects from API
     fetchProjects();
-  }, []);
+  }, [product, productId]);
 
   // Function to fetch projects from API
   const fetchProjects = async () => {
@@ -54,10 +80,15 @@ const AllProjectsReport = () => {
     setError(null);
 
     try {
-      console.log('Fetching projects from API...');
+      // Log which type of projects we're fetching
+      console.log(`Fetching ${product ? product + ' ' : ''}projects from API...`);
+      console.log('Using product ID:', productId);
 
-      // Use the updated endpoint provided
-      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
+      // Construct API URL with product_id parameter if available
+      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
+      if (productId) {
+        apiUrl += `?product_id=${productId}`;
+      }
 
       // Make the API request with proper headers
       const response = await axios.get(apiUrl, {
@@ -72,7 +103,7 @@ const AllProjectsReport = () => {
 
       // Check if we have a valid response with data
       if (response && response.data) {
-        // Check if response.data has a data property that is an array (based on the actual API response structure)
+        // Check if response.data has a data property that is an array
         if (response.data.data && Array.isArray(response.data.data)) {
           const apiProjects = response.data.data;
           console.log('API Projects (nested data):', apiProjects);
@@ -82,7 +113,8 @@ const AllProjectsReport = () => {
           setProjects(apiProjects);
 
           if (apiProjects.length === 0) {
-            setError('No projects found in API response.');
+            setError('No data available.');
+            setProjects([]);
           }
         }
         // Check if response.data is an array directly
@@ -96,50 +128,30 @@ const AllProjectsReport = () => {
           setProjects(apiProjects);
 
           if (apiProjects.length === 0) {
-            setError('No projects found in API response.');
+            setError('No data available.');
+            setProjects([]);
           }
         }
         else {
           console.error('API response format unexpected:', response);
-          // If API returns unexpected format, use fallback data
-          const errorMsg = 'API returned unexpected data format. Using sample data instead.';
+          // If API returns unexpected format, show error message
+          const errorMsg = 'Data is not available. API returned unexpected data format.';
           setError(errorMsg);
-
-          // Generate fallback data with a clear indicator
-          const fallbackData = generateFallbackProjects();
-          // Add a flag to indicate this is fallback data
-          fallbackData.forEach(project => {
-            project.isFallbackData = true;
-          });
-          setProjects(fallbackData);
+          setProjects([]);
         }
       } else {
         console.error('API response invalid:', response);
-        // If API returns invalid response, use fallback data
-        const errorMsg = 'API returned invalid response. Using sample data instead.';
+        // If API returns invalid response, show error message
+        const errorMsg = 'Data is not available. API returned invalid response.';
         setError(errorMsg);
-
-        // Generate fallback data with a clear indicator
-        const fallbackData = generateFallbackProjects();
-        // Add a flag to indicate this is fallback data
-        fallbackData.forEach(project => {
-          project.isFallbackData = true;
-        });
-        setProjects(fallbackData);
+        setProjects([]);
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
-      const errorMsg = `Failed to fetch projects: ${err.message}. Using sample data instead.`;
+      const errorMsg = `Data is not available. Failed to fetch projects: ${err.message}.`;
       console.error(errorMsg);
       setError(errorMsg);
-
-      // Generate fallback data with a clear indicator
-      const fallbackData = generateFallbackProjects();
-      // Add a flag to indicate this is fallback data
-      fallbackData.forEach(project => {
-        project.isFallbackData = true;
-      });
-      setProjects(fallbackData);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
@@ -229,9 +241,11 @@ const AllProjectsReport = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  const [sortField, setSortField] = useState('id');
+  const [sortField, setSortField] = useState('project_id');
   const [sortDirection, setSortDirection] = useState('asc');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -278,8 +292,8 @@ const AllProjectsReport = () => {
   // Flatten all columns for easier access
   const allColumns = columnGroups.flatMap(group => group.columns);
 
-  // Default visible columns - 10 columns as specified
-  const defaultVisibleColumns = ['projectId', 'date', 'businessName', 'productName', 'projectName', 'collaborators', 'milestone', 'stageName', 'taxNowSignupStatus', 'notes'];
+  // Default visible columns - 8 columns as specified, similar to LeadReport
+  const defaultVisibleColumns = ['projectId', 'date', 'businessName', 'productName', 'projectName', 'stageName', 'taxNowSignupStatus', 'notes'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -319,10 +333,36 @@ const AllProjectsReport = () => {
     setCurrentPage(1);
   };
 
-  // Filter projects based on search term and status
+  // Handle date filter application
+  const handleApplyDateFilter = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    setCurrentPage(1); // Reset to first page when filter changes
+
+    // Show feedback toast
+    if (start || end) {
+      const message = start && end
+        ? `Filtering projects from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`
+        : start
+          ? `Filtering projects from ${new Date(start).toLocaleDateString()}`
+          : `Filtering projects until ${new Date(end).toLocaleDateString()}`;
+
+      Swal.fire({
+        title: 'Date Filter Applied',
+        text: message,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    }
+  };
+
+  // Filter projects based on search term, status, and date range
   const filteredProjects = projects.filter(project => {
-    // Skip filtering if no search term or status filter is applied
-    if (searchTerm === '' && filterStatus === '') {
+    // Skip filtering if no filters are applied
+    if (searchTerm === '' && filterStatus === '' && !startDate && !endDate) {
       return true;
     }
 
@@ -354,8 +394,58 @@ const AllProjectsReport = () => {
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
 
-    // Return true if both conditions are met
-    return matchesSearch && matchesStatus;
+    // Check if date is within range
+    let matchesDateRange = true;
+
+    if (startDate || endDate) {
+      // Try to parse the created date
+      let projectDate;
+      try {
+        // First try to parse as ISO date
+        projectDate = new Date(project.created_at);
+
+        // If invalid date, try to parse as MM/DD/YYYY
+        if (isNaN(projectDate.getTime())) {
+          const parts = project.created_at.split('/');
+          if (parts.length === 3) {
+            // MM/DD/YYYY format
+            projectDate = new Date(parts[2], parts[0] - 1, parts[1]);
+          }
+        }
+
+        // If still invalid, don't include this project in date-filtered results
+        if (isNaN(projectDate.getTime())) {
+          matchesDateRange = false;
+        } else {
+          // Set time to midnight for date comparison
+          projectDate.setHours(0, 0, 0, 0);
+
+          // Check start date
+          if (startDate) {
+            const startDateObj = new Date(startDate);
+            startDateObj.setHours(0, 0, 0, 0);
+            if (projectDate < startDateObj) {
+              matchesDateRange = false;
+            }
+          }
+
+          // Check end date
+          if (endDate && matchesDateRange) {
+            const endDateObj = new Date(endDate);
+            endDateObj.setHours(0, 0, 0, 0);
+            if (projectDate > endDateObj) {
+              matchesDateRange = false;
+            }
+          }
+        }
+      } catch (e) {
+        // If there's an error parsing the date, don't include this project in date-filtered results
+        matchesDateRange = false;
+      }
+    }
+
+    // Return true if all conditions are met
+    return matchesSearch && matchesStatus && matchesDateRange;
   });
 
   // Sort the filtered projects
@@ -591,971 +681,209 @@ const AllProjectsReport = () => {
     }
   };
 
-  // Handle view contact card
-  const handleViewContact = (project) => {
-    // Debug: Log the project object to see what data we have
-    console.log('Project data for contact card:', project);
+  // The handleViewContact function is no longer needed as we're using the ContactCard component
 
-    // Only show specific fields in the contact card
-    const businessName = project.business_legal_name || 'Unknown Business';
-    const stage = project.stage_name || '';
-    const projectName = project.project_name || 'N/A';
 
-    // Create HTML for the specific fields we want to show
-    const contactCardHTML = `
-      <div class="text-start">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0">${businessName}</h5>
-          <span class="badge ${
-            stage === 'ERC Fees Fully Paid' ? 'bg-success' :
-            stage === 'Documents Pending' ? 'bg-info' :
-            stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
-            stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-            stage === 'Payment Returned' ? 'bg-danger' :
-            'bg-secondary'
-          }">${stage}</span>
-        </div>
-
-        <table class="table table-bordered">
-          <tr>
-            <th>Project Name</th>
-            <td>${projectName}</td>
-          </tr>
-          <tr>
-            <th>Business Phone</th>
-            <td>${project.business_phone || 'N/A'}</td>
-          </tr>
-          <tr>
-            <th>Business Email</th>
-            <td>${project.business_email || 'N/A'}</td>
-          </tr>
-        </table>
-      </div>
-    `;
-
-    Swal.fire({
-      title: '<span style="font-size: 1.2rem; color: #333;">Contact Card</span>',
-      html: contactCardHTML,
-      width: '500px',
-      showCloseButton: true,
-      showConfirmButton: false,
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Add custom CSS for the SweetAlert modal
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .swal-popup-custom {
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-      .swal-title-custom {
-        font-size: 1.5rem;
-        color: #333;
-        font-weight: 600;
-      }
-      .swal-header-custom {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
-      .swal-content-custom {
-        padding: 15px;
-      }
-      .table-bordered th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        width: 40%;
-      }
-    `;
-    document.head.appendChild(style);
-  };
-
-  // Handle view notes
-  const handleViewNotes = (project) => {
-    const projectId = project.project_id || '';
-    const leadId = project.lead_id || '';
-    const stage = project.stage_name || '';
-
-    // Show loading state
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-      html: `
-        <div class="text-center py-4">
-          <div class="spinner-border text-primary mb-3" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="text-muted">Loading notes...</p>
-        </div>
-      `,
-      showConfirmButton: false,
-      showCloseButton: true,
-      allowOutsideClick: false,
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom'
-      }
-    });
-
-    // Fetch notes from the API using project_id directly in the URL path
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${projectId}`)
-      .then(response => {
-        console.log('Project Notes API full response:', response);
-        console.log('Project ID used for fetching notes:', projectId);
-
-        // Handle different possible response formats
-        let notes = [];
-        if (Array.isArray(response.data)) {
-          notes = response.data;
-        } else if (response.data && typeof response.data === 'object') {
-          // If response.data is an object with a data property that is an array
-          if (Array.isArray(response.data.data)) {
-            notes = response.data.data;
-          } else {
-            // If it's a single note object, wrap it in an array
-            notes = [response.data];
-          }
-        }
-
-        console.log('Processed notes array:', notes);
-
-        let notesHtml = '';
-        if (!notes || notes.length === 0) {
-          notesHtml = `
-            <div class="text-center py-4">
-              <div class="mb-3">
-                <i class="fas fa-sticky-note fa-3x text-muted"></i>
-              </div>
-              <p class="text-muted">No notes available for this project</p>
-            </div>
-          `;
-        } else {
-          notesHtml = `
-            <div class="notes-list">
-              ${notes.map(note => {
-                // Parse the original date from the note (adjust field name based on API response)
-                const originalDate = new Date(note.created_at || note.date || new Date());
-
-                // Format the date as "Month Day, Year" (e.g., "May 6, 2025")
-                const options = { year: 'numeric', month: 'long', day: 'numeric' };
-                const formattedDate = originalDate.toLocaleDateString('en-US', options);
-
-                // Format time in 12-hour format with AM/PM
-                let hour12 = originalDate.getHours() % 12;
-                if (hour12 === 0) hour12 = 12; // Convert 0 to 12 for 12 AM
-                const ampm = originalDate.getHours() >= 12 ? 'PM' : 'AM';
-                const formattedTime = `${hour12}:${String(originalDate.getMinutes()).padStart(2, '0')} ${ampm}`;
-
-                // Get the note content (adjust field name based on API response)
-                const noteContent = note.note || note.content || note.text || '';
-
-                // Get the user who created the note (if available)
-                const userName = note.user_name || note.username || note.author || 'System';
-
-                return `
-                  <div class="note-item mb-3 p-3 border rounded" style="background-color: #f8f9fa; border-color: #e9ecef;">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedDate}</div>
-                      <div style="color: #000; font-weight: 600; font-size: 14px;">${formattedTime}</div>
-                    </div>
-                    <p class="mb-0" style="white-space: pre-line; color: #333; line-height: 1.5; font-size: 14px;">${noteContent}</p>
-                    <div class="mt-2 text-end">
-                      <small class="text-muted">Added by: ${userName}</small>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          `;
-        }
-
-        // Update the modal with the fetched notes
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
-          html: `
-            <div class="text-start">
-              <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-                <div>
-                  <span class="text-black">Project ID: <span class="text-dark">${projectId}</span></span>
-                </div>
-                <div>
-                  <span class="badge ${
-                    stage === 'ERC Fees Fully Paid' ? 'bg-success' :
-                    stage === 'Documents Pending' ? 'bg-info' :
-                    stage === 'Payment Processing Client Initiate' ? 'bg-primary' :
-                    stage === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-                    stage === 'Payment Returned' ? 'bg-danger' :
-                    'bg-secondary'
-                  }">${stage || 'Unknown'}</span>
-                </div>
-              </div>
-              <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
-                ${notesHtml}
-              </div>
-            </div>
-          `,
-          width: '650px',
-          showCloseButton: false,
-          showConfirmButton: true,
-          confirmButtonText: 'Close',
-          confirmButtonColor: '#0d6efd',
-          customClass: {
-            container: 'swal-wide',
-            popup: 'swal-popup-custom',
-            header: 'swal-header-custom',
-            title: 'swal-title-custom',
-            closeButton: 'swal-close-button-custom',
-            content: 'swal-content-custom',
-            footer: 'swal-footer-custom'
-          }
-        });
-
-        // Add custom CSS for the SweetAlert modal
-        const style = document.createElement('style');
-        style.innerHTML = `
-          .swal-popup-custom {
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-          }
-          .swal-title-custom {
-            font-size: 1.5rem;
-            color: #333;
-            font-weight: 600;
-          }
-          .swal-header-custom {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-          }
-          .swal-content-custom {
-            padding: 15px;
-          }
-          .swal-footer-custom {
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-          }
-          .note-item {
-            transition: all 0.2s ease;
-          }
-          .note-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          }
-        `;
-        document.head.appendChild(style);
-      })
-      .catch(error => {
-        console.error('Error fetching notes:', error);
-        console.error('Error response:', error.response);
-        console.error('Error request:', error.request);
-        console.error('Error config:', error.config);
-        console.error('Project ID that caused error:', projectId);
-
-        // Show error message with more details
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-          html: `
-            <div class="text-center py-3">
-              <div class="mb-3">
-                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-              </div>
-              <p class="text-muted">There was a problem loading notes for this project.</p>
-              <div class="alert alert-danger py-2 mt-2">
-                <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
-              </div>
-              <p class="text-muted mt-2">Project ID: ${projectId}</p>
-            </div>
-          `,
-          confirmButtonText: 'OK',
-          customClass: {
-            popup: 'swal-popup-custom',
-            title: 'swal-title-custom'
-          }
-        });
-      });
-  };
-
-  // Handle add notes
-  const handleAddNotes = (project) => {
-    const projectId = project.project_id || '';
-    const leadId = project.lead_id || '';
-
-    Swal.fire({
-      title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
-      html: `
-        <div class="text-start">
-          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
-            <div>
-              <span class="text-black">Project ID: <span class="text-dark">${projectId}</span></span>
-            </div>
-          </div>
-          <div class="mb-3">
-            <textarea
-              class="form-control"
-              id="note-content"
-              rows="5"
-              placeholder="Enter your note here..."
-              style="resize: vertical; min-height: 100px;"
-            ></textarea>
-          </div>
-          <div class="text-muted small">
-            <i class="fas fa-info-circle me-1"></i>
-            Your note will be saved with the current date and time.
-          </div>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Save Note',
-      cancelButtonText: 'Cancel',
-      width: '650px',
-      customClass: {
-        container: 'swal-wide',
-        popup: 'swal-popup-custom',
-        header: 'swal-header-custom',
-        title: 'swal-title-custom',
-        closeButton: 'swal-close-button-custom',
-        content: 'swal-content-custom',
-      },
-      preConfirm: () => {
-        const content = document.getElementById('note-content').value;
-
-        if (!content) {
-          Swal.showValidationMessage('<i class="fas fa-exclamation-triangle me-2"></i>Please enter note content');
-          return false;
-        }
-
-        return { content };
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Show loading state
-        Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Saving Note</span>`,
-          html: `
-            <div class="text-center py-3">
-              <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="text-muted">Saving your note...</p>
-            </div>
-          `,
-          showConfirmButton: false,
-          allowOutsideClick: false,
-          customClass: {
-            popup: 'swal-popup-custom',
-            title: 'swal-title-custom'
-          }
-        });
-
-        // Prepare the data for the API
-        // For POST requests, we need to include the data in the request body
-        const noteData = {
-          project_id: projectId, // Include project_id in the body
-          note: result.value.content,
-          user_id: 1  // Adding user_id parameter as required by the API
-        };
-
-        console.log('Sending project note data:', noteData); // For debugging
-        console.log('Project ID for adding note:', projectId);
-
-        // Send the data to the API - using the project_id in the URL
-        axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes', noteData, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        })
-          .then((response) => {
-            console.log('Note saved successfully:', response);
-            // Show success message
-            Swal.fire({
-              title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
-              html: `
-                <div class="text-center py-3">
-                  <div class="mb-3">
-                    <i class="fas fa-check-circle fa-3x text-success"></i>
-                  </div>
-                  <p class="text-muted">Your note has been saved successfully.</p>
-                </div>
-              `,
-              timer: 2000,
-              showConfirmButton: false,
-              customClass: {
-                popup: 'swal-popup-custom',
-                title: 'swal-title-custom'
-              }
-            });
-
-            // Refresh the notes view after a short delay
-            setTimeout(() => {
-              handleViewNotes(project);
-            }, 2100);
-          })
-          .catch(error => {
-            console.error('Error saving note:', error);
-            console.error('Error response:', error.response);
-            console.error('Error request:', error.request);
-            console.error('Error config:', error.config);
-
-            // Show error message with more details
-            Swal.fire({
-              title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
-              html: `
-                <div class="text-center py-3">
-                  <div class="mb-3">
-                    <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
-                  </div>
-                  <p class="text-muted mb-3">There was a problem saving your note.</p>
-                  <div class="alert alert-danger py-2">
-                    <small>${error.response ? `Error: ${error.response.status} - ${error.response.statusText}` : 'Network error. Please check your connection.'}</small>
-                  </div>
-                </div>
-              `,
-              confirmButtonText: 'OK',
-              customClass: {
-                popup: 'swal-popup-custom',
-                title: 'swal-title-custom'
-              }
-            });
-          });
-      }
-    });
-
-    // Add custom CSS for the SweetAlert modal
-    const style = document.createElement('style');
-    style.innerHTML = `
-      .swal-popup-custom {
-        border-radius: 10px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-      .swal-title-custom {
-        font-size: 1.5rem;
-        color: #333;
-        font-weight: 600;
-      }
-      .swal-header-custom {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-      }
-      .swal-content-custom {
-        padding: 15px;
-      }
-      #note-content:focus {
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        border-color: #86b7fe;
-      }
-      .btn-lg {
-        padding: 0.5rem 1rem;
-        font-size: 1.1rem;
-      }
-      /* Override SweetAlert button styles directly */
-      .swal2-styled.swal2-confirm {
-        background-color: #6366f1 !important;
-        color: white !important;
-        border-radius: 0.375rem !important;
-        padding: 0.5rem 1.5rem !important;
-        font-weight: 500 !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-        width: 160px !important;
-        margin: 0.3125em !important;
-        font-size: 1rem !important;
-      }
-      .swal2-styled.swal2-cancel {
-        background-color: #6b7280 !important;
-        color: white !important;
-        border-radius: 0.375rem !important;
-        padding: 0.5rem 1.5rem !important;
-        font-weight: 500 !important;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-        width: 160px !important;
-        margin: 0.3125em !important;
-        font-size: 1rem !important;
-      }
-      /* Fix button container */
-      .swal2-actions {
-        width: 100% !important;
-        justify-content: center !important;
-        gap: 10px !important;
-      }
-    `;
-    document.head.appendChild(style);
-  };
 
   return (
-    <div className="main_content_iner">
-      <div className="container-fluid p-0">
-        <div className="row justify-content-center">
-          <div className="col-lg-12">
-            <div className="white_card card_height_100 mb_30">
-              <div className="white_card_header">
-                <div className="box_header m-0 new_report_header">
-                  <div className="title_img">
-                    <img src="/assets/images/Knowledge_Ceter_White.svg" className="page-title-img" alt="" />
-                    <h4 className="text-white">All Projects Report</h4>
-                  </div>
-                </div>
-              </div>
-              <div className="white_card_body">
-                <div className="mb-4">
-                  <div className="row align-items-center">
-                    {/* Search box */}
-                    <div className="col-md-3">
-                      <div className="input-group input-group-sm">
-                        <div className="position-relative flex-grow-1">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search projects by any field..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingRight: '30px' }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                setIsSearching(true);
-                                setTimeout(() => setIsSearching(false), 500);
-                                setCurrentPage(1); // Reset to first page when searching
+    <PageContainer title={`${product ? product.toUpperCase() + ' ' : ''}Projects Report`}>
+      <ReportFilter
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        isSearching={isSearching}
+        setIsSearching={setIsSearching}
+        setCurrentPage={setCurrentPage}
+        startDate={startDate}
+        endDate={endDate}
+        handleApplyDateFilter={handleApplyDateFilter}
+        refreshData={fetchProjects}
+        loading={loading}
+        columnGroups={columnGroups}
+        visibleColumns={visibleColumns}
+        toggleColumnVisibility={toggleColumnVisibility}
+        resetToDefaultColumns={resetToDefaultColumns}
+        selectAllColumns={selectAllColumns}
+        exportToExcel={exportToExcel}
+        exportToPDF={exportToPDF}
+        exportToCSV={exportToCSV}
+      />
 
-                                // Show feedback toast if search term is not empty
-                                if (searchTerm.trim() !== '') {
-                                  Swal.fire({
-                                    title: 'Searching...',
-                                    text: `Searching for "${searchTerm}"`,
-                                    icon: 'info',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                  });
-                                }
-                              }
-                            }}
-                          />
-                          {searchTerm && (
-                            <button
-                              type="button"
-                              className="btn btn-sm position-absolute"
-                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
-                              onClick={() => {
-                                setSearchTerm('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <i className="fas fa-times text-muted"></i>
-                            </button>
-                          )}
-                        </div>
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-sm search-btn"
-                            type="button"
-                            onClick={() => {
-                              setIsSearching(true);
-                              setTimeout(() => setIsSearching(false), 500);
-                              setCurrentPage(1); // Reset to first page when searching
-
-                              // Show feedback toast if search term is not empty
-                              if (searchTerm.trim() !== '') {
-                                Swal.fire({
-                                  title: 'Searching...',
-                                  text: `Searching for "${searchTerm}"`,
-                                  icon: 'info',
-                                  toast: true,
-                                  position: 'top-end',
-                                  showConfirmButton: false,
-                                  timer: 1500
-                                });
-                              }
-                            }}
-                          >
-                            <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Export buttons and Column Selector */}
-                    <div className="col-md-9">
-                      <div className="d-flex justify-content-end">
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={fetchProjects}
-                          disabled={loading}
-                          title="Refresh Data"
-                        >
-                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
-                        </button>
-                        <div className="dropdown me-2">
-                          <button
-                            className="column-selector-btn"
-                            type="button"
-                            id="columnSelectorDropdown"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="fas fa-columns"></i> Columns
-                          </button>
-                          <div className="dropdown-menu dropdown-menu-end column-selector" aria-labelledby="columnSelectorDropdown">
-                            <div className="column-selector-header">
-                              <span>Table Columns</span>
-                              <i className="fas fa-table"></i>
-                            </div>
-                            <div className="column-selector-content">
-                              {columnGroups.map(group => (
-                                <div key={group.id} className="column-group">
-                                  <div className="column-group-title">{group.title}</div>
-                                  {group.columns.map(column => (
-                                    <div
-                                      key={column.id}
-                                      className={`dropdown-item ${visibleColumns.includes(column.id) ? 'active' : ''}`}
-                                    >
-                                      <div className="form-check">
-                                        <input
-                                          className="form-check-input"
-                                          type="checkbox"
-                                          id={`column-${column.id}`}
-                                          checked={visibleColumns.includes(column.id)}
-                                          onChange={() => toggleColumnVisibility(column.id)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`column-${column.id}`}>
-                                          {column.label}
-                                        </label>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                            <div className="column-selector-footer">
-                              <button className="btn btn-reset" onClick={resetToDefaultColumns}>
-                                Reset
-                              </button>
-                              <button className="btn btn-apply" onClick={selectAllColumns}>
-                                Select All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <button className="btn btn-sm export-btn" onClick={exportToExcel}>
-                          <i className="fas fa-file-excel me-1"></i> Excel
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToPDF}>
-                          <i className="fas fa-file-pdf me-1"></i> PDF
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToCSV}>
-                          <i className="fas fa-file-csv me-1"></i> CSV
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Loading indicator */}
-                {loading && (
-                  <div className="text-center my-5">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    <p className="mt-2">Loading projects data...</p>
-                  </div>
-                )}
-
-                {/* Error message */}
-                {error && !loading && (
-                  <div className="alert alert-warning" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
-                        <p className="mb-0">{error}</p>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>Please try again or contact support if the problem persists.</span>
-                      <button
-                        className="btn btn-primary"
-                        onClick={fetchProjects}
-                      >
-                        <i className="fas fa-sync-alt me-1"></i> Retry
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Fallback data warning */}
-                {projects.length > 0 && projects[0].isFallbackData && !loading && (
-                  <div className="alert alert-info" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-info-circle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Sample Data</h5>
-                        <p className="mb-0">Showing sample data because the API request failed or returned no results. The highlighted rows contain sample data.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Data table */}
-                {!loading && (
-                  <div className="table-responsive">
-                    <table className="table table-bordered table-hover table-striped">
-                      <thead>
-                        <tr>
-                          {allColumns.map(column => {
-                            // Only render columns that are in the visibleColumns array
-                            if (visibleColumns.includes(column.id)) {
-                              return column.sortable ? (
-                                <SortableTableHeader
-                                  key={column.id}
-                                  label={column.label}
-                                  field={column.field}
-                                  currentSortField={sortField}
-                                  currentSortDirection={sortDirection}
-                                  onSort={handleSort}
-                                />
-                              ) : (
-                                <th key={column.id}>{column.label}</th>
-                              );
-                            }
-                            return null;
-                          })}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {currentProjects.length > 0 ? (
-                          currentProjects.map((project, index) => (
-                            <tr
-                              key={project.project_id || index}
-                              className={project.isFallbackData ? 'table-warning' : ''}
-                            >
-                              {/* Render cells in the same order as the column definitions */}
-                              {allColumns.map(column => {
-                                // Only render columns that are in the visibleColumns array
-                                if (!visibleColumns.includes(column.id)) {
-                                  return null;
-                                }
-
-                                // Render different cell types based on column id
-                                switch (column.id) {
-                                  case 'projectId':
-                                    return <td key={column.id}>{project.project_id || ''}</td>;
-                                  case 'businessName':
-                                    return (
-                                      <td key={column.id}>
-                                        {project.isFallbackData && (
-                                          <span className="badge bg-warning me-1" title="Sample data">
-                                            <i className="fas fa-exclamation-triangle"></i>
-                                          </span>
-                                        )}
-                                        {project.business_legal_name || ''}
-                                      </td>
-                                    );
-                                  case 'contactCard':
-                                    return (
-                                      <td key={column.id}>
-                                        <button
-                                          className="btn btn-sm btn-outline-primary"
-                                          onClick={() => handleViewContact(project)}
-                                          title="View Contact Card"
-                                        >
-                                          <i className="fas fa-address-card"></i>
-                                        </button>
-                                      </td>
-                                    );
-                                  case 'projectName':
-                                    return <td key={column.id}>{project.project_name || ''}</td>;
-                                  case 'productName':
-                                    return <td key={column.id}>{project.product_name || ''}</td>;
-                                  case 'collaborators':
-                                    return <td key={column.id}>{project.collaborators || ''}</td>;
-                                  case 'milestone':
-                                    return <td key={column.id}>{project.milestone || ''}</td>;
-                                  case 'stageName':
-                                    return (
-                                      <td key={column.id}>
-                                        <span className={`badge ${
-                                          project.stage_name === 'ERC Fees Fully Paid' ? 'bg-success' :
-                                          project.stage_name === 'Documents Pending' ? 'bg-info' :
-                                          project.stage_name === 'Payment Processing Client Initiate' ? 'bg-primary' :
-                                          project.stage_name === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-                                          project.stage_name === 'Payment Returned' ? 'bg-danger' :
-                                          'bg-secondary'
-                                        }`}>
-                                          {project.stage_name || ''}
-                                        </span>
-                                      </td>
-                                    );
-                                  case 'date':
-                                    return <td key={column.id}>{formatDate(project.created_at) || ''}</td>;
-                                  case 'projectFee':
-                                    return <td key={column.id}>{project.project_fee || ''}</td>;
-                                  case 'taxNowSignupStatus':
-                                    return (
-                                      <td key={column.id}>
-                                        <span className={`badge ${
-                                          project.taxnow_signup_status === 'Complete' ? 'bg-success' :
-                                          project.taxnow_signup_status ? 'bg-info' :
-                                          'bg-secondary'
-                                        }`}>
-                                          {project.taxnow_signup_status || 'N/A'}
-                                        </span>
-                                      </td>
-                                    );
-                                  case 'notes':
-                                    return (
-                                      <td key={column.id}>
-                                        <div className="d-flex justify-content-center gap-2">
-                                          <button
-                                            className="btn btn-sm btn-outline-info"
-                                            onClick={() => handleViewNotes(project)}
-                                            title="View Notes"
-                                          >
-                                            <i className="fas fa-eye"></i>
-                                          </button>
-                                          <button
-                                            className="btn btn-sm btn-outline-success"
-                                            onClick={() => handleAddNotes(project)}
-                                            title="Add Notes"
-                                          >
-                                            <i className="fas fa-plus"></i>
-                                          </button>
-                                        </div>
-                                      </td>
-                                    );
-                                  default:
-                                    return <td key={column.id}></td>;
-                                }
-                              })}
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={visibleColumns.length} className="text-center py-5">
-                              <div className="d-flex flex-column align-items-center">
-                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No projects found</h5>
-                                <p className="text-muted mb-3">
-                                  {searchTerm || filterStatus ?
-                                    'Try adjusting your search or filter criteria' :
-                                    'No project data is available from the API'}
-                                </p>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* Pagination */}
-                {!loading && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <p>Showing {indexOfFirstProject + 1} to {Math.min(indexOfLastProject, filteredProjects.length)} of {filteredProjects.length} projects (filtered from {projects.length} total)</p>
-                    </div>
-                    <div className="col-md-6">
-                      <nav aria-label="Project report pagination">
-                        <ul className="pagination justify-content-end">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToPreviousPage}
-                              disabled={currentPage === 1}
-                            >
-                              Previous
-                            </button>
-                          </li>
-
-                          {/* First page */}
-                          {currentPage > 3 && (
-                            <li className="page-item">
-                              <button className="page-link" onClick={() => paginate(1)}>1</button>
-                            </li>
-                          )}
-
-                          {/* Ellipsis */}
-                          {currentPage > 4 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Page numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            // Show current page and 1 page before and after
-                            if (
-                              pageNumber === currentPage ||
-                              pageNumber === currentPage - 1 ||
-                              pageNumber === currentPage + 1
-                            ) {
-                              return (
-                                <li
-                                  key={pageNumber}
-                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                >
-                                  <button
-                                    className="page-link"
-                                    onClick={() => paginate(pageNumber)}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                </li>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Ellipsis */}
-                          {currentPage < totalPages - 3 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Last page */}
-                          {currentPage < totalPages - 2 && (
-                            <li className="page-item">
-                              <button
-                                className="page-link"
-                                onClick={() => paginate(totalPages)}
-                              >
-                                {totalPages}
-                              </button>
-                            </li>
-                          )}
-
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToNextPage}
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+      {/* Loading indicator */}
+      {loading && (
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
+          <p className="mt-2">Loading projects data...</p>
         </div>
-      </div>
-    </div>
+      )}
+
+      {/* We've removed the error messages as requested */}
+
+      {/* Data table */}
+      {!loading && (
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover table-striped">
+            <thead>
+              <tr>
+                {allColumns.map(column => {
+                  // Only render columns that are in the visibleColumns array
+                  if (visibleColumns.includes(column.id)) {
+                    return column.sortable ? (
+                      <SortableTableHeader
+                        key={column.id}
+                        label={column.label}
+                        field={column.field}
+                        currentSortField={sortField}
+                        currentSortDirection={sortDirection}
+                        onSort={handleSort}
+                      />
+                    ) : (
+                      <th key={column.id}>{column.label}</th>
+                    );
+                  }
+                  return null;
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {currentProjects.length > 0 ? (
+                currentProjects.map((project, index) => (
+                  <tr
+                    key={project.project_id || index}
+                  >
+                    {/* Render cells in the same order as the column definitions */}
+                    {allColumns.map(column => {
+                      // Only render columns that are in the visibleColumns array
+                      if (!visibleColumns.includes(column.id)) {
+                        return null;
+                      }
+
+                      // Render different cell types based on column id
+                      switch (column.id) {
+                        case 'projectId':
+                          return (
+                            <td key={column.id}>
+                              <Link
+                                to={`/project-detail/${project.project_id}`}
+                                state={{ projectData: project }}
+                                className="lead-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {project.project_id || ''}
+                              </Link>
+                            </td>
+                          );
+                        case 'businessName':
+                          return (
+                            <td key={column.id}>
+                              <Link
+                                to={`/project-detail/${project.project_id}`}
+                                state={{ projectData: project }}
+                                className="lead-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {project.business_legal_name || ''}
+                              </Link>
+                            </td>
+                          );
+                        case 'contactCard':
+                          return (
+                            <td key={column.id}>
+                              <ContactCard
+                                entity={project}
+                                entityType="project"
+                              />
+                            </td>
+                          );
+                        case 'projectName':
+                          return <td key={column.id}>{project.project_name || ''}</td>;
+                        case 'productName':
+                          return <td key={column.id}>{project.product_name || ''}</td>;
+                        case 'collaborators':
+                          return <td key={column.id}>{project.collaborators || ''}</td>;
+                        case 'milestone':
+                          return <td key={column.id}>{project.milestone || ''}</td>;
+                        case 'stageName':
+                          return (
+                            <td key={column.id}>
+                              <span className={`badge ${
+                                project.stage_name === 'ERC Fees Fully Paid' ? 'bg-success' :
+                                project.stage_name === 'Documents Pending' ? 'bg-info' :
+                                project.stage_name === 'Payment Processing Client Initiate' ? 'bg-primary' :
+                                project.stage_name === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
+                                project.stage_name === 'Payment Returned' ? 'bg-danger' :
+                                'bg-secondary'
+                              }`}>
+                                {project.stage_name || ''}
+                              </span>
+                            </td>
+                          );
+                        case 'date':
+                          return <td key={column.id}>{formatDate(project.created_at) || ''}</td>;
+                        case 'projectFee':
+                          return <td key={column.id}>{project.project_fee || ''}</td>;
+                        case 'taxNowSignupStatus':
+                          return (
+                            <td key={column.id}>
+                              <span className={`badge ${
+                                project.taxnow_signup_status === 'Complete' ? 'bg-success' :
+                                project.taxnow_signup_status ? 'bg-info' :
+                                'bg-secondary'
+                              }`}>
+                                {project.taxnow_signup_status || 'N/A'}
+                              </span>
+                            </td>
+                          );
+                        case 'notes':
+                          return (
+                            <td key={column.id}>
+                              <Notes
+                                entityType="project"
+                                entityId={project.project_id || ''}
+                                entityName={project.business_legal_name || ''}
+                              />
+                            </td>
+                          );
+                        default:
+                          return <td key={column.id}></td>;
+                      }
+                    })}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={visibleColumns.length} className="text-center py-4">
+                    <div className="d-flex flex-column align-items-center">
+                      <i className="fas fa-database text-muted mb-3" style={{ fontSize: '2rem' }}></i>
+                      <h5 className="text-muted">No records found</h5>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && (
+        <ReportPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          paginate={paginate}
+          goToPreviousPage={goToPreviousPage}
+          goToNextPage={goToNextPage}
+          indexOfFirstItem={indexOfFirstProject}
+          indexOfLastItem={indexOfLastProject}
+          totalFilteredItems={filteredProjects.length}
+          totalItems={projects.length}
+          itemName="projects"
+        />
+      )}
+    </PageContainer>
   );
 };
 

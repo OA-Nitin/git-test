@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './MyProfile.css';
 import './SweetAlert.css';
 import Toast from './Toast';
-import Modal from './Modal';
+import Modal from './common/Modal';
 import QRCode from './QRCode';
 
 const MyProfile = () => {
@@ -333,9 +333,10 @@ const MyProfile = () => {
 
       {/* QR Code Modal */}
       <Modal
-        isOpen={qrModal.isOpen}
+        show={qrModal.isOpen}
         onClose={closeQrModal}
         title={`QR Code for ${qrModal.title}`}
+        showFooter={false}
       >
         <div className="qr-code-container">
           <QRCode url={qrModal.url} size={250} />
@@ -358,7 +359,7 @@ const MyProfile = () => {
               <div className="white_card_header">
                 <div className="box_header m-0 new_report_header">
                   <div className="title_img">
-                    <img src="/assets/images/user_details.svg" className="page-title-img" alt="User Details" />
+                    <img src="./assets/images/user_details.svg" className="page-title-img" alt="User Details" />
                     <h4 className="text-white">User Details</h4>
                   </div>
                 </div>

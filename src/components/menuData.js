@@ -52,4 +52,29 @@ export const menuData = [
       { key: 'createinvoice', name: 'Create Invoice', path: '/finance/create-invoice' }
     ],
   },
+  {
+    key: 'opportunities',
+    name: 'Opportunities',
+    icon: 'dashicons-image-filter',
+    children: [
+      { key: 'opportunitiesReport', name: 'Opportunities Report', path: '/opportunities/report' },
+      { key: 'ercOpportunities', name: 'ERC Opportunities', path: '/opportunities/erc' },
+      { key: 'stcOpportunities', name: 'STC Opportunities', path: '/opportunities/stc' },
+      { key: 'taxAmendmentOpportunities', name: 'Tax Amendment Opportunities', path: '/opportunities/tax-amendment' },
+      { key: 'auditAdvisoryOpportunities', name: 'Audit Advisory Opportunities', path: '/opportunities/audit-advisory' },
+      { key: 'rdcOpportunities', name: 'RDC Opportunities', path: '/opportunities/rdc' },
+      { key: 'partnershipOpportunities', name: 'Partnership Opportunities', path: '/opportunities/partnership' },
+      { key: 'milestoneStages', name: 'Milestone & Stages', path: '/opportunities/milestone-stages' },
+    ],
+  },
+  {
+    key: 'examples',
+    name: 'Examples',
+    icon: 'dashicons-admin-appearance',
+    children: [
+      { key: 'notesExample', name: 'Notes Example', path: '/examples/notes' },
+      { key: 'buttonsExample', name: 'Buttons Example', path: '/examples/buttons' },
+      { key: 'pageContainerExample', name: 'Page Container', path: '/examples/page-container' }
+    ],
+  },
 ];

@@ -142,29 +142,7 @@ button:focus,
   color: #fff;
 }
 
-@media (min-width: 768px) {
-
-  /* line 972, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-  .modal-dialog.custom-modal-dialog {
-    max-width: 650px;
-  }
-}
-
-@media (min-width: 992px) {
-
-  /* line 977, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-  .modal-dialog.custom-modal-dialog {
-    max-width: 950px;
-  }
-}
-
-@media (min-width: 1200px) {
-
-  /* line 982, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-  .modal-dialog.custom-modal-dialog {
-    max-width: 1050px;
-  }
-}
+/* Note: Modal styles have been moved to common/Modal.css */
 
 /* line 988, G:/admin_project/8 admin/management_html/scss/_reset.scss */
 .file_upload {
@@ -351,13 +329,7 @@ th:focus {
   margin-bottom: 8px;
 }
 
-@media (min-width: 991px) {
-
-  /* line 1137, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-  .medium_modal_width .modal-dialog {
-    max-width: 780px;
-  }
-}
+/* Note: Modal styles have been moved to common/Modal.css */
 
 /* line 1145, G:/admin_project/8 admin/management_html/scss/_reset.scss */
 .list_header_btn_wrapper {
@@ -539,29 +511,7 @@ th:focus {
 }
 
 /* line 1261, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-.cs_modal .modal-header {
-  background-color: #f7faff;
-  padding: 23px 30px;
-  border-bottom: 0px solid transparent;
-}
-
-/* line 1265, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-.cs_modal .modal-header h5 {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-/* line 1269, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-.cs_modal .modal-header span {
-  font-size: 14px;
-  color: #707070;
-  opacity: 1;
-}
-
-/* line 1275, G:/admin_project/8 admin/management_html/scss/_reset.scss */
-.cs_modal .modal-body {
-  padding: 35px 30px;
-}
+/* Note: Modal styles have been moved to common/Modal.css */
 
 /* line 1277, G:/admin_project/8 admin/management_html/scss/_reset.scss */
 .cs_modal .modal-body input,
@@ -3549,7 +3499,7 @@ table.dataTable {
   color: #8890b5;
   font-weight: 400;
   padding: 0;
-  white-space: nowrap;
+  display: block;
   padding: 0;
   padding: 10px 0 10px 8px !important;
   margin-top: 0;
@@ -13803,7 +13753,7 @@ a:hover {
 }
 
 .login p.footer-style {
-  /* 
+  /*
    Commeted for Occams 360 connect changes
    width: auto !important;
     left: 167px;
@@ -14598,18 +14548,7 @@ a.user_action_echeckbtn.button.disabled {
 
 /**************code added on 24-march-2022 for modal fix on return and charges report****************/
 
-.modal-header {
-  display: block !important;
-}
-
-.modal-header .close {
-  padding: 0px !important;
-  margin: 0px !important;
-}
-
-.modal-title {
-  float: left;
-}
+/* Note: Modal styles have been moved to common/Modal.css */
 
 #wp-admin-bar-esign {
   display: none !important;
@@ -14782,7 +14721,7 @@ a.user_action_echeckbtn.button.disabled {
 }
 
 #wpadminbar {
-  padding: 15px 30px;
+  padding: 15px 20px 15px 30px;
   position: relative;
   margin-bottom: 20px;
   background: transparent;
@@ -15552,18 +15491,7 @@ input.reprocess-btn.button {
   margin-bottom: 3px !important;
 }
 
-.echeck_display .modal-header .close,
-.order_stop-model .modal-header .close,
-.order_refund-model .modal-header .close,
-.order_resume-model .modal-header .close,
-.order_stop-model .modal-header .close,
-.order_hold-model .modal-header .close {
-  padding-top: 0rem !important;
-}
-
-.echeck_display .modal-content {
-  width: 880px !important;
-}
+/* Note: Modal styles have been moved to common/Modal.css */
 
 #banking_details .fade:not(.show) {
   opacity: 1 !important;
@@ -15890,7 +15818,7 @@ html {
   font-size: inherit !important;
 }
 
-#wpadminbar #wp-admin-bar-top-secondary>#wp-admin-bar-my-account>a::after {
+/* #wpadminbar #wp-admin-bar-top-secondary>#wp-admin-bar-my-account>a::after {
   position: absolute !important;
   transform: rotate(0deg) translate(0, -50%) !important;
   transform-origin: top;
@@ -15902,7 +15830,7 @@ html {
   border-right-color: transparent !important;
   font-size: 10px;
   right: -7px;
-}
+} */
 
 .ps__thumb-y {
   background-color: #057cba4d !important;
@@ -16197,7 +16125,7 @@ html {
 }
 
 .login-page {
-  background: url('https://play.occamsadvisory.com/portal/echeckimg/banner_main.png');
+  background: url('/reporting/assets/images/banner_main.png');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title></title>
     <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400&display=swap" rel="stylesheet">
@@ -16,48 +16,8 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-    <script src="/src/assets/js/custom-dropdown.js"></script>
-    <script>
-      // Initialize metisMenu after the React app has loaded
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          if (typeof $ !== 'undefined' && $.fn.metisMenu) {
-            $('#adminmenu').metisMenu({
-              toggle: true,
-              preventDefault: false,
-              triggerElement: 'a',
-              parentTrigger: 'li',
-              subMenu: 'ul'
-            });
-            console.log('MetisMenu initialized with jQuery');
-          } else {
-            console.error('jQuery or metisMenu not available');
-          }
-        }, 1000); // Delay to ensure React has rendered the menu
-      });
-
-      // Initialize dropdown menu
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          if (typeof $ !== 'undefined') {
-            // Initially hide the dropdown
-            $(".ab-sub-wrapper").hide();
-
-            // Hover effect for dropdown menu
-            $("#wp-admin-bar-my-account").hover(
-              function () {
-                $(this).find(".ab-sub-wrapper").stop().fadeIn("slow");
-              },
-              function () {
-                $(this).find(".ab-sub-wrapper").stop().fadeOut("slow");
-              }
-            );
-
-            console.log("Dropdown menu initialized inline");
-          }
-        }, 1500); // Delay to ensure React has rendered the menu
-      });
-    </script>
+    <script type="module" src="./src/main.jsx"></script>
+    <!-- Load the initialization script -->
+    <script src="./js/init.js"></script>
   </body>
 </html>

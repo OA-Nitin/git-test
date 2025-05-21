@@ -2,25 +2,27 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../assets/css/header-dropdown.css';
 import '../assets/css/header-logout-button.css';
+import { getAssetPath } from '../utils/assetUtils';
 
 const Header = ({ user, onLogout }) => {
+  console.log('Header - user data:', user);
   return (
     <div id="wpadminbar" className="nojq header_iner">
       <div className="quicklinks" id="wp-toolbar" role="navigation" aria-label="Toolbar">
         <ul id="wp-admin-bar-root-default" className="ab-top-menu">
           <li className="">
             <Link to="/send-lead" className="send_doc">
-              <span><img src="/assets/images/send_lead.svg" alt="Send Lead" /></span>
+              <span><img src={getAssetPath('assets/images/send_lead.svg')} alt="Send Lead" /></span>
               Send Lead
             </Link>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <Link to="/create-sales-user" className="send_doc">
-              <span><img src="/assets/images/send_lead.svg" alt="Create Sales User" /></span>
+              <span><img src={getAssetPath('assets/images/send_lead.svg')} alt="Create Sales User" /></span>
               Create Sales User
             </Link>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <Link to="/affiliate-form" className="send_doc">
-              <span><img src="/assets/images/send_lead.svg" alt="Affiliate Form" /></span>
+              <span><img src={getAssetPath('assets/images/send_lead.svg')} alt="Affiliate Form" /></span>
               Affiliate Form
             </Link>
           </li>
@@ -37,7 +39,7 @@ const Header = ({ user, onLogout }) => {
                 aria-haspopup="true"
                 href="#"
               >
-                Welcome, <span className="display-name">{user?.display_name || 'User'}</span>
+                Welcome, <span className="display-name">{user?.display_name || user?.username || 'User'}</span>
               </a>
               <div className="ab-sub-wrapper profile_info_iner">
                 <ul id="wp-admin-bar-user-actions" className="ab-submenu profile_info_details">
@@ -68,7 +70,7 @@ const Header = ({ user, onLogout }) => {
                 onClick={onLogout}
                 title="Logout"
               >
-                <img src="/assets/images/logout-icon.svg" alt="Logout" width="16" height="16" />
+                <img src={getAssetPath('assets/images/logout-icon.svg')} alt="Logout" width="16" height="16" />
               </button>
             </li>
           </ul>
