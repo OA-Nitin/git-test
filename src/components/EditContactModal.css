@@ -41,34 +41,25 @@
 }
 
 .close-button {
-  background: #ff5c00;
+  background: none;
   border: none;
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
-  color: white;
-  transition: all 0.2s ease-in-out;
+  color: #ff0000;
+  transition: color 0.2s;
   position: absolute;
   right: 15px;
   top: 10px;
-  width: 32px;
-  height: 32px;
-  line-height: 28px;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
   text-align: center;
   z-index: 1100;
   padding: 0;
-  border-radius: 50%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .close-button:hover {
-  background: #e55200;
-  transform: scale(1.1);
-  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
-}
-
-.close-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 92, 0, 0.3);
+  color: #cc0000;
 }
 
 .contact-modal-body {
@@ -137,15 +128,6 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-.form-control:disabled,
-.form-control[disabled],
-.form-select:disabled,
-.form-select[disabled] {
-  background-color: #e9ecef;
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
 .form-select {
   display: block;
   width: 100%;
@@ -173,7 +155,6 @@
 .input-group {
   display: flex;
   position: relative;
-  width: 100%;
 }
 
 .input-group-text {
@@ -191,26 +172,14 @@
   border-radius: 4px 0 0 4px;
 }
 
-.input-group .form-control {
+/* .input-group .form-control {
   position: relative;
   flex: 1 1 auto;
   width: 1%;
   min-width: 0;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-}
-
-/* Fix for secondary phone field */
-.input-group-prepend {
-  display: flex;
-  align-items: center;
-}
-
-.input-group-prepend .input-group-text {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: 0;
-}
+} */
 
 .title-select {
   width: 80px;

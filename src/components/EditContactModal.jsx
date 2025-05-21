@@ -424,10 +424,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
       />
 
       <div className="modal-backdrop" onClick={onClose}>
-        <div
-          className="contact-modal"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
           <div className="contact-modal-header">
             <h3>{contactId ? `${formData.first_name} ${formData.last_name}` : 'Contact'}</h3>
           </div>
@@ -531,7 +528,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                       onChange={handleBusinessChange}
                       multiple
                       required
-                      disabled
+                      disabled={true} // Disable the field
                       style={{ height: '100px' }} // Make the dropdown taller for multiple selections
                     >
                       {businessOptions.map(business => (
@@ -592,9 +589,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                   <div className="form-group">
                     <label htmlFor="phone">Primary Phone:*</label>
                     <div className="input-group">
-                      <div className="input-group-prepend">
-                        <span className="input-group-text">+1</span>
-                      </div>
+                      <span className="input-group-text">+1</span>
                       <input
                         type="tel"
                         id="phone"
@@ -648,9 +643,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                   <div className="form-group">
                     <label htmlFor="secondary_phone">Secondary Phone:</label>
                     <div className="input-group">
-                      <div className="input-group-prepend">
-                        <span className="input-group-text">+1</span>
-                      </div>
+                      <span className="input-group-text">+1</span>
                       <input
                         type="tel"
                         id="secondary_phone"

@@ -8,7 +8,6 @@ import Notes from './common/Notes';
 // import './common/CommonStyles.css';
 import './common/ReportStyle.css';
 import './LeadDetail.css';
-import './LeadDetailModal.css';
 import { getAssetPath } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
@@ -4476,11 +4475,7 @@ const LeadDetail = () => {
       {/* Edit Project Modal */}
                       {showEditProjectModal && (
                         <>
-                          <div
-                            className="modal-backdrop show"
-                            style={{ display: 'block' }}
-                            onClick={handleCloseEditProjectModal}
-                          ></div>
+                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
                           {/* Loading overlay when fetching or updating */}
                           {projectUpdateLoading && (
                             <div className="loading-overlay">
@@ -4492,11 +4487,7 @@ const LeadDetail = () => {
                           )}
                           <div className={`modal ${showEditProjectModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div
-                                className="modal-content"
-                                style={{ borderRadius: '8px' }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
+                              <div className="modal-content" style={{ borderRadius: '8px' }}>
                                 <div className="modal-header pb-2">
                                   <h5 className="modal-title">Edit Project</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditProjectModal}></button>
@@ -4877,11 +4868,7 @@ const LeadDetail = () => {
                       {/* Edit Opportunity Modal */}
                       {showEditOpportunityModal && (
                         <>
-                          <div
-                            className="modal-backdrop show"
-                            style={{ display: 'block' }}
-                            onClick={handleCloseEditOpportunityModal}
-                          ></div>
+                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
                           {/* Loading overlay when fetching or updating */}
                           {opportunityUpdateLoading && (
                             <div className="loading-overlay">
@@ -4896,10 +4883,9 @@ const LeadDetail = () => {
                               <div
                                 className="modal-content"
                                 style={{ borderRadius: '8px', marginTop: '6%' }}
-                                onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="modal-header pb-2">
-                                  <h5 className="modal-title">Edit Opportunity</h5>
+                                  <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
                                 <div className="modal-body">
