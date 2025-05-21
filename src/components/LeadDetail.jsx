@@ -118,11 +118,7 @@ const LeadDetail = () => {
   const [milestones, setMilestones] = useState([]);
 
   // Delete opportunity related state
-  const [showDeleteOpportunityModal, setShowDeleteOpportunityModal] = useState(false);
-  const [opportunityToDelete, setOpportunityToDelete] = useState(null);
   const [deleteOpportunityLoading, setDeleteOpportunityLoading] = useState(false);
-  const [deleteOpportunityError, setDeleteOpportunityError] = useState(null);
-  const [deleteOpportunitySuccess, setDeleteOpportunitySuccess] = useState(false);
 
   // Notes related state (already defined above)
   const [notesLoading, setNotesLoading] = useState(false);
@@ -2848,11 +2844,27 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to show delete confirmation dialog
+  // Function to show delete confirmation dialog using SweetAlert
   const showDeleteConfirmation = (opportunity) => {
-    if (window.confirm(`Are you sure you want to delete the opportunity "${opportunity.opportunity_name}"?`)) {
-      deleteOpportunity(opportunity.id);
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      html: `You want to delete the opportunity <strong>"${opportunity.opportunity_name}"</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        confirmButton: 'btn btn-danger',
+        cancelButton: 'btn btn-secondary'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteOpportunity(opportunity.id);
+      }
+    });
   };
 
   // Function to handle deleting an opportunity
@@ -2860,8 +2872,16 @@ const LeadDetail = () => {
     try {
       console.log('Deleting opportunity with ID:', opportunityId);
       setDeleteOpportunityLoading(true);
-      setDeleteOpportunityError(null);
-      setDeleteOpportunitySuccess(false);
+
+      // Show loading indicator with SweetAlert
+      Swal.fire({
+        title: 'Deleting...',
+        html: 'Please wait while we delete the opportunity.',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
       // Make the DELETE request to the API
       const response = await axios.delete('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
@@ -2878,20 +2898,39 @@ const LeadDetail = () => {
         const updatedOpportunities = opportunities.filter(opp => opp.id !== opportunityId);
         setOpportunities(updatedOpportunities);
 
-        setDeleteOpportunitySuccess(true);
-
-        // Reset the delete state after a delay
-        setTimeout(() => {
-          setDeleteOpportunitySuccess(false);
-        }, 3000);
+        // Show success message with SweetAlert
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'The opportunity has been deleted successfully.',
+          icon: 'success',
+          confirmButtonColor: '#4CAF50',
+          confirmButtonText: 'OK'
+        });
       } else {
         console.error('Failed to delete opportunity:', response.data);
-        setDeleteOpportunityError('Failed to delete opportunity. Please try again.');
+
+        // Show error message with SweetAlert
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete opportunity. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#dc3545',
+          confirmButtonText: 'OK'
+        });
       }
     } catch (err) {
       console.error('Error deleting opportunity:', err);
-      setDeleteOpportunityError(err.message || 'An error occurred while deleting the opportunity.');
+
+      // Show error message with SweetAlert
+      Swal.fire({
+        title: 'Error!',
+        text: err.message || 'An error occurred while deleting the opportunity.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'OK'
+      });
     } finally {
+      // Close any loading indicators
       setDeleteOpportunityLoading(false);
     }
   };
@@ -4746,120 +4785,58 @@ const LeadDetail = () => {
                     <div className="mb-4 left-section-container">
                       <div className="row mb-3">
                         <div className="col-12">
-                          <button className="btn btn-new-opportunity">
+                          <button className="btn btn-orange">
                             <i className="fa-solid fa-plus"></i> New Opportunity
                           </button>
                         </div>
                       </div>
 
-                      <div className="row opportunity_tab_data mt-4">
-                        {opportunities.length === 0 ? (
-                          <div className="col-12 text-center">
-                            <p>No opportunities found for this lead.</p>
-                          </div>
-                        ) : (
-                          opportunities.map((opportunity) => (
-                            <div key={opportunity.id} className="col-md-12 mb-3">
-                              <div className="opportunity-card">
-                                <div className="opportunity-header">
-                                  <div className="opportunity-title">
-                                    {opportunity.opportunity_name}
-                                  </div>
-                                  <div className="opportunity-actions">
-                                    <button
-                                      className="btn btn-sm btn-icon edit-btn"
-                                      onClick={() => handleEditOpportunity(opportunity)}
-                                      title="Edit Opportunity"
-                                    >
-                                      <i className="fas fa-pen"></i>
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-icon delete-btn"
-                                      onClick={() => showDeleteConfirmation(opportunity)}
-                                      title="Delete Opportunity"
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                </div>
-                                <div className="opportunity-body">
-                                  <div className="row">
-                                    <div className="col-md-6">
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Created Date:</span>
-                                        <span className="detail-value">{opportunity.created_date}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Current Stage:</span>
-                                        <span className="detail-value stage-value">{opportunity.stage}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Next Step:</span>
-                                        <span className="detail-value">{opportunity.next_step || '-'}</span>
-                                      </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Opportunity Owner:</span>
-                                        <span className="detail-value">{opportunity.created_by}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Opportunity Amount:</span>
-                                        <span className="detail-value">{opportunity.currency} {opportunity.opportunity_amount}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Expected Close date:</span>
-                                        <span className="detail-value">{opportunity.expected_close_date}</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                      {opportunities.length === 0 ? (
+                        <div className="text-center mt-4">
+                          <p>No opportunities found for this lead.</p>
+                        </div>
+                      ) : (
+                        opportunities.map((opportunity) => (
+                          <div key={opportunity.id} className="row custom_opp_tab">
+                            <div className="col-sm-12">
+                              <div className="custom_opp_tab_header">
+                                <h5><a href="javascript:void(0)">{opportunity.opportunity_name}</a></h5>
+                                <div className="opp_edit_dlt_btn projects-iris">
+                                  <a
+                                    className="edit_project"
+                                    href="javascript:void(0)"
+                                    title="Edit"
+                                    onClick={() => handleEditOpportunity(opportunity)}
+                                  >
+                                    <i className="fas fa-pen"></i>
+                                  </a>
+                                  <a
+                                    className="delete_project"
+                                    href="javascript:void(0)"
+                                    title="Delete"
+                                    onClick={() => showDeleteConfirmation(opportunity)}
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                  </a>
                                 </div>
                               </div>
                             </div>
-                          ))
-                        )}
-                      </div>
-
-                      {/* Delete Opportunity Confirmation */}
-                      {deleteOpportunityLoading && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
-                            <div className="spinner-border text-primary mb-3" role="status">
-                              <span className="visually-hidden">Loading...</span>
+                            <div className="col-md-7 text-left">
+                              <div className="lead_des">
+                                <p><b>Created Date:</b> {opportunity.created_date}</p>
+                                <p><b>Current Stage:</b> {opportunity.stage}</p>
+                                <p><b>Next Step:</b> {opportunity.next_step || '-'}</p>
+                              </div>
                             </div>
-                            <p className="mb-0">Deleting opportunity...</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {deleteOpportunitySuccess && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
-                            <div className="text-success mb-3">
-                              <i className="fas fa-check-circle fa-3x"></i>
-                            </div>
-                            <p className="mb-0">Opportunity deleted successfully!</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {deleteOpportunityError && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg" style={{ maxWidth: '400px' }}>
-                            <div className="text-danger mb-3 text-center">
-                              <i className="fas fa-exclamation-circle fa-3x"></i>
-                            </div>
-                            <p className="mb-3 text-center">{deleteOpportunityError}</p>
-                            <div className="text-center">
-                              <button
-                                className="btn btn-secondary"
-                                onClick={() => setDeleteOpportunityError(null)}
-                              >
-                                Close
-                              </button>
+                            <div className="col-md-5">
+                              <div className="lead_des">
+                                <p><b>Opportunity Owner:</b> {opportunity.created_by}</p>
+                                <p><b>Opportunity Amount:</b> {opportunity.currency} {opportunity.opportunity_amount}</p>
+                                <p><b>Expected Close date:</b> {opportunity.expected_close_date}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ))
                       )}
 
                       {/* Edit Opportunity Modal */}
