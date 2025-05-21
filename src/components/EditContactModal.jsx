@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './EditContactModal.css';
+import LoadingOverlay from './common/LoadingOverlay';
 
 const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) => {
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,9 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
   // Fetch default contact referrals when the component mounts
   useEffect(() => {
     if (isOpen) {
+      // Set loading to true immediately when modal opens
+      setLoading(true);
+
       // Default to affiliate_referral on initial load
       fetchContactReferrals('affiliate_referral');
     }
@@ -364,6 +368,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
     try {
       setUpdateSuccess(false);
       setUpdateError(null);
+      setLoading(true); // Show loading overlay during form submission
 
       // Convert DND from Yes/No to 1/0
       // Log the form data before submission
@@ -403,36 +408,48 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
     } catch (err) {
       console.error('Error updating contact:', err);
       setUpdateError('An error occurred while updating the contact. Please try again.');
+    } finally {
+      setLoading(false); // Hide loading overlay after form submission completes
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="contact-modal-header">
-          <h3>{contactId ? `${formData.first_name} ${formData.last_name}` : 'Contact'}</h3>
-        </div>
-        <button
-          className="close-button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onClose();
-          }}
-          aria-label="Close"
-        >
-          &times;
-        </button>
+    <>
+      {/* Loading overlay */}
+      <LoadingOverlay
+        isVisible={loading}
+        message={updateSuccess ? "Saving contact..." : "Loading contact data..."}
+      />
 
-        <div className="contact-modal-body">
-          {loading ? (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <p>Loading contact data...</p>
-            </div>
-          ) : error ? (
+      <div className="modal-backdrop" onClick={onClose}>
+        <div
+          className="contact-modal"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="contact-modal-header">
+            <h3>{contactId ? `${formData.first_name} ${formData.last_name}` : 'Contact'}</h3>
+          </div>
+          <button
+            className="close-button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Close"
+          >
+            &times;
+          </button>
+
+          <div className="contact-modal-body">
+            {loading ? (
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>Loading contact data...</p>
+              </div>
+            ) : error ? (
             <div className="error-message">
               <p>{error}</p>
               <button className="btn btn-primary" onClick={fetchContactData}>Retry</button>
@@ -514,7 +531,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                       onChange={handleBusinessChange}
                       multiple
                       required
-                      disabled={true} // Disable the field
+                      disabled
                       style={{ height: '100px' }} // Make the dropdown taller for multiple selections
                     >
                       {businessOptions.map(business => (
@@ -575,7 +592,9 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                   <div className="form-group">
                     <label htmlFor="phone">Primary Phone:*</label>
                     <div className="input-group">
-                      <span className="input-group-text">+1</span>
+                      <div className="input-group-prepend">
+                        <span className="input-group-text">+1</span>
+                      </div>
                       <input
                         type="tel"
                         id="phone"
@@ -629,7 +648,9 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                   <div className="form-group">
                     <label htmlFor="secondary_phone">Secondary Phone:</label>
                     <div className="input-group">
-                      <span className="input-group-text">+1</span>
+                      <div className="input-group-prepend">
+                        <span className="input-group-text">+1</span>
+                      </div>
                       <input
                         type="tel"
                         id="secondary_phone"
@@ -847,6 +868,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -8,6 +8,7 @@ import Notes from './common/Notes';
 // import './common/CommonStyles.css';
 import './common/ReportStyle.css';
 import './LeadDetail.css';
+import './LeadDetailModal.css';
 import { getAssetPath } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
@@ -862,8 +863,13 @@ const LeadDetail = () => {
 
   // Function to handle edit contact
   const handleEditContact = (contactId) => {
+    // Set the contact ID
     setCurrentContactId(contactId);
+
+    // Show the modal
     setShowEditContactModal(true);
+
+    // The loading overlay is handled within the EditContactModal component
   };
 
   // Function to close the edit contact modal
@@ -2368,6 +2374,12 @@ const LeadDetail = () => {
   const handleEditProject = async (project) => {
     console.log('Opening edit project modal for project:', project);
 
+    // Set loading state immediately when edit icon is clicked
+    setProjectUpdateLoading(true);
+
+    // Show the modal first so the loading overlay is visible
+    setShowEditProjectModal(true);
+
     // Log the project object to see its structure
     console.log('Project object structure:', JSON.stringify(project, null, 2));
 
@@ -2429,8 +2441,8 @@ const LeadDetail = () => {
       collaborators: project.collaborator ? [project.collaborator] : []
     });
 
-    // Show the modal
-    setShowEditProjectModal(true);
+    // Data is loaded, set loading state to false
+    setProjectUpdateLoading(false);
   };
 
   // Function to close the edit project modal
@@ -2685,6 +2697,12 @@ const LeadDetail = () => {
   const handleEditOpportunity = async (opportunity) => {
     console.log('Opening edit opportunity modal for opportunity:', opportunity);
 
+    // Set loading state immediately when edit icon is clicked
+    setOpportunityUpdateLoading(true);
+
+    // Show the modal first so the loading overlay is visible
+    setShowEditOpportunityModal(true);
+
     // Log the opportunity object to see its structure
     console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
 
@@ -2757,8 +2775,8 @@ const LeadDetail = () => {
       description: opportunity.description || ''
     });
 
-    // Show the modal
-    setShowEditOpportunityModal(true);
+    // Data is loaded, set loading state to false
+    setOpportunityUpdateLoading(false);
   };
 
   // Function to close the edit opportunity modal
@@ -4458,10 +4476,27 @@ const LeadDetail = () => {
       {/* Edit Project Modal */}
                       {showEditProjectModal && (
                         <>
-                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                          <div
+                            className="modal-backdrop show"
+                            style={{ display: 'block' }}
+                            onClick={handleCloseEditProjectModal}
+                          ></div>
+                          {/* Loading overlay when fetching or updating */}
+                          {projectUpdateLoading && (
+                            <div className="loading-overlay">
+                              <div className="loading-spinner-container">
+                                <div className="loading-spinner"></div>
+                                <p className="loading-text">Updating project...</p>
+                              </div>
+                            </div>
+                          )}
                           <div className={`modal ${showEditProjectModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div className="modal-content" style={{ borderRadius: '8px' }}>
+                              <div
+                                className="modal-content"
+                                style={{ borderRadius: '8px' }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <div className="modal-header pb-2">
                                   <h5 className="modal-title">Edit Project</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditProjectModal}></button>
@@ -4842,17 +4877,33 @@ const LeadDetail = () => {
                       {/* Edit Opportunity Modal */}
                       {showEditOpportunityModal && (
                         <>
-                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                          <div
+                            className="modal-backdrop show"
+                            style={{ display: 'block' }}
+                            onClick={handleCloseEditOpportunityModal}
+                          ></div>
+                          {/* Loading overlay when fetching or updating */}
+                          {opportunityUpdateLoading && (
+                            <div className="loading-overlay">
+                              <div className="loading-spinner-container">
+                                <div className="loading-spinner"></div>
+                                <p className="loading-text">Updating opportunity...</p>
+                              </div>
+                            </div>
+                          )}
                           <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div className="modal-content" style={{ borderRadius: '8px' }}>
+                              <div
+                                className="modal-content"
+                                style={{ borderRadius: '8px', marginTop: '6%' }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <div className="modal-header pb-2">
-                                  <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
+                                  <h5 className="modal-title">Edit Opportunity</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
                                 <div className="modal-body">
-                                  {console.log('Current milestone value in form:', opportunityFormData.milestone)}
-                                  {console.log('Available milestones:', milestones)}
+                                  {/* Form fields for Edit Opportunity */}
                                   <form onSubmit={(e) => { e.preventDefault(); handleUpdateOpportunity(); }}>
                                     <div className="row mb-3">
                                       <div className="col-md-6">
@@ -4872,7 +4923,7 @@ const LeadDetail = () => {
                                       </div>
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
-                                          <label className="form-label">Lead Name:*</label>
+                                          <label className="form-label">Lead Name:</label>
                                           <input
                                             type="text"
                                             className="form-control"
@@ -4881,7 +4932,7 @@ const LeadDetail = () => {
                                               ...prev,
                                               lead_name: e.target.value
                                             }))}
-                                            required
+                                            disabled
                                           />
                                         </div>
                                       </div>
@@ -4891,16 +4942,27 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Products:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
+                                          <select
+                                            className="form-select"
                                             value={opportunityFormData.product}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              product: e.target.value
-                                            }))}
+                                            onChange={(e) => {
+                                              const selectedProduct = e.target.value;
+                                              setOpportunityFormData(prev => ({
+                                                ...prev,
+                                                product: selectedProduct,
+                                                milestone: '' // Reset milestone when product changes
+                                              }));
+
+                                              // Update product selection
+                                              console.log('Product selected:', selectedProduct);
+                                            }}
                                             required
-                                          />
+                                          >
+                                            <option value="">Select Product</option>
+                                            <option value="ERC">ERC</option>
+                                            <option value="STC">STC</option>
+                                            <option value="R&D">R&D</option>
+                                          </select>
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5339,6 +5401,9 @@ const LeadDetail = () => {
                           .card_trashed{
                             background:#efefef;
                           }
+                            .modal-backdrop{
+                              opacity:1!important;
+                            }
                       `}</style>
                     </div>
                   </div>
