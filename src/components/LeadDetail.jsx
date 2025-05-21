@@ -4,7 +4,9 @@ import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
-import './common/CommonStyles.css';
+import Notes from './common/Notes';
+// import './common/CommonStyles.css';
+import './common/ReportStyle.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
@@ -918,7 +920,7 @@ const LeadDetail = () => {
       const response = await axios.delete(`https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
 
       console.log('Disable contact API response:', response);
-      
+
       // Check if the API call was successful
       if (response.data && JSON.parse(response.data).code=="success") {
         // Show success message
@@ -3058,7 +3060,6 @@ const LeadDetail = () => {
 
         // Tier 3 Commission data
         tier3_affiliate_commision_basis: tier3CommissionBasis?.value || '',
-        tier3_affiliate_commision_basis: tier3CommissionBasis?.value || '',
         tier3_affiliate_commision_type: tier3CommissionType?.value || '',
         tier3_commission_type: tier3CommissionType?.value || '',
         tier3_referrer_fixed: tier3ReferrerFixed || '',
@@ -3071,28 +3072,20 @@ const LeadDetail = () => {
         // Slab Commission data
         slab1_applied_on: slab1AppliedOn || '',
         slab1_commision_type: slab1CommissionType?.value || '',
-        slab1_commision_type: slab1CommissionType?.value || '',
-        slab1_commision_value: slab1CommissionValue || '',
         slab1_commision_value: slab1CommissionValue || '',
 
         slab2_applied_on: slab2AppliedOn || '',
         slab2_commision_type: slab2CommissionType?.value || '',
-        slab2_commision_type: slab2CommissionType?.value || '',
-        slab2_commision_value: slab2CommissionValue || '',
         slab2_commision_value: slab2CommissionValue || '',
 
         slab3_applied_on: slab3AppliedOn || '',
         slab3_commision_type: slab3CommissionType?.value || '',
-        slab3_commision_type: slab3CommissionType?.value || '',
-        slab3_commision_value: slab3CommissionValue || '',
         slab3_commision_value: slab3CommissionValue || '',
 
         // Master Affiliate Commission data
         master_commision_type: masterCommissionType?.value || '',
-        master_commision_type: masterCommissionType?.value || '',
         master_referrer_fixed: masterCommissionValue || '',
         master_referrer_percentage: masterCommissionValue || '',
-        master_commision_value: masterCommissionValue || '',
         master_commision_value: masterCommissionValue || ''
       };
 
@@ -3824,126 +3817,14 @@ const LeadDetail = () => {
 
                       {/* Notes Section */}
                       <h5 className="section-title mt-4">Notes</h5>
-                      <div className="notes-container p-0">
-                        <div className="d-flex justify-content-between align-items-center mb-4 notes-header">
-                          <h6 className="notes-title mb-0">Lead notes and activity history</h6>
-                          <button
-                            className="add-note-btn"
-                            onClick={toggleAddNoteModal}
-                          >
-                            <span className="d-flex align-items-center">
-                              <i className="fas fa-plus me-2"></i>Add Note
-                            </span>
-                          </button>
-                        </div>
-
-                        {notes.length === 0 ? (
-                          <div className="text-center py-4 bg-light rounded">
-                            <div className="mb-3">
-                              <i className="fas fa-sticky-note fa-3x text-muted"></i>
-                            </div>
-                            <p className="text-muted">No notes available for this lead</p>
-                            <button
-                              className="btn add-note-btn mt-3"
-                              onClick={toggleAddNoteModal}
-                            >
-                              <span className="d-flex align-items-center">
-                                <i className="fas fa-plus me-2"></i>Add First Note
-                              </span>
-                            </button>
-                          </div>
-                        ) : (
-                          <div
-                            id="scrollableNotesDiv"
-                            style={{
-                              height: '300px',
-                              overflow: 'auto',
-                              border: '1px solid #e9ecef',
-                              borderRadius: '8px',
-                              padding: '20px',
-                              backgroundColor: '#f8f9fa'
-                            }}
-                          >
-                            <InfiniteScroll
-                              dataLength={notes.length}
-                              next={loadMoreNotes}
-                              hasMore={hasMoreNotes}
-                              loader={
-                                <div className="text-center py-3">
-                                  <div className="spinner-border spinner-border-sm text-primary" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                  </div>
-                                  <p className="text-muted small mt-2">Loading more notes...</p>
-                                </div>
-                              }
-                              endMessage={
-                                <div className="text-center py-3">
-                                  <p className="text-muted small">No more notes to load</p>
-                                </div>
-                              }
-                              scrollableTarget="scrollableNotesDiv"
-                            >
-                              {notes.map((note) => (
-                                <div
-                                  key={note.id}
-                                  className="note-item mb-3 p-3 bg-white rounded shadow-sm"
-                                >
-                                  <div className="d-flex justify-content-between">
-                                    <div className="note-date fw-bold">{note.formattedDate}</div>
-                                    <div className="note-time text-muted">{note.formattedTime}</div>
-                                  </div>
-                                  <div className="note-content mt-2">
-                                    <span className="d-flex align-items-center">
-                                      <span className="fw-bold text-dark">{note.author}</span>
-                                      <span className="ms-1">added a : {note.text}</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </InfiniteScroll>
-                          </div>
-                        )}
-
-                        {/* Add Note Modal */}
-                        {showAddNoteModal && (
-                          <>
-                            <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                            <div className={`modal ${showAddNoteModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                              <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '650px' }}>
-                                <div className="modal-content" style={{ borderRadius: '8px' }}>
-                                  <div className="modal-header pb-2">
-                                    <h5 className="modal-title">Add Note</h5>
-                                    <button type="button" className="btn-close" onClick={toggleAddNoteModal}></button>
-                                  </div>
-                                  <div className="modal-body">
-                                    <form onSubmit={handleAddNote}>
-
-                                      <div className="mb-3">
-                                        <textarea
-                                          className="form-control"
-                                          rows="5"
-                                          placeholder="Enter your note here..."
-                                          value={newNote}
-                                          onChange={(e) => setNewNote(e.target.value)}
-                                          style={{ resize: 'vertical', minHeight: '100px' }}
-                                        ></textarea>
-                                      </div>
-                                      <div className="text-muted small">
-                                        <i className="fas fa-info-circle me-1"></i>
-                                        Your note will be saved with the current date and time.
-                                      </div>
-                                      <div className="d-flex justify-content-center gap-3 mt-4">
-                                        <button type="submit" className="btn modal-save-btn">Save Note</button>
-                                        <button type="button" className="btn modal-cancel-btn" onClick={toggleAddNoteModal}>Cancel</button>
-                                      </div>
-                                    </form>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <Notes
+                        entityType="lead"
+                        entityId={leadId}
+                        entityName={lead?.business_legal_name || ''}
+                        showButtons={false}
+                        showNotes={true}
+                        maxHeight={300}
+                      />
                     </div>
                   )}
 
@@ -4445,7 +4326,7 @@ const LeadDetail = () => {
                                     >
                                       <i className="fas fa-pen"></i>
                                     </a>
-                                    
+
                                     {contact.trash == 0 && (
                                       <a
                                         className="delete_contact"
