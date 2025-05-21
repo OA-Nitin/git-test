@@ -1,0 +1,67 @@
+/* Date Filter Styles */
+.date-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.date-filter-label {
+  font-weight: 500;
+  margin-right: 5px;
+  white-space: nowrap;
+}
+
+.date-filter-input {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  width: 130px;
+}
+
+.date-filter-input:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.date-filter-button {
+  padding: 4px 10px;
+  font-size: 0.875rem;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.date-filter-button:hover {
+  background-color: #0069d9;
+}
+
+.date-filter-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.date-filter-button.clear {
+  background-color: #6c757d;
+}
+
+.date-filter-button.clear:hover {
+  background-color: #5a6268;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .date-filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .date-filter-input {
+    width: 100%;
+  }
+}

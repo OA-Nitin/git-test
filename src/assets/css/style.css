@@ -16125,7 +16125,7 @@ html {
 }
 
 .login-page {
-  background: url('https://play.occamsadvisory.com/portal/echeckimg/banner_main.png');
+  background: url('/reporting/assets/images/banner_main.png');
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

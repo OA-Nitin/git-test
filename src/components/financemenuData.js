@@ -10,14 +10,13 @@ const financeMenuData = [
     name: 'Reports',
     icon: 'dashicons-chart-bar',
     children: [
-      { key: 'leadReports', name: 'Lead Reports', path: '/reports/leads' },
-      { key: 'ercLeadReport', name: 'ERC Lead Report', path: '/reports/erc-lead-report' },
-      { key: 'stcLeadReport', name: 'STC Lead Report', path: '/reports/stc-lead-report' },
-      { key: 'taxAmendmentLeadReport', name: 'Tax Amendment Lead Report', path: '/reports/tax-amendment-lead-report' },
-      { key: 'auditAdvisoryLeadReport', name: 'Audit Advisory Lead Report', path: '/reports/audit-advisory-lead-report' },
-      { key: 'rdcLeadReport', name: 'RDC Lead Report', path: '/reports/rdc-lead-report' },
-      { key: 'partnershipLeadReport', name: 'Partnership Lead Report', path: '/reports/partnership-lead-report' },
-      //{ key: 'advancedReports', name: 'Advanced Reports', path: '/reports/advanced-reports' },
+    { key: 'allLeads', name: 'All Leads', path: '/reports/leads/all' },
+    { key: 'ercLeadReport', name: 'ERC Lead Report', path: '/reports/leads/erc' },
+    { key: 'stcLeadReport', name: 'STC Lead Report', path: '/reports/leads/stc' },
+    { key: 'rdcLeadReport', name: 'RDC Lead Report', path: '/reports/leads/rdc' },
+    { key: 'partnershipLeadReport', name: 'Partnership Lead Report', path: '/reports/leads/partnership' },
+    { key: 'taxAmendmentLeadReport', name: 'Tax Amendment Lead Report', path: '/reports/leads/tax-amendment' },
+    { key: 'auditAdvisoryLeadReport', name: 'Audit Advisory Lead Report', path: '/reports/leads/audit-advisory' },
     ],
   },
   {
@@ -25,12 +24,12 @@ const financeMenuData = [
     name: 'Projects',
     icon: 'dashicons-analytics',
     children: [
-      { key: 'allProjects', name: 'All Projects', path: '/projects/all' },
-      { key: 'ercProjects', name: 'ERC Projects', path: '/projects/erc' },
-      { key: 'stcProjects', name: 'STC Projects', path: '/projects/stc' },
-      { key: 'taxAmendmentProjects', name: 'Tax Amendment Projects', path: '/projects/tax-amendment' },
-      { key: 'auditAdvisoryProjects', name: 'Audit Advisory Projects', path: '/projects/audit-advisory' },
-      { key: 'rdcProjects', name: 'RDC Projects', path: '/projects/rdc' },
+      { key: 'allProjects', name: 'All Projects', path: '/reports/projects/all' },
+      { key: 'ercProjects', name: 'ERC Projects', path: '/reports/projects/erc' },
+      { key: 'stcProjects', name: 'STC Projects', path: '/reports/projects/stc' },
+      { key: 'taxAmendmentProjects', name: 'Tax Amendment Projects', path: '/reports/projects/tax-amendment' },
+      { key: 'auditAdvisoryProjects', name: 'Audit Advisory Projects', path: '/reports/projects/audit-advisory' },
+      { key: 'rdcProjects', name: 'RDC Projects', path: '/reports/projects/rdc' },
     ],
   },
   {
@@ -39,12 +38,24 @@ const financeMenuData = [
     icon: 'dashicons-media-document',
     children: [
       { key: 'manageInvoices', name: 'Manage Invoices', path: '/finance/invoices' },
-      { key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
-      { key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
-      { key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
-      { key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
+      //{ key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
+      //{ key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
+      //{ key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
+      //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
     ],
   },
+  // {
+  //   key: 'finance',
+  //   name: 'Finance',
+  //   icon: 'dashicons-media-document',
+  //   children: [
+  //     { key: 'manageInvoices', name: 'Manage Invoices', path: '/finance/invoices' },
+  //     { key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
+  //     { key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
+  //     { key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
+  //     { key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
+  //   ],
+  // },
   // {
   //   key: 'affiliates',
   //   name: 'Affiliates',
@@ -122,12 +133,12 @@ const financeMenuData = [
     icon: 'dashicons-admin-users',
     path: '/support'
   },
-  {
-    key: 'contact',
-    name: 'Contact',
-    icon: 'dashicons-smartphone',
-    path: '/contact'
-  },
+  // {
+  //   key: 'contact',
+  //   name: 'Contact',
+  //   icon: 'dashicons-smartphone',
+  //   path: '/contact'
+  // },
 ];
 
 export default financeMenuData;

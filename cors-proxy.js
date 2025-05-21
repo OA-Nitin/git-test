@@ -13,7 +13,7 @@ const app = express();
 const API_BASE_URL = 'https://play.occamsadvisory.com/portal';
 const API_PATH = '/wp-json/oc-login-api/v1';
 const API_KEY = 'qV9@8kJz#2dP!mNc';
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -43,7 +43,7 @@ const proxyOptions = {
   onProxyReq: (proxyReq, req, res) => {
     // Add the API key to all requests
     proxyReq.setHeader('x-auth-key', API_KEY);
-    
+
     // Log the request details
     console.log(`Proxying ${req.method} request to: ${API_BASE_URL}${API_PATH}${req.url.replace('/api', '')}`);
   },

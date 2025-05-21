@@ -47,7 +47,7 @@ const Login = () => {
 
                     // Redirect to dashboard after successful login
                     setTimeout(() => {
-                        navigate('/reports/leads'); // Redirect to dashboard page
+                        navigate('/reports/leads/all'); // Redirect to dashboard page
                     }, 1000); // Short delay to show the success message
                 } else {
                     // If success is not true, show the error message from the API
