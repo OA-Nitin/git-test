@@ -4362,61 +4362,58 @@ const LeadDetail = () => {
                   {/* Projects Tab Content */}
                   {activeTab === 'projects' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row custom_opp_create_btn">
-                        <a href="javascript:void(0)">
-                            <i className="fa-solid fa-plus"></i> New Project
-                        </a>
-                      </div>
-
-
-
                       {projects.length === 0 ? (
                         <div className="text-center mt-4">
                           <p>No projects found for this lead.</p>
                         </div>
                       ) : (
-                        <div className="projects-container mt-4">
-                          {projects.map(project => (
-                            <div key={project.id} className="card mb-3 project-card w-100">
-                              <div className="card-body">
-                                <div className="d-flex justify-content-between align-items-start mb-3 w-100">
-                                  <div className="col-md-6">
-                                    <p className="mb-2">
-                                      <span className="project-label">Business Name:</span> {project.businessName}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Project Name:</span> {project.projectName || 'N/A'}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Product Name:</span> {project.productName || 'N/A'}
-                                    </p>
-                                  </div>
-                                  <div className="col-md-5">
-                                    <p className="mb-2">
-                                      <span className="project-label">Milestone:</span> {project.milestone || 'N/A'}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Stage:</span> {project.stage || 'N/A'}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Collaborator:</span> {project.collaborator || 'N/A'}
-                                    </p>
-                                  </div>
-                                  <div className="col-md-1 text-right">
-                                    <a
-                                      href="javascript:void(0)"
-                                      className="edit-icon"
-                                      title="Edit Project"
-                                      onClick={() => handleEditProject(project)}
-                                    >
-                                      <i className="fas fa-pen"></i>
-                                    </a>
-                                  </div>
+                        projects.map(project => (
+                          <div key={project.id} className="row custom_opp_tab">
+                            <div className="col-sm-12">
+                              <div className="custom_opp_tab_header">
+                                <h5><a href="javascript:void(0)">{project.projectName}</a></h5>
+                                <div className="opp_edit_dlt_btn projects-iris">
+                                  <a
+                                    className="edit_project"
+                                    data-projid={project.id}
+                                    data-projname={project.projectName}
+                                    data-businessname={project.businessName}
+                                    data-productname={project.productName}
+                                    data-productid={project.productId}
+                                    data-milestone={project.milestone}
+                                    data-milestoneid={project.milestoneId}
+                                    data-stage={project.stage}
+                                    data-stageid={project.stageId}
+                                    data-fee={project.fee}
+                                    data-max_credit={project.maxCredit}
+                                    data-est_fee={project.estFee}
+                                    data-collab={project.collaboratorId}
+                                    data-contact={project.contactId}
+                                    href="javascript:void(0)"
+                                    title="Edit"
+                                    onClick={() => handleEditProject(project)}
+                                  >
+                                    <i className="fas fa-pen"></i>
+                                  </a>
                                 </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                            <div className="col-md-7 text-left">
+                              <div className="lead_des">
+                                <p><b>Business Name:</b> {project.businessName}</p>
+                                <p><b>Project Name:</b> {project.projectName}</p>
+                                <p><b>Product Name:</b> {project.productName || 'N/A'}</p>
+                              </div>
+                            </div>
+                            <div className="col-md-5">
+                              <div className="lead_des">
+                                <p><b>Milestone:</b> {project.milestone || 'N/A'}</p>
+                                <p><b>Stage:</b> {project.stage || 'N/A'}</p>
+                                <p><b>Collaborator:</b> {project.collaborator || 'N/A'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
                       )}
 
       {/* Edit Project Modal */}
