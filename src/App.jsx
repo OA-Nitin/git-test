@@ -15,6 +15,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./components/Dashboard";
 import CreateUser from "./components/CreateUser";
 import LeadReport from "./components/LeadReport";
+import LeadDetail from "./components/LeadDetail";
 import ProjectReport from "./components/ProjectReport";
 import AllProjectsReport from "./components/AllProjectsReport";
 import ERCProjectsReport from "./components/ERCProjectsReport";
@@ -39,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <Router>
+    <Router basename="/reporting">
       <Routes>
         <Route path="/" element={<Login />} />
 
@@ -76,7 +77,7 @@ const App = () => {
           </ProtectedRoute>
         } />
 
-        <Route path="/reports/projects" element={
+        <Route path="/projects/all" element={
           <ProtectedRoute>
             <Layout>
               <AllProjectsReport />
@@ -136,6 +137,15 @@ const App = () => {
           <ProtectedRoute>
             <Layout>
               <CreateInvoice />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* Lead Detail Page */}
+        <Route path="/lead-detail/:leadId" element={
+          <ProtectedRoute>
+            <Layout>
+              <LeadDetail />
             </Layout>
           </ProtectedRoute>
         } />

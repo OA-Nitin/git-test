@@ -4431,7 +4431,7 @@ const LeadDetail = () => {
                         ) : (
                           contacts.map((contact) => (
                             <div key={contact.contact_id} className="col-md-6 col-sm-12 mb-4 contact-card">
-                              <div className="card-exam shadow">
+                              <div className={`card-exam shadow ${contact.trash == 0 ?'':'card_trashed'}`}>
                                 <div className="custom_opp_tab_header">
                                   <h5>
                                     <i className="fas fa-star"></i> {contact.contact_type === 'primary' ? 'Primary' : 'Secondary'}
@@ -4445,14 +4445,17 @@ const LeadDetail = () => {
                                     >
                                       <i className="fas fa-pen"></i>
                                     </a>
-                                    <a
-                                      className="delete_contact"
-                                      href="javascript:void(0)"
-                                      title="Disable"
-                                      onClick={() => handleDisableContact(contact.contact_id, contact.name)}
-                                    >
-                                      <i className="fas fa-ban"></i>
-                                    </a>
+                                    
+                                    {contact.trash == 0 && (
+                                      <a
+                                        className="delete_contact"
+                                        href="javascript:void(0)"
+                                        title="Disable"
+                                        onClick={() => handleDisableContact(contact.contact_id, contact.name)}
+                                      >
+                                        <i className="fas fa-ban"></i>
+                                      </a>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="d-flex w-100 mt-3 align-items-center">
@@ -5478,6 +5481,9 @@ const LeadDetail = () => {
                         .remove-tag-btn:hover {
                           color: #dc3545;
                         }
+                          .card_trashed{
+                            background:#efefef;
+                          }
                       `}</style>
                     </div>
                   </div>
