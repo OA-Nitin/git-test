@@ -887,15 +887,16 @@ const LeadDetail = () => {
       html: `You want to disable the contact '${contactName}'?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#FF6B00',
+      cancelButtonColor: '#6c757d',
       confirmButtonText: 'Yes, disable it!',
       cancelButtonText: 'Cancel',
+      buttonsStyling: true,
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-styled swal2-confirm',
+        cancelButton: 'swal2-styled swal2-cancel'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         // Call API to disable contact
@@ -2868,15 +2869,16 @@ const LeadDetail = () => {
       html: `You want to delete the opportunity <strong>"${opportunity.opportunity_name}"</strong>?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc3545',
+      confirmButtonColor: '#FF6B00',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel',
+      buttonsStyling: true,
       customClass: {
-        confirmButton: 'btn btn-danger',
-        cancelButton: 'btn btn-secondary'
-      },
-      buttonsStyling: false
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-styled swal2-confirm',
+        cancelButton: 'swal2-styled swal2-cancel'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         deleteOpportunity(opportunity.id);
@@ -4809,12 +4811,10 @@ const LeadDetail = () => {
                   {/* Opportunities Tab Content */}
                   {activeTab === 'opportunities' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row mb-3">
-                        <div className="col-12">
-                          <button className="btn btn-orange">
+                      <div className="row custom_opp_create_btn">
+                          <a href='javaascript:void(0)'>
                             <i className="fa-solid fa-plus"></i> New Opportunity
-                          </button>
-                        </div>
+                          </a>
                       </div>
 
                       {opportunities.length === 0 ? (
