@@ -1,36 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
-import './LeadLinkStyles.css';
+import './common/ReportStyle.css';
+import './common/DateRangePicker.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import Notes from './common/Notes';
 import ContactCard from './common/ContactCard';
+import ReportFilter from './common/ReportFilter';
+import ReportPagination from './common/ReportPagination';
 import { sortArrayByKey } from '../utils/sortUtils';
-import { getAssetPath } from '../utils/assetUtils';
+import PageContainer from './common/PageContainer';
+
+const productIdMap = {
+ erc: 935,
+  stc: 937,
+  rdc: 932,
+  partnership: 104,
+  'tax-amendment': 936,
+  'audit-advisory': 934,
+  all: null, // to fetch all leads without filtering
+};
 
 const LeadReport = ({ projectType }) => {
   // State for API data
+  const { product } = useParams(); // e.g. 'erc', 'stc', etc.
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+   const productId = productIdMap[product?.toLowerCase()] ?? null;
+
   useEffect(() => {
-    // Set title based on project type
-    const reportTitle = projectType
-      ? `${projectType.toUpperCase()} Lead Report - Occams Portal`
+    // Set title based on product parameter or projectType prop
+    const displayType = product || projectType;
+    const reportTitle = displayType
+      ? `${displayType.toUpperCase()} Lead Report - Occams Portal`
       : "Lead Report - Occams Portal";
 
     document.title = reportTitle;
 
     // Fetch leads from API
     fetchLeads();
-  }, [projectType]);
+
+    // Log for debugging
+    console.log('LeadReport useEffect triggered with product:', product, 'productId:', productId);
+  }, [product, projectType, productId]);
 
   // Function to fetch leads from API
   const fetchLeads = async () => {
@@ -38,11 +57,17 @@ const LeadReport = ({ projectType }) => {
     setError(null);
 
     try {
-      console.log(`Fetching ${projectType ? projectType + ' ' : ''}leads from API...`);
+      // Log which type of leads we're fetching (from URL param or prop)
+      const reportType = product || projectType;
+      console.log(`Fetching ${reportType ? reportType + ' ' : ''}leads from API...`);
+      console.log('Using product ID:', productId);
 
       // Construct API URL - if projectType is provided, we could add it as a query parameter
       // For now, we'll fetch all leads and filter them client-side
-      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      if (productId) {
+        apiUrl += `?product_id=${productId}`;
+      }
 
       // Make the API request with proper headers
       const response = await axios.get(apiUrl, {
@@ -50,7 +75,7 @@ const LeadReport = ({ projectType }) => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        timeout: 10000 // 10 second timeout
+        timeout: 40000 // 40 second timeout
       });
 
       console.log('API Response:', response);
@@ -61,42 +86,77 @@ const LeadReport = ({ projectType }) => {
         let apiLeads = response.data.data;
         console.log('API Leads (before filtering):', apiLeads);
 
-        // Filter leads by project type if specified
-        if (projectType) {
+        // Filter leads by product parameter or project type prop if specified
+        const filterType = product || projectType;
+
+        // Special case for "all" - don't filter the leads
+        if (filterType && filterType.toLowerCase() !== 'all') {
+          console.log('Filtering leads for specific type:', filterType);
           apiLeads = apiLeads.filter(lead => {
-            // Check if the lead's category or product_type matches the projectType
+            // Check if the lead's category or product_type matches the filterType
             // Adjust these fields based on the actual API response structure
             const category = (lead.category || '').toLowerCase();
             const productType = (lead.product_type || '').toLowerCase();
             const leadGroup = (lead.lead_group || '').toLowerCase();
+            const leadProductId = lead.product_id ? String(lead.product_id).toLowerCase() : '';
 
-            const typeToMatch = projectType.toLowerCase();
+            const typeToMatch = filterType.toLowerCase();
+            const productIdToMatch = productId ? String(productId).toLowerCase() : '';
 
+            // Match by text fields or product ID
             return category.includes(typeToMatch) ||
                    productType.includes(typeToMatch) ||
-                   leadGroup.includes(typeToMatch);
+                   leadGroup.includes(typeToMatch) ||
+                   (productIdToMatch && leadProductId === productIdToMatch);
           });
 
-          console.log(`Filtered leads for ${projectType}:`, apiLeads);
+          console.log(`Filtered leads for ${filterType}:`, apiLeads);
+        } else if (filterType && filterType.toLowerCase() === 'all') {
+          console.log('Showing all leads without filtering by type');
         }
 
         if (apiLeads.length > 0) {
           setLeads(apiLeads);
+          setError(null); // Clear any previous error
         } else {
-          console.warn(`No ${projectType ? projectType + ' ' : ''}leads found in API response, using fallback data`);
-          setLeads(generateFallbackLeads(projectType));
-          setError(`No ${projectType ? projectType + ' ' : ''}leads found in API response. Using sample data instead.`);
+          const reportType = product || projectType;
+          // Show no data available message
+          if (reportType && reportType.toLowerCase() === 'all') {
+            console.warn('No leads found in API response');
+            setLeads([]);
+            setError('No data available.');
+          } else {
+            console.warn(`No ${reportType ? reportType + ' ' : ''}leads found in API response`);
+            setLeads([]);
+            setError(`No ${reportType ? reportType + ' ' : ''}data available.`);
+          }
         }
       } else {
         console.error('API response format unexpected:', response);
-        // If API returns unexpected format, use fallback data
-        setLeads(generateFallbackLeads(projectType));
-        setError(`API returned unexpected data format. Using sample ${projectType ? projectType + ' ' : ''}data instead.`);
+        // If API returns unexpected format, show error message
+        const reportType = product || projectType;
+
+        // Show no data available message
+        if (reportType && reportType.toLowerCase() === 'all') {
+          setLeads([]);
+          setError('Data is not available. API returned unexpected data format.');
+        } else {
+          setLeads([]);
+          setError(`Data is not available. API returned unexpected ${reportType ? reportType + ' ' : ''}data format.`);
+        }
       }
     } catch (err) {
       console.error('Error fetching leads:', err);
-      setError(`Failed to fetch ${projectType ? projectType + ' ' : ''}leads: ${err.message}. Using sample data instead.`);
-      setLeads(generateFallbackLeads(projectType));
+      const reportType = product || projectType;
+
+      // Show no data available message
+      if (reportType && reportType.toLowerCase() === 'all') {
+        setError(`Data is not available. Failed to fetch leads: ${err.message}.`);
+        setLeads([]);
+      } else {
+        setError(`Data is not available. Failed to fetch ${reportType ? reportType + ' ' : ''}leads: ${err.message}.`);
+        setLeads([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -186,6 +246,8 @@ const LeadReport = ({ projectType }) => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('lead_id');
@@ -281,12 +343,40 @@ const LeadReport = ({ projectType }) => {
     setCurrentPage(1);
   };
 
+  // Handle date filter application
+  const handleApplyDateFilter = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    setCurrentPage(1); // Reset to first page when filter changes
+
+    // Show feedback toast
+    if (start || end) {
+      const message = start && end
+        ? `Filtering leads from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`
+        : start
+          ? `Filtering leads from ${new Date(start).toLocaleDateString()}`
+          : `Filtering leads until ${new Date(end).toLocaleDateString()}`;
+
+      Swal.fire({
+        title: 'Date Filter Applied',
+        text: message,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    }
+  };
 
 
-  // Filter leads based on search term and status
+
+
+
+  // Filter leads based on search term, status, and date range
   const filteredLeads = leads.filter(lead => {
-    // Skip filtering if no search term or status filter is applied
-    if (searchTerm === '' && filterStatus === '') {
+    // Skip filtering if no filters are applied
+    if (searchTerm === '' && filterStatus === '' && !startDate && !endDate) {
       return true;
     }
 
@@ -304,6 +394,9 @@ const LeadReport = ({ projectType }) => {
     const salesAgent = String(lead.internal_sales_agent || '').toLowerCase();
     const salesSupport = String(lead.internal_sales_support || '').toLowerCase();
     const employeeId = String(lead.employee_id || '').toLowerCase();
+
+    // Get the created date from the lead
+    const createdDate = lead.created || lead.created_at || lead.date_created || '';
 
     // Check if search term matches any field
     const searchTermLower = searchTerm.toLowerCase().trim();
@@ -325,8 +418,58 @@ const LeadReport = ({ projectType }) => {
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
 
-    // Return true if both conditions are met
-    return matchesSearch && matchesStatus;
+    // Check if date is within range
+    let matchesDateRange = true;
+
+    if (startDate || endDate) {
+      // Try to parse the created date
+      let leadDate;
+      try {
+        // First try to parse as ISO date
+        leadDate = new Date(createdDate);
+
+        // If invalid date, try to parse as MM/DD/YYYY
+        if (isNaN(leadDate.getTime())) {
+          const parts = createdDate.split('/');
+          if (parts.length === 3) {
+            // MM/DD/YYYY format
+            leadDate = new Date(parts[2], parts[0] - 1, parts[1]);
+          }
+        }
+
+        // If still invalid, don't include this lead in date-filtered results
+        if (isNaN(leadDate.getTime())) {
+          matchesDateRange = false;
+        } else {
+          // Set time to midnight for date comparison
+          leadDate.setHours(0, 0, 0, 0);
+
+          // Check start date
+          if (startDate) {
+            const startDateObj = new Date(startDate);
+            startDateObj.setHours(0, 0, 0, 0);
+            if (leadDate < startDateObj) {
+              matchesDateRange = false;
+            }
+          }
+
+          // Check end date
+          if (endDate && matchesDateRange) {
+            const endDateObj = new Date(endDate);
+            endDateObj.setHours(0, 0, 0, 0);
+            if (leadDate > endDateObj) {
+              matchesDateRange = false;
+            }
+          }
+        }
+      } catch (e) {
+        // If there's an error parsing the date, don't include this lead in date-filtered results
+        matchesDateRange = false;
+      }
+    }
+
+    // Return true if all conditions are met
+    return matchesSearch && matchesStatus && matchesDateRange;
   });
 
   // Sort the filtered leads
@@ -457,6 +600,17 @@ const LeadReport = ({ projectType }) => {
 
       if (searchTerm) {
         doc.text(`Search term: "${searchTerm}"`, 15, yPos);
+        yPos += 5;
+      }
+
+      if (startDate || endDate) {
+        const dateFilterText = startDate && endDate
+          ? `Date range: ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`
+          : startDate
+            ? `Date from: ${new Date(startDate).toLocaleDateString()}`
+            : `Date to: ${new Date(endDate).toLocaleDateString()}`;
+
+        doc.text(dateFilterText, 15, yPos);
         yPos += 5;
       }
 
@@ -601,9 +755,17 @@ const LeadReport = ({ projectType }) => {
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Lead Report');
 
       // Add metadata
+      const filterInfo = [];
+      if (searchTerm) filterInfo.push(`Search: "${searchTerm}"`);
+      if (filterStatus) filterInfo.push(`Status: ${filterStatus}`);
+      if (startDate) filterInfo.push(`From: ${new Date(startDate).toLocaleDateString()}`);
+      if (endDate) filterInfo.push(`To: ${new Date(endDate).toLocaleDateString()}`);
+
+      const filterText = filterInfo.length > 0 ? ` (Filtered by ${filterInfo.join(', ')})` : '';
+
       workbook.Props = {
         Title: "Lead Report",
-        Subject: "Lead Data",
+        Subject: `Lead Data${filterText}`,
         Author: "Occams Portal",
         CreatedDate: new Date()
       };
@@ -622,174 +784,30 @@ const LeadReport = ({ projectType }) => {
 
 
 
+
   return (
-    <div className="main_content_iner">
-      <div className="container-fluid p-0">
-        <div className="row justify-content-center">
-          <div className="col-lg-12">
-            <div className="white_card card_height_100 mb_30">
-              <div className="white_card_header">
-                <div className="box_header m-0 new_report_header">
-                  <div className="title_img">
-                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                    <h4 className="text-white">Lead Report</h4>
-                  </div>
-                </div>
-              </div>
-              <div className="white_card_body">
-                <div className="mb-4">
-                  <div className="row align-items-center">
-                    {/* Search box */}
-                    <div className="col-md-3">
-                      <div className="input-group input-group-sm">
-                        <div className="position-relative flex-grow-1">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search leads by any field..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingRight: '30px' }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                setIsSearching(true);
-                                setTimeout(() => setIsSearching(false), 500);
-                                setCurrentPage(1); // Reset to first page when searching
 
-                                // Show feedback toast if search term is not empty
-                                if (searchTerm.trim() !== '') {
-                                  Swal.fire({
-                                    title: 'Searching...',
-                                    text: `Searching for "${searchTerm}"`,
-                                    icon: 'info',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                  });
-                                }
-                              }
-                            }}
-                          />
-                          {searchTerm && (
-                            <button
-                              type="button"
-                              className="btn btn-sm position-absolute"
-                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
-                              onClick={() => {
-                                setSearchTerm('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <i className="fas fa-times text-muted"></i>
-                            </button>
-                          )}
-                        </div>
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-sm search-btn"
-                            type="button"
-                            onClick={() => {
-                              setIsSearching(true);
-                              setTimeout(() => setIsSearching(false), 500);
-                              setCurrentPage(1); // Reset to first page when searching
-
-                              // Show feedback toast if search term is not empty
-                              if (searchTerm.trim() !== '') {
-                                Swal.fire({
-                                  title: 'Searching...',
-                                  text: `Searching for "${searchTerm}"`,
-                                  icon: 'info',
-                                  toast: true,
-                                  position: 'top-end',
-                                  showConfirmButton: false,
-                                  timer: 1500
-                                });
-                              }
-                            }}
-                          >
-                            <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Export buttons and Column Selector */}
-                    <div className="col-md-9">
-                      <div className="d-flex justify-content-end">
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={fetchLeads}
-                          disabled={loading}
-                          title="Refresh Data"
-                        >
-                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
-                        </button>
-                        <div className="dropdown me-2">
-                          <button
-                            className="column-selector-btn"
-                            type="button"
-                            id="columnSelectorDropdown"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="fas fa-columns"></i> Columns
-                          </button>
-                          <div className="dropdown-menu dropdown-menu-end column-selector" aria-labelledby="columnSelectorDropdown">
-                            <div className="column-selector-header">
-                              <span>Table Columns</span>
-                              <i className="fas fa-table"></i>
-                            </div>
-                            <div className="column-selector-content">
-                              {columnGroups.map(group => (
-                                <div key={group.id} className="column-group">
-                                  <div className="column-group-title">{group.title}</div>
-                                  {group.columns.map(column => (
-                                    <div
-                                      key={column.id}
-                                      className={`dropdown-item ${visibleColumns.includes(column.id) ? 'active' : ''}`}
-                                    >
-                                      <div className="form-check">
-                                        <input
-                                          className="form-check-input"
-                                          type="checkbox"
-                                          id={`column-${column.id}`}
-                                          checked={visibleColumns.includes(column.id)}
-                                          onChange={() => toggleColumnVisibility(column.id)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`column-${column.id}`}>
-                                          {column.label}
-                                        </label>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                            <div className="column-selector-footer">
-                              <button className="btn btn-reset" onClick={resetToDefaultColumns}>
-                                Reset
-                              </button>
-                              <button className="btn btn-apply" onClick={selectAllColumns}>
-                                Select All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <button className="btn btn-sm export-btn" onClick={exportToExcel}>
-                          <i className="fas fa-file-excel me-1"></i> Excel
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToPDF}>
-                          <i className="fas fa-file-pdf me-1"></i> PDF
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToCSV}>
-                          <i className="fas fa-file-csv me-1"></i> CSV
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+     <PageContainer title={`${product ? product.toUpperCase() + ' ' : ''}Lead Report`}>
+                <ReportFilter
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  isSearching={isSearching}
+                  setIsSearching={setIsSearching}
+                  setCurrentPage={setCurrentPage}
+                  startDate={startDate}
+                  endDate={endDate}
+                  handleApplyDateFilter={handleApplyDateFilter}
+                  refreshData={fetchLeads}
+                  loading={loading}
+                  columnGroups={columnGroups}
+                  visibleColumns={visibleColumns}
+                  toggleColumnVisibility={toggleColumnVisibility}
+                  resetToDefaultColumns={resetToDefaultColumns}
+                  selectAllColumns={selectAllColumns}
+                  exportToExcel={exportToExcel}
+                  exportToPDF={exportToPDF}
+                  exportToCSV={exportToCSV}
+                />
 
                 {/* Loading indicator */}
                 {loading && (
@@ -801,28 +819,7 @@ const LeadReport = ({ projectType }) => {
                   </div>
                 )}
 
-                {/* Error message */}
-                {error && !loading && (
-                  <div className="alert alert-warning" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
-                        <p className="mb-0">{error}</p>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>Please try again or contact support if the problem persists.</span>
-                      <button
-                        className="btn btn-primary"
-                        onClick={fetchLeads}
-                      >
-                        <i className="fas fa-sync-alt me-1"></i> Retry
-                      </button>
-                    </div>
-                  </div>
-                )}
+                {/* We've removed the error message as requested */}
 
                 {/* Data table */}
                 {!loading && (
@@ -976,15 +973,9 @@ const LeadReport = ({ projectType }) => {
                           ))
                         ) : (
                           <tr>
-                            <td colSpan={visibleColumns.length} className="text-center py-5">
+                            <td colSpan={visibleColumns.length} className="text-center py-4">
                               <div className="d-flex flex-column align-items-center">
-                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No leads found</h5>
-                                <p className="text-muted mb-3">
-                                  {searchTerm || filterStatus ?
-                                    'Try adjusting your search or filter criteria' :
-                                    'No lead data is available from the API'}
-                                </p>
+                                <h5 className="text-dark" style={{ fontSize: '15px' }}>No records found</h5>
                               </div>
                             </td>
                           </tr>
@@ -996,102 +987,20 @@ const LeadReport = ({ projectType }) => {
 
                 {/* Pagination */}
                 {!loading && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <p>Showing {indexOfFirstLead + 1} to {Math.min(indexOfLastLead, filteredLeads.length)} of {filteredLeads.length} leads (filtered from {leads.length} total)</p>
-                    </div>
-                    <div className="col-md-6">
-                      <nav aria-label="Lead report pagination">
-                        <ul className="pagination justify-content-end">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToPreviousPage}
-                              disabled={currentPage === 1}
-                            >
-                              Previous
-                            </button>
-                          </li>
-
-                          {/* First page */}
-                          {currentPage > 3 && (
-                            <li className="page-item">
-                              <button className="page-link" onClick={() => paginate(1)}>1</button>
-                            </li>
-                          )}
-
-                          {/* Ellipsis */}
-                          {currentPage > 4 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Page numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            // Show current page and 1 page before and after
-                            if (
-                              pageNumber === currentPage ||
-                              pageNumber === currentPage - 1 ||
-                              pageNumber === currentPage + 1
-                            ) {
-                              return (
-                                <li
-                                  key={pageNumber}
-                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                >
-                                  <button
-                                    className="page-link"
-                                    onClick={() => paginate(pageNumber)}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                </li>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Ellipsis */}
-                          {currentPage < totalPages - 3 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Last page */}
-                          {currentPage < totalPages - 2 && (
-                            <li className="page-item">
-                              <button
-                                className="page-link"
-                                onClick={() => paginate(totalPages)}
-                              >
-                                {totalPages}
-                              </button>
-                            </li>
-                          )}
-
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToNextPage}
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
+                  <ReportPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    paginate={paginate}
+                    goToPreviousPage={goToPreviousPage}
+                    goToNextPage={goToNextPage}
+                    indexOfFirstItem={indexOfFirstLead}
+                    indexOfLastItem={indexOfLastLead}
+                    totalFilteredItems={filteredLeads.length}
+                    totalItems={leads.length}
+                    itemName="leads"
+                  />
                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 

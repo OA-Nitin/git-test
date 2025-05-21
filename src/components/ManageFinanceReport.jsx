@@ -3,11 +3,10 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
-import './DateFilter.css';
+import './common/ReportStyle.css';
+
 import './FinanceReportStyles.css';
-import './LeadLinkStyles.css';
+
 import SortableTableHeader from './common/SortableTableHeader';
 import { getAssetPath } from '../utils/assetUtils';
 import InvoiceApiClient from '../api/invoice-api-client';
