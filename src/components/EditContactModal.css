@@ -89,12 +89,12 @@
   margin-bottom: 15px;
 }
 
-.form-group {
+/* .form-group {
   flex: 1;
   padding: 0 10px;
   margin-bottom: 15px;
   min-width: 200px;
-}
+} */
 
 .small-group {
   flex: 0 0 100px;

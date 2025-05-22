@@ -22,6 +22,7 @@ export default defineConfig({
   },
   publicDir: 'public', // Directory to serve as plain static assets
   server: {
+    port: 5174, // Set the server port to 5174
     fs: {
       // Allow serving files from one level up to the project root
       allow: ['..']
