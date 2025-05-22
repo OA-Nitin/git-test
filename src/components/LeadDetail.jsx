@@ -4685,9 +4685,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -4715,9 +4712,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -4775,11 +4769,12 @@ const LeadDetail = () => {
                                         <p className="mb-0 mt-1">{projectUpdateError}</p>
                                       </div>
                                     )}
+                                    
 
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
                                         type="submit"
-                                        className="btn modal-save-btn"
+                                        className="btn save-btn"
                                         disabled={projectUpdateLoading}
                                       >
                                         {projectUpdateLoading ? (
@@ -4791,7 +4786,7 @@ const LeadDetail = () => {
                                       </button>
                                       <button
                                         type="button"
-                                        className="btn modal-cancel-btn"
+                                        className="btn cancel-btn"
                                         onClick={handleCloseEditProjectModal}
                                         disabled={projectUpdateLoading}
                                       >
@@ -4879,12 +4874,10 @@ const LeadDetail = () => {
                             </div>
                           )}
                           <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
+                            <div className="modal-dialog modal-dialog-centered modal-lg">
                               <div
-                                className="modal-content"
-                                style={{ borderRadius: '8px', marginTop: '6%' }}
-                              >
-                                <div className="modal-header pb-2">
+                                className="modal-content">
+                                <div className="modal-header">
                                   <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
@@ -5040,9 +5033,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5105,9 +5095,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5226,7 +5213,7 @@ const LeadDetail = () => {
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
                                         type="submit"
-                                        className="btn modal-save-btn"
+                                        className="btn save-btn"
                                         disabled={opportunityUpdateLoading}
                                       >
                                         {opportunityUpdateLoading ? (
@@ -5238,7 +5225,7 @@ const LeadDetail = () => {
                                       </button>
                                       <button
                                         type="button"
-                                        className="btn modal-cancel-btn"
+                                        className="btn cancel-btn"
                                         onClick={handleCloseEditOpportunityModal}
                                         disabled={opportunityUpdateLoading}
                                       >
