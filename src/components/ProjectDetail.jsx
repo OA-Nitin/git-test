@@ -62,6 +62,28 @@ const ProjectDetail = () => {
   const [selectedContact, setSelectedContact] = useState({ value: 'sunny-shekhar', label: 'Sunny Shekhar' });
   const [isEditingContact, setIsEditingContact] = useState(false);
 
+
+  const [invoices, setInvoices] = useState([]);
+   // Initialize state to store selected invoice actions
+   const [invoiceActions, setInvoiceActions] = useState({});
+
+   // Log the updated invoiceActions when it changes
+   useEffect(() => {
+     // This effect will run when invoiceActions is updated
+     console.log(invoiceActions);
+   }, [invoiceActions]);  // The effect runs whenever invoiceActions is updated
+ 
+   // Handle the change event when an action is selected
+   const handleInvoiceActionChange = (e, invoiceId) => {
+     const { value } = e.target;
+ 
+     // Use the previous state to ensure the update is done properly
+     setInvoiceActions(prev => {
+       const updatedActions = { ...prev, [invoiceId]: value };
+       console.log(`Invoice ${invoiceId} action changed to: ${value}`);
+       return updatedActions;
+     });
+   };
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -87,6 +109,36 @@ const ProjectDetail = () => {
     fetchUserData();
   }, []);
 
+    // Fetch invoice data 
+    useEffect(() => {
+      fetchInvoiceData();
+    }, []);
+
+    // Modify the fetchInvoiceData function
+    const fetchInvoiceData = async () => {
+      setLoading(true);
+      setError('');
+      
+      try {
+        const response = await axios.post(
+          "https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
+          { project_id: projectId }
+        );
+        
+        if (response.data.status == 200) {
+          setInvoices(response.data.data || []);
+        } else {
+          setError(response.data.message || 'Failed to fetch invoices');
+        }
+      } catch (err) {
+        // setError('Error fetching invoice data: ' + (err.message || 'Unknown error'));
+        console.error('Error fetching invoice data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    
   // Function to fetch dummy user data
   const fetchUserData = () => {
     // Dummy user data
@@ -4955,120 +5007,197 @@ const ProjectDetail = () => {
                     </div>
                   )}
 
-                  {/* Invoices Tab Content */}
-                  {activeTab === 'invoices' && (
-                    <div className="mb-4 left-section-container">
-                      <div class="contact_tab_data">
-                        <div class="row custom_opp_tab">
-                          <div class="col-sm-12">
-                            <div class="custom_opp_tab_header">
-                              <h5>
-                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                  Invoice ERC-7335</a> -
-                                <span class="status cancel badge bg-success"> Paid</span>
-                              </h5>
-                              <div class="opp_edit_dlt_btn projects-iris">
+                   {/* Invoices Tab Content */}
+                    {activeTab === 'invoices' && (
+                      <div className="mb-4 left-section-container">
+                        {loading ? (
+                          <div className="text-center p-4">
+                            <div className="spinner-border text-primary" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                          </div>
+                        ) : error ? (
+                          <div className="alert alert-danger" role="alert">
+                            {error}
+                            <button className="btn btn-sm btn-outline-danger ms-2" onClick={fetchInvoiceData}>Retry</button>
+                          </div>
+                        ) : invoices.length === 0 ? (
+                          <div className="text-center p-4">
+                            <p>No invoices found for this project.</p>
+                          </div>
+                        ) : (
+                          invoices.map((invoice, index) => (
+                            <div className="contact_tab_data" key={invoice.id || `invoice-${index}`}>
+                              <div className="row custom_opp_tab">
+                                <div className="col-sm-12">
+                                  <div className="custom_opp_tab_header">
+                                    <h5>
+                                      <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
+                                        Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
+                                      <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}> 
+                                        {invoice.invoice_status}
+                                      </span>
+                                    </h5>
+                                    <div className="opp_edit_dlt_btn projects-iris">
+                                      {/* Condition to show dropdown if invoice.status is not 2, 3, or 6 */}
+                                        {invoice.status != 2 && invoice.status != 3 && invoice.status != 6 ? (
+                                          <select className="react-select__control" name="invoiceActions" value={invoiceActions[invoice.id] || ''} onChange={(e) => handleInvoiceActionChange(e, invoice.id)}>
+                                            <option value="">Action</option>
+                                              {/* Conditionally render options based on invoice status */}
+                                                {invoice.status == 1 || invoice.status == 5 ? (
+                                                  <>
+                                                    <option 
+                                                      value="2" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Paid
+                                                    </option>
+                                                    <option 
+                                                      value="3" 
+                                                      data-id={invoice.id}
+                                                    >
+                                                      Void
+                                                    </option>
+                                                    <option 
+                                                      value="6" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Payment in process
+                                                    </option>
+                                                    <option 
+                                                      value="17" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Partially paid
+                                                    </option>
+                                                    <option 
+                                                      value="share_invoice_link" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount} 
+                                                      invoice-url={invoice.invoice_url}
+                                                    >
+                                                      Share Invoice link
+                                                    </option>
+                                                  </>
+                                                ) : null}
+                                                
+                                                {/* Condition for status 17 (Partially paid) */}
+                                                {invoice.status == 17 ? (
+                                                  <>
+                                                    <option 
+                                                      value="17" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Partially paid
+                                                    </option>
+                                                  </>
+                                                ) : null}
+                                                
+                                        </select>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="col-md-8 text-left">
+                                  <div className="lead_des">
+                                    <p><b>Invoice Amount:</b> ${invoice.total_amount}</p>
+                                    <p><b>Invoice Sent Date:</b> {invoice.invoice_date}</p>
+                                    <p><b>Invoice Due Date:</b> {invoice.due_date}</p>
+                                    <p><b>Service Name:</b> {invoice.product_names}</p>
+                                    <p><b>Created By: </b> {invoice.created_user}</p>
+                                  </div>
+                                </div>
+
+                                <div className="col-md-4">
+                                  <div className="lead_des">
+                                    <p><b>Payment Date:</b> {invoice.formatted_payment_date || 'N/A'}</p>
+                                    <p><b>Payment Cleared Date:</b> {invoice.formatted_payment_cleared_date || 'N/A'}</p>
+                                    <p><b>Payment Mode:</b> {invoice.payment_mode_string || 'N/A'}</p>
+                                  </div>
+                                </div>
+
+                                {invoice.status == 17 || (invoice.status == 2 && invoice.payment_count > 1) ? (
+                                  <a className="expand_pp_div" data-bs-toggle="collapse" href={`#invoice_pp_${invoice.id}`}
+                                    aria-expanded="false" aria-controls={`invoice_pp_${invoice.id}`}>
+                                    Payment History
+                                    <i className="fa-solid fa-chevron-down ms-1" style={{fontWeight: 700}}></i>
+                                  </a>
+                                ) : null}
+
+                                <div className="collapse" id={`invoice_pp_${invoice.id}`}>
+                                  <div className="card card-body" style={{ maxWidth: '100%', padding: '10px' }}>
+                                    <div className="row">
+                                      <div className="table-responsive view-partially">
+                                        <table className="table">
+                                          <thead>
+                                            <tr>
+                                              <th>Reference ID</th>
+                                              <th>Payment Date</th>
+                                              <th>Cleared Date</th>
+                                              <th>Payment Mode</th>
+                                              <th>Note</th>
+                                              <th>Payment Received</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                          {invoice.payment_history && invoice.payment_history.formatted_payment_history && invoice.payment_history.formatted_payment_history.length > 0 ? (
+                                              invoice.payment_history.formatted_payment_history.map((payment, idx) => (
+                                                <tr className="ppamt" key={`payment-${invoice.id}-${idx}`}>
+                                                  <td>{payment.payment_id || '-'}</td>
+                                                  <td>{payment.payment_date || '-'}</td>
+                                                  <td>{payment.payment_cleared_date || '-'}</td>
+                                                  <td>{payment.payment_mode || '-'}</td>
+                                                  <td>{payment.payment_note || ''}</td>
+                                                  <td className="ramt">${payment.received_amt || '0.00'}</td>
+                                                </tr>
+                                              ))
+                                            ) : (
+                                              <tr>
+                                                <td colSpan="6" className="text-center">No payment history available</td>
+                                              </tr>
+                                            )}
+
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+
+                                    <div className="row m-0">
+                                      <div className="total-payment-invoice">
+                                        <h4>Total Partial Payment Amount</h4>
+                                        <p >${invoice.total_received || '0.00'}</p>
+                                      </div>
+                                      <div className="total-payment-invoice">
+                                        <h4>Overdue Amount</h4>
+                                        <p >${invoice.overdue_amount || '0.00'}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+      
                               </div>
                             </div>
-                          </div>
-
-                          <div class="col-md-8 text-left">
-                            <div class="lead_des">
-                              <p><b>Invoice Amount:</b> $219541.10</p>
-                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                              <p><b>Created By: </b> Occams Finance</p>
-                              <p><b>Updated By: </b> Occams Finance</p>
-                            </div>
-                          </div>
-
-                          <div class="col-md-4">
-                            <div class="lead_des">
-                              <p><b>Payment Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Cleared Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Mode:</b> N/A</p>
-                            </div>
-                          </div>
-                        </div>
+                          ))
+                        )}
                       </div>
-                      <div class="contact_tab_data">
-                        <div class="row custom_opp_tab">
-                          <div class="col-sm-12">
-                            <div class="custom_opp_tab_header">
-                              <h5>
-                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                  Invoice ERC-7335</a> -
-                                <span class="status cancel badge bg-cancel"> Cancelled</span>
-                              </h5>
-                              <div class="opp_edit_dlt_btn projects-iris">
-                              </div>
-                            </div>
-                          </div>
+                    )}
 
-                          <div class="col-md-8 text-left">
-                            <div class="lead_des">
-                              <p><b>Invoice Amount:</b> $219541.10</p>
-                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                              <p><b>Created By: </b> Occams Finance</p>
-                              <p><b>Updated By: </b> Occams Finance</p>
-                            </div>
-                          </div>
-
-                          <div class="col-md-4">
-                            <div class="lead_des">
-                              <p><b>Payment Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Cleared Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Mode:</b> N/A</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="contact_tab_data">
-                        <div class="row custom_opp_tab">
-                          <div class="col-sm-12">
-                            <div class="custom_opp_tab_header">
-                              <h5>
-                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                  Invoice ERC-7335</a> -
-                                <span class="status cancel badge bg-success"> Paid</span>
-                              </h5>
-                              <div class="opp_edit_dlt_btn projects-iris">
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="col-md-8 text-left">
-                            <div class="lead_des">
-                              <p><b>Invoice Amount:</b> $219541.10</p>
-                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                              <p><b>Created By: </b> Occams Finance</p>
-                              <p><b>Updated By: </b> Occams Finance</p>
-                            </div>
-                          </div>
-
-                          <div class="col-md-4">
-                            <div class="lead_des">
-                              <p><b>Payment Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Cleared Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Mode:</b> N/A</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  )}
+                  
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
