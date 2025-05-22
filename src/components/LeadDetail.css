@@ -731,6 +731,21 @@ label a.ms-2:hover svg {
   height: 25px;
   display: inline-block;
   text-align: center;
+  margin-right: 5px;
+}
+
+.opp_edit_dlt_btn .delete_project {
+  background: #ff5c00 !important;
+  border: 0 !important;
+  padding: 5px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #fff !important;
+  border-radius: 5px;
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+  text-align: center;
 }
 
 .custom_opp_tab .lead_des {
@@ -861,6 +876,7 @@ select[disabled] {
   margin-bottom: 5px;
   margin-top: 8px;
 }
+
 
 /* payment history section css  start*/
 

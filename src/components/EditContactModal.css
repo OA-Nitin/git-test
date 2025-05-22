@@ -11,68 +11,6 @@
   z-index: 1050;
 }
 
-.contact-modal {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.contact-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
-  border-bottom: 1px solid #e5e5e5;
-  background-color: #f8f9fa;
-  border-radius: 8px 8px 0 0;
-  position: relative;
-}
-
-.contact-modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #ff0000;
-  transition: color 0.2s;
-  position: absolute;
-  right: 15px;
-  top: 10px;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  text-align: center;
-  z-index: 1100;
-  padding: 0;
-}
-
-.close-button:hover {
-  color: #cc0000;
-}
-
-.contact-modal-body {
-  padding: 20px;
-}
-
-.form-section {
-  margin-bottom: 20px;
-  border: 1px solid #e5e5e5;
-  border-radius: 4px;
-  padding: 15px;
-}
-
 .form-section h4 {
   color: #0d6efd;
   font-size: 16px;
@@ -87,13 +25,6 @@
   margin-right: -10px;
   margin-left: -10px;
   margin-bottom: 15px;
-}
-
-.form-group {
-  flex: 1;
-  padding: 0 10px;
-  margin-bottom: 15px;
-  min-width: 200px;
 }
 
 .small-group {
