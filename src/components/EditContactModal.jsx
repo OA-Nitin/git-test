@@ -423,446 +423,445 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
         message={updateSuccess ? "Saving contact..." : "Loading contact data..."}
       />
 
-      <div className="modal-backdrop" onClick={onClose}>
-        <div className="contact-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="contact-modal-header">
-            <h3>{contactId ? `${formData.first_name} ${formData.last_name}` : 'Contact'}</h3>
-          </div>
-          <button
-            className="close-button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onClose();
-            }}
-            aria-label="Close"
-          >
-            &times;
-          </button>
-
-          <div className="contact-modal-body">
-            {loading ? (
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-                <p>Loading contact data...</p>
-              </div>
-            ) : error ? (
-            <div className="error-message">
-              <p>{error}</p>
-              <button className="btn btn-primary" onClick={fetchContactData}>Retry</button>
+      <div className="modal-backdrop show" onClick={onClose}>
+        <div className='modal show' style={{ display: 'block' }}>
+        <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">{contactId ? `${formData.first_name} ${formData.last_name}` : 'Contact'}</h5>
+              <button type="button" className="btn-close" onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}></button>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              {/* Professional Info Section */}
-              <div className="form-section">
-                <h4>Professional Info</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="first_name">First Name:*</label>
-                    <div className="input-group">
-                      <select
-                        className="form-select title-select"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleInputChange}
-                      >
-                        <option value="Mr">Mr</option>
-                        <option value="Mrs">Mrs</option>
-                        <option value="Ms">Ms</option>
-                        <option value="Dr">Dr</option>
-                      </select>
-                      <input
-                        type="text"
-                        id="first_name"
-                        name="first_name"
-                        className="form-control"
-                        value={formData.first_name}
-                        onChange={handleInputChange}
-                        required
-                      />
+
+            <div className="modal-body">
+              {loading ? (
+                <div className="loading-spinner">
+                  <div className="spinner"></div>
+                  <p>Loading contact data...</p>
+                </div>
+              ) : error ? (
+                <div className="error-message">
+                  <p>{error}</p>
+                  <button className="btn btn-primary" onClick={fetchContactData}>Retry</button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  {/* Professional Info Section */}
+                  <div className="form-section">
+                    <h4>Professional Info</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="first_name">First Name:*</label>
+                        <div className="input-group">
+                          <select
+                            className="form-select title-select"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleInputChange}
+                          >
+                            <option value="Mr">Mr</option>
+                            <option value="Mrs">Mrs</option>
+                            <option value="Ms">Ms</option>
+                            <option value="Dr">Dr</option>
+                          </select>
+                          <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            className="form-control"
+                            value={formData.first_name}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="middle_name">Middle Name:</label>
+                        <input
+                          type="text"
+                          id="middle_name"
+                          name="middle_name"
+                          className="form-control"
+                          value={formData.middle_name}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="last_name">Last Name:*</label>
+                        <input
+                          type="text"
+                          id="last_name"
+                          name="last_name"
+                          className="form-control"
+                          value={formData.last_name}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="middle_name">Middle Name:</label>
-                    <input
-                      type="text"
-                      id="middle_name"
-                      name="middle_name"
-                      className="form-control"
-                      value={formData.middle_name}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="last_name">Last Name:*</label>
-                    <input
-                      type="text"
-                      id="last_name"
-                      name="last_name"
-                      className="form-control"
-                      value={formData.last_name}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="name_alias">Alias:</label>
-                    <input
-                      type="text"
-                      id="name_alias"
-                      name="name_alias"
-                      className="form-control"
-                      value={formData.name_alias}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="business_name">Business Name:*</label>
-                    <select
-                      id="business_name"
-                      name="selected_businesses"
-                      className="form-select"
-                      value={formData.selected_businesses}
-                      onChange={handleBusinessChange}
-                      multiple
-                      required
-                      disabled={true} // Disable the field
-                      style={{ height: '100px' }} // Make the dropdown taller for multiple selections
-                    >
-                      {businessOptions.map(business => (
-                        <option key={business.value} value={business.value}>
-                          {business.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="job_title">Job Title:</label>
-                    <input
-                      type="text"
-                      id="job_title"
-                      name="job_title"
-                      className="form-control"
-                      value={formData.job_title}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Personal Info Section */}
-              <div className="form-section">
-                <h4>Personal Info</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="birthdate">Birth Date:</label>
-                    <input
-                      type="date"
-                      id="birthdate"
-                      name="birthdate"
-                      className="form-control"
-                      value={formData.birthdate}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Info Section */}
-              <div className="form-section">
-                <h4>Contact Info</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="email">Primary Email:*</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      className="form-control"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="phone">Primary Phone:*</label>
-                    <div className="input-group">
-                      <span className="input-group-text">+1</span>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        className="form-control"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group small-group">
-                    <label htmlFor="phone_ext">Ext.</label>
-                    <input
-                      type="text"
-                      id="phone_ext"
-                      name="phone_ext"
-                      className="form-control"
-                      value={formData.phone_ext}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="phone_type">Primary Phone Type:</label>
-                    <select
-                      id="phone_type"
-                      name="phone_type"
-                      className="form-select"
-                      value={formData.phone_type}
-                      onChange={handleInputChange}
-                    >
-                      <option value="Office">Office</option>
-                      <option value="Mobile">Mobile</option>
-                      <option value="Home">Home</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="secondary_email">Secondary Email:</label>
-                    <input
-                      type="email"
-                      id="secondary_email"
-                      name="secondary_email"
-                      className="form-control"
-                      value={formData.secondary_email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="secondary_phone">Secondary Phone:</label>
-                    <div className="input-group">
-                      <span className="input-group-text">+1</span>
-                      <input
-                        type="tel"
-                        id="secondary_phone"
-                        name="secondary_phone"
-                        className="form-control"
-                        value={formData.secondary_phone}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="secondary_phone_type">Secondary Phone Type:</label>
-                    <select
-                      id="secondary_phone_type"
-                      name="secondary_phone_type"
-                      className="form-select"
-                      value={formData.secondary_phone_type}
-                      onChange={handleInputChange}
-                    >
-                      <option value="Mobile">Mobile</option>
-                      <option value="Office">Office</option>
-                      <option value="Home">Home</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mailing Info Section */}
-              <div className="form-section">
-                <h4>Mailing Info</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="primary_address_postalcode">Zip Code:</label>
-                    <input
-                      type="text"
-                      id="primary_address_postalcode"
-                      name="primary_address_postalcode"
-                      className="form-control"
-                      value={formData.primary_address_postalcode}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="primary_address_city">City:</label>
-                    <input
-                      type="text"
-                      id="primary_address_city"
-                      name="primary_address_city"
-                      className="form-control"
-                      value={formData.primary_address_city}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="primary_address_state">State:</label>
-                    <input
-                      type="text"
-                      id="primary_address_state"
-                      name="primary_address_state"
-                      className="form-control"
-                      value={formData.primary_address_state}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="primary_address_country">Country:</label>
-                    <input
-                      type="text"
-                      id="primary_address_country"
-                      name="primary_address_country"
-                      className="form-control"
-                      value={formData.primary_address_country}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="primary_address_street">Street Address:</label>
-                    <input
-                      type="text"
-                      id="primary_address_street"
-                      name="primary_address_street"
-                      className="form-control"
-                      value={formData.primary_address_street}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="house_no">Apt/Suite/House:</label>
-                    <input
-                      type="text"
-                      id="house_no"
-                      name="house_no"
-                      className="form-control"
-                      value={formData.house_no}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Preferences Section */}
-              <div className="form-section">
-                <h4>Contact Preferences</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="dnd">DND:*</label>
-                    <select
-                      id="dnd"
-                      name="dnd"
-                      className="form-select"
-                      value={formData.dnd}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="No">No</option>
-                      <option value="Yes">Yes</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="contact_type">Contact Type - Business:*</label>
-                    <select
-                      id="contact_type"
-                      name="contact_type"
-                      className="form-select"
-                      value={formData.contact_type}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="primary">Primary</option>
-                      <option value="secondary">Secondary</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Referral Info Section */}
-              <div className="form-section">
-                <h4>Referral Info</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="referral_type">Referral Type:*</label>
-                    <select
-                      id="referral_type"
-                      name="referral_type"
-                      className="form-select"
-                      value={formData.referral_type}
-                      onChange={handleReferralTypeChange}
-                      required
-                    >
-                      <option value="">Select Referral Type</option>
-                      <option value="1">Internal Users</option>
-                      <option value="2">Affiliate Referral</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="contact_referral">Contact Referral:*</label>
-                    {console.log('Current contact_referral value:', formData.contact_referral)}
-                    <select
-                      id="contact_referral"
-                      name="contact_referral"
-                      className="form-select"
-                      value={formData.contact_referral || ''}
-                      onChange={handleContactReferralChange}
-                      required
-                    >
-                      <option key="default" value="">Select Contact Referral</option>
-                      {contactReferrals.length > 0 ? (
-                        contactReferrals.map((referral, index) => {
-                          // Extract user_id specifically for the value attribute
-                          const userId = referral.user_id || referral.userid || '';
-
-                          // Extract name for display
-                          const name = referral.name || referral.label || referral.full_name || '';
-
-                          // Generate a unique key using index as fallback if userId is empty
-                          const uniqueKey = userId ? `referral-${userId}` : `referral-index-${index}`;
-
-                          //console.log(`Rendering option: key=${uniqueKey}, userId=${userId}, name=${name}`);
-
-                          return (
-                            <option key={uniqueKey} value={userId}>
-                              {name}
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="name_alias">Alias:</label>
+                        <input
+                          type="text"
+                          id="name_alias"
+                          name="name_alias"
+                          className="form-control"
+                          value={formData.name_alias}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="business_name">Business Name:*</label>
+                        <select
+                          id="business_name"
+                          name="selected_businesses"
+                          className="form-select"
+                          value={formData.selected_businesses}
+                          onChange={handleBusinessChange}
+                          multiple
+                          required
+                          disabled={true} // Disable the field
+                          style={{ height: '100px' }} // Make the dropdown taller for multiple selections
+                        >
+                          {businessOptions.map(business => (
+                            <option key={business.value} value={business.value}>
+                              {business.label}
                             </option>
-                          );
-                        })
-                      ) : (
-                        <option key="no-referrals" value="" disabled>No referrals available</option>
-                      )}
-                    </select>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="job_title">Job Title:</label>
+                        <input
+                          type="text"
+                          id="job_title"
+                          name="job_title"
+                          className="form-control"
+                          value={formData.job_title}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Update Button */}
-              <div className="form-actions">
-                {updateError && (
-                  <div className="alert alert-danger">{updateError}</div>
-                )}
-                {updateSuccess && (
-                  <div className="alert alert-success">Contact updated successfully!</div>
-                )}
-                <button
-                  type="submit"
-                  className="btn btn-update"
-                  disabled={loading}
-                >
-                  {loading ? 'Updating...' : 'Update'}
-                </button>
-              </div>
-            </form>
-          )}
+                  {/* Personal Info Section */}
+                  <div className="form-section">
+                    <h4>Personal Info</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="birthdate">Birth Date:</label>
+                        <input
+                          type="date"
+                          id="birthdate"
+                          name="birthdate"
+                          className="form-control"
+                          value={formData.birthdate}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Info Section */}
+                  <div className="form-section">
+                    <h4>Contact Info</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="email">Primary Email:*</label>
+                        <input
+                          type="email"
+                          id="email"
+                          name="email"
+                          className="form-control"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="phone">Primary Phone:*</label>
+                        <div className="input-group">
+                          <span className="input-group-text">+1</span>
+                          <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            className="form-control"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group small-group">
+                        <label htmlFor="phone_ext">Ext.</label>
+                        <input
+                          type="text"
+                          id="phone_ext"
+                          name="phone_ext"
+                          className="form-control"
+                          value={formData.phone_ext}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="phone_type">Primary Phone Type:</label>
+                        <select
+                          id="phone_type"
+                          name="phone_type"
+                          className="form-select"
+                          value={formData.phone_type}
+                          onChange={handleInputChange}
+                        >
+                          <option value="Office">Office</option>
+                          <option value="Mobile">Mobile</option>
+                          <option value="Home">Home</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="secondary_email">Secondary Email:</label>
+                        <input
+                          type="email"
+                          id="secondary_email"
+                          name="secondary_email"
+                          className="form-control"
+                          value={formData.secondary_email}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="secondary_phone">Secondary Phone:</label>
+                        <div className="input-group">
+                          <span className="input-group-text">+1</span>
+                          <input
+                            type="tel"
+                            id="secondary_phone"
+                            name="secondary_phone"
+                            className="form-control"
+                            value={formData.secondary_phone}
+                            onChange={handleInputChange}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="secondary_phone_type">Secondary Phone Type:</label>
+                        <select
+                          id="secondary_phone_type"
+                          name="secondary_phone_type"
+                          className="form-select"
+                          value={formData.secondary_phone_type}
+                          onChange={handleInputChange}
+                        >
+                          <option value="Mobile">Mobile</option>
+                          <option value="Office">Office</option>
+                          <option value="Home">Home</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mailing Info Section */}
+                  <div className="form-section">
+                    <h4>Mailing Info</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="primary_address_postalcode">Zip Code:</label>
+                        <input
+                          type="text"
+                          id="primary_address_postalcode"
+                          name="primary_address_postalcode"
+                          className="form-control"
+                          value={formData.primary_address_postalcode}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="primary_address_city">City:</label>
+                        <input
+                          type="text"
+                          id="primary_address_city"
+                          name="primary_address_city"
+                          className="form-control"
+                          value={formData.primary_address_city}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="primary_address_state">State:</label>
+                        <input
+                          type="text"
+                          id="primary_address_state"
+                          name="primary_address_state"
+                          className="form-control"
+                          value={formData.primary_address_state}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="primary_address_country">Country:</label>
+                        <input
+                          type="text"
+                          id="primary_address_country"
+                          name="primary_address_country"
+                          className="form-control"
+                          value={formData.primary_address_country}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="primary_address_street">Street Address:</label>
+                        <input
+                          type="text"
+                          id="primary_address_street"
+                          name="primary_address_street"
+                          className="form-control"
+                          value={formData.primary_address_street}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="house_no">Apt/Suite/House:</label>
+                        <input
+                          type="text"
+                          id="house_no"
+                          name="house_no"
+                          className="form-control"
+                          value={formData.house_no}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Preferences Section */}
+                  <div className="form-section">
+                    <h4>Contact Preferences</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="dnd">DND:*</label>
+                        <select
+                          id="dnd"
+                          name="dnd"
+                          className="form-select"
+                          value={formData.dnd}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          <option value="No">No</option>
+                          <option value="Yes">Yes</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="contact_type">Contact Type - Business:*</label>
+                        <select
+                          id="contact_type"
+                          name="contact_type"
+                          className="form-select"
+                          value={formData.contact_type}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          <option value="primary">Primary</option>
+                          <option value="secondary">Secondary</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Referral Info Section */}
+                  <div className="form-section">
+                    <h4>Referral Info</h4>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label htmlFor="referral_type">Referral Type:*</label>
+                        <select
+                          id="referral_type"
+                          name="referral_type"
+                          className="form-select"
+                          value={formData.referral_type}
+                          onChange={handleReferralTypeChange}
+                          required
+                        >
+                          <option value="">Select Referral Type</option>
+                          <option value="1">Internal Users</option>
+                          <option value="2">Affiliate Referral</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="contact_referral">Contact Referral:*</label>
+                        {console.log('Current contact_referral value:', formData.contact_referral)}
+                        <select
+                          id="contact_referral"
+                          name="contact_referral"
+                          className="form-select"
+                          value={formData.contact_referral || ''}
+                          onChange={handleContactReferralChange}
+                          required
+                        >
+                          <option key="default" value="">Select Contact Referral</option>
+                          {contactReferrals.length > 0 ? (
+                            contactReferrals.map((referral, index) => {
+                              // Extract user_id specifically for the value attribute
+                              const userId = referral.user_id || referral.userid || '';
+
+                              // Extract name for display
+                              const name = referral.name || referral.label || referral.full_name || '';
+
+                              // Generate a unique key using index as fallback if userId is empty
+                              const uniqueKey = userId ? `referral-${userId}` : `referral-index-${index}`;
+
+                              //console.log(`Rendering option: key=${uniqueKey}, userId=${userId}, name=${name}`);
+
+                              return (
+                                <option key={uniqueKey} value={userId}>
+                                  {name}
+                                </option>
+                              );
+                            })
+                          ) : (
+                            <option key="no-referrals" value="" disabled>No referrals available</option>
+                          )}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Update Button */}
+                  <div className="form-actions">
+                    {updateError && (
+                      <div className="alert alert-danger">{updateError}</div>
+                    )}
+                    {updateSuccess && (
+                      <div className="alert alert-success">Contact updated successfully!</div>
+                    )}
+                    <button
+                      type="submit"
+                      className="btn btn-update"
+                      disabled={loading}
+                    >
+                      {loading ? 'Updating...' : 'Update'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+            </div>
+          </div>
+          </div>
         </div>
-      </div>
-    </div>
-    </>
-  );
+      </>
+      );
 };
 
-export default EditContactModal;
+      export default EditContactModal;
