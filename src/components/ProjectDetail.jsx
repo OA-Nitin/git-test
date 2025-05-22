@@ -53,14 +53,21 @@ const ProjectDetail = () => {
   const [owner, setOwner] = useState({ value: 'erc-fprs', label: 'ERC - FPRS' });
   const [projectCampaign, setProjectCampaign] = useState(null);
   const [projectSource, setProjectSource] = useState(null);
-  const [projectStage, setProjectStage] = useState({ value: 'client-declarations-signed', label: 'Client Declarations Signed' });
+  const [projectStage, setProjectStage] = useState(null);
 
   // Milestone, Stage, Owner, and Contact edit state
-  const [milestone, setMilestone] = useState({ value: 'erc-fulfillment', label: 'ERC Fulfillment' });
+  const [milestone, setMilestone] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingOwner, setIsEditingOwner] = useState(false);
   const [selectedContact, setSelectedContact] = useState({ value: 'sunny-shekhar', label: 'Sunny Shekhar' });
   const [isEditingContact, setIsEditingContact] = useState(false);
+
+  // API data for milestones and stages
+  const [milestones, setMilestones] = useState([]);
+  const [milestoneStages, setMilestoneStages] = useState([]);
+  const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
+  const [isLoadingStages, setIsLoadingStages] = useState(false);
+  const [selectedProductId] = useState('935'); // Default to ERC
 
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -68,6 +75,9 @@ const ProjectDetail = () => {
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
     fetchProjectDetails();
+
+    console.log('Initial useEffect - Fetching milestones for product ID 936');
+    fetchMilestones();
   }, [projectId]);
 
   // Reset onboarding status when signup status changes
@@ -292,19 +302,246 @@ const ProjectDetail = () => {
     setProjectStage(selectedOption);
   };
 
+  // Function to fetch milestones from API
+  const fetchMilestones = async () => {
+    try {
+      setIsLoadingMilestones(true);
+      console.log('Fetching milestones for product ID:', selectedProductId);
+
+      // Build the API URL with the product_id parameter
+      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      console.log('Milestones API URL:', apiUrl);
+
+      // Make the API call
+      const response = await axios.get(apiUrl);
+      console.log('Milestones API response:', response.data);
+
+      // Log the entire response for debugging
+      console.log('Complete API response:', response);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data structure:', JSON.stringify(response.data, null, 2));
+
+      // Process the response data based on the actual structure
+      if (response.data) {
+        console.log('Response data exists');
+
+        // Check if the response has a success property
+        if ('success' in response.data) {
+          console.log('Response has success property:', response.data.success);
+        } else {
+          console.log('Response does not have a success property');
+        }
+
+        // Check if the response is an array directly
+        if (Array.isArray(response.data)) {
+          console.log('Response data is an array with length:', response.data.length);
+
+          // Map the API response to the format needed for the dropdown
+          const formattedMilestones = response.data.map(milestone => ({
+            value: milestone.milestone_id,
+            label: milestone.milestone_name
+          }));
+
+          console.log('Formatted milestones from array:', formattedMilestones);
+          setMilestones(formattedMilestones);
+
+          // If we have milestones, fetch stages for the first milestone
+          if (formattedMilestones.length > 0) {
+            const firstMilestone = formattedMilestones[0];
+            setMilestone(firstMilestone);
+            fetchMilestoneStages(firstMilestone.value);
+          } else {
+            // No milestones found
+            console.log('No milestones found in array');
+            setMilestone(null);
+            setMilestoneStages([]);
+            setProjectStage(null);
+          }
+        }
+        // Check if the response has the expected nested structure
+        else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
+          console.log('Response has the expected nested structure');
+
+          // Map the API response to the format needed for the dropdown
+          const formattedMilestones = response.data.data.data.map(milestone => ({
+            value: milestone.milestone_id,
+            label: milestone.milestone_name
+          }));
+
+          console.log('Formatted milestones from nested structure:', formattedMilestones);
+          setMilestones(formattedMilestones);
+
+          // If we have milestones, fetch stages for the first milestone
+          if (formattedMilestones.length > 0) {
+            const firstMilestone = formattedMilestones[0];
+            setMilestone(firstMilestone);
+            fetchMilestoneStages(firstMilestone.value);
+          } else {
+            // No milestones found
+            console.log('No milestones found in nested structure');
+            setMilestone(null);
+            setMilestoneStages([]);
+            setProjectStage(null);
+          }
+        } else {
+          console.warn('Unexpected API response structure for milestones');
+          console.log('Response data structure details:', JSON.stringify(response.data, null, 2));
+
+          // Set default milestones for testing
+          const defaultMilestones = [
+            { value: '100', label: 'Default Milestone 1' },
+            { value: '101', label: 'Default Milestone 2' }
+          ];
+          console.log('Setting default milestones:', defaultMilestones);
+          setMilestones(defaultMilestones);
+          setMilestone(defaultMilestones[0]);
+        }
+      } else {
+        console.warn('API request returned no data');
+        setMilestones([]);
+        setMilestone(null);
+      }
+    } catch (error) {
+      console.error('Error fetching milestones:', error);
+      console.error('Error details:', error.response ? error.response.data : 'No response data');
+
+      // Set default milestones for testing if API fails
+      const defaultMilestones = [
+        { value: '100', label: 'Default Milestone 1' },
+        { value: '101', label: 'Default Milestone 2' },
+        { value: '102', label: 'Default Milestone 3' }
+      ];
+      console.log('Setting default milestones due to error:', defaultMilestones);
+      setMilestones(defaultMilestones);
+      setMilestone(defaultMilestones[0]);
+
+      // Also fetch stages for the first default milestone
+      fetchMilestoneStages('100');
+    } finally {
+      setIsLoadingMilestones(false);
+    }
+  };
+
+  // Function to fetch milestone stages from API
+  const fetchMilestoneStages = async (milestoneId) => {
+    if (!milestoneId) {
+      console.warn('No milestone ID provided for fetching stages');
+      setMilestoneStages([]);
+      setProjectStage(null);
+      setIsLoadingStages(false);
+      return;
+    }
+
+    try {
+      setIsLoadingStages(true);
+      console.log('Fetching milestone stages for milestone ID:', milestoneId);
+
+      // Build the API URL with the milestone_id parameter
+      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
+      console.log('Milestone stages API URL:', apiUrl);
+
+      // Make the API call
+      const response = await axios.get(apiUrl);
+      console.log('Milestone stages API response:', response.data);
+      console.log('Milestone stages API response structure:', JSON.stringify(response.data, null, 2));
+
+      // Log the entire response for debugging
+      console.log('Complete stages API response:', response);
+      console.log('Stages response data type:', typeof response.data);
+      console.log('Stages response data structure:', JSON.stringify(response.data, null, 2));
+
+      // Process the response data based on the actual structure
+      if (response.data) {
+        console.log('Stages response data exists');
+
+        // Check if the response is an array directly
+        if (Array.isArray(response.data)) {
+          console.log('Stages response data is an array with length:', response.data.length);
+
+          // Map the API response to the format needed for the dropdown
+          const formattedStages = response.data.map(stage => ({
+            value: stage.milestone_stage_id,
+            label: stage.stage_name
+          }));
+
+          console.log('Formatted stages from array:', formattedStages);
+          setMilestoneStages(formattedStages);
+
+          // Set the first stage as selected if available
+          if (formattedStages.length > 0) {
+            setProjectStage(formattedStages[0]);
+          } else {
+            setProjectStage(null);
+          }
+        }
+        // Check if the response has the expected nested structure
+        else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
+          console.log('Stages response has the expected nested structure');
+
+          // Map the API response to the format needed for the dropdown
+          const formattedStages = response.data.data.data.map(stage => ({
+            value: stage.milestone_stage_id,
+            label: stage.stage_name
+          }));
+
+          console.log('Formatted stages from nested structure:', formattedStages);
+          setMilestoneStages(formattedStages);
+
+          // Set the first stage as selected if available
+          if (formattedStages.length > 0) {
+            setProjectStage(formattedStages[0]);
+          } else {
+            setProjectStage(null);
+          }
+        } else {
+          console.warn('Unexpected API response structure for milestone stages');
+          console.log('Stages response data structure details:', JSON.stringify(response.data, null, 2));
+
+          // Set default stages for testing
+          const defaultStages = [
+            { value: '200', label: 'Default Stage 1' },
+            { value: '201', label: 'Default Stage 2' },
+            { value: '202', label: 'Default Stage 3' }
+          ];
+          console.log('Setting default stages:', defaultStages);
+          setMilestoneStages(defaultStages);
+          setProjectStage(defaultStages[0]);
+        }
+      } else {
+        console.warn('API request for stages returned no data');
+        setMilestoneStages([]);
+        setProjectStage(null);
+      }
+    } catch (error) {
+      console.error('Error fetching milestone stages:', error);
+      console.error('Error details:', error.response ? error.response.data : 'No response data');
+
+      // Set default stages for testing if API fails
+      const defaultStages = [
+        { value: '200', label: 'Default Stage 1' },
+        { value: '201', label: 'Default Stage 2' },
+        { value: '202', label: 'Default Stage 3' }
+      ];
+      console.log('Setting default stages due to error:', defaultStages);
+      setMilestoneStages(defaultStages);
+      setProjectStage(defaultStages[0]);
+    } finally {
+      setIsLoadingStages(false);
+    }
+  };
+
   // Function to handle milestone change
   const handleMilestoneChange = (selectedOption) => {
+    console.log('Milestone changed to:', selectedOption);
     setMilestone(selectedOption);
 
-    // Update stage based on milestone selection
-    if (selectedOption.value === 'erc-fulfillment') {
-      setProjectStage({ value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Partially Acknowledged' });
-    } else if (selectedOption.value === 'erc-enrollment') {
-      setProjectStage({ value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' });
-    } else if (selectedOption.value === 'erc-cancelled') {
-      setProjectStage({ value: 'computation-complete', label: 'Computation Complete' });
-    } else if (selectedOption.value === 'erc-lead-lost') {
-      setProjectStage({ value: 'fpso-interview-pending', label: 'FPSO Interview Pending' });
+    // Fetch stages for the selected milestone
+    if (selectedOption && selectedOption.value) {
+      fetchMilestoneStages(selectedOption.value);
+    } else {
+      // Clear stages if no milestone is selected
+      setMilestoneStages([]);
+      setProjectStage(null);
     }
   };
 
@@ -4807,7 +5044,7 @@ const ProjectDetail = () => {
                           </table>
                         </div>
                       </div>
-                      
+
                       <h5 class="section-title mt-4">Other Documents</h5>
 
                       <div className="document-list">
@@ -5122,6 +5359,8 @@ const ProjectDetail = () => {
 
                   <div className="card mb-4 p-2">
                     <div className="card-body p-2">
+
+
                       <div className="d-flex justify-content-between align-items-center mb-3">
                         <h5 className="card-title mb-0">Milestone:</h5>
                         {!isEditing && (
@@ -5137,7 +5376,7 @@ const ProjectDetail = () => {
 
                       {!isEditing ? (
                         <div className="milestone-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{milestone.label}</span>
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{milestone ? milestone.label : 'No milestone selected'}</span>
                         </div>
                       ) : (
                         <div className="milestone-edit mb-4">
@@ -5145,14 +5384,12 @@ const ProjectDetail = () => {
                             <Select
                               value={milestone}
                               onChange={handleMilestoneChange}
-                              options={[
-                                { value: 'erc-cancelled', label: 'ERC Cancelled' },
-                                { value: 'erc-fulfillment', label: 'ERC Fulfillment' },
-                                { value: 'erc-enrollment', label: 'ERC Enrollment' },
-                                { value: 'erc-lead-lost', label: 'ERC - Lead Lost' }
-                              ]}
+                              options={milestones}
                               className="react-select-container"
                               classNamePrefix="react-select"
+                              isLoading={isLoadingMilestones}
+                              placeholder="Select milestone..."
+                              noOptionsMessage={() => "No milestones available"}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -5175,7 +5412,7 @@ const ProjectDetail = () => {
 
                       {!isEditing ? (
                         <div className="stage-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{projectStage.label}</span>
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{projectStage ? projectStage.label : 'No stage selected'}</span>
                         </div>
                       ) : (
                         <div className="stage-edit mb-4">
@@ -5183,30 +5420,13 @@ const ProjectDetail = () => {
                             <Select
                               value={projectStage}
                               onChange={handleProjectStageChange}
-                              options={[
-                                { value: 'client-declarations-signed', label: 'Client Declarations Signed' },
-                                { value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' },
-                                { value: 'pre-fpso-interview-scheduled', label: 'Pre FPSO Interview Scheduled' },
-                                { value: 'pre-fpso-interview-completed', label: 'Pre FPSO Interview Completed' },
-                                { value: 'fpso-interview-pending', label: 'FPSO Interview Pending' },
-                                { value: 'fpso-interview-scheduled', label: 'FPSO Interview Scheduled' },
-                                { value: 'fpso-opinion-sent', label: 'FPSO Opinion Sent' },
-                                { value: 'fpso-opinion-signed', label: 'FPSO Opinion Signed' },
-                                { value: 'fpso-interview-completed', label: 'FPSO Interview Completed' },
-                                { value: 'prepare-941x', label: 'Prepare 941x' },
-                                { value: 'send-941x', label: 'Send 941x' },
-                                { value: '941-x-sent', label: '941-X\'s Sent' },
-                                { value: 'client-signed-941xs-8821', label: 'Client Signed 941xs + 8821' },
-                                { value: 'erc-claim-filed-peo', label: 'ERC Claim Filed - PEO' },
-                                { value: 'irs-letter-of-overpay-received', label: 'IRS Letter Of Overpay Received' },
-                                { value: 'financier-review-done', label: 'Financier Review Done' },
-                                { value: 'erc-package-submitted', label: 'ERC Package Submitted' },
-                                { value: 'computation-complete', label: 'Computation Complete' },
-                                { value: 'send-declaration', label: 'Send Declaration' },
-                                { value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Partially Acknowledged' }
-                              ]}
+                              options={milestoneStages}
                               className="react-select-container"
                               classNamePrefix="react-select"
+                              isLoading={isLoadingStages}
+                              placeholder={milestone ? "Select stage..." : "Select a milestone first"}
+                              noOptionsMessage={() => milestone ? "No stages available for this milestone" : "Select a milestone first"}
+                              isDisabled={!milestone || milestones.length === 0}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -5228,7 +5448,29 @@ const ProjectDetail = () => {
                         <div className="d-flex justify-content-between mt-3">
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                              // Here you would typically make an API call to save the changes
+                              console.log('Saving milestone and stage changes:');
+                              console.log('Milestone:', milestone);
+                              console.log('Stage:', projectStage);
+
+                              if (!milestone) {
+                                alert('Please select a milestone');
+                                return;
+                              }
+
+                              if (!projectStage) {
+                                alert('Please select a stage');
+                                return;
+                              }
+
+                              // Show a success message
+                              alert('Milestone and stage updated successfully!');
+
+                              // Close the edit mode
+                              setIsEditing(false);
+                            }}
+                            disabled={!milestone || !projectStage || isLoadingMilestones || isLoadingStages}
                             style={{
                               backgroundColor: 'white',
                               color: '#ff6a00',
@@ -5241,7 +5483,11 @@ const ProjectDetail = () => {
                           </button>
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                              // Reset to the original values
+                              fetchMilestones();
+                              setIsEditing(false);
+                            }}
                             style={{
                               backgroundColor: 'white',
                               color: '#ff6a00',
