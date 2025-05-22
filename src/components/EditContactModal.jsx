@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './EditContactModal.css';
-import LoadingOverlay from './common/LoadingOverlay';
+import LoadingOverlay from '../components/common/LoadingOverlay';
 
 const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) => {
   const [loading, setLoading] = useState(true);
