@@ -206,7 +206,7 @@
 }
 
 .bg-success {
-  background-color: #28a745;
+  background-color: green !important;
   color: white;
 }
 
@@ -216,7 +216,7 @@
 }
 
 .bg-danger {
-  background-color: #dc3545;
+  background-color: #eb4141 !important;
   color: white;
 }
 
