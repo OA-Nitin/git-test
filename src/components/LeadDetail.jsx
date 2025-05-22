@@ -118,11 +118,7 @@ const LeadDetail = () => {
   const [milestones, setMilestones] = useState([]);
 
   // Delete opportunity related state
-  const [showDeleteOpportunityModal, setShowDeleteOpportunityModal] = useState(false);
-  const [opportunityToDelete, setOpportunityToDelete] = useState(null);
   const [deleteOpportunityLoading, setDeleteOpportunityLoading] = useState(false);
-  const [deleteOpportunityError, setDeleteOpportunityError] = useState(null);
-  const [deleteOpportunitySuccess, setDeleteOpportunitySuccess] = useState(false);
 
   // Notes related state (already defined above)
   const [notesLoading, setNotesLoading] = useState(false);
@@ -866,8 +862,13 @@ const LeadDetail = () => {
 
   // Function to handle edit contact
   const handleEditContact = (contactId) => {
+    // Set the contact ID
     setCurrentContactId(contactId);
+
+    // Show the modal
     setShowEditContactModal(true);
+
+    // The loading overlay is handled within the EditContactModal component
   };
 
   // Function to close the edit contact modal
@@ -886,15 +887,16 @@ const LeadDetail = () => {
       html: `You want to disable the contact '${contactName}'?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#FF6B00',
+      cancelButtonColor: '#6c757d',
       confirmButtonText: 'Yes, disable it!',
       cancelButtonText: 'Cancel',
+      buttonsStyling: true,
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-styled swal2-confirm',
+        cancelButton: 'swal2-styled swal2-cancel'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         // Call API to disable contact
@@ -2372,6 +2374,12 @@ const LeadDetail = () => {
   const handleEditProject = async (project) => {
     console.log('Opening edit project modal for project:', project);
 
+    // Set loading state immediately when edit icon is clicked
+    setProjectUpdateLoading(true);
+
+    // Show the modal first so the loading overlay is visible
+    setShowEditProjectModal(true);
+
     // Log the project object to see its structure
     console.log('Project object structure:', JSON.stringify(project, null, 2));
 
@@ -2433,8 +2441,8 @@ const LeadDetail = () => {
       collaborators: project.collaborator ? [project.collaborator] : []
     });
 
-    // Show the modal
-    setShowEditProjectModal(true);
+    // Data is loaded, set loading state to false
+    setProjectUpdateLoading(false);
   };
 
   // Function to close the edit project modal
@@ -2689,6 +2697,12 @@ const LeadDetail = () => {
   const handleEditOpportunity = async (opportunity) => {
     console.log('Opening edit opportunity modal for opportunity:', opportunity);
 
+    // Set loading state immediately when edit icon is clicked
+    setOpportunityUpdateLoading(true);
+
+    // Show the modal first so the loading overlay is visible
+    setShowEditOpportunityModal(true);
+
     // Log the opportunity object to see its structure
     console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
 
@@ -2761,8 +2775,8 @@ const LeadDetail = () => {
       description: opportunity.description || ''
     });
 
-    // Show the modal
-    setShowEditOpportunityModal(true);
+    // Data is loaded, set loading state to false
+    setOpportunityUpdateLoading(false);
   };
 
   // Function to close the edit opportunity modal
@@ -2848,11 +2862,28 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to show delete confirmation dialog
+  // Function to show delete confirmation dialog using SweetAlert
   const showDeleteConfirmation = (opportunity) => {
-    if (window.confirm(`Are you sure you want to delete the opportunity "${opportunity.opportunity_name}"?`)) {
-      deleteOpportunity(opportunity.id);
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      html: `You want to delete the opportunity <strong>"${opportunity.opportunity_name}"</strong>?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#FF6B00',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      buttonsStyling: true,
+      customClass: {
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-styled swal2-confirm',
+        cancelButton: 'swal2-styled swal2-cancel'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteOpportunity(opportunity.id);
+      }
+    });
   };
 
   // Function to handle deleting an opportunity
@@ -2860,8 +2891,16 @@ const LeadDetail = () => {
     try {
       console.log('Deleting opportunity with ID:', opportunityId);
       setDeleteOpportunityLoading(true);
-      setDeleteOpportunityError(null);
-      setDeleteOpportunitySuccess(false);
+
+      // Show loading indicator with SweetAlert
+      Swal.fire({
+        title: 'Deleting...',
+        html: 'Please wait while we delete the opportunity.',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
       // Make the DELETE request to the API
       const response = await axios.delete('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
@@ -2878,20 +2917,39 @@ const LeadDetail = () => {
         const updatedOpportunities = opportunities.filter(opp => opp.id !== opportunityId);
         setOpportunities(updatedOpportunities);
 
-        setDeleteOpportunitySuccess(true);
-
-        // Reset the delete state after a delay
-        setTimeout(() => {
-          setDeleteOpportunitySuccess(false);
-        }, 3000);
+        // Show success message with SweetAlert
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'The opportunity has been deleted successfully.',
+          icon: 'success',
+          confirmButtonColor: '#4CAF50',
+          confirmButtonText: 'OK'
+        });
       } else {
         console.error('Failed to delete opportunity:', response.data);
-        setDeleteOpportunityError('Failed to delete opportunity. Please try again.');
+
+        // Show error message with SweetAlert
+        Swal.fire({
+          title: 'Error!',
+          text: 'Failed to delete opportunity. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#dc3545',
+          confirmButtonText: 'OK'
+        });
       }
     } catch (err) {
       console.error('Error deleting opportunity:', err);
-      setDeleteOpportunityError(err.message || 'An error occurred while deleting the opportunity.');
+
+      // Show error message with SweetAlert
+      Swal.fire({
+        title: 'Error!',
+        text: err.message || 'An error occurred while deleting the opportunity.',
+        icon: 'error',
+        confirmButtonColor: '#dc3545',
+        confirmButtonText: 'OK'
+      });
     } finally {
+      // Close any loading indicators
       setDeleteOpportunityLoading(false);
     }
   };
@@ -4362,67 +4420,73 @@ const LeadDetail = () => {
                   {/* Projects Tab Content */}
                   {activeTab === 'projects' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row custom_opp_create_btn">
-                        <a href="javascript:void(0)">
-                            <i className="fa-solid fa-plus"></i> New Project
-                        </a>
-                      </div>
-
-
-
                       {projects.length === 0 ? (
                         <div className="text-center mt-4">
                           <p>No projects found for this lead.</p>
                         </div>
                       ) : (
-                        <div className="projects-container mt-4">
-                          {projects.map(project => (
-                            <div key={project.id} className="card mb-3 project-card w-100">
-                              <div className="card-body">
-                                <div className="d-flex justify-content-between align-items-start mb-3 w-100">
-                                  <div className="col-md-6">
-                                    <p className="mb-2">
-                                      <span className="project-label">Business Name:</span> {project.businessName}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Project Name:</span> {project.projectName || 'N/A'}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Product Name:</span> {project.productName || 'N/A'}
-                                    </p>
-                                  </div>
-                                  <div className="col-md-5">
-                                    <p className="mb-2">
-                                      <span className="project-label">Milestone:</span> {project.milestone || 'N/A'}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Stage:</span> {project.stage || 'N/A'}
-                                    </p>
-                                    <p className="mb-2">
-                                      <span className="project-label">Collaborator:</span> {project.collaborator || 'N/A'}
-                                    </p>
-                                  </div>
-                                  <div className="col-md-1 text-right">
-                                    <a
-                                      href="javascript:void(0)"
-                                      className="edit-icon"
-                                      title="Edit Project"
-                                      onClick={() => handleEditProject(project)}
-                                    >
-                                      <i className="fas fa-pen"></i>
-                                    </a>
-                                  </div>
+                        projects.map(project => (
+                          <div key={project.id} className="row custom_opp_tab">
+                            <div className="col-sm-12">
+                              <div className="custom_opp_tab_header">
+                                <h5><a href="javascript:void(0)">{project.projectName}</a></h5>
+                                <div className="opp_edit_dlt_btn projects-iris">
+                                  <a
+                                    className="edit_project"
+                                    data-projid={project.id}
+                                    data-projname={project.projectName}
+                                    data-businessname={project.businessName}
+                                    data-productname={project.productName}
+                                    data-productid={project.productId}
+                                    data-milestone={project.milestone}
+                                    data-milestoneid={project.milestoneId}
+                                    data-stage={project.stage}
+                                    data-stageid={project.stageId}
+                                    data-fee={project.fee}
+                                    data-max_credit={project.maxCredit}
+                                    data-est_fee={project.estFee}
+                                    data-collab={project.collaboratorId}
+                                    data-contact={project.contactId}
+                                    href="javascript:void(0)"
+                                    title="Edit"
+                                    onClick={() => handleEditProject(project)}
+                                  >
+                                    <i className="fas fa-pen"></i>
+                                  </a>
                                 </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                            <div className="col-md-7 text-left">
+                              <div className="lead_des">
+                                <p><b>Business Name:</b> {project.businessName}</p>
+                                <p><b>Project Name:</b> {project.projectName}</p>
+                                <p><b>Product Name:</b> {project.productName || 'N/A'}</p>
+                              </div>
+                            </div>
+                            <div className="col-md-5">
+                              <div className="lead_des">
+                                <p><b>Milestone:</b> {project.milestone || 'N/A'}</p>
+                                <p><b>Stage:</b> {project.stage || 'N/A'}</p>
+                                <p><b>Collaborator:</b> {project.collaborator || 'N/A'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
                       )}
 
       {/* Edit Project Modal */}
                       {showEditProjectModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                          {/* Loading overlay when fetching or updating */}
+                          {projectUpdateLoading && (
+                            <div className="loading-overlay">
+                              <div className="loading-spinner-container">
+                                <div className="loading-spinner"></div>
+                                <p className="loading-text">Updating project...</p>
+                              </div>
+                            </div>
+                          )}
                           <div className={`modal ${showEditProjectModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
                               <div className="modal-content" style={{ borderRadius: '8px' }}>
@@ -4747,138 +4811,85 @@ const LeadDetail = () => {
                   {/* Opportunities Tab Content */}
                   {activeTab === 'opportunities' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row mb-3">
-                        <div className="col-12">
-                          <button className="btn btn-new-opportunity">
+                      <div className="row custom_opp_create_btn">
+                          <a href='javaascript:void(0)'>
                             <i className="fa-solid fa-plus"></i> New Opportunity
-                          </button>
-                        </div>
+                          </a>
                       </div>
 
-                      <div className="row opportunity_tab_data mt-4">
-                        {opportunities.length === 0 ? (
-                          <div className="col-12 text-center">
-                            <p>No opportunities found for this lead.</p>
-                          </div>
-                        ) : (
-                          opportunities.map((opportunity) => (
-                            <div key={opportunity.id} className="col-md-12 mb-3">
-                              <div className="opportunity-card">
-                                <div className="opportunity-header">
-                                  <div className="opportunity-title">
-                                    {opportunity.opportunity_name}
-                                  </div>
-                                  <div className="opportunity-actions">
-                                    <button
-                                      className="btn btn-sm btn-icon edit-btn"
-                                      onClick={() => handleEditOpportunity(opportunity)}
-                                      title="Edit Opportunity"
-                                    >
-                                      <i className="fas fa-pen"></i>
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-icon delete-btn"
-                                      onClick={() => showDeleteConfirmation(opportunity)}
-                                      title="Delete Opportunity"
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                </div>
-                                <div className="opportunity-body">
-                                  <div className="row">
-                                    <div className="col-md-6">
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Created Date:</span>
-                                        <span className="detail-value">{opportunity.created_date}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Current Stage:</span>
-                                        <span className="detail-value stage-value">{opportunity.stage}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Next Step:</span>
-                                        <span className="detail-value">{opportunity.next_step || '-'}</span>
-                                      </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Opportunity Owner:</span>
-                                        <span className="detail-value">{opportunity.created_by}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Opportunity Amount:</span>
-                                        <span className="detail-value">{opportunity.currency} {opportunity.opportunity_amount}</span>
-                                      </div>
-                                      <div className="opportunity-detail">
-                                        <span className="detail-label">Expected Close date:</span>
-                                        <span className="detail-value">{opportunity.expected_close_date}</span>
-                                      </div>
-                                    </div>
-                                  </div>
+                      {opportunities.length === 0 ? (
+                        <div className="text-center mt-4">
+                          <p>No opportunities found for this lead.</p>
+                        </div>
+                      ) : (
+                        opportunities.map((opportunity) => (
+                          <div key={opportunity.id} className="row custom_opp_tab">
+                            <div className="col-sm-12">
+                              <div className="custom_opp_tab_header">
+                                <h5><a href="javascript:void(0)">{opportunity.opportunity_name}</a></h5>
+                                <div className="opp_edit_dlt_btn projects-iris">
+                                  <a
+                                    className="edit_project"
+                                    href="javascript:void(0)"
+                                    title="Edit"
+                                    onClick={() => handleEditOpportunity(opportunity)}
+                                  >
+                                    <i className="fas fa-pen"></i>
+                                  </a>
+                                  <a
+                                    className="delete_project"
+                                    href="javascript:void(0)"
+                                    title="Delete"
+                                    onClick={() => showDeleteConfirmation(opportunity)}
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                  </a>
                                 </div>
                               </div>
                             </div>
-                          ))
-                        )}
-                      </div>
-
-                      {/* Delete Opportunity Confirmation */}
-                      {deleteOpportunityLoading && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
-                            <div className="spinner-border text-primary mb-3" role="status">
-                              <span className="visually-hidden">Loading...</span>
+                            <div className="col-md-7 text-left">
+                              <div className="lead_des">
+                                <p><b>Created Date:</b> {opportunity.created_date}</p>
+                                <p><b>Current Stage:</b> {opportunity.stage}</p>
+                                <p><b>Next Step:</b> {opportunity.next_step || '-'}</p>
+                              </div>
                             </div>
-                            <p className="mb-0">Deleting opportunity...</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {deleteOpportunitySuccess && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
-                            <div className="text-success mb-3">
-                              <i className="fas fa-check-circle fa-3x"></i>
-                            </div>
-                            <p className="mb-0">Opportunity deleted successfully!</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {deleteOpportunityError && (
-                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-                          <div className="bg-white p-4 rounded shadow-lg" style={{ maxWidth: '400px' }}>
-                            <div className="text-danger mb-3 text-center">
-                              <i className="fas fa-exclamation-circle fa-3x"></i>
-                            </div>
-                            <p className="mb-3 text-center">{deleteOpportunityError}</p>
-                            <div className="text-center">
-                              <button
-                                className="btn btn-secondary"
-                                onClick={() => setDeleteOpportunityError(null)}
-                              >
-                                Close
-                              </button>
+                            <div className="col-md-5">
+                              <div className="lead_des">
+                                <p><b>Opportunity Owner:</b> {opportunity.created_by}</p>
+                                <p><b>Opportunity Amount:</b> {opportunity.currency} {opportunity.opportunity_amount}</p>
+                                <p><b>Expected Close date:</b> {opportunity.expected_close_date}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ))
                       )}
 
                       {/* Edit Opportunity Modal */}
                       {showEditOpportunityModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                          {/* Loading overlay when fetching or updating */}
+                          {opportunityUpdateLoading && (
+                            <div className="loading-overlay">
+                              <div className="loading-spinner-container">
+                                <div className="loading-spinner"></div>
+                                <p className="loading-text">Updating opportunity...</p>
+                              </div>
+                            </div>
+                          )}
                           <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div className="modal-content" style={{ borderRadius: '8px' }}>
+                              <div
+                                className="modal-content"
+                                style={{ borderRadius: '8px', marginTop: '6%' }}
+                              >
                                 <div className="modal-header pb-2">
                                   <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
                                 <div className="modal-body">
-                                  {console.log('Current milestone value in form:', opportunityFormData.milestone)}
-                                  {console.log('Available milestones:', milestones)}
+                                  {/* Form fields for Edit Opportunity */}
                                   <form onSubmit={(e) => { e.preventDefault(); handleUpdateOpportunity(); }}>
                                     <div className="row mb-3">
                                       <div className="col-md-6">
@@ -4898,7 +4909,7 @@ const LeadDetail = () => {
                                       </div>
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
-                                          <label className="form-label">Lead Name:*</label>
+                                          <label className="form-label">Lead Name:</label>
                                           <input
                                             type="text"
                                             className="form-control"
@@ -4907,7 +4918,7 @@ const LeadDetail = () => {
                                               ...prev,
                                               lead_name: e.target.value
                                             }))}
-                                            required
+                                            disabled
                                           />
                                         </div>
                                       </div>
@@ -4917,16 +4928,27 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Products:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
+                                          <select
+                                            className="form-select"
                                             value={opportunityFormData.product}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              product: e.target.value
-                                            }))}
+                                            onChange={(e) => {
+                                              const selectedProduct = e.target.value;
+                                              setOpportunityFormData(prev => ({
+                                                ...prev,
+                                                product: selectedProduct,
+                                                milestone: '' // Reset milestone when product changes
+                                              }));
+
+                                              // Update product selection
+                                              console.log('Product selected:', selectedProduct);
+                                            }}
                                             required
-                                          />
+                                          >
+                                            <option value="">Select Product</option>
+                                            <option value="ERC">ERC</option>
+                                            <option value="STC">STC</option>
+                                            <option value="R&D">R&D</option>
+                                          </select>
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5365,6 +5387,9 @@ const LeadDetail = () => {
                           .card_trashed{
                             background:#efefef;
                           }
+                            .modal-backdrop{
+                              opacity:1!important;
+                            }
                       `}</style>
                     </div>
                   </div>
