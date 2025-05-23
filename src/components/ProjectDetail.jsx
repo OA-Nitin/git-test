@@ -8,6 +8,7 @@ import './LeadDetail.css'; // Reusing the same CSS
 import './DocumentTable.css'; // Document table styling
 import Notes from './common/Notes';
 import { getAssetPath } from '../utils/assetUtils';
+import Swal from 'sweetalert2';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
@@ -294,6 +295,13 @@ const ProjectDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
 
+  // Collaborators related state
+  const [collaborators, setCollaborators] = useState([]);
+  const [currentCollaborators, setCurrentCollaborators] = useState([]);
+  const [selectedCollaborator, setSelectedCollaborator] = useState(null);
+  const [collaboratorOptions, setCollaboratorOptions] = useState([]);
+  const [collaboratorLoading, setCollaboratorLoading] = useState(false);
+
   // Contacts related state
   const [primaryContact, setPrimaryContact] = useState({
     name: 'CTCERC Play',
@@ -307,9 +315,15 @@ const ProjectDetail = () => {
     phone: '(234) 234-2342',
     initials: 'SP'
   });
+  const [contacts, setContacts] = useState([]);
+  const [contactOptions, setContactOptions] = useState([]);
+  const [contactLoading, setContactLoading] = useState(false);
 
   // Project group, campaign, source, and stage state
   const [owner, setOwner] = useState({ value: 'erc-fprs', label: 'ERC - FPRS' });
+  const [owners, setOwners] = useState([]);
+  const [ownerOptions, setOwnerOptions] = useState([]);
+  const [ownerLoading, setOwnerLoading] = useState(false);
   const [projectCampaign, setProjectCampaign] = useState(null);
   const [projectSource, setProjectSource] = useState(null);
   const [projectStage, setProjectStage] = useState(null);
@@ -331,11 +345,11 @@ const ProjectDetail = () => {
      // This effect will run when invoiceActions is updated
      console.log(invoiceActions);
    }, [invoiceActions]);  // The effect runs whenever invoiceActions is updated
- 
+
    // Handle the change event when an action is selected
    const handleInvoiceActionChange = (e, invoiceId) => {
      const { value } = e.target;
- 
+
      // Use the previous state to ensure the update is done properly
      setInvoiceActions(prev => {
        const updatedActions = { ...prev, [invoiceId]: value };
@@ -382,22 +396,57 @@ const ProjectDetail = () => {
     fetchUserData();
   }, []);
 
-    // Fetch invoice data 
-    useEffect(() => {
-      fetchInvoiceData();
-    }, []);
+  // Fetch collaborators when component loads
+  useEffect(() => {
+    if (projectId) {
+      fetchCollaborators();
+    }
+  }, [projectId]);
+
+  // Fetch owners when component loads
+  useEffect(() => {
+    if (projectId) {
+      fetchOwners();
+    }
+  }, [projectId]);
+
+  // Fetch contacts when component loads
+  useEffect(() => {
+    if (projectId && project?.lead_id) {
+      fetchContacts();
+    }
+  }, [projectId, project?.lead_id]);
+
+  // Fetch project milestone and stage when component loads
+  useEffect(() => {
+    if (projectId) {
+      // First fetch the specific milestone and stage for this project
+      fetchProjectMilestoneAndStage();
+
+      // Then fetch all available milestones for the dropdown
+      // We'll do this with a slight delay to ensure the specific milestone is set first
+      setTimeout(() => {
+        fetchAllMilestones();
+      }, 500);
+    }
+  }, [projectId]);
+
+  // Fetch invoice data
+  useEffect(() => {
+    fetchInvoiceData();
+  }, []);
 
     // Modify the fetchInvoiceData function
     const fetchInvoiceData = async () => {
       setLoading(true);
       setError('');
-      
+
       try {
         const response = await axios.post(
           "https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
           { project_id: projectId }
         );
-        
+
         if (response.data.status == 200) {
           setInvoices(response.data.data || []);
         } else {
@@ -410,8 +459,8 @@ const ProjectDetail = () => {
         setLoading(false);
       }
     };
-    
- 
+
+
   // Update folder links based on product ID and API response
   useEffect(() => {
     if (project) {
@@ -470,6 +519,292 @@ const ProjectDetail = () => {
     }));
 
     setUserOptions(options);
+  };
+
+  // Function to fetch collaborators
+  const fetchCollaborators = async () => {
+    try {
+      console.log('Fetching collaborators for project ID:', projectId);
+      setCollaboratorLoading(true);
+
+      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
+
+      console.log('Collaborators API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Set available collaborators
+        const collaboratorsData = response.data.data || [];
+        setCollaborators(collaboratorsData);
+
+        // Set current collaborators
+        const currentCollaboratorsData = response.data.current_collaborators || [];
+        setCurrentCollaborators(currentCollaboratorsData);
+
+        // Format options for react-select
+        const options = collaboratorsData.map(collaborator => ({
+          value: collaborator.user_id,
+          label: (
+            <div className="d-flex align-items-center">
+              <span>{collaborator.display_name}</span>
+            </div>
+          ),
+          collaborator: {
+            id: collaborator.user_id,
+            name: collaborator.display_name
+          }
+        }));
+
+        setCollaboratorOptions(options);
+      } else {
+        console.warn('No collaborators found or invalid response format');
+        setCollaborators([]);
+        setCurrentCollaborators([]);
+        setCollaboratorOptions([]);
+      }
+    } catch (err) {
+      console.error('Error fetching collaborators:', err);
+      setCollaborators([]);
+      setCurrentCollaborators([]);
+      setCollaboratorOptions([]);
+    } finally {
+      setCollaboratorLoading(false);
+    }
+  };
+
+  // Function to fetch owners
+  const fetchOwners = async () => {
+    try {
+      console.log('Fetching owners for project ID:', projectId);
+      setOwnerLoading(true);
+
+      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
+
+      console.log('Owners API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Set available owners
+        const ownersData = response.data.data || [];
+        setOwners(ownersData);
+
+        // Set current owner if available
+        if (response.data.current_owner_name) {
+          const currentOwner = {
+            value: response.data.current_owner_id,
+            label: response.data.current_owner_name
+          };
+          setOwner(currentOwner);
+        }
+
+        // Format options for react-select
+        const options = ownersData.map(owner => ({
+          value: owner.user_id,
+          label: owner.display_name
+        }));
+
+        setOwnerOptions(options);
+      } else {
+        console.warn('No owners found or invalid response format');
+        setOwners([]);
+
+        // Set default options if API fails
+        const defaultOptions = [
+          { value: 'erc-fprs', label: 'ERC - FPRS' },
+          { value: 'erc-referrals', label: 'ERC - Referrals' },
+          { value: 'erc-direct', label: 'ERC - Direct' },
+          { value: 'erc-partners', label: 'ERC - Partners' }
+        ];
+        setOwnerOptions(defaultOptions);
+      }
+    } catch (err) {
+      console.error('Error fetching owners:', err);
+      setOwners([]);
+
+      // Set default options if API fails
+      const defaultOptions = [
+        { value: 'erc-fprs', label: 'ERC - FPRS' },
+        { value: 'erc-referrals', label: 'ERC - Referrals' },
+        { value: 'erc-direct', label: 'ERC - Direct' },
+        { value: 'erc-partners', label: 'ERC - Partners' }
+      ];
+      setOwnerOptions(defaultOptions);
+    } finally {
+      setOwnerLoading(false);
+    }
+  };
+
+  // Function to fetch contacts
+  const fetchContacts = async () => {
+    try {
+      console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
+      setContactLoading(true);
+
+      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
+
+      console.log('Contacts API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Set available contacts
+        const contactsData = response.data.data || [];
+        setContacts(contactsData);
+
+        // Set current contact if available
+        if (response.data.current_contact && response.data.current_contact_id) {
+          const currentContact = {
+            value: response.data.current_contact_id,
+            label: response.data.current_contact
+          };
+          setSelectedContact(currentContact);
+        }
+
+        // Format options for react-select
+        const options = contactsData.map(contact => ({
+          value: contact.id,
+          label: `${contact.first_name} ${contact.last_name}`.trim()
+        }));
+
+        setContactOptions(options);
+      } else {
+        console.warn('No contacts found or invalid response format');
+        setContacts([]);
+
+        // Set default options if API fails
+        const defaultOptions = [
+          { value: 'sunny-shekhar', label: 'Sunny Shekhar' },
+          { value: 'rahul-sharma', label: 'Rahul Sharma' },
+          { value: 'priya-patel', label: 'Priya Patel' },
+          { value: 'amit-kumar', label: 'Amit Kumar' }
+        ];
+        setContactOptions(defaultOptions);
+      }
+    } catch (err) {
+      console.error('Error fetching contacts:', err);
+      setContacts([]);
+
+      // Set default options if API fails
+      const defaultOptions = [
+        { value: 'sunny-shekhar', label: 'Sunny Shekhar' },
+        { value: 'rahul-sharma', label: 'Rahul Sharma' },
+        { value: 'priya-patel', label: 'Priya Patel' },
+        { value: 'amit-kumar', label: 'Amit Kumar' }
+      ];
+      setContactOptions(defaultOptions);
+    } finally {
+      setContactLoading(false);
+    }
+  };
+
+  // Function to fetch project milestone and stage
+  const fetchProjectMilestoneAndStage = async () => {
+    try {
+      console.log('Fetching milestone and stage for project ID:', projectId);
+      setIsLoadingMilestones(true);
+
+      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
+
+      console.log('Milestone API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        console.log('Milestone data received:', response.data);
+
+        // Set milestone
+        if (response.data.milestone_id && response.data.milestone_name) {
+          const milestoneData = {
+            value: response.data.milestone_id,
+            label: response.data.milestone_name
+          };
+          setMilestone(milestoneData);
+          console.log('Setting milestone:', milestoneData);
+        }
+
+        // Set stage
+        if (response.data.milestone_stage_id && response.data.milestone_stage_name) {
+          const stageData = {
+            value: response.data.milestone_stage_id,
+            label: response.data.milestone_stage_name
+          };
+          setProjectStage(stageData);
+          console.log('Setting stage:', stageData);
+
+          // Also update the milestoneStages array with this stage
+          setMilestoneStages([stageData]);
+        }
+      } else {
+        console.warn('No milestone/stage found or invalid response format');
+
+        // Set default milestone and stage if API fails
+        const defaultMilestone = { value: '100', label: 'ERC Fulfillment' };
+        const defaultStage = { value: '200', label: 'ERC Fees Written Off' };
+
+        setMilestone(defaultMilestone);
+        setProjectStage(defaultStage);
+        setMilestoneStages([defaultStage]);
+      }
+    } catch (err) {
+      console.error('Error fetching milestone and stage:', err);
+
+      // Set default milestone and stage if API fails
+      const defaultMilestone = { value: '100', label: 'ERC Fulfillment' };
+      const defaultStage = { value: '200', label: 'ERC Fees Written Off' };
+
+      setMilestone(defaultMilestone);
+      setProjectStage(defaultStage);
+      setMilestoneStages([defaultStage]);
+    } finally {
+      setIsLoadingMilestones(false);
+    }
+  };
+
+  // Function to fetch all available milestones for the dropdown
+  const fetchAllMilestones = async () => {
+    try {
+      console.log('Fetching all available milestones');
+
+      // Build the API URL with the product_id parameter
+      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      console.log('All milestones API URL:', apiUrl);
+
+      // Make the API call
+      const response = await axios.get(apiUrl);
+      console.log('All milestones API response:', response.data);
+
+      // Process the response data based on the actual structure
+      if (response.data) {
+        let formattedMilestones = [];
+
+        // Check if the response is an array directly
+        if (Array.isArray(response.data)) {
+          formattedMilestones = response.data.map(milestone => ({
+            value: milestone.milestone_id,
+            label: milestone.milestone_name
+          }));
+        }
+        // Check if the response has the expected nested structure
+        else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
+          formattedMilestones = response.data.data.data.map(milestone => ({
+            value: milestone.milestone_id,
+            label: milestone.milestone_name
+          }));
+        }
+        // If we have a valid list of milestones
+        if (formattedMilestones.length > 0) {
+          console.log('Setting all available milestones:', formattedMilestones);
+
+          // Preserve the currently selected milestone
+          const currentMilestone = milestone;
+
+          // Update the milestones array with all available options
+          setMilestones(formattedMilestones);
+
+          // Make sure the current milestone is still selected
+          if (currentMilestone) {
+            setMilestone(currentMilestone);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching all milestones:', err);
+      // Don't set default milestones here, as we already have the current milestone
+    }
   };
 
   const fetchProjectDetails = async () => {
@@ -1520,18 +1855,292 @@ const ProjectDetail = () => {
     setAssignedUsers(updatedUsers);
   };
 
+  // Function to handle collaborator selection
+  const handleCollaboratorChange = (selectedOption) => {
+    setSelectedCollaborator(selectedOption);
+  };
+
+  // Function to assign a collaborator
+  const handleAssignCollaborator = async () => {
+    if (selectedCollaborator) {
+      try {
+        setCollaboratorLoading(true);
+
+        // Check if collaborator is already assigned
+        const isAlreadyAssigned = currentCollaborators.some(
+          collaborator => collaborator.collaborators_name_id === selectedCollaborator.collaborator.id
+        );
+
+        if (!isAlreadyAssigned) {
+          console.log('Assigning collaborator:', selectedCollaborator.collaborator);
+
+          // Call the API to assign the collaborator
+          const response = await axios.post(
+            'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+            {
+              project_id: projectId,
+              user_id: selectedCollaborator.collaborator.id,
+              operation: 'assign_collabs_user'
+            }
+          );
+
+          console.log('API response:', response);
+
+          if (response.data && response.data.status === 1) {
+            // Add the collaborator to the current collaborators list
+            const newCollaborator = {
+              collaborators_name_id: selectedCollaborator.collaborator.id,
+              collaborators_name: selectedCollaborator.collaborator.name
+            };
+
+            const newCollaborators = [...currentCollaborators, newCollaborator];
+            setCurrentCollaborators(newCollaborators);
+
+            console.log('Collaborator assigned successfully:', selectedCollaborator.collaborator);
+            console.log('Updated collaborators:', newCollaborators);
+
+            // Show success message
+            Swal.fire({
+              title: 'Success!',
+              text: 'Collaborator assigned successfully',
+              icon: 'success',
+              confirmButtonColor: '#4CAF50'
+            });
+          } else {
+            console.error('Failed to assign collaborator:', response.data?.message || 'Unknown error');
+
+            // Show error message
+            Swal.fire({
+              title: 'Error!',
+              text: response.data?.message || 'Failed to assign collaborator',
+              icon: 'error',
+              confirmButtonColor: '#d33'
+            });
+          }
+        } else {
+          console.log('Collaborator already assigned:', selectedCollaborator.collaborator);
+
+          // Show warning message
+          Swal.fire({
+            title: 'Warning',
+            text: 'This collaborator is already assigned to the project',
+            icon: 'warning',
+            confirmButtonColor: '#f8bb86'
+          });
+        }
+
+        // Reset the selected collaborator
+        setSelectedCollaborator(null);
+      } catch (error) {
+        console.error('Error assigning collaborator:', error);
+
+        // Show error message
+        Swal.fire({
+          title: 'Error!',
+          text: 'Error assigning collaborator: ' + (error.response?.data?.message || error.message),
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+
+        // Reset the selected collaborator
+        setSelectedCollaborator(null);
+      } finally {
+        setCollaboratorLoading(false);
+
+        // Refresh the collaborators list
+        fetchCollaborators();
+      }
+    }
+  };
+
+  // Function to remove an assigned collaborator
+  const handleRemoveCollaborator = async (collaboratorId) => {
+    try {
+      setCollaboratorLoading(true);
+      console.log('Removing collaborator with ID:', collaboratorId);
+
+      // Call the API to unassign the collaborator
+      const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+        {
+          project_id: projectId,
+          user_id: collaboratorId,
+          operation: 'unassign_collabs_user'
+        }
+      );
+
+      console.log('API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Remove the collaborator from the current collaborators list
+        const updatedCollaborators = currentCollaborators.filter(
+          collaborator => collaborator.collaborators_name_id !== collaboratorId
+        );
+
+        setCurrentCollaborators(updatedCollaborators);
+
+        console.log('Collaborator removed successfully. Updated collaborators:', updatedCollaborators);
+
+        // Show success message
+        Swal.fire({
+          title: 'Success!',
+          text: 'Collaborator removed successfully',
+          icon: 'success',
+          confirmButtonColor: '#4CAF50'
+        });
+      } else {
+        console.error('Failed to remove collaborator:', response.data?.message || 'Unknown error');
+
+        // Show error message
+        Swal.fire({
+          title: 'Error!',
+          text: response.data?.message || 'Failed to remove collaborator',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+      }
+    } catch (error) {
+      console.error('Error removing collaborator:', error);
+
+      // Show error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error removing collaborator: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
+    } finally {
+      setCollaboratorLoading(false);
+
+      // Refresh the collaborators list
+      fetchCollaborators();
+    }
+  };
+
   // Functions for project group, campaign, and source
   const handleProjectGroupChange = (selectedOption) => {
     // This function is kept for compatibility with other parts of the code
     console.log("Project group changed:", selectedOption);
   };
 
+  // Function to handle owner selection change (only updates state, doesn't call API)
   const handleOwnerChange = (selectedOption) => {
+    console.log('Owner selection changed to:', selectedOption);
     setOwner(selectedOption);
   };
 
+  // Function to save owner changes to the API
+  const saveOwner = async () => {
+    try {
+      setOwnerLoading(true);
+      console.log('Saving owner:', owner);
+
+      // Call the API to update the owner
+      const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
+        {
+          project_id: projectId,
+          owner_id: owner.value
+        }
+      );
+
+      console.log('API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Show success message
+        Swal.fire({
+          title: 'Success!',
+          text: 'Project owner updated successfully',
+          icon: 'success',
+          confirmButtonColor: '#4CAF50'
+        });
+
+        // Close the editing mode
+        setIsEditingOwner(false);
+      } else {
+        console.error('Failed to update owner:', response.data?.message || 'Unknown error');
+
+        // Show error message
+        Swal.fire({
+          title: 'Error!',
+          text: response.data?.message || 'Failed to update owner',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating owner:', error);
+
+      // Show error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error updating owner: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
+    } finally {
+      setOwnerLoading(false);
+    }
+  };
+
+  // Function to handle contact selection change (only updates state, doesn't call API)
   const handleContactChange = (selectedOption) => {
+    console.log('Contact selection changed to:', selectedOption);
     setSelectedContact(selectedOption);
+  };
+
+  // Function to save contact changes to the API
+  const saveContact = async () => {
+    try {
+      setContactLoading(true);
+      console.log('Saving contact:', selectedContact);
+
+      // Call the API to update the contact
+      const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
+        {
+          project_id: projectId,
+          contact_id: selectedContact.value
+        }
+      );
+
+      console.log('API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Show success message
+        Swal.fire({
+          title: 'Success!',
+          text: 'Project contact updated successfully',
+          icon: 'success',
+          confirmButtonColor: '#4CAF50'
+        });
+
+        // Close the editing mode
+        setIsEditingContact(false);
+      } else {
+        console.error('Failed to update contact:', response.data?.message || 'Unknown error');
+
+        // Show error message
+        Swal.fire({
+          title: 'Error!',
+          text: response.data?.message || 'Failed to update contact',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating contact:', error);
+
+      // Show error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error updating contact: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
+    } finally {
+      setContactLoading(false);
+    }
   };
 
   const handleProjectCampaignChange = (selectedOption) => {
@@ -1543,6 +2152,7 @@ const ProjectDetail = () => {
   };
 
   const handleProjectStageChange = (selectedOption) => {
+    console.log('Stage changed to:', selectedOption);
     setProjectStage(selectedOption);
   };
 
@@ -1667,7 +2277,7 @@ const ProjectDetail = () => {
   };
 
   // Function to fetch milestone stages from API
-  const fetchMilestoneStages = async (milestoneId) => {
+  const fetchMilestoneStages = async (milestoneId, isUserSelection = false) => {
     if (!milestoneId) {
       console.warn('No milestone ID provided for fetching stages');
       setMilestoneStages([]);
@@ -1678,7 +2288,10 @@ const ProjectDetail = () => {
 
     try {
       setIsLoadingStages(true);
-      console.log('Fetching milestone stages for milestone ID:', milestoneId);
+      console.log('Fetching milestone stages for milestone ID:', milestoneId, 'isUserSelection:', isUserSelection);
+
+      // Store the current stage if we need to preserve it
+      const currentStage = !isUserSelection ? projectStage : null;
 
       // Build the API URL with the milestone_id parameter
       const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
@@ -1711,8 +2324,17 @@ const ProjectDetail = () => {
           console.log('Formatted stages from array:', formattedStages);
           setMilestoneStages(formattedStages);
 
-          // Set the first stage as selected if available
-          if (formattedStages.length > 0) {
+          // If this is a user selection, set the first stage as selected
+          // Otherwise, preserve the current stage if it exists
+          if (isUserSelection) {
+            if (formattedStages.length > 0) {
+              setProjectStage(formattedStages[0]);
+            } else {
+              setProjectStage(null);
+            }
+          } else if (currentStage) {
+            setProjectStage(currentStage);
+          } else if (formattedStages.length > 0) {
             setProjectStage(formattedStages[0]);
           } else {
             setProjectStage(null);
@@ -1731,8 +2353,17 @@ const ProjectDetail = () => {
           console.log('Formatted stages from nested structure:', formattedStages);
           setMilestoneStages(formattedStages);
 
-          // Set the first stage as selected if available
-          if (formattedStages.length > 0) {
+          // If this is a user selection, set the first stage as selected
+          // Otherwise, preserve the current stage if it exists
+          if (isUserSelection) {
+            if (formattedStages.length > 0) {
+              setProjectStage(formattedStages[0]);
+            } else {
+              setProjectStage(null);
+            }
+          } else if (currentStage) {
+            setProjectStage(currentStage);
+          } else if (formattedStages.length > 0) {
             setProjectStage(formattedStages[0]);
           } else {
             setProjectStage(null);
@@ -1781,11 +2412,88 @@ const ProjectDetail = () => {
 
     // Fetch stages for the selected milestone
     if (selectedOption && selectedOption.value) {
-      fetchMilestoneStages(selectedOption.value);
+      fetchMilestoneStages(selectedOption.value, true); // true means this is from user selection
     } else {
       // Clear stages if no milestone is selected
       setMilestoneStages([]);
       setProjectStage(null);
+    }
+  };
+
+  // Function to save milestone and stage changes
+  const saveMilestoneAndStage = async () => {
+    try {
+      setIsLoadingMilestones(true);
+      console.log('Saving milestone and stage changes:');
+      console.log('Milestone:', milestone);
+      console.log('Stage:', projectStage);
+
+      if (!milestone) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Please select a milestone',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+        return;
+      }
+
+      if (!projectStage) {
+        Swal.fire({
+          title: 'Error!',
+          text: 'Please select a stage',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+        return;
+      }
+
+      // Call the API to update the milestone and stage
+      const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
+        {
+          project_id: projectId,
+          milestone_id: milestone.value,
+          milestone_stage_id: projectStage.value
+        }
+      );
+
+      console.log('API response:', response);
+
+      if (response.data && response.data.status === 1) {
+        // Show success message
+        Swal.fire({
+          title: 'Success!',
+          text: 'Milestone and stage updated successfully',
+          icon: 'success',
+          confirmButtonColor: '#4CAF50'
+        });
+
+        // Close the editing mode
+        setIsEditing(false);
+      } else {
+        console.error('Failed to update milestone and stage:', response.data?.message || 'Unknown error');
+
+        // Show error message
+        Swal.fire({
+          title: 'Error!',
+          text: response.data?.message || 'Failed to update milestone and stage',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating milestone and stage:', error);
+
+      // Show error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error updating milestone and stage: ' + (error.response?.data?.message || error.message),
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
+    } finally {
+      setIsLoadingMilestones(false);
     }
   };
 
@@ -7392,7 +8100,7 @@ const ProjectDetail = () => {
                                     <h5>
                                       <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
                                         Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
-                                      <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}> 
+                                      <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}>
                                         {invoice.invoice_status}
                                       </span>
                                     </h5>
@@ -7404,67 +8112,67 @@ const ProjectDetail = () => {
                                               {/* Conditionally render options based on invoice status */}
                                                 {invoice.status == 1 || invoice.status == 5 ? (
                                                   <>
-                                                    <option 
-                                                      value="2" 
-                                                      data-id={invoice.id} 
-                                                      invoice-type={invoice.invoice_type} 
-                                                      invoice-date={invoice.invoice_date} 
+                                                    <option
+                                                      value="2"
+                                                      data-id={invoice.id}
+                                                      invoice-type={invoice.invoice_type}
+                                                      invoice-date={invoice.invoice_date}
                                                       invoice-amount={invoice.total_amount}
                                                     >
                                                       Paid
                                                     </option>
-                                                    <option 
-                                                      value="3" 
+                                                    <option
+                                                      value="3"
                                                       data-id={invoice.id}
                                                     >
                                                       Void
                                                     </option>
-                                                    <option 
-                                                      value="6" 
-                                                      data-id={invoice.id} 
-                                                      invoice-type={invoice.invoice_type} 
-                                                      invoice-date={invoice.invoice_date} 
+                                                    <option
+                                                      value="6"
+                                                      data-id={invoice.id}
+                                                      invoice-type={invoice.invoice_type}
+                                                      invoice-date={invoice.invoice_date}
                                                       invoice-amount={invoice.total_amount}
                                                     >
                                                       Payment in process
                                                     </option>
-                                                    <option 
-                                                      value="17" 
-                                                      data-id={invoice.id} 
-                                                      invoice-type={invoice.invoice_type} 
-                                                      invoice-date={invoice.invoice_date} 
+                                                    <option
+                                                      value="17"
+                                                      data-id={invoice.id}
+                                                      invoice-type={invoice.invoice_type}
+                                                      invoice-date={invoice.invoice_date}
                                                       invoice-amount={invoice.total_amount}
                                                     >
                                                       Partially paid
                                                     </option>
-                                                    <option 
-                                                      value="share_invoice_link" 
-                                                      data-id={invoice.id} 
-                                                      invoice-type={invoice.invoice_type} 
-                                                      invoice-date={invoice.invoice_date} 
-                                                      invoice-amount={invoice.total_amount} 
+                                                    <option
+                                                      value="share_invoice_link"
+                                                      data-id={invoice.id}
+                                                      invoice-type={invoice.invoice_type}
+                                                      invoice-date={invoice.invoice_date}
+                                                      invoice-amount={invoice.total_amount}
                                                       invoice-url={invoice.invoice_url}
                                                     >
                                                       Share Invoice link
                                                     </option>
                                                   </>
                                                 ) : null}
-                                                
+
                                                 {/* Condition for status 17 (Partially paid) */}
                                                 {invoice.status == 17 ? (
                                                   <>
-                                                    <option 
-                                                      value="17" 
-                                                      data-id={invoice.id} 
-                                                      invoice-type={invoice.invoice_type} 
-                                                      invoice-date={invoice.invoice_date} 
+                                                    <option
+                                                      value="17"
+                                                      data-id={invoice.id}
+                                                      invoice-type={invoice.invoice_type}
+                                                      invoice-date={invoice.invoice_date}
                                                       invoice-amount={invoice.total_amount}
                                                     >
                                                       Partially paid
                                                     </option>
                                                   </>
                                                 ) : null}
-                                                
+
                                         </select>
                                       ) : null}
                                     </div>
@@ -7547,7 +8255,7 @@ const ProjectDetail = () => {
                                     </div>
                                   </div>
                                 </div>
-      
+
                               </div>
                             </div>
                           ))
@@ -7555,7 +8263,7 @@ const ProjectDetail = () => {
                       </div>
                     )}
 
-                  
+
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
@@ -7612,7 +8320,7 @@ const ProjectDetail = () => {
 
 
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="card-title mb-0">Milestone:</h5>
+                        <h5 className="card-title mb-0">Milestone & Stage:</h5>
                         {!isEditing && (
                           <button
                             className="btn btn-sm btn-outline-primary"
@@ -7638,7 +8346,7 @@ const ProjectDetail = () => {
                               className="react-select-container"
                               classNamePrefix="react-select"
                               isLoading={isLoadingMilestones}
-                              placeholder="Select milestone..."
+                              placeholder="Select Milestone"
                               noOptionsMessage={() => "No milestones available"}
                               styles={{
                                 control: (base) => ({
@@ -7674,7 +8382,7 @@ const ProjectDetail = () => {
                               className="react-select-container"
                               classNamePrefix="react-select"
                               isLoading={isLoadingStages}
-                              placeholder={milestone ? "Select stage..." : "Select a milestone first"}
+                              placeholder={milestone ? "Select Stage" : "Select a milestone first"}
                               noOptionsMessage={() => milestone ? "No stages available for this milestone" : "Select a milestone first"}
                               isDisabled={!milestone || milestones.length === 0}
                               styles={{
@@ -7698,28 +8406,7 @@ const ProjectDetail = () => {
                         <div className="d-flex justify-content-between mt-3">
                           <button
                             className="btn btn-sm"
-                            onClick={() => {
-                              // Here you would typically make an API call to save the changes
-                              console.log('Saving milestone and stage changes:');
-                              console.log('Milestone:', milestone);
-                              console.log('Stage:', projectStage);
-
-                              if (!milestone) {
-                                alert('Please select a milestone');
-                                return;
-                              }
-
-                              if (!projectStage) {
-                                alert('Please select a stage');
-                                return;
-                              }
-
-                              // Show a success message
-                              alert('Milestone and stage updated successfully!');
-
-                              // Close the edit mode
-                              setIsEditing(false);
-                            }}
+                            onClick={saveMilestoneAndStage}
                             disabled={!milestone || !projectStage || isLoadingMilestones || isLoadingStages}
                             style={{
                               backgroundColor: 'white',
@@ -7729,15 +8416,12 @@ const ProjectDetail = () => {
                               padding: '5px 25px'
                             }}
                           >
-                            Update
+                            {isLoadingMilestones ? 'Updating...' : 'Update'}
                           </button>
                           <button
                             className="btn btn-sm"
-                            onClick={() => {
-                              // Reset to the original values
-                              fetchMilestones();
-                              setIsEditing(false);
-                            }}
+                            onClick={() => setIsEditing(false)}
+                            disabled={isLoadingMilestones || isLoadingStages}
                             style={{
                               backgroundColor: 'white',
                               color: '#ff6a00',
@@ -7755,34 +8439,56 @@ const ProjectDetail = () => {
 
                   <div className="card mb-4 p-2">
                     <div className="card-body p-2">
-                      <h5 className="card-title">Assigned Collaborators::</h5>
+                      <h5 className="card-title">Assigned Collaborators:</h5>
 
-                      {/* Display assigned users */}
+                      {/* Display assigned collaborators above the dropdown */}
                       <div className="assigned-users-list mb-4">
-                        {assignedUsers.map(user => (
-                          <div key={user.id} className="simple-user-item d-flex align-items-center justify-content-between mb-2">
-                            <div className="user-name-simple">{user.name}</div>
-                            <button
-                              className="btn-remove-user"
-                              onClick={() => handleRemoveUser(user.id)}
-                              aria-label="Remove user"
-                            >
-                              ×
-                            </button>
+                        {currentCollaborators.length === 0 ? (
+                          <p className="text-muted small">No collaborators assigned yet.</p>
+                        ) : (
+                          <div className="assigned-users-tags">
+                            {currentCollaborators.map(collaborator => (
+                              <div key={collaborator.collaborators_name_id} className="assigned-user-tag">
+                                <span className="user-name">{collaborator.collaborators_name}</span>
+                                <button
+                                  className="remove-tag-btn"
+                                  onClick={() => handleRemoveCollaborator(collaborator.collaborators_name_id)}
+                                  aria-label="Remove collaborator"
+                                  disabled={collaboratorLoading}
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
 
-                      {/* Select2 dropdown for user assignment */}
+                      {/* Select dropdown for collaborator assignment */}
                       <div className="form-group mb-3">
+                        <label htmlFor="collaboratorSelect" className="form-label">Add Collaborator:</label>
                         <Select
-                          value={selectedUser}
-                          onChange={handleUserChange}
-                          options={userOptions}
+                          id="collaboratorSelect"
+                          value={selectedCollaborator}
+                          onChange={handleCollaboratorChange}
+                          options={collaboratorOptions.filter(option =>
+                            !currentCollaborators.some(collaborator =>
+                              collaborator.collaborators_name_id === option.collaborator.id
+                            )
+                          )}
                           className="react-select-container"
                           classNamePrefix="react-select"
-                          placeholder="Select user to assign..."
+                          placeholder="Select collaborator to assign..."
                           isClearable
+                          isSearchable
+                          isLoading={collaboratorLoading}
+                          noOptionsMessage={({ inputValue }) =>
+                            inputValue && inputValue.length > 0
+                              ? "No matching collaborators found"
+                              : collaboratorOptions.length === currentCollaborators.length
+                                ? "All collaborators have been assigned"
+                                : "No collaborators available"
+                          }
                           styles={{
                             control: (base) => ({
                               ...base,
@@ -7812,13 +8518,13 @@ const ProjectDetail = () => {
                         />
                       </div>
 
-                      {/* Assign user button */}
+                      {/* Assign collaborator button */}
                       <button
                         className="btn assign-user-btn w-100"
-                        onClick={handleAssignUser}
-                        disabled={!selectedUser}
+                        onClick={handleAssignCollaborator}
+                        disabled={!selectedCollaborator || collaboratorLoading}
                       >
-                        Assign User
+                        {collaboratorLoading ? 'Assigning...' : 'Assign Collaborator'}
                       </button>
                     </div>
                   </div>
@@ -7848,14 +8554,15 @@ const ProjectDetail = () => {
                             <Select
                               value={owner}
                               onChange={handleOwnerChange}
-                              options={[
-                                { value: 'erc-fprs', label: 'ERC - FPRS' },
-                                { value: 'erc-referrals', label: 'ERC - Referrals' },
-                                { value: 'erc-direct', label: 'ERC - Direct' },
-                                { value: 'erc-partners', label: 'ERC - Partners' }
-                              ]}
+                              options={ownerOptions}
                               className="react-select-container"
                               classNamePrefix="react-select"
+                              isLoading={ownerLoading}
+                              isDisabled={ownerLoading}
+                              isClearable
+                              isSearchable
+                              placeholder={ownerLoading ? "Loading owners..." : "Search or select owner..."}
+                              noOptionsMessage={() => "No matching owners found"}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -7865,6 +8572,21 @@ const ProjectDetail = () => {
                                   '&:hover': {
                                     borderColor: '#adb5bd'
                                   }
+                                }),
+                                option: (base, state) => ({
+                                  ...base,
+                                  backgroundColor: state.isSelected
+                                    ? '#6c63ff'
+                                    : state.isFocused
+                                      ? '#f0f4ff'
+                                      : 'white',
+                                  color: state.isSelected ? 'white' : '#333',
+                                  padding: '10px 12px'
+                                }),
+                                menu: (base) => ({
+                                  ...base,
+                                  zIndex: 9999,
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
                                 })
                               }}
                             />
@@ -7872,20 +8594,22 @@ const ProjectDetail = () => {
                           <div className="d-flex justify-content-between mt-3">
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingOwner(false)}
+                              onClick={saveOwner}
+                              disabled={ownerLoading}
                               style={{
-                                backgroundColor: 'white',
-                                color: '#ff6a00',
-                                border: '1px solid #ff6a00',
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                border: 'none',
                                 borderRadius: '20px',
                                 padding: '5px 25px'
                               }}
                             >
-                              Update
+                              {ownerLoading ? 'Updating...' : 'Update'}
                             </button>
                             <button
                               className="btn btn-sm"
                               onClick={() => setIsEditingOwner(false)}
+                              disabled={ownerLoading}
                               style={{
                                 backgroundColor: 'white',
                                 color: '#ff6a00',
@@ -7927,14 +8651,15 @@ const ProjectDetail = () => {
                             <Select
                               value={selectedContact}
                               onChange={handleContactChange}
-                              options={[
-                                { value: 'sunny-shekhar', label: 'Sunny Shekhar' },
-                                { value: 'rahul-sharma', label: 'Rahul Sharma' },
-                                { value: 'priya-patel', label: 'Priya Patel' },
-                                { value: 'amit-kumar', label: 'Amit Kumar' }
-                              ]}
+                              options={contactOptions}
                               className="react-select-container"
                               classNamePrefix="react-select"
+                              isLoading={contactLoading}
+                              isDisabled={contactLoading}
+                              isClearable
+                              isSearchable
+                              placeholder={contactLoading ? "Loading contacts..." : "Search or select contact..."}
+                              noOptionsMessage={() => "No matching contacts found"}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -7944,6 +8669,21 @@ const ProjectDetail = () => {
                                   '&:hover': {
                                     borderColor: '#adb5bd'
                                   }
+                                }),
+                                option: (base, state) => ({
+                                  ...base,
+                                  backgroundColor: state.isSelected
+                                    ? '#6c63ff'
+                                    : state.isFocused
+                                      ? '#f0f4ff'
+                                      : 'white',
+                                  color: state.isSelected ? 'white' : '#333',
+                                  padding: '10px 12px'
+                                }),
+                                menu: (base) => ({
+                                  ...base,
+                                  zIndex: 9999,
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
                                 })
                               }}
                             />
@@ -7951,20 +8691,22 @@ const ProjectDetail = () => {
                           <div className="d-flex justify-content-between mt-3">
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingContact(false)}
+                              onClick={saveContact}
+                              disabled={contactLoading}
                               style={{
-                                backgroundColor: 'white',
-                                color: '#ff6a00',
-                                border: '1px solid #ff6a00',
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                border: 'none',
                                 borderRadius: '20px',
                                 padding: '5px 25px'
                               }}
                             >
-                              Update
+                              {contactLoading ? 'Updating...' : 'Update'}
                             </button>
                             <button
                               className="btn btn-sm"
                               onClick={() => setIsEditingContact(false)}
+                              disabled={contactLoading}
                               style={{
                                 backgroundColor: 'white',
                                 color: '#ff6a00',
