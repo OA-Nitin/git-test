@@ -754,7 +754,7 @@ const ProjectDetail = () => {
             <div className="stc-document-list">
                 {groups.map((group, groupIndex) => (
                     <div key={groupIndex} className="document-group">
-                        <h6 className="mb-3">{group.heading}</h6>
+                        <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">{group.heading}</h6>
                         <div className="table-responsive mb-5">
 
                             {Array.isArray(group.documents) &&
