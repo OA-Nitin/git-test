@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fees API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .response { background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Fees API</h1>
+
+        <div>
+            <label for="projectId">Project ID:</label>
+            <input type="text" id="projectId" value="9020" />
+            <button onclick="testFeesAPI()">Test Fees API</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testFeesAPI() {
+            const projectId = document.getElementById('projectId').value;
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.innerHTML = '<div class="response">Loading...</div>';
+
+            try {
+                console.log('Testing Fees API with project ID:', projectId);
+
+                const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        project_id: projectId
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+
+                const data = await response.json();
+                console.log('Raw API Response:', data);
+
+                // Display the result
+                resultDiv.innerHTML = `
+                    <div class="response ${response.ok ? 'success' : 'error'}">
+                        <h3>Response Status: ${response.status}</h3>
+                        <h4>Raw Response:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+
+                        <h4>Analysis:</h4>
+                        <ul>
+                            <li>Has 'success' property: ${data.hasOwnProperty('success')} (value: ${data.success})</li>
+                            <li>Has 'status' property: ${data.hasOwnProperty('status')} (value: ${data.status})</li>
+                            <li>Has 'message' property: ${data.hasOwnProperty('message')} (value: ${data.message})</li>
+                            <li>Has 'data' property: ${data.hasOwnProperty('data')} (type: ${typeof data.data})</li>
+                            <li>Has 'error' property: ${data.hasOwnProperty('error')} (value: ${data.error})</li>
+                            <li>All keys: ${Object.keys(data).join(', ')}</li>
+                        </ul>
+
+                        ${data.data ? `
+                            <h4>Data Analysis:</h4>
+                            <ul>
+                                <li>Data type: ${typeof data.data}</li>
+                                <li>Data keys: ${typeof data.data === 'object' ? Object.keys(data.data).join(', ') : 'N/A'}</li>
+                                <li>Has fees data: ${data.data && (data.data.erc_discovered_date || data.data.total_erc_amount || data.data.internal_sales_agent) ? 'Yes' : 'No'}</li>
+                            </ul>
+                            <h4>Sample Data Values:</h4>
+                            <ul>
+                                <li>error_discovered_date: ${data.data.error_discovered_date || 'N/A'}</li>
+                                <li>erc_discovered_date: ${data.data.erc_discovered_date || 'N/A'}</li>
+                                <li>sales_agent_name: ${data.data.sales_agent_name || 'N/A'}</li>
+                                <li>sales_support_name: ${data.data.sales_support_name || 'N/A'}</li>
+                                <li>internal_sales_agent (old): ${data.data.internal_sales_agent || 'N/A'}</li>
+                                <li>internal_sales_support (old): ${data.data.internal_sales_support || 'N/A'}</li>
+                                <li>total_erc_amount: ${data.data.total_erc_amount || 'N/A'}</li>
+                                <li>total_erc_fees: ${data.data.total_erc_fees || 'N/A'}</li>
+                                <li>q2_2020_941_wages: ${data.data.q2_2020_941_wages || 'N/A'}</li>
+                                <li>q3_2020_941_wages: ${data.data.q3_2020_941_wages || 'N/A'}</li>
+                                <li>q4_2020_941_wages: ${data.data.q4_2020_941_wages || 'N/A'}</li>
+                                <li>q1_2021_941_wages: ${data.data.q1_2021_941_wages || 'N/A'}</li>
+                                <li>q2_2021_941_wages: ${data.data.q2_2021_941_wages || 'N/A'}</li>
+                                <li>q3_2021_941_wages: ${data.data.q3_2021_941_wages || 'N/A'}</li>
+                                <li>q4_2021_941_wages: ${data.data.q4_2021_941_wages || 'N/A'}</li>
+                            </ul>
+                            <h4>Pending Share Values:</h4>
+                            <ul>
+                                <li>total_occams_share_pendin: ${data.data.total_occams_share_pendin || 'N/A'}</li>
+                                <li>total_aff_ref_share_pend: ${data.data.total_aff_ref_share_pend || 'N/A'}</li>
+                            </ul>
+                            <h4>ERC Filed Quarter wise 2020 Sample Fields:</h4>
+                            <ul>
+                                <li>q1_2020_filed_status: ${data.data.q1_2020_filed_status || 'N/A'}</li>
+                                <li>q1_2020_filing_date: ${data.data.q1_2020_filing_date || 'N/A'}</li>
+                                <li>q1_2020_amount_filed: ${data.data.q1_2020_amount_filed || 'N/A'}</li>
+                                <li>q1_2020_benefits: ${data.data.q1_2020_benefits || 'N/A'}</li>
+                                <li>q1_2020_eligibility_basis: ${data.data.q1_2020_eligibility_basis || 'N/A'}</li>
+                                <li>q2_2020_filed_status: ${data.data.q2_2020_filed_status || 'N/A'}</li>
+                                <li>q2_2020_filing_date: ${data.data.q2_2020_filing_date || 'N/A'}</li>
+                                <li>q2_2020_amount_filed: ${data.data.q2_2020_amount_filed || 'N/A'}</li>
+                            </ul>
+                            <h4>ERC Filed Quarter wise 2021 Sample Fields:</h4>
+                            <ul>
+                                <li>q1_2021_filed_status: ${data.data.q1_2021_filed_status || 'N/A'}</li>
+                                <li>q1_2021_filing_date: ${data.data.q1_2021_filing_date || 'N/A'}</li>
+                                <li>q1_2021_amount_filed: ${data.data.q1_2021_amount_filed || 'N/A'}</li>
+                                <li>q1_2021_benefits: ${data.data.q1_2021_benefits || 'N/A'}</li>
+                                <li>q1_2021_eligibility_basis: ${data.data.q1_2021_eligibility_basis || 'N/A'}</li>
+                                <li>q2_2021_filed_status: ${data.data.q2_2021_filed_status || 'N/A'}</li>
+                                <li>q3_2021_filed_status: ${data.data.q3_2021_filed_status || 'N/A'}</li>
+                                <li>q4_2021_filed_status: ${data.data.q4_2021_filed_status || 'N/A'}</li>
+                            </ul>
+                            <h4>ERC Letter, Check & Amount Sample Fields:</h4>
+                            <ul>
+                                <li>q1_2020_loop: ${data.data.q1_2020_loop || 'N/A'}</li>
+                                <li>q1_2020_letter: ${data.data.q1_2020_letter || 'N/A'}</li>
+                                <li>q1_2020_check: ${data.data.q1_2020_check || 'N/A'}</li>
+                                <li>q1_2020_chq_amt: ${data.data.q1_2020_chq_amt || 'N/A'}</li>
+                                <li>q2_2020_loop: ${data.data.q2_2020_loop || 'N/A'}</li>
+                                <li>q2_2020_letter: ${data.data.q2_2020_letter || 'N/A'}</li>
+                                <li>q1_2021_loop: ${data.data.q1_2021_loop || 'N/A'}</li>
+                                <li>q1_2021_letter: ${data.data.q1_2021_letter || 'N/A'}</li>
+                                <li>q1_2021_check: ${data.data.q1_2021_check || 'N/A'}</li>
+                                <li>q1_2021_chq_amt: ${data.data.q1_2021_chq_amt || 'N/A'}</li>
+                            </ul>
+                            <h4>Success Fee Invoice Details Sample Fields:</h4>
+                            <ul>
+                                <li>i_invoice_number: ${data.data.i_invoice_number || 'N/A'}</li>
+                                <li>i_invoice_amount: ${data.data.i_invoice_amount || 'N/A'}</li>
+                                <li>i_invoiced_qtrs: ${data.data.i_invoiced_qtrs || 'N/A'}</li>
+                                <li>i_invoice_sent_date: ${data.data.i_invoice_sent_date || 'N/A'}</li>
+                                <li>i_invoice_payment_type: ${data.data.i_invoice_payment_type || 'N/A'}</li>
+                                <li>ii_invoice_number: ${data.data.ii_invoice_number || 'N/A'}</li>
+                                <li>ii_invoice_amount: ${data.data.ii_invoice_amount || 'N/A'}</li>
+                                <li>iii_invoice_number: ${data.data.iii_invoice_number || 'N/A'}</li>
+                                <li>iii_invoice_amount: ${data.data.iii_invoice_amount || 'N/A'}</li>
+                                <li>iii_invoiced_qtrs: ${data.data.iii_invoiced_qtrs || 'N/A'}</li>
+                                <li>i_invoice_aff_ref_share: ${data.data.i_invoice_aff_ref_share || 'N/A'}</li>
+                                <li>ii_invoice_number: ${data.data.ii_invoice_number || 'N/A'}</li>
+                                <li>ii_invoice_amount: ${data.data.ii_invoice_amount || 'N/A'}</li>
+                                <li>ii_invoice_sent_date: ${data.data.ii_invoice_sent_date || 'N/A'}</li>
+                                <li>ii_invoice_payment_type: ${data.data.ii_invoice_payment_type || 'N/A'}</li>
+                                <li>ii_invoice_aff_ref_share: ${data.data.ii_invoice_aff_ref_share || 'N/A'}</li>
+                                <li>iii_invoice_aff_ref_share: ${data.data.iii_invoice_aff_ref_share || 'N/A'}</li>
+                                <li>iv_invoice_number: ${data.data.iv_invoice_number || 'N/A'}</li>
+                                <li>iv_invoice_amount: ${data.data.iv_invoice_amount || 'N/A'}</li>
+                                <li>iv_invoice_sent_date: ${data.data.iv_invoice_sent_date || 'N/A'}</li>
+                                <li>iv_invoice_payment_type: ${data.data.iv_invoice_payment_type || 'N/A'}</li>
+                                <li>iv_invoice_aff_ref_share: ${data.data.iv_invoice_aff_ref_share || 'N/A'}</li>
+                            </ul>
+                        ` : ''}
+
+                        <h4>Error Handling Test:</h4>
+                        <ul>
+                            <li>Message contains 'error': ${data.message && data.message.toLowerCase().includes('error')}</li>
+                            <li>Message contains 'failed': ${data.message && data.message.toLowerCase().includes('failed')}</li>
+                            <li>Message contains 'not found': ${data.message && data.message.toLowerCase().includes('not found')}</li>
+                            <li>Should show error: ${!data.data && data.message && (data.message.toLowerCase().includes('error') || data.message.toLowerCase().includes('failed') || data.message.toLowerCase().includes('not found'))}</li>
+                        </ul>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error testing API:', error);
+                resultDiv.innerHTML = `
+                    <div class="response error">
+                        <h3>Error</h3>
+                        <p>${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-test on page load
+        window.onload = () => {
+            testFeesAPI();
+        };
+    </script>
+</body>
+</html>
