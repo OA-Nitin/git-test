@@ -3544,20 +3544,6 @@ const ProjectDetail = () => {
             <div className="white_card_header">
               <div className="box_header m-0 justify-content-between">
                 <h4 className="iris-lead-name">{project?.project_name || "Project Details"}</h4>
-                <div>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      // Open lead detail page in a new tab using the lead ID from the API response
-                      const leadId = project?.lead_id || "9020"; // Use the lead ID from the API or fallback to default
-                      const leadDetailUrl = `/reporting/lead-detail/${leadId}`;
-                      window.open(leadDetailUrl, '_blank');
-                      console.log('Opening lead detail page:', leadDetailUrl, 'with lead ID:', leadId);
-                    }}
-                  >
-                    <i className="fas fa-external-link-alt me-1"></i> View Lead
-                  </button>
-                </div>
               </div>
               <ul className="nav nav-pills" id="pills-tab" role="tablist">
                 <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
