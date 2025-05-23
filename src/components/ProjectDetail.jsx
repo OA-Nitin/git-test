@@ -381,6 +381,28 @@ const ProjectDetail = () => {
     }
   }, [project]);
 
+  // Handle tab visibility based on product ID
+  useEffect(() => {
+    if (project) {
+      const productId = project.product_id;
+      console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
+
+      // Check if current active tab should be hidden for this product
+      const shouldHideBankInfo = (productId === '937' || productId === '932') && activeTab === 'bankInfo';
+      const shouldHideIntake = (productId === '937' || productId === '932') && activeTab === 'intake';
+      const shouldHideFees = (productId === '937' || productId === '932') && activeTab === 'fees';
+      const shouldHideDocuments = productId === '932' && activeTab === 'documents';
+
+      console.log(`Tab visibility: BankInfo hidden: ${productId === '937' || productId === '932'}, Intake hidden: ${productId === '937' || productId === '932'}, Fees hidden: ${productId === '937' || productId === '932'}, Documents hidden: ${productId === '932'}`);
+
+      // If current tab should be hidden, switch to project tab
+      if (shouldHideBankInfo || shouldHideIntake || shouldHideFees || shouldHideDocuments) {
+        console.log(`Switching from hidden tab ${activeTab} to project tab for product ID ${productId}`);
+        setActiveTab('project');
+      }
+    }
+  }, [project, activeTab]);
+
   // Function to fetch dummy user data
   const fetchUserData = () => {
     // Dummy user data
@@ -1537,20 +1559,6 @@ const ProjectDetail = () => {
             <div className="white_card_header">
               <div className="box_header m-0 justify-content-between">
                 <h4 className="iris-lead-name">{project?.project_name || "Project Details"}</h4>
-                <div>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      // Open lead detail page in a new tab using the lead ID from the API response
-                      const leadId = project?.lead_id || "9020"; // Use the lead ID from the API or fallback to default
-                      const leadDetailUrl = `/reporting/lead-detail/${leadId}`;
-                      window.open(leadDetailUrl, '_blank');
-                      console.log('Opening lead detail page:', leadDetailUrl, 'with lead ID:', leadId);
-                    }}
-                  >
-                    <i className="fas fa-external-link-alt me-1"></i> View Lead
-                  </button>
-                </div>
               </div>
               <ul className="nav nav-pills" id="pills-tab" role="tablist">
                 <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
@@ -1569,70 +1577,82 @@ const ProjectDetail = () => {
                     Project
                   </a>
                 </li>
-                <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-bank-info"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('bankInfo');
-                    }}
-                    href="#pills-bank-info"
-                    role="tab"
-                    aria-controls="pills-bank-info"
-                    aria-selected={activeTab === 'bankInfo'}
-                  >
-                    Bank Info
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-intake"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('intake');
-                    }}
-                    href="#pills-intake"
-                    role="tab"
-                    aria-controls="pills-intake"
-                    aria-selected={activeTab === 'intake'}
-                  >
-                    Intake
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-fees"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('fees');
-                    }}
-                    href="#pills-fees"
-                    role="tab"
-                    aria-controls="pills-fees"
-                    aria-selected={activeTab === 'fees'}
-                  >
-                    Fees
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-documents"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('documents');
-                    }}
-                    href="#pills-documents"
-                    role="tab"
-                    aria-controls="pills-documents"
-                    aria-selected={activeTab === 'documents'}
-                  >
-                    Documents
-                  </a>
-                </li>
+                {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
+                {project?.product_id !== '937' && project?.product_id !== '932' && (
+                  <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-bank-info"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('bankInfo');
+                      }}
+                      href="#pills-bank-info"
+                      role="tab"
+                      aria-controls="pills-bank-info"
+                      aria-selected={activeTab === 'bankInfo'}
+                    >
+                      Bank Info
+                    </a>
+                  </li>
+                )}
+                {/* Hide Intake tab for STC (937) and RDC (932) projects */}
+                {project?.product_id !== '937' && project?.product_id !== '932' && (
+                  <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-intake"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('intake');
+                      }}
+                      href="#pills-intake"
+                      role="tab"
+                      aria-controls="pills-intake"
+                      aria-selected={activeTab === 'intake'}
+                    >
+                      Intake
+                    </a>
+                  </li>
+                )}
+                {/* Hide Fees tab for STC (937) and RDC (932) projects */}
+                {project?.product_id !== '937' && project?.product_id !== '932' && (
+                  <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-fees"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('fees');
+                      }}
+                      href="#pills-fees"
+                      role="tab"
+                      aria-controls="pills-fees"
+                      aria-selected={activeTab === 'fees'}
+                    >
+                      Fees
+                    </a>
+                  </li>
+                )}
+                {/* Hide Documents tab for RDC (932) projects */}
+                {project?.product_id !== '932' && (
+                  <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-documents"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('documents');
+                      }}
+                      href="#pills-documents"
+                      role="tab"
+                      aria-controls="pills-documents"
+                      aria-selected={activeTab === 'documents'}
+                    >
+                      Documents
+                    </a>
+                  </li>
+                )}
                 <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -1685,11 +1705,16 @@ const ProjectDetail = () => {
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label">Business</label>
-                            <div className="d-flex">
-                              <input type="text" className="form-control" defaultValue={project?.business_legal_name || ""} readOnly />
+                            <label className="form-label d-flex align-items-center justify-content-between">
+                              <span>Business</span>
                               <button
-                                className="btn btn-primary ms-2"
+                                className="btn btn-primary"
+                                style={{
+                                  fontSize: '11px',
+                                  padding: '2px 8px',
+                                  lineHeight: '1.2',
+                                  borderRadius: '3px'
+                                }}
                                 onClick={() => {
                                   // Open lead detail page in a new tab using the lead ID from the API response
                                   const leadId = project?.lead_id || "9020"; // Use the lead ID from the API or fallback to default
@@ -1700,7 +1725,8 @@ const ProjectDetail = () => {
                               >
                                 View
                               </button>
-                            </div>
+                            </label>
+                            <input type="text" className="form-control" defaultValue={project?.business_legal_name || ""} readOnly />
                           </div>
                         </div>
                         <div className="col-md-4">
