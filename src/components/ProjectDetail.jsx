@@ -8,6 +8,7 @@ import './LeadDetail.css'; // Reusing the same CSS
 import './DocumentTable.css'; // Document table styling
 import Notes from './common/Notes';
 import { getAssetPath } from '../utils/assetUtils';
+import Modal from './common/Modal';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
@@ -294,6 +295,187 @@ const ProjectDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
 
+  //Documents API
+  const [ercDocuments, setERCDocuments] = useState(null);
+  const [companyDocuments, setCompanyDocuments] = useState(null);
+  const [otherDocuments, setOtherDocuments] = useState(null);
+  const [payrollDocuments, setPayrollDocuments] = useState(null);
+
+  const [stcRequiredDocuments, setSTCRequiredDocuments] = useState(null);
+  const [stcImpactedDays, setSTCImpactedDays] = useState(null);
+
+
+  const fetchERCDocuments = async (id, formId) => {
+    try {
+        setLoading(true);
+        setError(null);
+        const formData = new FormData();
+        formData.append('project_id', id);
+        formData.append('form_id', formId);
+
+        const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        formData,
+        {
+            headers: { Accept: 'application/json' },
+            validateStatus: () => true,
+        }
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+        setERCDocuments(response.data);
+        } else {
+        setError('Failed to fetch ERC documents.');
+        }
+        setLoading(false);
+    } catch (err) {
+        setError('Fetch error: ' + err.message);
+        setLoading(false);
+    }
+  };
+
+  const fetchCompanyDocuments = async (id, formId) => {
+    try {
+        setLoading(true);
+        setError(null);
+        const formData = new FormData();
+        formData.append('project_id', id);
+        formData.append('form_id', formId);
+
+        const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        formData,
+        {
+            headers: { Accept: 'application/json' },
+            validateStatus: () => true,
+        }
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+        setCompanyDocuments(response.data);
+        } else {
+        setError('Failed to fetch company documents.');
+        }
+        setLoading(false);
+    } catch (err) {
+        setError('Fetch error: ' + err.message);
+        setLoading(false);
+    }
+  };
+
+  const fetchOtherDocuments = async (id, formId) => {
+    try {
+        setLoading(true);
+        setError(null);
+        const formData = new FormData();
+        formData.append('project_id', id);
+        formData.append('form_id', formId);
+
+        const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        formData,
+        {
+            headers: { Accept: 'application/json' },
+            validateStatus: () => true,
+        }
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+        setOtherDocuments(response.data);
+        } else {
+        setError('Failed to fetch other documents.');
+        }
+        setLoading(false);
+    } catch (err) {
+        setError('Fetch error: ' + err.message);
+        setLoading(false);
+    }
+  };
+
+  const fetchPayrollDocuments = async (id, formId) => {
+    try {
+        setLoading(true);
+        setError(null);
+        const formData = new FormData();
+        formData.append('project_id', id);
+
+        const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
+        formData,
+        {
+            headers: { Accept: 'application/json' },
+            validateStatus: () => true,
+        }
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+        setPayrollDocuments(response.data);
+        } else {
+        setError('Failed to fetch payroll documents.');
+        }
+        setLoading(false);
+    } catch (err) {
+        setError('Fetch error: ' + err.message);
+        setLoading(false);
+    }
+  };
+
+  const fetchSTCRequiredDocuments = async (id) => {
+    try {
+        setLoading(true);
+        setError(null);
+        const formData = new FormData();
+        formData.append('project_id', id);
+
+        const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
+        formData,
+        {
+            headers: { Accept: 'application/json' },
+            validateStatus: () => true,
+        }
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+        setSTCRequiredDocuments(response.data);
+        } else {
+        setError('Failed to fetch STC Required documents.');
+        }
+        setLoading(false);
+    } catch (err) {
+        setError('Fetch error: ' + err.message);
+        setLoading(false);
+    }
+  };
+
+  const fetchSTCImpactedDays = async (id) => {
+    try {
+        setLoading(true);
+        setError(null);
+        const formData = new FormData();
+        formData.append('project_id', id);
+
+        const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
+        formData,
+        {
+            headers: { Accept: 'application/json' },
+            validateStatus: () => true,
+        }
+        );
+
+        if (response.status >= 200 && response.status < 300) {
+        setSTCImpactedDays(response.data);
+        } else {
+        setError('Failed to fetch STC Impacted Days.');
+        }
+        setLoading(false);
+    } catch (err) {
+        setError('Fetch error: ' + err.message);
+        setLoading(false);
+    }
+  };
+
   // Contacts related state
   const [primaryContact, setPrimaryContact] = useState({
     name: 'CTCERC Play',
@@ -312,14 +494,45 @@ const ProjectDetail = () => {
   const [owner, setOwner] = useState({ value: 'erc-fprs', label: 'ERC - FPRS' });
   const [projectCampaign, setProjectCampaign] = useState(null);
   const [projectSource, setProjectSource] = useState(null);
-  const [projectStage, setProjectStage] = useState({ value: 'client-declarations-signed', label: 'Client Declarations Signed' });
+  const [projectStage, setProjectStage] = useState(null);
 
   // Milestone, Stage, Owner, and Contact edit state
-  const [milestone, setMilestone] = useState({ value: 'erc-fulfillment', label: 'ERC Fulfillment' });
+  const [milestone, setMilestone] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingOwner, setIsEditingOwner] = useState(false);
   const [selectedContact, setSelectedContact] = useState({ value: 'sunny-shekhar', label: 'Sunny Shekhar' });
   const [isEditingContact, setIsEditingContact] = useState(false);
+
+
+  const [invoices, setInvoices] = useState([]);
+   // Initialize state to store selected invoice actions
+   const [invoiceActions, setInvoiceActions] = useState({});
+
+   // Log the updated invoiceActions when it changes
+   useEffect(() => {
+     // This effect will run when invoiceActions is updated
+     console.log(invoiceActions);
+   }, [invoiceActions]);  // The effect runs whenever invoiceActions is updated
+ 
+   // Handle the change event when an action is selected
+   const handleInvoiceActionChange = (e, invoiceId) => {
+     const { value } = e.target;
+ 
+     // Use the previous state to ensure the update is done properly
+     setInvoiceActions(prev => {
+       const updatedActions = { ...prev, [invoiceId]: value };
+       console.log(`Invoice ${invoiceId} action changed to: ${value}`);
+       return updatedActions;
+     });
+   };
+
+  // API data for milestones and stages
+  const [milestones, setMilestones] = useState([]);
+  const [milestoneStages, setMilestoneStages] = useState([]);
+  const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
+  const [isLoadingStages, setIsLoadingStages] = useState(false);
+  const [selectedProductId] = useState('935'); // Default to ERC
+
 
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
@@ -329,6 +542,9 @@ const ProjectDetail = () => {
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
     console.log('Project ID type:', typeof projectId);
     fetchProjectDetails();
+
+    console.log('Initial useEffect - Fetching milestones for product ID 936');
+    fetchMilestones();
   }, [projectId]);
 
   // Reset onboarding status when signup status changes
@@ -348,6 +564,839 @@ const ProjectDetail = () => {
     fetchUserData();
   }, []);
 
+  useEffect(() => {
+    if (activeTab === 'documents') {
+      fetchERCDocuments(projectId, 3);
+      fetchCompanyDocuments(projectId, 1);
+      fetchOtherDocuments(projectId, 4);
+      fetchPayrollDocuments(projectId);
+
+      fetchSTCRequiredDocuments(projectId);
+      fetchSTCImpactedDays(projectId);
+    }
+  }, [activeTab]);
+
+    const DocumentTable = ({ documents }) => {
+        const [showModal, setShowModal] = useState(false);
+        const [selectedComments, setSelectedComments] = useState([]);
+        const [selectedDocLabel, setSelectedDocLabel] = useState('');
+
+        const openModal = (doc) => {
+            setSelectedComments(doc.comments || []);
+            setSelectedDocLabel(doc.doc_label || 'Comments');
+            setShowModal(true);
+        };
+
+        const closeModal = () => {
+            setShowModal(false);
+            setSelectedComments([]);
+            setSelectedDocLabel('');
+        };
+
+        return (
+            <div className="document-list">
+                <div className="table-responsive">
+                    <table className="table document-table">
+                        <thead>
+                        <tr>
+                            <th>Documents</th>
+                            <th>Files</th>
+                            <th>Status</th>
+                            <th>Comments</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {documents?.map((doc, index) => (
+                            <tr className="document-row" key={index}>
+                                <td>
+                  <span
+                      dangerouslySetInnerHTML={{ __html: doc.doc_label || 'N/A' }}
+                  ></span>
+                                </td>
+                                <td>
+                                    {doc.file_url ? (
+                                        <a
+                                            href={doc.file_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                        >
+                                            <i
+                                                className={`fas ${
+                                                    doc.file_url.endsWith('.pdf')
+                                                        ? 'fa-file-pdf'
+                                                        : 'fa-image'
+                                                }`}
+                                            ></i>
+                                            <span>{doc.file_name || 'View File'}</span>
+                                        </a>
+                                    ) : (
+                                        <label
+                                            className="custom-file-upload"
+                                            style={
+                                                doc.required === '1'
+                                                    ? {
+                                                        filter: 'grayscale(100%)',
+                                                        pointerEvents: 'none',
+                                                    }
+                                                    : {}
+                                            }
+                                        >
+                                            No file uploaded
+                                        </label>
+                                    )}
+                                </td>
+                                <td>
+                                    {doc.doc_key === 'quarterly_gross_receipt_csv' ? (
+                                        <label style={{ display: 'block', textAlign: 'center' }}>
+                                            <a
+                                                href={`#`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                style={{
+                                                    background: '#55915a',
+                                                    boxShadow: '0px 0px 5px #0000001a',
+                                                    borderRadius: '10px',
+                                                    color: '#fff',
+                                                    padding: '4px 5px',
+                                                    display: 'inline-block',
+                                                }}
+                                            >
+                                                SDGR &amp; Owner&apos;s Information
+                                            </a>
+                                        </label>
+                                    ) : (
+                                        <span
+                                            className={`status-badge status-${doc.status?.toLowerCase() || 'pending'}`}
+                                        >
+                      {doc.status || 'Yet to upload'}
+                    </span>
+                                    )}
+                                </td>
+                                <td>
+                                    {doc.comments && doc.comments.length > 0 && (
+                                        <button
+                                            className="btn btn-sm btn-outline-primary"
+                                            onClick={() => openModal(doc)}
+                                        >
+                                            <i className="fas fa-comment"></i>
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Modal */}
+                <Modal
+                    show={showModal}
+                    onClose={closeModal}
+                    title={selectedDocLabel}
+                    showFooter={false} // change to true if you need footer buttons
+                >
+                    {selectedComments.length > 0 ? (
+                        <ul className="list-group">
+                            {selectedComments.map((comment, index) => (
+                                <li key={index} className="list-group-item">
+                                    <small>Username - {comment.username}</small>
+                                    <br /><br />
+                                    <strong>{comment.comments}</strong>
+                                    <br />
+                                    <small>Date & Time - {comment.update_datetime}</small>
+                                </li>
+                            ))}
+                        </ul>
+
+                    ) : (
+                        <p>No comments available.</p>
+                    )}
+                </Modal>
+
+            </div>
+        );
+    };
+
+    const STCDocumentTable = ({ stc_documents_groups }) => {
+        const [showModal, setShowModal] = useState(false);
+        const [selectedComments, setSelectedComments] = useState([]);
+        const [selectedDocLabel, setSelectedDocLabel] = useState('');
+
+        const openModal = (doc) => {
+            setSelectedComments(doc.comments || []);
+            setSelectedDocLabel(doc.doc_label || doc.question || 'Document');
+            setShowModal(true);
+        };
+
+        const closeModal = () => {
+            setShowModal(false);
+            setSelectedComments([]);
+            setSelectedDocLabel('');
+        };
+
+        console.log('STCDocumentTable data:', stc_documents_groups);
+
+        // If no data or empty groups array
+        if (!stc_documents_groups || !stc_documents_groups.groups || stc_documents_groups.groups.length === 0) {
+            return (
+                <div className="stc-document-list">
+                    <div className="alert alert-info">
+                        <i className="fas fa-info-circle mr-2"></i>
+                        No STC required documents are available for this project.
+                    </div>
+                </div>
+            );
+        }
+
+        const { groups } = stc_documents_groups;
+
+        return (
+            <div className="stc-document-list">
+                {groups.map((group, groupIndex) => (
+                    <div key={groupIndex} className="document-group">
+                        <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">{group.heading}</h6>
+                        <div className="table-responsive mb-5">
+
+                            {Array.isArray(group.documents) &&
+                            group.documents.some(doc => doc.doc_type_id === "40" || doc.doc_type_id === "41") && (
+                                <table className="table document-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Mandatory</th>
+                                        <th>Tax Returns - 1040(Mandatory)</th>
+                                        <th>Status</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {group.documents
+                                        .filter(doc => doc.doc_type_id === "40" || doc.doc_type_id === "41")
+                                        .map((doc, index) => (
+                                            <tr className="document-row" key={index}>
+                                                <td dangerouslySetInnerHTML={{ __html: doc.doc_label || 'N/A' }}></td>
+                                                <td>{doc.mandatory}</td>
+                                                <td>
+                                                    {doc.file_url ? (
+                                                        <a
+                                                            href={doc.file_url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                        >
+                                                            <i
+                                                                className={`fas ${
+                                                                    doc.file_url.endsWith('.pdf')
+                                                                        ? 'fa-file-pdf'
+                                                                        : 'fa-image'
+                                                                }`}
+                                                            ></i>
+                                                            <span>{doc.file_name || 'View File'}</span>
+                                                        </a>
+                                                    ) : (
+                                                        <label
+                                                            className="custom-file-upload"
+                                                            style={
+                                                                doc.required === '1'
+                                                                    ? {
+                                                                        filter: 'grayscale(100%)',
+                                                                        pointerEvents: 'none',
+                                                                    }
+                                                                    : {}
+                                                            }
+                                                        >
+                                                            No file uploaded
+                                                        </label>
+                                                    )}
+                                                </td>
+                                                <td>
+                            <span className={`status-badge status-${doc.status?.toLowerCase() || 'pending'}`}>
+                              {doc.status || doc.file_status || 'Yet to upload'}
+                            </span>
+                                                </td>
+                                                <td>
+                                                    {doc.comments && doc.comments.length > 0 && (
+                                                        <button
+                                                            className="btn btn-sm btn-outline-primary"
+                                                            onClick={() => openModal(doc)}
+                                                        >
+                                                            <i className="fas fa-comment"></i>
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+
+                            {Array.isArray(group.documents) &&
+                            group.documents.some(doc => doc.doc_type_id === "43") && (
+                                <table className="table document-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Were you a W2 employee in 2020/2021?</th>
+                                        <th>W2 (If Applicable)</th>
+                                        <th>Status</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {group.documents
+                                        .filter(doc => doc.doc_type_id === "43")
+                                        .map((doc, index) => (
+                                            <tr className="document-row" key={index}>
+                                                <td
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: doc.doc_label || 'N/A',
+                                                    }}
+                                                ></td>
+
+                                                <td>
+                                                    <div>
+                                                        <label style={{ marginRight: '10px' }}>
+                                                            <input
+                                                                type="radio"
+                                                                name={`w2_applicable_${index}`}
+                                                                value="Yes"
+                                                                checked={doc.applicable === 'Yes'}
+                                                                readOnly
+                                                            />{' '}
+                                                            Yes
+                                                        </label>
+                                                        <label>
+                                                            <input
+                                                                type="radio"
+                                                                name={`w2_applicable_${index}`}
+                                                                value="No"
+                                                                checked={doc.applicable === 'No'}
+                                                                readOnly
+                                                            />{' '}
+                                                            No
+                                                        </label>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    {doc.file_url ? (
+                                                        <a href={doc.file_url} target="_blank" rel="noreferrer">
+                                                            <i
+                                                                className={`fas ${
+                                                                    doc.file_url.endsWith('.pdf')
+                                                                        ? 'fa-file-pdf'
+                                                                        : 'fa-image'
+                                                                }`}
+                                                            ></i>
+                                                            <span>{doc.file_name || 'View File'}</span>
+                                                        </a>
+                                                    ) : (
+                                                        <label
+                                                            className="custom-file-upload"
+                                                            style={
+                                                                doc.required === '1'
+                                                                    ? {
+                                                                        filter: 'grayscale(100%)',
+                                                                        pointerEvents: 'none',
+                                                                    }
+                                                                    : {}
+                                                            }
+                                                        >
+                                                            No file uploaded
+                                                        </label>
+                                                    )}
+                                                </td>
+
+                                                <td>
+                              <span
+                                  className={`status-badge status-${doc.file_status?.toLowerCase() || 'pending'}`}
+                              >
+                                {doc.status || doc.file_status || 'Yet to upload'}
+                              </span>
+                                                </td>
+
+                                                <td>
+                                                    {doc.comments && doc.comments.length > 0 && (
+                                                        <button
+                                                            className="btn btn-sm btn-outline-primary"
+                                                            onClick={() => openModal(doc)}
+                                                        >
+                                                            <i className="fas fa-comment"></i>
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+
+                            {Array.isArray(group.documents) &&
+                            group.documents.some(doc => doc.doc_type_id === "49") && (
+                                <table className="table document-table">
+                                    <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Do you have 1099 - G for 2020/2021?</th>
+                                        <th>Form - 1099 G (If Applicable)</th>
+                                        <th>Status</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {group.documents
+                                        .filter(doc => doc.doc_type_id === "49")
+                                        .map((doc, index) => (
+                                            <tr className="document-row" key={index}>
+                                                <td
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: doc.doc_label || 'N/A',
+                                                    }}
+                                                ></td>
+
+                                                <td>
+                                                    <div>
+                                                        <label style={{ marginRight: '10px' }}>
+                                                            <input
+                                                                type="radio"
+                                                                name={`form_1099_applicable_${index}`}
+                                                                value="Yes"
+                                                                checked={doc.applicable === 'Yes'}
+                                                                readOnly
+                                                            />{' '}
+                                                            Yes
+                                                        </label>
+                                                        <label>
+                                                            <input
+                                                                type="radio"
+                                                                name={`form_1099_applicable_${index}`}
+                                                                value="No"
+                                                                checked={doc.applicable === 'No'}
+                                                                readOnly
+                                                            />{' '}
+                                                            No
+                                                        </label>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    {doc.file_url ? (
+                                                        <a href={doc.file_url} target="_blank" rel="noreferrer">
+                                                            <i
+                                                                className={`fas ${
+                                                                    doc.file_url.endsWith('.pdf')
+                                                                        ? 'fa-file-pdf'
+                                                                        : 'fa-image'
+                                                                }`}
+                                                            ></i>
+                                                            <span>{doc.file_name || 'View File'}</span>
+                                                        </a>
+                                                    ) : (
+                                                        <label
+                                                            className="custom-file-upload"
+                                                            style={
+                                                                doc.required === '1'
+                                                                    ? {
+                                                                        filter: 'grayscale(100%)',
+                                                                        pointerEvents: 'none',
+                                                                    }
+                                                                    : {}
+                                                            }
+                                                        >
+                                                            No file uploaded
+                                                        </label>
+                                                    )}
+                                                </td>
+
+                                                <td>
+                              <span
+                                  className={`status-badge status-${doc.status?.toLowerCase() || 'pending'}`}
+                              >
+                                {doc.status || doc.file_status || 'Yet to upload'}
+                              </span>
+                                                </td>
+
+                                                <td>
+                                                    {doc.comments && doc.comments.length > 0 && (
+                                                        <button
+                                                            className="btn btn-sm btn-outline-primary"
+                                                            onClick={() => openModal(doc)}
+                                                        >
+                                                            <i className="fas fa-comment"></i>
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+
+                            {Array.isArray(group.documents) &&
+                            group.documents.some(doc => doc.doc_type_id === 139) && (
+                                <table className="table document-table border">
+                                    <tbody>
+                                    {group.documents
+                                        .filter(doc => doc.doc_type_id === 139)
+                                        .map((doc, index) => (
+                                            <React.Fragment key={index}>
+                                                <tr className="document-row">
+                                                    <td
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: doc.question || 'N/A',
+                                                        }}
+                                                    ></td>
+
+                                                    <td>
+                                                        <div>
+                                                            <label style={{ marginRight: '10px' }}>
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`claimed_${index}`}
+                                                                    value="Yes"
+                                                                    checked={doc.claimed === 'Yes'}
+                                                                    readOnly
+                                                                />{' '}
+                                                                Yes
+                                                            </label>
+                                                            <label>
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`claimed_${index}`}
+                                                                    value="No"
+                                                                    checked={doc.claimed === 'No'}
+                                                                    readOnly
+                                                                />{' '}
+                                                                No
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                {/* Conditionally show amounts if claimed is 'Yes' */}
+                                                {doc.claimed === 'Yes' && (
+                                                    <tr className="document-row">
+                                                        <td colSpan="2">
+                                                            <div className="d-flex justify-content-around">
+                                                                <div className="tax_credit d-flex align-items-center">
+                                                                    <label style={{ paddingRight: '15px' }}>
+                                                                        2020 Amount
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={doc.amount_2020 || ''}
+                                                                        readOnly
+                                                                    />
+                                                                </div>
+                                                                <div className="tax_credit d-flex align-items-center">
+                                                                    <label style={{ paddingRight: '15px' }}>
+                                                                        2021 Amount
+                                                                    </label>
+                                                                    <input
+                                                                        type="text"
+                                                                        value={doc.amount_2021 || ''}
+                                                                        readOnly
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+
+
+                            {Array.isArray(group.documents) &&
+                            group.documents.some(doc => doc.doc_type_id === 138) && (
+                                <table className="table document-table border">
+                                    <thead>
+                                    <tr>
+                                        <th>Document</th>
+                                        <th>Have you signed up?</th>
+                                        <th>Signed up as per TaxNow file?</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {group.documents
+                                        .filter(doc => doc.doc_type_id === 138)
+                                        .map((doc, index) => (
+                                            <tr className="document-row" key={index}>
+                                                <td
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: doc.doc_label
+                                                            ? `<a href="https://apps.taxnow.com/signup?utm_source=occams&utm_medium=email&utm_campaign=sign-up" target="_blank" rel="noopener noreferrer">${doc.doc_label}</a>`
+                                                            : 'N/A',
+                                                    }}
+                                                ></td>
+
+                                                <td>{doc.signed_up}</td>
+                                                <td>
+                                                    <div>
+                                                        <label style={{ marginRight: '10px' }}>
+                                                            <input
+                                                                type="radio"
+                                                                name={`signed_up_taxnow_file_${index}`}
+                                                                value="Yes"
+                                                                checked={doc.signed_up_taxnow_file === '1'}
+                                                                readOnly
+                                                            />{' '}
+                                                            Yes
+                                                        </label>
+                                                        <label>
+                                                            <input
+                                                                type="radio"
+                                                                name={`signed_up_taxnow_file_${index}`}
+                                                                value="No"
+                                                                checked={doc.signed_up_taxnow_file === '0'}
+                                                                readOnly
+                                                            />{' '}
+                                                            No
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                                <td>
+                              <span
+                                  className={`status-badge status-${doc.status?.toLowerCase() || 'pending'}`}
+                              >
+                                {doc.status || doc.file_status || 'Yet to upload'}
+                              </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+
+
+                        </div>
+                    </div>
+                ))}
+
+                {/* Modal */}
+                <Modal show={showModal} onClose={closeModal} title={selectedDocLabel} showFooter={false}>
+                    {selectedComments.length > 0 ? (
+                        <ul className="list-group">
+                            {selectedComments.map((comment, index) => (
+                                <li key={index} className="list-group-item">
+                                    <small>Username - {comment.username}</small>
+                                    <br /><br />
+                                    <strong>{comment.comments}</strong>
+                                    <br />
+                                    <small>Date & Time - {comment.update_datetime}</small>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No comments available.</p>
+                    )}
+                </Modal>
+            </div>
+        );
+    };
+
+    const STCImpactedDaysTable = ({ impacted_days_groups }) => {
+        const groups = impacted_days_groups || [];
+        const [showModal, setShowModal] = useState(false);
+        const [selectedComments, setSelectedComments] = useState([]);
+        const [selectedDocLabel, setSelectedDocLabel] = useState('');
+        const [undertakingChecked, setUndertakingChecked] = useState(
+            groups[0]?.undertaking_checked || false
+        );
+
+        const openModal = (doc) => {
+            setSelectedComments(doc.comments || []);
+            setSelectedDocLabel(doc.doc_label || doc.question || 'Document');
+            setShowModal(true);
+        };
+
+        const closeModal = () => {
+            setShowModal(false);
+            setSelectedComments([]);
+            setSelectedDocLabel('');
+        };
+
+        const handleCheckboxChange = (e) => {
+            setUndertakingChecked(e.target.checked);
+        };
+
+        return (
+            <div className="impacted-days-list">
+                {groups.map((group, groupIndex) => (
+                    <div key={groupIndex} className="mb-5">
+                        <h5 className="mb-3">{group.group_heading}</h5>
+
+                        <div className="table-responsive">
+                            <table className="table impacted-days-table">
+                                <thead>
+                                <tr>
+                                    <th>Documents</th>
+                                    <th>Period (No. of Days)</th>
+                                    <th>Supporting Documents (Optional)</th>
+                                    <th>Status</th>
+                                    <th>Comments</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {group.documents?.map((doc, docIndex) => (
+                                    <React.Fragment key={`${groupIndex}-${docIndex}`}>
+                                        <tr className="document-row">
+                                            <td>
+                                                <span dangerouslySetInnerHTML={{ __html: doc.doc_label || doc.question || 'N/A' }} />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    value={doc.no_of_days || ''}
+                                                    readOnly
+                                                    className="form-control"
+                                                />
+                                            </td>
+                                            <td>
+                                                {doc.file_url ? (
+                                                    <a href={doc.file_url} target="_blank" rel="noreferrer">
+                                                        <i className={`fas ${doc.file_url.endsWith('.pdf') ? 'fa-file-pdf' : 'fa-image'}`}></i>
+                                                        <span>{doc.file_name || 'View File'}</span>
+                                                    </a>
+                                                ) : (
+                                                    <label
+                                                        className="custom-file-upload"
+                                                        style={doc.required === '1' ? { filter: 'grayscale(100%)', pointerEvents: 'none' } : {}}
+                                                    >
+                                                        No file uploaded
+                                                    </label>
+                                                )}
+                                            </td>
+                                            <td>
+                          <span className={`status-badge status-${(doc.status || doc.file_status || 'pending').toLowerCase()}`}>
+                            {doc.status || doc.file_status || 'Yet to upload'}
+                          </span>
+                                            </td>
+                                            <td>
+                                                {doc.comments && doc.comments.length > 0 && (
+                                                    <button className="btn btn-sm btn-outline-primary" onClick={() => openModal(doc)}>
+                                                        <i className="fas fa-comment"></i>
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+
+                                        {/* Dates row - only for first group */}
+                                        {groupIndex === 0 && doc.dates && Array.isArray(doc.dates) && doc.dates.length > 0 && (
+                                            <tr className="dates-row">
+                                                <td colSpan={5} style={{ paddingLeft: '20px' }}>
+                                                    <div className="d-flex flex-column gap-2">
+                                                        <label className="form-label"><strong>Impacted Date Ranges:</strong></label>
+                                                        {doc.dates.map((range, idx) => (
+                                                            <input
+                                                                key={idx}
+                                                                type="text"
+                                                                readOnly
+                                                                className="form-control mb-2"
+                                                                value={range || ''}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+
+
+                                        {/* New row with checkbox only for first group */}
+                                        {groupIndex === 0 && (
+                                            <tr className="undertaking-row">
+                                                <td colSpan={5} style={{ paddingLeft: '20px' }}>
+                                                    <label>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={doc.undertaking_checked || false}
+                                                            readOnly
+                                                            style={{ marginRight: '8px' }}
+                                                        />
+                                                        I did not claim unemployment benefits on these dates
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Existing checkbox below second group or wherever you want it */}
+                        {groupIndex === 1 && (
+                            <div className="form-check mt-3">
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    id="undertakingCheck"
+                                    checked={undertakingChecked}
+                                    onChange={handleCheckboxChange}
+                                />
+                                <label className="form-check-label" htmlFor="undertakingCheck">
+                                    I did not claim unemployment benefits on these dates
+                                </label>
+                            </div>
+                        )}
+                    </div>
+                ))}
+
+
+                {/* Comments Modal */}
+                <Modal show={showModal} onClose={closeModal} title={selectedDocLabel} showFooter={false}>
+                    {selectedComments.length > 0 ? (
+                        <ul className="list-group">
+                            {selectedComments.map((comment, index) => (
+                                <li key={index} className="list-group-item">
+                                    <small>Username - {comment.username}</small>
+                                    <br /><br />
+                                    <strong>{comment.comments}</strong>
+                                    <br />
+                                    <small>Date & Time - {comment.update_datetime}</small>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No comments available.</p>
+                    )}
+                </Modal>
+            </div>
+        );
+    };
+
+    // Fetch invoice data 
+    useEffect(() => {
+      fetchInvoiceData();
+    }, []);
+
+    // Modify the fetchInvoiceData function
+    const fetchInvoiceData = async () => {
+      setLoading(true);
+      setError('');
+      
+      try {
+        const response = await axios.post(
+          "https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
+          { project_id: projectId }
+        );
+        
+        if (response.data.status == 200) {
+          setInvoices(response.data.data || []);
+        } else {
+          setError(response.data.message || 'Failed to fetch invoices');
+        }
+      } catch (err) {
+        // setError('Error fetching invoice data: ' + (err.message || 'Unknown error'));
+        console.error('Error fetching invoice data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+ 
   // Update folder links based on product ID and API response
   useEffect(() => {
     if (project) {
@@ -381,6 +1430,7 @@ const ProjectDetail = () => {
     }
   }, [project]);
 
+
   // Handle tab visibility based on product ID
   useEffect(() => {
     if (project) {
@@ -402,6 +1452,7 @@ const ProjectDetail = () => {
       }
     }
   }, [project, activeTab]);
+
 
   // Function to fetch dummy user data
   const fetchUserData = () => {
@@ -1503,19 +2554,246 @@ const ProjectDetail = () => {
     setProjectStage(selectedOption);
   };
 
+  // Function to fetch milestones from API
+  const fetchMilestones = async () => {
+    try {
+      setIsLoadingMilestones(true);
+      console.log('Fetching milestones for product ID:', selectedProductId);
+
+      // Build the API URL with the product_id parameter
+      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      console.log('Milestones API URL:', apiUrl);
+
+      // Make the API call
+      const response = await axios.get(apiUrl);
+      console.log('Milestones API response:', response.data);
+
+      // Log the entire response for debugging
+      console.log('Complete API response:', response);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data structure:', JSON.stringify(response.data, null, 2));
+
+      // Process the response data based on the actual structure
+      if (response.data) {
+        console.log('Response data exists');
+
+        // Check if the response has a success property
+        if ('success' in response.data) {
+          console.log('Response has success property:', response.data.success);
+        } else {
+          console.log('Response does not have a success property');
+        }
+
+        // Check if the response is an array directly
+        if (Array.isArray(response.data)) {
+          console.log('Response data is an array with length:', response.data.length);
+
+          // Map the API response to the format needed for the dropdown
+          const formattedMilestones = response.data.map(milestone => ({
+            value: milestone.milestone_id,
+            label: milestone.milestone_name
+          }));
+
+          console.log('Formatted milestones from array:', formattedMilestones);
+          setMilestones(formattedMilestones);
+
+          // If we have milestones, fetch stages for the first milestone
+          if (formattedMilestones.length > 0) {
+            const firstMilestone = formattedMilestones[0];
+            setMilestone(firstMilestone);
+            fetchMilestoneStages(firstMilestone.value);
+          } else {
+            // No milestones found
+            console.log('No milestones found in array');
+            setMilestone(null);
+            setMilestoneStages([]);
+            setProjectStage(null);
+          }
+        }
+        // Check if the response has the expected nested structure
+        else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
+          console.log('Response has the expected nested structure');
+
+          // Map the API response to the format needed for the dropdown
+          const formattedMilestones = response.data.data.data.map(milestone => ({
+            value: milestone.milestone_id,
+            label: milestone.milestone_name
+          }));
+
+          console.log('Formatted milestones from nested structure:', formattedMilestones);
+          setMilestones(formattedMilestones);
+
+          // If we have milestones, fetch stages for the first milestone
+          if (formattedMilestones.length > 0) {
+            const firstMilestone = formattedMilestones[0];
+            setMilestone(firstMilestone);
+            fetchMilestoneStages(firstMilestone.value);
+          } else {
+            // No milestones found
+            console.log('No milestones found in nested structure');
+            setMilestone(null);
+            setMilestoneStages([]);
+            setProjectStage(null);
+          }
+        } else {
+          console.warn('Unexpected API response structure for milestones');
+          console.log('Response data structure details:', JSON.stringify(response.data, null, 2));
+
+          // Set default milestones for testing
+          const defaultMilestones = [
+            { value: '100', label: 'Default Milestone 1' },
+            { value: '101', label: 'Default Milestone 2' }
+          ];
+          console.log('Setting default milestones:', defaultMilestones);
+          setMilestones(defaultMilestones);
+          setMilestone(defaultMilestones[0]);
+        }
+      } else {
+        console.warn('API request returned no data');
+        setMilestones([]);
+        setMilestone(null);
+      }
+    } catch (error) {
+      console.error('Error fetching milestones:', error);
+      console.error('Error details:', error.response ? error.response.data : 'No response data');
+
+      // Set default milestones for testing if API fails
+      const defaultMilestones = [
+        { value: '100', label: 'Default Milestone 1' },
+        { value: '101', label: 'Default Milestone 2' },
+        { value: '102', label: 'Default Milestone 3' }
+      ];
+      console.log('Setting default milestones due to error:', defaultMilestones);
+      setMilestones(defaultMilestones);
+      setMilestone(defaultMilestones[0]);
+
+      // Also fetch stages for the first default milestone
+      fetchMilestoneStages('100');
+    } finally {
+      setIsLoadingMilestones(false);
+    }
+  };
+
+  // Function to fetch milestone stages from API
+  const fetchMilestoneStages = async (milestoneId) => {
+    if (!milestoneId) {
+      console.warn('No milestone ID provided for fetching stages');
+      setMilestoneStages([]);
+      setProjectStage(null);
+      setIsLoadingStages(false);
+      return;
+    }
+
+    try {
+      setIsLoadingStages(true);
+      console.log('Fetching milestone stages for milestone ID:', milestoneId);
+
+      // Build the API URL with the milestone_id parameter
+      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
+      console.log('Milestone stages API URL:', apiUrl);
+
+      // Make the API call
+      const response = await axios.get(apiUrl);
+      console.log('Milestone stages API response:', response.data);
+      console.log('Milestone stages API response structure:', JSON.stringify(response.data, null, 2));
+
+      // Log the entire response for debugging
+      console.log('Complete stages API response:', response);
+      console.log('Stages response data type:', typeof response.data);
+      console.log('Stages response data structure:', JSON.stringify(response.data, null, 2));
+
+      // Process the response data based on the actual structure
+      if (response.data) {
+        console.log('Stages response data exists');
+
+        // Check if the response is an array directly
+        if (Array.isArray(response.data)) {
+          console.log('Stages response data is an array with length:', response.data.length);
+
+          // Map the API response to the format needed for the dropdown
+          const formattedStages = response.data.map(stage => ({
+            value: stage.milestone_stage_id,
+            label: stage.stage_name
+          }));
+
+          console.log('Formatted stages from array:', formattedStages);
+          setMilestoneStages(formattedStages);
+
+          // Set the first stage as selected if available
+          if (formattedStages.length > 0) {
+            setProjectStage(formattedStages[0]);
+          } else {
+            setProjectStage(null);
+          }
+        }
+        // Check if the response has the expected nested structure
+        else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
+          console.log('Stages response has the expected nested structure');
+
+          // Map the API response to the format needed for the dropdown
+          const formattedStages = response.data.data.data.map(stage => ({
+            value: stage.milestone_stage_id,
+            label: stage.stage_name
+          }));
+
+          console.log('Formatted stages from nested structure:', formattedStages);
+          setMilestoneStages(formattedStages);
+
+          // Set the first stage as selected if available
+          if (formattedStages.length > 0) {
+            setProjectStage(formattedStages[0]);
+          } else {
+            setProjectStage(null);
+          }
+        } else {
+          console.warn('Unexpected API response structure for milestone stages');
+          console.log('Stages response data structure details:', JSON.stringify(response.data, null, 2));
+
+          // Set default stages for testing
+          const defaultStages = [
+            { value: '200', label: 'Default Stage 1' },
+            { value: '201', label: 'Default Stage 2' },
+            { value: '202', label: 'Default Stage 3' }
+          ];
+          console.log('Setting default stages:', defaultStages);
+          setMilestoneStages(defaultStages);
+          setProjectStage(defaultStages[0]);
+        }
+      } else {
+        console.warn('API request for stages returned no data');
+        setMilestoneStages([]);
+        setProjectStage(null);
+      }
+    } catch (error) {
+      console.error('Error fetching milestone stages:', error);
+      console.error('Error details:', error.response ? error.response.data : 'No response data');
+
+      // Set default stages for testing if API fails
+      const defaultStages = [
+        { value: '200', label: 'Default Stage 1' },
+        { value: '201', label: 'Default Stage 2' },
+        { value: '202', label: 'Default Stage 3' }
+      ];
+      console.log('Setting default stages due to error:', defaultStages);
+      setMilestoneStages(defaultStages);
+      setProjectStage(defaultStages[0]);
+    } finally {
+      setIsLoadingStages(false);
+    }
+  };
+
   // Function to handle milestone change
   const handleMilestoneChange = (selectedOption) => {
+    console.log('Milestone changed to:', selectedOption);
     setMilestone(selectedOption);
 
-    // Update stage based on milestone selection
-    if (selectedOption.value === 'erc-fulfillment') {
-      setProjectStage({ value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Partially Acknowledged' });
-    } else if (selectedOption.value === 'erc-enrollment') {
-      setProjectStage({ value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' });
-    } else if (selectedOption.value === 'erc-cancelled') {
-      setProjectStage({ value: 'computation-complete', label: 'Computation Complete' });
-    } else if (selectedOption.value === 'erc-lead-lost') {
-      setProjectStage({ value: 'fpso-interview-pending', label: 'FPSO Interview Pending' });
+    // Fetch stages for the selected milestone
+    if (selectedOption && selectedOption.value) {
+      fetchMilestoneStages(selectedOption.value);
+    } else {
+      // Clear stages if no milestone is selected
+      setMilestoneStages([]);
+      setProjectStage(null);
     }
   };
 
@@ -5694,1525 +6972,290 @@ const ProjectDetail = () => {
                     </div>
                   )}
 
-                  {/* Documents Tab Content */}
-                  {activeTab === 'documents' && (
-                    <div className="mb-4 left-section-container">
-                      <h5 class="section-title">ERC Documents</h5>
+                    {/* Documents Tab Content */}
+                    {activeTab === 'documents' && (
+                        <div className="mb-4 left-section-container">
 
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Documents</th>
-                                <th>PPP Loan <i class="fa-solid fa-circle-info" title='Did your company apply for PPP Loan in 2020 and / or 2021?'></i></th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Form 3508 for 2020 PPP Forgiveness under CARES Act</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
+                            {!loading && !error && ercDocuments?.product_id === "935" && (
+                                <>
+                                    <h5 className="section-title">ERC Documents</h5>
+                                    {loading ? (
+                                        <p>Loading documents...</p>
+                                    ) : error ? (
+                                        <p className="text-danger">{error}</p>
+                                    ) : (
+                                        <DocumentTable documents={ercDocuments?.documents} />
+                                    )}
+                                </>
+                            )}
+
+                            {!loading && !error && companyDocuments?.product_id === "935" && (
+                                <>
+                                    <h5 className="section-title mt-5">Company Documents</h5>
+                                    {loading ? (
+                                        <p>Loading documents...</p>
+                                    ) : error ? (
+                                        <p className="text-danger">{error}</p>
+                                    ) : (
+                                        <DocumentTable documents={companyDocuments?.documents} />
+                                    )}
+                                </>
+                            )}
+
+                            {!loading && !error && payrollDocuments?.product_id === "935" && (
+                              <>
+                                <h5 className="section-title mt-5">Payroll Documents</h5>
+                                {payrollDocuments.groups?.length > 0 ? (
+                                  payrollDocuments.groups.map((group, index) => (
+                                    <div key={index} className="mb-4">
+                                      <h6 className="document-heading">{group.heading}</h6>
+                                      <DocumentTable documents={group.documents} />
                                     </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Form 941 for Q1 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Form 941 for Q2 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Form 941 for Q3 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-rejected">Rejected</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
+                                  ))
+                                ) : (
+                                  <p>No payroll documents found.</p>
+                                )}
+                              </>
+                            )}
+
+
+                            {!loading && !error && otherDocuments?.product_id === "935" && (
+                                <>
+                                    <h5 className="section-title mt-5">Other Documents</h5>
+                                    {loading ? (
+                                        <p>Loading documents...</p>
+                                    ) : error ? (
+                                        <p className="text-danger">{error}</p>
+                                    ) : (
+                                        <DocumentTable documents={otherDocuments?.documents} />
+                                    )}
+                                </>
+                            )}
+
+
+
+                            {/* STC Documents */}
+                            {!loading && !error && stcRequiredDocuments?.product_id === "937" && (
+                                <>
+                                    <h5 className="section-title">Required Documents</h5>
+                                    {loading ? (
+                                        <p>Loading documents...</p>
+                                    ) : error ? (
+                                        <p className="text-danger">{error}</p>
+                                    ) : (
+                                        <STCDocumentTable stc_documents_groups={stcRequiredDocuments} />
+                                    )}
+                                </>
+                            )}
+
+                            {/* STC Impacted Days */}
+                            {!loading && !error && stcImpactedDays?.product_id === "937" && (
+                                <>
+                                    <h5 className="section-title">Impacted Days</h5>
+                                    {loading ? (
+                                        <p>Loading documents...</p>
+                                    ) : error ? (
+                                        <p className="text-danger">{error}</p>
+                                    ) : (
+                                        <STCImpactedDaysTable impacted_days_groups={stcImpactedDays?.groups  || []} />
+                                    )}
+                                </>
+                            )}
+
                         </div>
-                      </div>
+                    )}
 
-                      <h5 class="section-title mt-4">Company Documents</h5>
+                   {/* Invoices Tab Content */}
+                    {activeTab === 'invoices' && (
+                      <div className="mb-4 left-section-container">
+                        {loading ? (
+                          <div className="text-center p-4">
+                            <div className="spinner-border text-primary" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                          </div>
+                        ) : error ? (
+                          <div className="alert alert-danger" role="alert">
+                            {error}
+                            <button className="btn btn-sm btn-outline-danger ms-2" onClick={fetchInvoiceData}>Retry</button>
+                          </div>
+                        ) : invoices.length === 0 ? (
+                          <div className="text-center p-4">
+                            <p>No invoices found for this project.</p>
+                          </div>
+                        ) : (
+                          invoices.map((invoice, index) => (
+                            <div className="contact_tab_data" key={invoice.id || `invoice-${index}`}>
+                              <div className="row custom_opp_tab">
+                                <div className="col-sm-12">
+                                  <div className="custom_opp_tab_header">
+                                    <h5>
+                                      <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
+                                        Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
+                                      <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}> 
+                                        {invoice.invoice_status}
+                                      </span>
+                                    </h5>
+                                    <div className="opp_edit_dlt_btn projects-iris">
+                                      {/* Condition to show dropdown if invoice.status is not 2, 3, or 6 */}
+                                        {invoice.status != 2 && invoice.status != 3 && invoice.status != 6 ? (
+                                          <select className="react-select__control" name="invoiceActions" value={invoiceActions[invoice.id] || ''} onChange={(e) => handleInvoiceActionChange(e, invoice.id)}>
+                                            <option value="">Action</option>
+                                              {/* Conditionally render options based on invoice status */}
+                                                {invoice.status == 1 || invoice.status == 5 ? (
+                                                  <>
+                                                    <option 
+                                                      value="2" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Paid
+                                                    </option>
+                                                    <option 
+                                                      value="3" 
+                                                      data-id={invoice.id}
+                                                    >
+                                                      Void
+                                                    </option>
+                                                    <option 
+                                                      value="6" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Payment in process
+                                                    </option>
+                                                    <option 
+                                                      value="17" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Partially paid
+                                                    </option>
+                                                    <option 
+                                                      value="share_invoice_link" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount} 
+                                                      invoice-url={invoice.invoice_url}
+                                                    >
+                                                      Share Invoice link
+                                                    </option>
+                                                  </>
+                                                ) : null}
+                                                
+                                                {/* Condition for status 17 (Partially paid) */}
+                                                {invoice.status == 17 ? (
+                                                  <>
+                                                    <option 
+                                                      value="17" 
+                                                      data-id={invoice.id} 
+                                                      invoice-type={invoice.invoice_type} 
+                                                      invoice-date={invoice.invoice_date} 
+                                                      invoice-amount={invoice.total_amount}
+                                                    >
+                                                      Partially paid
+                                                    </option>
+                                                  </>
+                                                ) : null}
+                                                
+                                        </select>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                </div>
 
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Documents</th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Company Incorporation Document – Certificate or Articles of Incorporation</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Tax Id – Employee Identification Number (EIN) Issued by IRS</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Additional Document 1</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>TaxNow Sign-up</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-rejected">Rejected</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                                <div className="col-md-8 text-left">
+                                  <div className="lead_des">
+                                    <p><b>Invoice Amount:</b> ${invoice.total_amount}</p>
+                                    <p><b>Invoice Sent Date:</b> {invoice.invoice_date}</p>
+                                    <p><b>Invoice Due Date:</b> {invoice.due_date}</p>
+                                    <p><b>Service Name:</b> {invoice.product_names}</p>
+                                    <p><b>Created By: </b> {invoice.created_user}</p>
+                                  </div>
+                                </div>
 
-                      <h5 class="section-title mt-4">Payroll Documents</h5>
-                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Quarterly Payroll Tax Return 941’s for Eligible Quarters – 2020: Q1-Q4 & 2021: Q1-Q3</h6>
+                                <div className="col-md-4">
+                                  <div className="lead_des">
+                                    <p><b>Payment Date:</b> {invoice.formatted_payment_date || 'N/A'}</p>
+                                    <p><b>Payment Cleared Date:</b> {invoice.formatted_payment_cleared_date || 'N/A'}</p>
+                                    <p><b>Payment Mode:</b> {invoice.payment_mode_string || 'N/A'}</p>
+                                  </div>
+                                </div>
 
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Quarters</th>
-                                <th>W2 Employee <i class="fa-solid fa-circle-info" title='Did your Company have W2 Employee in this Quarter?	'></i></th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q1 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
+                                {invoice.status == 17 || (invoice.status == 2 && invoice.payment_count > 1) ? (
+                                  <a className="expand_pp_div" data-bs-toggle="collapse" href={`#invoice_pp_${invoice.id}`}
+                                    aria-expanded="false" aria-controls={`invoice_pp_${invoice.id}`}>
+                                    Payment History
+                                    <i className="fa-solid fa-chevron-down ms-1" style={{fontWeight: 700}}></i>
                                   </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q2 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q3 2020	</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q4 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-rejected">Rejected</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q1 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q2 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q3 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
+                                ) : null}
 
-                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Registers for all Eligible Quarters – 2020: Q1-Q4 & 2021: Q1-Q3</h6>
+                                <div className="collapse" id={`invoice_pp_${invoice.id}`}>
+                                  <div className="card card-body" style={{ maxWidth: '100%', padding: '10px' }}>
+                                    <div className="row">
+                                      <div className="table-responsive view-partially">
+                                        <table className="table">
+                                          <thead>
+                                            <tr>
+                                              <th>Reference ID</th>
+                                              <th>Payment Date</th>
+                                              <th>Cleared Date</th>
+                                              <th>Payment Mode</th>
+                                              <th>Note</th>
+                                              <th>Payment Received</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                          {invoice.payment_history && invoice.payment_history.formatted_payment_history && invoice.payment_history.formatted_payment_history.length > 0 ? (
+                                              invoice.payment_history.formatted_payment_history.map((payment, idx) => (
+                                                <tr className="ppamt" key={`payment-${invoice.id}-${idx}`}>
+                                                  <td>{payment.payment_id || '-'}</td>
+                                                  <td>{payment.payment_date || '-'}</td>
+                                                  <td>{payment.payment_cleared_date || '-'}</td>
+                                                  <td>{payment.payment_mode || '-'}</td>
+                                                  <td>{payment.payment_note || ''}</td>
+                                                  <td className="ramt">${payment.received_amt || '0.00'}</td>
+                                                </tr>
+                                              ))
+                                            ) : (
+                                              <tr>
+                                                <td colSpan="6" className="text-center">No payment history available</td>
+                                              </tr>
+                                            )}
 
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Quarters</th>
-                                <th>W2 Employee <i class="fa-solid fa-circle-info" title='Did your Company have W2 Employee in this Quarter?	'></i></th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q1 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
+                                          </tbody>
+                                        </table>
+                                      </div>
                                     </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q2 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q3 2020	</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q4 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-rejected">Rejected</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q1 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q2 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q3 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
 
-                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Total Health Care Expenses per Employee per Payroll for 2020: Q1-Q4 & 2021: Q1-Q3</h6>
-
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Quarters</th>
-                                <th>W2 Employee <i class="fa-solid fa-circle-info" title='Did your Company have W2 Employee in this Quarter?	'></i></th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q1 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
+                                    <div className="row m-0">
+                                      <div className="total-payment-invoice">
+                                        <h4>Total Partial Payment Amount</h4>
+                                        <p >${invoice.total_received || '0.00'}</p>
+                                      </div>
+                                      <div className="total-payment-invoice">
+                                        <h4>Overdue Amount</h4>
+                                        <p >${invoice.overdue_amount || '0.00'}</p>
+                                      </div>
+                                    </div>
                                   </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q2 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q3 2020	</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q4 2020</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-rejected">Rejected</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q1 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        defaultChecked
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q2 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Q3 2021</span>
-                                </td>
-                                <td>
-                                  <div className="toggle-container">
-                                    <span className="toggle-option disabled">No</span>
-                                    <label className="toggle-switch disabled">
-                                      <input
-                                        type="checkbox"
-                                        disabled
-                                      />
-                                      <span className="toggle-slider"></span>
-                                    </label>
-                                    <span className="toggle-option disabled">Yes</span>
-                                  </div>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      <h6 class="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Additional Documents</h6>
-
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Quarters</th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>2019 Average FTE (Full Time Employee)</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Additional Document 1</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Additional Document 2	</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                      <h5 class="section-title mt-4">Other Documents</h5>
-
-                      <div className="document-list">
-                        <div className="table-responsive">
-                          <table className="table document-table">
-                            <thead>
-                              <tr>
-                                <th>Documents</th>
-                                <th>Files</th>
-                                <th>Status</th>
-                                <th>Comments</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>2019 - Business Tax Returns - Filed Federal Tax Return 1120, 1120 - S or 1065</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-review">In Review</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>2020 - Business Tax Returns - Filed Federal Tax Return 1120, 1120 - S or 1065</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-image"></i>
-                                    </div>
-                                    <span>demo.png</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-pending">Pending</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>2021 - Business Tax Returns - Filed Federal Tax Return 1120, 1120 - S or 1065</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Additional Document 1</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                              <tr className="document-row">
-                                <td className="document-name">
-                                  <span>Additional Document 2</span>
-                                </td>
-                                <td>
-                                  <a
-                                    href="#"
-                                    className="file-link"
-                                    target="_blank"
-                                  >
-                                    <div className="file-icon">
-                                      <i className="fas fa-file-pdf"></i>
-                                    </div>
-                                    <span>q2_form.pdf</span>
-                                  </a>
-                                </td>
-                                <td>
-                                  <span className="status-badge status-approved">Approved</span>
-                                </td>
-                                <td>
-                                  <button className="btn btn-sm btn-outline-primary">
-                                    <i className="fas fa-comment"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                    </div>
-                  )}
-
-                  {/* Invoices Tab Content */}
-                  {activeTab === 'invoices' && (
-                    <div className="mb-4 left-section-container">
-                      <div class="contact_tab_data">
-                        <div class="row custom_opp_tab">
-                          <div class="col-sm-12">
-                            <div class="custom_opp_tab_header">
-                              <h5>
-                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                  Invoice ERC-7335</a> -
-                                <span class="status cancel badge bg-success"> Paid</span>
-                              </h5>
-                              <div class="opp_edit_dlt_btn projects-iris">
+                                </div>
+      
                               </div>
                             </div>
-                          </div>
-
-                          <div class="col-md-8 text-left">
-                            <div class="lead_des">
-                              <p><b>Invoice Amount:</b> $219541.10</p>
-                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                              <p><b>Created By: </b> Occams Finance</p>
-                              <p><b>Updated By: </b> Occams Finance</p>
-                            </div>
-                          </div>
-
-                          <div class="col-md-4">
-                            <div class="lead_des">
-                              <p><b>Payment Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Cleared Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Mode:</b> N/A</p>
-                            </div>
-                          </div>
-                        </div>
+                          ))
+                        )}
                       </div>
-                      <div class="contact_tab_data">
-                        <div class="row custom_opp_tab">
-                          <div class="col-sm-12">
-                            <div class="custom_opp_tab_header">
-                              <h5>
-                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                  Invoice ERC-7335</a> -
-                                <span class="status cancel badge bg-cancel"> Cancelled</span>
-                              </h5>
-                              <div class="opp_edit_dlt_btn projects-iris">
-                              </div>
-                            </div>
-                          </div>
+                    )}
 
-                          <div class="col-md-8 text-left">
-                            <div class="lead_des">
-                              <p><b>Invoice Amount:</b> $219541.10</p>
-                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                              <p><b>Created By: </b> Occams Finance</p>
-                              <p><b>Updated By: </b> Occams Finance</p>
-                            </div>
-                          </div>
-
-                          <div class="col-md-4">
-                            <div class="lead_des">
-                              <p><b>Payment Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Cleared Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Mode:</b> N/A</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="contact_tab_data">
-                        <div class="row custom_opp_tab">
-                          <div class="col-sm-12">
-                            <div class="custom_opp_tab_header">
-                              <h5>
-                                <a href="javascript:void(0)" target="_blank" data-invoiceid="7335">
-                                  Invoice ERC-7335</a> -
-                                <span class="status cancel badge bg-success"> Paid</span>
-                              </h5>
-                              <div class="opp_edit_dlt_btn projects-iris">
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="col-md-8 text-left">
-                            <div class="lead_des">
-                              <p><b>Invoice Amount:</b> $219541.10</p>
-                              <p><b>Invoice Sent Date:</b> 06/01/2024</p>
-                              <p><b>Invoice Due Date:</b> 06/01/2024</p>
-                              <p><b>Service Name:</b> 2020 Q4 Financial Consultancy Service Fee, Accrued Interest</p>
-                              <p><b>Created By: </b> Occams Finance</p>
-                              <p><b>Updated By: </b> Occams Finance</p>
-                            </div>
-                          </div>
-
-                          <div class="col-md-4">
-                            <div class="lead_des">
-                              <p><b>Payment Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Cleared Date:</b> N/A</p>
-                              <p>
-                                <b>Payment Mode:</b> N/A</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  )}
+                  
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
@@ -7266,6 +7309,8 @@ const ProjectDetail = () => {
 
                   <div className="card mb-4 p-2">
                     <div className="card-body p-2">
+
+
                       <div className="d-flex justify-content-between align-items-center mb-3">
                         <h5 className="card-title mb-0">Milestone:</h5>
                         {!isEditing && (
@@ -7281,7 +7326,7 @@ const ProjectDetail = () => {
 
                       {!isEditing ? (
                         <div className="milestone-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{milestone.label}</span>
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{milestone ? milestone.label : 'No milestone selected'}</span>
                         </div>
                       ) : (
                         <div className="milestone-edit mb-4">
@@ -7289,14 +7334,12 @@ const ProjectDetail = () => {
                             <Select
                               value={milestone}
                               onChange={handleMilestoneChange}
-                              options={[
-                                { value: 'erc-cancelled', label: 'ERC Cancelled' },
-                                { value: 'erc-fulfillment', label: 'ERC Fulfillment' },
-                                { value: 'erc-enrollment', label: 'ERC Enrollment' },
-                                { value: 'erc-lead-lost', label: 'ERC - Lead Lost' }
-                              ]}
+                              options={milestones}
                               className="react-select-container"
                               classNamePrefix="react-select"
+                              isLoading={isLoadingMilestones}
+                              placeholder="Select milestone..."
+                              noOptionsMessage={() => "No milestones available"}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -7319,7 +7362,7 @@ const ProjectDetail = () => {
 
                       {!isEditing ? (
                         <div className="stage-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{projectStage.label}</span>
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>{projectStage ? projectStage.label : 'No stage selected'}</span>
                         </div>
                       ) : (
                         <div className="stage-edit mb-4">
@@ -7327,30 +7370,13 @@ const ProjectDetail = () => {
                             <Select
                               value={projectStage}
                               onChange={handleProjectStageChange}
-                              options={[
-                                { value: 'client-declarations-signed', label: 'Client Declarations Signed' },
-                                { value: 'pending-pre-fpso-interview', label: 'Pending Pre-FPSO Interview' },
-                                { value: 'pre-fpso-interview-scheduled', label: 'Pre FPSO Interview Scheduled' },
-                                { value: 'pre-fpso-interview-completed', label: 'Pre FPSO Interview Completed' },
-                                { value: 'fpso-interview-pending', label: 'FPSO Interview Pending' },
-                                { value: 'fpso-interview-scheduled', label: 'FPSO Interview Scheduled' },
-                                { value: 'fpso-opinion-sent', label: 'FPSO Opinion Sent' },
-                                { value: 'fpso-opinion-signed', label: 'FPSO Opinion Signed' },
-                                { value: 'fpso-interview-completed', label: 'FPSO Interview Completed' },
-                                { value: 'prepare-941x', label: 'Prepare 941x' },
-                                { value: 'send-941x', label: 'Send 941x' },
-                                { value: '941-x-sent', label: '941-X\'s Sent' },
-                                { value: 'client-signed-941xs-8821', label: 'Client Signed 941xs + 8821' },
-                                { value: 'erc-claim-filed-peo', label: 'ERC Claim Filed - PEO' },
-                                { value: 'irs-letter-of-overpay-received', label: 'IRS Letter Of Overpay Received' },
-                                { value: 'financier-review-done', label: 'Financier Review Done' },
-                                { value: 'erc-package-submitted', label: 'ERC Package Submitted' },
-                                { value: 'computation-complete', label: 'Computation Complete' },
-                                { value: 'send-declaration', label: 'Send Declaration' },
-                                { value: 'payment-plan-fully-acknowledged', label: 'Payment Plan- Partially Acknowledged' }
-                              ]}
+                              options={milestoneStages}
                               className="react-select-container"
                               classNamePrefix="react-select"
+                              isLoading={isLoadingStages}
+                              placeholder={milestone ? "Select stage..." : "Select a milestone first"}
+                              noOptionsMessage={() => milestone ? "No stages available for this milestone" : "Select a milestone first"}
+                              isDisabled={!milestone || milestones.length === 0}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -7372,7 +7398,29 @@ const ProjectDetail = () => {
                         <div className="d-flex justify-content-between mt-3">
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                              // Here you would typically make an API call to save the changes
+                              console.log('Saving milestone and stage changes:');
+                              console.log('Milestone:', milestone);
+                              console.log('Stage:', projectStage);
+
+                              if (!milestone) {
+                                alert('Please select a milestone');
+                                return;
+                              }
+
+                              if (!projectStage) {
+                                alert('Please select a stage');
+                                return;
+                              }
+
+                              // Show a success message
+                              alert('Milestone and stage updated successfully!');
+
+                              // Close the edit mode
+                              setIsEditing(false);
+                            }}
+                            disabled={!milestone || !projectStage || isLoadingMilestones || isLoadingStages}
                             style={{
                               backgroundColor: 'white',
                               color: '#ff6a00',
@@ -7385,7 +7433,11 @@ const ProjectDetail = () => {
                           </button>
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                              // Reset to the original values
+                              fetchMilestones();
+                              setIsEditing(false);
+                            }}
                             style={{
                               backgroundColor: 'white',
                               color: '#ff6a00',

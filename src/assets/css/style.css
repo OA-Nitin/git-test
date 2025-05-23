@@ -16241,3 +16241,6 @@ html {
   border: 1px solid #7e8993 !important;
 }
 
+input[readonly], select[disabled] {
+    cursor: revert !important;
+}

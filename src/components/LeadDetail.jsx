@@ -6,6 +6,7 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Notes from './common/Notes';
 // import './common/CommonStyles.css';
+
 import './common/ReportStyle.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
@@ -28,6 +29,11 @@ const LeadDetail = () => {
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
+  const [showLinkContactModal, setShowLinkContactModal] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [contactOptions, setContactOptions] = useState([]);
+  const [linkContactError, setLinkContactError] = useState(null);
+  const [linkContactLoading, setLinkContactLoading] = useState(false);
   // Notes related state
   const [notes, setNotes] = useState([]);
   const [hasMoreNotes, setHasMoreNotes] = useState(true);
@@ -65,6 +71,7 @@ const LeadDetail = () => {
 
   // State for all contacts
   const [contacts, setContacts] = useState([]);
+  const [contactsLoading, setContactsLoading] = useState(true);
 
   // State for edit contact modal
   const [showEditContactModal, setShowEditContactModal] = useState(false);
@@ -225,6 +232,136 @@ const LeadDetail = () => {
       console.error('Error fetching groups:', err);
     } finally {
       setIsLoadingOptions(false);
+    }
+  };
+
+  // function to fectch link contact list
+  const fetchAvailableContacts = async () => {
+    try {
+      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
+
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        const contactOptions = response.data.data.map(contact => ({
+          value: contact.contact_id,
+          label: `${contact.name} (${contact.contact_id})`
+        }));
+        return contactOptions;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      return [];
+    }
+  };
+
+  // State to track newly added contact ID
+  const [newContactId, setNewContactId] = useState(null);
+
+  // function to create link contact to lead
+  const handleLinkContact = async () => {
+    if (!selectedContact) {
+      setLinkContactError('Please select a contact to link');
+      return;
+    }
+
+    try {
+      setLinkContactLoading(true);
+      setLinkContactError(null);
+
+      const requestData = {
+        lead_id: leadId,
+        contact_id: selectedContact.value
+      };
+
+      console.log('Linking contact with data:', requestData);
+
+      const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Link contact response:', response.data);
+
+      // Store the newly added contact ID to highlight it
+      setNewContactId(selectedContact.value);
+
+      // Parse the response if it's a string (JSON)
+      let responseData = response.data;
+      if (typeof responseData === 'string') {
+        try {
+          responseData = JSON.parse(responseData);
+        } catch (e) {
+          console.error('Error parsing response:', e);
+        }
+      }
+
+      if (responseData && responseData.code === 'success') {
+        // Close the modal first
+        setShowLinkContactModal(false);
+
+        // Show success message immediately
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: responseData.message || 'Contact linked successfully'
+        });
+
+        // Highlight the contacts tab if not already active
+        if (activeTab !== 'contacts') {
+          setActiveTab('contacts');
+        }
+
+        // Refresh contacts list in the background
+        // Store the contact ID to highlight after refresh
+        const contactIdToHighlight = selectedContact.value;
+
+        setTimeout(async () => {
+          await fetchContactData(); // Refresh contacts list
+
+          // Set the newContactId after the refresh to ensure it's highlighted
+          setNewContactId(contactIdToHighlight);
+        }, 500);
+      } else if (response.data && response.data.success) {
+        // Alternative success check
+        // Close the modal first
+        setShowLinkContactModal(false);
+
+        // Show success message immediately
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Contact linked successfully'
+        });
+
+        // Highlight the contacts tab if not already active
+        if (activeTab !== 'contacts') {
+          setActiveTab('contacts');
+        }
+
+        // Refresh contacts list in the background
+        // Store the contact ID to highlight after refresh
+        const contactIdToHighlight = selectedContact.value;
+
+        setTimeout(async () => {
+          await fetchContactData(); // Refresh contacts list
+
+          // Set the newContactId after the refresh to ensure it's highlighted
+          setNewContactId(contactIdToHighlight);
+        }, 500);
+      } else {
+        // Show error message
+        setLinkContactError(responseData?.message || 'Failed to link contact');
+      }
+    } catch (error) {
+      console.error('Error linking contact:', error);
+      setLinkContactError(error.response?.data?.message || error.message || 'Failed to link contact. Please try again.');
+    } finally {
+      setLinkContactLoading(false);
     }
   };
 
@@ -862,8 +999,13 @@ const LeadDetail = () => {
 
   // Function to handle edit contact
   const handleEditContact = (contactId) => {
+    // Set the contact ID
     setCurrentContactId(contactId);
+
+    // Show the modal
     setShowEditContactModal(true);
+
+    // The loading overlay is handled within the EditContactModal component
   };
 
   // Function to close the edit contact modal
@@ -882,15 +1024,16 @@ const LeadDetail = () => {
       html: `You want to disable the contact '${contactName}'?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#4CAF50',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#FF6B00',
+      cancelButtonColor: '#6c757d',
       confirmButtonText: 'Yes, disable it!',
       cancelButtonText: 'Cancel',
+      buttonsStyling: true,
       customClass: {
-        confirmButton: 'btn btn-success',
-        cancelButton: 'btn btn-danger'
-      },
-      buttonsStyling: false
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-styled swal2-confirm',
+        cancelButton: 'swal2-styled swal2-cancel'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         // Call API to disable contact
@@ -954,21 +1097,40 @@ const LeadDetail = () => {
   const fetchContactData = async () => {
     try {
       console.log('Fetching contact data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}`);
+      setContactsLoading(true);
+
+      // Make the API call with a cache-busting parameter to ensure fresh data
+      const timestamp = new Date().getTime();
+      const response = await axios.get(
+        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
+      );
 
       if (response.data && response.data.status === 'success') {
         console.log('Contact data fetched successfully:', response.data);
 
         // Store all contacts in state
         if (response.data.contacts && Array.isArray(response.data.contacts)) {
-          setContacts(response.data.contacts);
+          // Filter out duplicate contacts based on contact_id
+          const uniqueContacts = response.data.contacts.reduce((acc, current) => {
+            const x = acc.find(item => item.contact_id === current.contact_id);
+            if (!x) {
+              return acc.concat([current]);
+            } else {
+              return acc;
+            }
+          }, []);
+
+          console.log('Filtered unique contacts:', uniqueContacts);
+
+          // Update the contacts state with the unique contacts (preserving original order)
+          setContacts(uniqueContacts);
 
           // Find primary contact
-          const primaryContactData = response.data.contacts.find(contact =>
+          const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
           // Find secondary contact
-          const secondaryContactData = response.data.contacts.find(contact =>
+          const secondaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'secondary');
 
           // Update primary contact state if found
@@ -1000,12 +1162,23 @@ const LeadDetail = () => {
           }
 
           console.log('Contact state updated with data');
+          setContactsLoading(false);
+          return true; // Return success
+        } else {
+          // If no contacts array or empty array
+          setContacts([]);
+          setContactsLoading(false);
+          return true;
         }
       } else {
         console.warn('Failed to fetch contact data:', response.data);
+        setContactsLoading(false);
+        return false; // Return failure
       }
     } catch (err) {
       console.error('Error fetching contact data:', err);
+      setContactsLoading(false);
+      return false; // Return failure
     }
   };
 
@@ -2377,6 +2550,12 @@ const LeadDetail = () => {
   const handleEditProject = async (project) => {
     console.log('Opening edit project modal for project:', project);
 
+    // Set loading state immediately when edit icon is clicked
+    setProjectUpdateLoading(true);
+
+    // Show the modal first so the loading overlay is visible
+    setShowEditProjectModal(true);
+
     // Log the project object to see its structure
     console.log('Project object structure:', JSON.stringify(project, null, 2));
 
@@ -2438,8 +2617,8 @@ const LeadDetail = () => {
       collaborators: project.collaborator ? [project.collaborator] : []
     });
 
-    // Show the modal
-    setShowEditProjectModal(true);
+    // Data is loaded, set loading state to false
+    setProjectUpdateLoading(false);
   };
 
   // Function to close the edit project modal
@@ -2694,6 +2873,12 @@ const LeadDetail = () => {
   const handleEditOpportunity = async (opportunity) => {
     console.log('Opening edit opportunity modal for opportunity:', opportunity);
 
+    // Set loading state immediately when edit icon is clicked
+    setOpportunityUpdateLoading(true);
+
+    // Show the modal first so the loading overlay is visible
+    setShowEditOpportunityModal(true);
+
     // Log the opportunity object to see its structure
     console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
 
@@ -2766,8 +2951,8 @@ const LeadDetail = () => {
       description: opportunity.description || ''
     });
 
-    // Show the modal
-    setShowEditOpportunityModal(true);
+    // Data is loaded, set loading state to false
+    setOpportunityUpdateLoading(false);
   };
 
   // Function to close the edit opportunity modal
@@ -2860,15 +3045,16 @@ const LeadDetail = () => {
       html: `You want to delete the opportunity <strong>"${opportunity.opportunity_name}"</strong>?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc3545',
+      confirmButtonColor: '#FF6B00',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel',
+      buttonsStyling: true,
       customClass: {
-        confirmButton: 'btn btn-danger',
-        cancelButton: 'btn btn-secondary'
-      },
-      buttonsStyling: false
+        actions: 'swal2-actions-custom',
+        confirmButton: 'swal2-styled swal2-confirm',
+        cancelButton: 'swal2-styled swal2-cancel'
+      }
     }).then((result) => {
       if (result.isConfirmed) {
         deleteOpportunity(opportunity.id);
@@ -3220,6 +3406,32 @@ const LeadDetail = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add these functions after fetchAvailableContacts
+  const handleOpenLinkContactModal = async () => {
+    try {
+      setShowLinkContactModal(true);
+      setLinkContactError(null);
+      setSelectedContact(null);
+      const contacts = await fetchAvailableContacts();
+      setContactOptions(contacts);
+    } catch (error) {
+      console.error('Error opening link contact modal:', error);
+      setLinkContactError('Failed to load contacts. Please try again.');
+    }
+  };
+
+  const handleCloseLinkContactModal = () => {
+    setShowLinkContactModal(false);
+    setSelectedContact(null);
+    setLinkContactError(null);
+    setLinkContactLoading(false);
+  };
+
+  const handleContactSelection = (selectedOption) => {
+    setSelectedContact(selectedOption);
+    setLinkContactError(null);
   };
 
   if (loading) {
@@ -4347,19 +4559,47 @@ const LeadDetail = () => {
                         <a href="javascript:void(0)">
                             <i className="fa-solid fa-plus"></i> New Contact
                         </a>
-                        <a className="link_contact" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#link-contact" title="Link a contact">
+                        <a
+                          className="link_contact"
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleOpenLinkContactModal();
+                          }}
+                          title="Link a contact"
+                        >
                           <i className="fa-solid fa-plus"></i> Link a Contact
                         </a>
                       </div>
 
                       <div className="row contact_tab_data mt-4">
-                        {contacts.length === 0 ? (
+                        {contactsLoading ? (
+                          <div className="col-12 text-center">
+                            <div className="spinner-border text-primary" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <p className="mt-2">Loading contacts...</p>
+                          </div>
+                        ) : contacts.length === 0 ? (
                           <div className="col-12 text-center">
                             <p>No contacts found for this lead.</p>
                           </div>
                         ) : (
-                          contacts.map((contact) => (
-                            <div key={contact.contact_id} className="col-md-6 col-sm-12 mb-4 contact-card">
+                          contacts.map((contact, index) => (
+                            <div
+                              key={`contact-${contact.contact_id}-${index}`}
+                              className={`col-md-6 col-sm-12 mb-4 contact-card ${contact.contact_id === newContactId ? 'new-contact' : ''}`}
+                              ref={el => {
+                                // Auto-scroll to the newly added contact
+                                if (contact.contact_id === newContactId && el) {
+                                  setTimeout(() => {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    // Clear the newContactId after scrolling to prevent highlighting on future renders
+                                    setTimeout(() => setNewContactId(null), 2000);
+                                  }, 500);
+                                }
+                              }}
+                            >
                               <div className={`card-exam shadow ${contact.trash == 0 ?'':'card_trashed'}`}>
                                 <div className="custom_opp_tab_header">
                                   <h5>
@@ -4468,6 +4708,15 @@ const LeadDetail = () => {
                       {showEditProjectModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                          {/* Loading overlay when fetching or updating */}
+                          {projectUpdateLoading && (
+                            <div className="loading-overlay">
+                              <div className="loading-spinner-container">
+                                <div className="loading-spinner"></div>
+                                <p className="loading-text">Updating project...</p>
+                              </div>
+                            </div>
+                          )}
                           <div className={`modal ${showEditProjectModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
                               <div className="modal-content" style={{ borderRadius: '8px' }}>
@@ -4666,9 +4915,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -4696,9 +4942,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -4734,8 +4977,8 @@ const LeadDetail = () => {
                                             }))}
                                           >
                                             <option value="">Select Contact</option>
-                                            {contacts.map(contact => (
-                                              <option key={contact.contact_id} value={contact.contact_id}>
+                                            {contacts.map((contact, index) => (
+                                              <option key={`project-contact-${contact.contact_id}-${index}`} value={contact.contact_id}>
                                                 {contact.name || 'Unnamed Contact'}
                                               </option>
                                             ))}
@@ -4760,7 +5003,7 @@ const LeadDetail = () => {
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
                                         type="submit"
-                                        className="btn modal-save-btn"
+                                        className="btn save-btn"
                                         disabled={projectUpdateLoading}
                                       >
                                         {projectUpdateLoading ? (
@@ -4772,7 +5015,7 @@ const LeadDetail = () => {
                                       </button>
                                       <button
                                         type="button"
-                                        className="btn modal-cancel-btn"
+                                        className="btn cancel-btn"
                                         onClick={handleCloseEditProjectModal}
                                         disabled={projectUpdateLoading}
                                       >
@@ -4792,12 +5035,10 @@ const LeadDetail = () => {
                   {/* Opportunities Tab Content */}
                   {activeTab === 'opportunities' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row mb-3">
-                        <div className="col-12">
-                          <button className="btn btn-orange">
+                      <div className="row custom_opp_create_btn">
+                          <a href='javaascript:void(0)'>
                             <i className="fa-solid fa-plus"></i> New Opportunity
-                          </button>
-                        </div>
+                          </a>
                       </div>
 
                       {opportunities.length === 0 ? (
@@ -4852,16 +5093,27 @@ const LeadDetail = () => {
                       {showEditOpportunityModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                          {/* Loading overlay when fetching or updating */}
+                          {opportunityUpdateLoading && (
+                            <div className="loading-overlay">
+                              <div className="loading-spinner-container">
+                                <div className="loading-spinner"></div>
+                                <p className="loading-text">Updating opportunity...</p>
+                              </div>
+                            </div>
+                          )}
                           <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div className="modal-content" style={{ borderRadius: '8px' }}>
+                              <div
+                                className="modal-content"
+                                style={{ borderRadius: '8px', marginTop: '6%' }}
+                              >
                                 <div className="modal-header pb-2">
                                   <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
                                 <div className="modal-body">
-                                  {console.log('Current milestone value in form:', opportunityFormData.milestone)}
-                                  {console.log('Available milestones:', milestones)}
+                                  {/* Form fields for Edit Opportunity */}
                                   <form onSubmit={(e) => { e.preventDefault(); handleUpdateOpportunity(); }}>
                                     <div className="row mb-3">
                                       <div className="col-md-6">
@@ -4881,7 +5133,7 @@ const LeadDetail = () => {
                                       </div>
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
-                                          <label className="form-label">Lead Name:*</label>
+                                          <label className="form-label">Lead Name:</label>
                                           <input
                                             type="text"
                                             className="form-control"
@@ -4890,7 +5142,7 @@ const LeadDetail = () => {
                                               ...prev,
                                               lead_name: e.target.value
                                             }))}
-                                            required
+                                            disabled
                                           />
                                         </div>
                                       </div>
@@ -4900,16 +5152,27 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Products:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
+                                          <select
+                                            className="form-select"
                                             value={opportunityFormData.product}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              product: e.target.value
-                                            }))}
+                                            onChange={(e) => {
+                                              const selectedProduct = e.target.value;
+                                              setOpportunityFormData(prev => ({
+                                                ...prev,
+                                                product: selectedProduct,
+                                                milestone: '' // Reset milestone when product changes
+                                              }));
+
+                                              // Update product selection
+                                              console.log('Product selected:', selectedProduct);
+                                            }}
                                             required
-                                          />
+                                          >
+                                            <option value="">Select Product</option>
+                                            <option value="ERC">ERC</option>
+                                            <option value="STC">STC</option>
+                                            <option value="R&D">R&D</option>
+                                          </select>
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5001,9 +5264,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5066,9 +5326,6 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            <div className="select-arrow">
-                                              <i className="fas fa-chevron-down"></i>
-                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5187,7 +5444,7 @@ const LeadDetail = () => {
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
                                         type="submit"
-                                        className="btn modal-save-btn"
+                                        className="btn save-btn"
                                         disabled={opportunityUpdateLoading}
                                       >
                                         {opportunityUpdateLoading ? (
@@ -5199,7 +5456,7 @@ const LeadDetail = () => {
                                       </button>
                                       <button
                                         type="button"
-                                        className="btn modal-cancel-btn"
+                                        className="btn cancel-btn"
                                         onClick={handleCloseEditOpportunityModal}
                                         disabled={opportunityUpdateLoading}
                                       >
@@ -5348,6 +5605,9 @@ const LeadDetail = () => {
                           .card_trashed{
                             background:#efefef;
                           }
+                            .modal-backdrop{
+                              opacity:1!important;
+                            }
                       `}</style>
                     </div>
                   </div>
@@ -5501,6 +5761,93 @@ const LeadDetail = () => {
         contactId={currentContactId}
         leadId={leadId}
       />
+
+      {/* Link Contact Modal */}
+      {showLinkContactModal && (
+        <>
+          <div className="modal-backdrop show" style={{ display: 'block', zIndex: 1040 }}></div>
+          <div className="modal fade show" style={{ display: 'block', zIndex: 1050 }} tabIndex="-1" aria-modal="true" role="dialog">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Link a Contact</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={handleCloseLinkContactModal}
+                    disabled={linkContactLoading}
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="form-group mb-4">
+                    <label htmlFor="contact-select" className="form-label">Contact Name*:</label>
+                    <Select
+                      id="contact-select"
+                      value={selectedContact}
+                      onChange={handleContactSelection}
+                      options={contactOptions}
+                      className="contact-select-container"
+                      classNamePrefix="react-select"
+                      placeholder={contactOptions.length === 0 ? "Loading contacts..." : "Select Contact"}
+                      isClearable
+                      isSearchable
+                      isDisabled={linkContactLoading}
+                      isLoading={contactOptions.length === 0}
+                      noOptionsMessage={() => contactOptions.length === 0 ? "Loading contacts..." : "No matching contacts found"}
+                      formatOptionLabel={option => (
+                        <div className="contact-option">
+                          <span className="contact-name">{option.label.split('(')[0].trim()}</span>
+                          <span className="contact-id">({option.label.split('(')[1]}</span>
+                        </div>
+                      )}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      menuPlacement="auto"
+                      styles={{
+                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                      }}
+                      components={{
+                        DropdownIndicator: () => null,
+                        IndicatorSeparator: () => null
+                      }}
+                    />
+                    <small className="text-muted">Search or select a contact from the dropdown list</small>
+                  </div>
+
+                  {linkContactError && (
+                    <div className="alert alert-danger" role="alert">
+                      {linkContactError}
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer">
+                 
+                  <button
+                    className="btn save-btn"
+                    onClick={handleLinkContact}
+                    disabled={!selectedContact || linkContactLoading}
+                  >
+                    {linkContactLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Linking...
+                      </>
+                    ) : 'Link'}
+                  </button>
+                   <button
+                    className="btn cancel-btn"
+                    onClick={handleCloseLinkContactModal}
+                    disabled={linkContactLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
