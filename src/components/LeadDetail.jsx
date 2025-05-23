@@ -1208,8 +1208,17 @@ const LeadDetail = () => {
           // Log the first project to understand its structure
           console.log('First project raw data:', JSON.stringify(projectsData[0], null, 2));
 
+          // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+          const filteredProjectsData = projectsData.filter(project => {
+            const productId = project.product_id || project.productId;
+            // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+            return productId !== '936' && productId !== '938' && productId !== '934';
+          });
+
+          console.log('Filtered projects (excluding 936, 938, 934):', filteredProjectsData.length);
+
           // Map API response to our projects state format with careful field mapping
-          const mappedProjects = projectsData.map(project => {
+          const mappedProjects = filteredProjectsData.map(project => {
             // Create a mapped project object with all possible field names
             const mappedProject = {
               id: project.project_id || project.id || '',
