@@ -48,7 +48,8 @@
 }
 
 .save-btn:disabled {
-  background-color: #ffaa80;
+    background-color: #ff5c00;
+    color: #fff;
 }
 
 /* Cancel button styles */
