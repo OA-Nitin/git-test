@@ -6,6 +6,7 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Notes from './common/Notes';
 // import './common/CommonStyles.css';
+
 import './common/ReportStyle.css';
 import './LeadDetail.css';
 import { getAssetPath } from '../utils/assetUtils';
@@ -28,6 +29,11 @@ const LeadDetail = () => {
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
+  const [showLinkContactModal, setShowLinkContactModal] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [contactOptions, setContactOptions] = useState([]);
+  const [linkContactError, setLinkContactError] = useState(null);
+  const [linkContactLoading, setLinkContactLoading] = useState(false);
   // Notes related state
   const [notes, setNotes] = useState([]);
   const [hasMoreNotes, setHasMoreNotes] = useState(true);
@@ -65,6 +71,7 @@ const LeadDetail = () => {
 
   // State for all contacts
   const [contacts, setContacts] = useState([]);
+  const [contactsLoading, setContactsLoading] = useState(true);
 
   // State for edit contact modal
   const [showEditContactModal, setShowEditContactModal] = useState(false);
@@ -225,6 +232,136 @@ const LeadDetail = () => {
       console.error('Error fetching groups:', err);
     } finally {
       setIsLoadingOptions(false);
+    }
+  };
+
+  // function to fectch link contact list
+  const fetchAvailableContacts = async () => {
+    try {
+      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
+
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        const contactOptions = response.data.data.map(contact => ({
+          value: contact.contact_id,
+          label: `${contact.name} (${contact.contact_id})`
+        }));
+        return contactOptions;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      return [];
+    }
+  };
+
+  // State to track newly added contact ID
+  const [newContactId, setNewContactId] = useState(null);
+
+  // function to create link contact to lead
+  const handleLinkContact = async () => {
+    if (!selectedContact) {
+      setLinkContactError('Please select a contact to link');
+      return;
+    }
+
+    try {
+      setLinkContactLoading(true);
+      setLinkContactError(null);
+
+      const requestData = {
+        lead_id: leadId,
+        contact_id: selectedContact.value
+      };
+
+      console.log('Linking contact with data:', requestData);
+
+      const response = await axios.post(
+        'https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
+        requestData,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Link contact response:', response.data);
+
+      // Store the newly added contact ID to highlight it
+      setNewContactId(selectedContact.value);
+
+      // Parse the response if it's a string (JSON)
+      let responseData = response.data;
+      if (typeof responseData === 'string') {
+        try {
+          responseData = JSON.parse(responseData);
+        } catch (e) {
+          console.error('Error parsing response:', e);
+        }
+      }
+
+      if (responseData && responseData.code === 'success') {
+        // Close the modal first
+        setShowLinkContactModal(false);
+
+        // Show success message immediately
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: responseData.message || 'Contact linked successfully'
+        });
+
+        // Highlight the contacts tab if not already active
+        if (activeTab !== 'contacts') {
+          setActiveTab('contacts');
+        }
+
+        // Refresh contacts list in the background
+        // Store the contact ID to highlight after refresh
+        const contactIdToHighlight = selectedContact.value;
+
+        setTimeout(async () => {
+          await fetchContactData(); // Refresh contacts list
+
+          // Set the newContactId after the refresh to ensure it's highlighted
+          setNewContactId(contactIdToHighlight);
+        }, 500);
+      } else if (response.data && response.data.success) {
+        // Alternative success check
+        // Close the modal first
+        setShowLinkContactModal(false);
+
+        // Show success message immediately
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Contact linked successfully'
+        });
+
+        // Highlight the contacts tab if not already active
+        if (activeTab !== 'contacts') {
+          setActiveTab('contacts');
+        }
+
+        // Refresh contacts list in the background
+        // Store the contact ID to highlight after refresh
+        const contactIdToHighlight = selectedContact.value;
+
+        setTimeout(async () => {
+          await fetchContactData(); // Refresh contacts list
+
+          // Set the newContactId after the refresh to ensure it's highlighted
+          setNewContactId(contactIdToHighlight);
+        }, 500);
+      } else {
+        // Show error message
+        setLinkContactError(responseData?.message || 'Failed to link contact');
+      }
+    } catch (error) {
+      console.error('Error linking contact:', error);
+      setLinkContactError(error.response?.data?.message || error.message || 'Failed to link contact. Please try again.');
+    } finally {
+      setLinkContactLoading(false);
     }
   };
 
@@ -960,21 +1097,40 @@ const LeadDetail = () => {
   const fetchContactData = async () => {
     try {
       console.log('Fetching contact data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}`);
+      setContactsLoading(true);
+
+      // Make the API call with a cache-busting parameter to ensure fresh data
+      const timestamp = new Date().getTime();
+      const response = await axios.get(
+        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
+      );
 
       if (response.data && response.data.status === 'success') {
         console.log('Contact data fetched successfully:', response.data);
 
         // Store all contacts in state
         if (response.data.contacts && Array.isArray(response.data.contacts)) {
-          setContacts(response.data.contacts);
+          // Filter out duplicate contacts based on contact_id
+          const uniqueContacts = response.data.contacts.reduce((acc, current) => {
+            const x = acc.find(item => item.contact_id === current.contact_id);
+            if (!x) {
+              return acc.concat([current]);
+            } else {
+              return acc;
+            }
+          }, []);
+
+          console.log('Filtered unique contacts:', uniqueContacts);
+
+          // Update the contacts state with the unique contacts (preserving original order)
+          setContacts(uniqueContacts);
 
           // Find primary contact
-          const primaryContactData = response.data.contacts.find(contact =>
+          const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
           // Find secondary contact
-          const secondaryContactData = response.data.contacts.find(contact =>
+          const secondaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'secondary');
 
           // Update primary contact state if found
@@ -1006,12 +1162,23 @@ const LeadDetail = () => {
           }
 
           console.log('Contact state updated with data');
+          setContactsLoading(false);
+          return true; // Return success
+        } else {
+          // If no contacts array or empty array
+          setContacts([]);
+          setContactsLoading(false);
+          return true;
         }
       } else {
         console.warn('Failed to fetch contact data:', response.data);
+        setContactsLoading(false);
+        return false; // Return failure
       }
     } catch (err) {
       console.error('Error fetching contact data:', err);
+      setContactsLoading(false);
+      return false; // Return failure
     }
   };
 
@@ -3232,6 +3399,32 @@ const LeadDetail = () => {
     }
   };
 
+  // Add these functions after fetchAvailableContacts
+  const handleOpenLinkContactModal = async () => {
+    try {
+      setShowLinkContactModal(true);
+      setLinkContactError(null);
+      setSelectedContact(null);
+      const contacts = await fetchAvailableContacts();
+      setContactOptions(contacts);
+    } catch (error) {
+      console.error('Error opening link contact modal:', error);
+      setLinkContactError('Failed to load contacts. Please try again.');
+    }
+  };
+
+  const handleCloseLinkContactModal = () => {
+    setShowLinkContactModal(false);
+    setSelectedContact(null);
+    setLinkContactError(null);
+    setLinkContactLoading(false);
+  };
+
+  const handleContactSelection = (selectedOption) => {
+    setSelectedContact(selectedOption);
+    setLinkContactError(null);
+  };
+
   if (loading) {
     return (
       <div className="container-fluid">
@@ -4357,19 +4550,47 @@ const LeadDetail = () => {
                         <a href="javascript:void(0)">
                             <i className="fa-solid fa-plus"></i> New Contact
                         </a>
-                        <a className="link_contact" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#link-contact" title="Link a contact">
+                        <a
+                          className="link_contact"
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleOpenLinkContactModal();
+                          }}
+                          title="Link a contact"
+                        >
                           <i className="fa-solid fa-plus"></i> Link a Contact
                         </a>
                       </div>
 
                       <div className="row contact_tab_data mt-4">
-                        {contacts.length === 0 ? (
+                        {contactsLoading ? (
+                          <div className="col-12 text-center">
+                            <div className="spinner-border text-primary" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <p className="mt-2">Loading contacts...</p>
+                          </div>
+                        ) : contacts.length === 0 ? (
                           <div className="col-12 text-center">
                             <p>No contacts found for this lead.</p>
                           </div>
                         ) : (
-                          contacts.map((contact) => (
-                            <div key={contact.contact_id} className="col-md-6 col-sm-12 mb-4 contact-card">
+                          contacts.map((contact, index) => (
+                            <div
+                              key={`contact-${contact.contact_id}-${index}`}
+                              className={`col-md-6 col-sm-12 mb-4 contact-card ${contact.contact_id === newContactId ? 'new-contact' : ''}`}
+                              ref={el => {
+                                // Auto-scroll to the newly added contact
+                                if (contact.contact_id === newContactId && el) {
+                                  setTimeout(() => {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    // Clear the newContactId after scrolling to prevent highlighting on future renders
+                                    setTimeout(() => setNewContactId(null), 2000);
+                                  }, 500);
+                                }
+                              }}
+                            >
                               <div className={`card-exam shadow ${contact.trash == 0 ?'':'card_trashed'}`}>
                                 <div className="custom_opp_tab_header">
                                   <h5>
@@ -4747,8 +4968,8 @@ const LeadDetail = () => {
                                             }))}
                                           >
                                             <option value="">Select Contact</option>
-                                            {contacts.map(contact => (
-                                              <option key={contact.contact_id} value={contact.contact_id}>
+                                            {contacts.map((contact, index) => (
+                                              <option key={`project-contact-${contact.contact_id}-${index}`} value={contact.contact_id}>
                                                 {contact.name || 'Unnamed Contact'}
                                               </option>
                                             ))}
@@ -4769,7 +4990,6 @@ const LeadDetail = () => {
                                         <p className="mb-0 mt-1">{projectUpdateError}</p>
                                       </div>
                                     )}
-                                    
 
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
@@ -4874,10 +5094,12 @@ const LeadDetail = () => {
                             </div>
                           )}
                           <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                            <div className="modal-dialog modal-dialog-centered modal-lg">
+                            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
                               <div
-                                className="modal-content">
-                                <div className="modal-header">
+                                className="modal-content"
+                                style={{ borderRadius: '8px', marginTop: '6%' }}
+                              >
+                                <div className="modal-header pb-2">
                                   <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
@@ -5530,6 +5752,93 @@ const LeadDetail = () => {
         contactId={currentContactId}
         leadId={leadId}
       />
+
+      {/* Link Contact Modal */}
+      {showLinkContactModal && (
+        <>
+          <div className="modal-backdrop show" style={{ display: 'block', zIndex: 1040 }}></div>
+          <div className="modal fade show" style={{ display: 'block', zIndex: 1050 }} tabIndex="-1" aria-modal="true" role="dialog">
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Link a Contact</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={handleCloseLinkContactModal}
+                    disabled={linkContactLoading}
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="form-group mb-4">
+                    <label htmlFor="contact-select" className="form-label">Contact Name*:</label>
+                    <Select
+                      id="contact-select"
+                      value={selectedContact}
+                      onChange={handleContactSelection}
+                      options={contactOptions}
+                      className="contact-select-container"
+                      classNamePrefix="react-select"
+                      placeholder={contactOptions.length === 0 ? "Loading contacts..." : "Select Contact"}
+                      isClearable
+                      isSearchable
+                      isDisabled={linkContactLoading}
+                      isLoading={contactOptions.length === 0}
+                      noOptionsMessage={() => contactOptions.length === 0 ? "Loading contacts..." : "No matching contacts found"}
+                      formatOptionLabel={option => (
+                        <div className="contact-option">
+                          <span className="contact-name">{option.label.split('(')[0].trim()}</span>
+                          <span className="contact-id">({option.label.split('(')[1]}</span>
+                        </div>
+                      )}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      menuPlacement="auto"
+                      styles={{
+                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                      }}
+                      components={{
+                        DropdownIndicator: () => null,
+                        IndicatorSeparator: () => null
+                      }}
+                    />
+                    <small className="text-muted">Search or select a contact from the dropdown list</small>
+                  </div>
+
+                  {linkContactError && (
+                    <div className="alert alert-danger" role="alert">
+                      {linkContactError}
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer">
+                 
+                  <button
+                    className="btn save-btn"
+                    onClick={handleLinkContact}
+                    disabled={!selectedContact || linkContactLoading}
+                  >
+                    {linkContactLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Linking...
+                      </>
+                    ) : 'Link'}
+                  </button>
+                   <button
+                    className="btn cancel-btn"
+                    onClick={handleCloseLinkContactModal}
+                    disabled={linkContactLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

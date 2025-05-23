@@ -452,7 +452,7 @@ const EditContactModal = ({ isOpen, onClose, contactId, leadId: propLeadId }) =>
                 <form onSubmit={handleSubmit}>
                   {/* Professional Info Section */}
                   <div className="form-section">
-                    <h4>Professional Info</h4>
+                    <h5 class="section-title">Professional Info</h5>
                     <div className="form-row">
                       <div className="form-group">
                         <label htmlFor="first_name">First Name:*</label>
