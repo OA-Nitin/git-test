@@ -159,6 +159,11 @@ const ProjectDetail = () => {
   // State for edit mode
   const [isEditMode, setIsEditMode] = useState(false);
 
+  // State for update process
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
@@ -941,7 +946,224 @@ const ProjectDetail = () => {
 
   // Function to toggle edit mode
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+    if (isEditMode) {
+      // If we're currently in edit mode, this is a save action
+      handleSaveChanges();
+    } else {
+      // Otherwise, just enter edit mode
+      setIsEditMode(true);
+    }
+  };
+
+  // Function to collect form data from the current tab
+  const collectFormData = () => {
+    const data = {
+      project_id: project?.project_id,
+      tab: activeTab,
+    };
+
+    // Add data based on active tab
+    if (activeTab === 'project') {
+      // Get all input values from the project tab
+      const inputs = document.querySelectorAll('.left-section-container input, .left-section-container select');
+      inputs.forEach(input => {
+        if (input.name) {
+          data[input.name] = input.value;
+        } else {
+          // For inputs without name attribute, use their id or a data attribute
+          const fieldName = input.getAttribute('data-field') || input.id;
+          if (fieldName) {
+            data[fieldName] = input.value;
+          }
+        }
+      });
+
+      // Add folder links
+      // data.company_folder_link = companyFolderLink;
+      // data.erc_document_folder = documentFolderLink;
+      // data.stc_document_folder = documentFolderLink;
+      // data.agreement_folder = agreementFolderLink;
+
+      // Add milestone and stage
+      data.milestone = milestone?.value || project?.milestone;
+      data.milestone_stage = projectStage?.value || project?.stage_name;
+      data.owner = owner?.value || '';
+      data.contact = selectedContact?.value || '';
+    } else if (activeTab === 'bankInfo') {
+      // Add bank info data
+      data.bank_name = bankInfo.bank_name;
+      data.bank_mailing_address = bankInfo.bank_mailing_address;
+      data.bank_city = bankInfo.city;
+      data.bank_state = bankInfo.state;
+      data.bank_zip = bankInfo.zip;
+      data.bank_country = bankInfo.country;
+      data.bank_phone = bankInfo.bank_phone;
+      data.account_holder_name = bankInfo.account_holder_name;
+      data.account_type = bankInfo.account_type;
+      data.other = bankInfo.other;
+      data.aba_routing_number = bankInfo.aba_routing_number;
+      data.account_number = bankInfo.account_number;
+      data.swift = bankInfo.swift;
+      data.iban = bankInfo.iban;
+    } else if (activeTab === 'intake') {
+      // Add intake info data
+      Object.assign(data, intakeInfo);
+    }
+
+    return data;
+  };
+
+  // Function to handle project update
+  const handleUpdateProject = async (data) => {
+    try {
+      // Set loading state
+      setIsUpdating(true);
+      setUpdateError(null);
+      setUpdateSuccess(false);
+
+      console.log('Updating project with data:', data);
+
+      // Always include project ID
+      const baseData = {
+        project_id: project?.project_id,
+        tab: activeTab,
+      };
+
+      // Combine the base data with the tab-specific data
+      const combinedData = { ...baseData, ...data };
+
+      // Map the data to the correct database column names
+      const mappedData = {
+        project_id: combinedData.project_id,
+        tab: combinedData.tab,
+
+        // Personal Info - Map to the database column names
+        authorized_signatory_name: combinedData.full_name,
+        business_phone: combinedData.contact_no,
+        business_email: combinedData.email,
+        business_title: combinedData.title,
+        zip: combinedData.zip,
+        street_address: combinedData.street_address,
+        city: combinedData.city,
+        state: combinedData.state,
+        identity_document_type: combinedData.identity_document_type,
+        identity_document_number: combinedData.document_number,
+
+        // Business Info
+        business_legal_name: combinedData.business_legal_name,
+        doing_business_as: combinedData.doing_business_as,
+        business_category: combinedData.business_category,
+        website_url: combinedData.website_url,
+
+        // Business Legal Info
+        business_entity_type: combinedData.business_type,
+        registration_number: combinedData.registration_number,
+        registration_date: combinedData.registration_date,
+        state_of_registration: combinedData.state_of_registration,
+
+        // Folder Links
+        company_folder_link: combinedData.company_folder_link || companyFolderLink,
+        erc_document_folder: combinedData.erc_document_folder || documentFolderLink,
+        stc_document_folder: combinedData.stc_document_folder || documentFolderLink,
+        agreement_folder: combinedData.agreement_folder,
+
+        // Bank Info - Always include bank info regardless of active tab
+        bank_name: bankInfo.bank_name,
+        bank_mailing_address: bankInfo.bank_mailing_address,
+        bank_city: bankInfo.city,
+        bank_state: bankInfo.state,
+        bank_zip: bankInfo.zip,
+        bank_country: bankInfo.country,
+        bank_phone: bankInfo.bank_phone,
+        account_holder_name: bankInfo.account_holder_name,
+        account_type: bankInfo.account_type,
+        other: bankInfo.other,
+        aba_routing_number: bankInfo.aba_routing_number,
+        account_number: bankInfo.account_number,
+        swift: bankInfo.swift,
+        iban: bankInfo.iban,
+
+        // Intake Info
+        w2_employees_count: intakeInfo.w2_employees_count,
+        initial_retain_fee_amount: intakeInfo.initial_retain_fee_amount,
+        w2_ee_difference_count: intakeInfo.w2_ee_difference_count,
+        balance_retainer_fee: intakeInfo.balance_retainer_fee,
+        total_max_erc_amount: intakeInfo.total_max_erc_amount,
+        total_estimated_fees: intakeInfo.total_estimated_fees,
+        affiliate_referral_fees: intakeInfo.affiliate_referral_fees,
+        sdgr: intakeInfo.sdgr,
+        average_employee_count_2019: intakeInfo.average_employee_count_2019,
+        fee_type: intakeInfo.fee_type,
+        custom_fee: intakeInfo.custom_fee,
+        eligible_quarters: intakeInfo.eligible_quarters,
+
+        // Other Info
+        milestone: milestone?.value || project?.milestone,
+        milestone_stage: projectStage?.value || project?.stage_name,
+        owner: owner?.value || '',
+        contact: selectedContact?.value || ''
+      };
+
+      console.log('Mapped data for API:', mappedData);
+
+      // Create a hidden form for direct submission
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project';
+      form.target = '_blank'; // Open in a new tab
+      form.style.display = 'none';
+
+      // Add all data as hidden fields
+      for (const key in mappedData) {
+        if (mappedData.hasOwnProperty(key) && mappedData[key] !== undefined) {
+          const hiddenField = document.createElement('input');
+          hiddenField.type = 'hidden';
+          hiddenField.name = key;
+          hiddenField.value = mappedData[key] || '';
+          form.appendChild(hiddenField);
+        }
+      }
+
+      // Add the form to the body and submit it
+      document.body.appendChild(form);
+      form.submit();
+
+      // Remove the form after submission
+      document.body.removeChild(form);
+
+      // Set success state
+      setUpdateSuccess(true);
+
+      // Exit edit mode if we're in edit mode
+      if (isEditMode) {
+        setIsEditMode(false);
+      }
+
+      // Show a message to the user
+      alert('Update request submitted. Please check the new tab for results.');
+
+      // Reload the current page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      // Handle any errors that occurred during the process
+      console.error('Error updating project:', error);
+      setUpdateError(error.message || 'An unknown error occurred');
+      alert('Error updating project: ' + (error.message || 'An unknown error occurred'));
+    } finally {
+      // Reset loading state
+      setIsUpdating(false);
+    }
+  };
+
+  // Function to handle saving changes
+  const handleSaveChanges = () => {
+    // Collect form data
+    const data = collectFormData();
+
+    // Call the update function
+    handleUpdateProject(data);
   };
 
   // Render loading state
@@ -6112,8 +6334,34 @@ const ProjectDetail = () => {
 
                   <div className="mt-4">
                     <div className="action-buttons d-flex align-items-center justify-content-center">
-                      <button className="btn save-btn">Update</button>
+                      <button
+                        className="btn save-btn"
+                        onClick={() => {
+                          const data = collectFormData();
+                          handleUpdateProject(data);
+                        }}
+                        disabled={isUpdating}
+                      >
+                        {isUpdating ? (
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Updating...
+                          </>
+                        ) : 'Update'}
+                      </button>
                     </div>
+                    {updateSuccess && (
+                      <div className="alert alert-success mt-3" role="alert">
+                        <strong><i className="fas fa-check-circle me-2"></i>Project updated successfully!</strong>
+                        <p className="mb-0 mt-1">Your changes have been submitted.</p>
+                      </div>
+                    )}
+                    {updateError && (
+                      <div className="alert alert-danger mt-3" role="alert">
+                        <strong><i className="fas fa-exclamation-circle me-2"></i>Error updating project!</strong>
+                        <p className="mb-0 mt-1">{updateError}</p>
+                      </div>
+                    )}
                   </div>
 
                 </div>
@@ -6229,7 +6477,20 @@ const ProjectDetail = () => {
                         <div className="d-flex justify-content-between mt-3">
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                              // Collect milestone data
+                              const data = {
+                                project_id: project?.project_id,
+                                milestone: milestone?.value,
+                                milestone_stage: projectStage?.value
+                              };
+
+                              // Call the update function
+                              handleUpdateProject(data);
+
+                              // Close the editing panel
+                              setIsEditing(false);
+                            }}
                             style={{
                               backgroundColor: 'white',
                               color: '#ff6a00',
@@ -6377,7 +6638,19 @@ const ProjectDetail = () => {
                           <div className="d-flex justify-content-between mt-3">
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingOwner(false)}
+                              onClick={() => {
+                                // Collect owner data
+                                const data = {
+                                  project_id: project?.project_id,
+                                  owner: owner?.value
+                                };
+
+                                // Call the update function
+                                handleUpdateProject(data);
+
+                                // Close the editing panel
+                                setIsEditingOwner(false);
+                              }}
                               style={{
                                 backgroundColor: 'white',
                                 color: '#ff6a00',

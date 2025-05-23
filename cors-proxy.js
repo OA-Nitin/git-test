@@ -66,8 +66,35 @@ const productsApiProxy = createProxyMiddleware({
         rawBody += chunk.toString();
       });
       req.on('end', () => {
-        console.log('Request body:', rawBody);
+        console.log(`Request body for ${req.path}:`, rawBody);
+
+        // Special handling for update-project endpoint
+        if (req.path === '/products-api/update-project') {
+          console.log('Processing update-project request');
+        }
       });
+    }
+  },
+  onProxyRes: (proxyRes, req, res) => {
+    // Log response for specific endpoints
+    if (req.path === '/products-api/update-project') {
+      let responseBody = '';
+      const originalWrite = res.write;
+      const originalEnd = res.end;
+
+      res.write = function(chunk) {
+        responseBody += chunk.toString('utf8');
+        originalWrite.apply(res, arguments);
+      };
+
+      res.end = function() {
+        try {
+          console.log(`Response from ${req.path}:`, responseBody);
+        } catch (error) {
+          console.error('Error parsing response:', error);
+        }
+        originalEnd.apply(res, arguments);
+      };
     }
   }
 });
