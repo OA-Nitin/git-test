@@ -5822,7 +5822,7 @@ const LeadDetail = () => {
                   )}
                 </div>
                 <div className="modal-footer">
-                 
+
                   <button
                     className="btn save-btn"
                     onClick={handleLinkContact}

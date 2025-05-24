@@ -1409,7 +1409,7 @@ const ProjectDetail = () => {
       setTimeout(() => {
         fetchAllMilestones();
       }, 400);
-      
+
       // First fetch the specific milestone and stage for this project
       setTimeout(() => {
         fetchProjectMilestoneAndStage();
@@ -1446,7 +1446,7 @@ const ProjectDetail = () => {
       }
     };
 
-    
+
   // Handle tab visibility based on product ID
   useEffect(() => {
     if (project) {
@@ -8446,6 +8446,7 @@ const ProjectDetail = () => {
                 </div>
 
               </div>
+
             </div>
           </div>
         </div>
