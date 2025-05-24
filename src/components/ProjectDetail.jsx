@@ -1404,14 +1404,16 @@ const ProjectDetail = () => {
   // Fetch project milestone and stage when component loads
   useEffect(() => {
     if (projectId) {
-      // First fetch the specific milestone and stage for this project
-      fetchProjectMilestoneAndStage();
-
       // Then fetch all available milestones for the dropdown
       // We'll do this with a slight delay to ensure the specific milestone is set first
       setTimeout(() => {
         fetchAllMilestones();
-      }, 500);
+      }, 400);
+      
+      // First fetch the specific milestone and stage for this project
+      setTimeout(() => {
+        fetchProjectMilestoneAndStage();
+      }, 3000);
     }
   }, [projectId]);
 
