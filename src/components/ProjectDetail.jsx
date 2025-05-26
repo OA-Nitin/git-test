@@ -612,7 +612,7 @@ const ProjectDetail = () => {
                     <table className="table document-table">
                         <thead>
                         <tr>
-                            <th>Documents</th>
+                            <th style={{width: '480px'}}>Documents</th>
                             <th>Files</th>
                             <th>Status</th>
                             <th>Comments</th>
@@ -633,13 +633,6 @@ const ProjectDetail = () => {
                                             target="_blank"
                                             rel="noreferrer"
                                         >
-                                            <i
-                                                className={`fas ${
-                                                    doc.file_url.endsWith('.pdf')
-                                                        ? 'fa-file-pdf'
-                                                        : 'fa-image'
-                                                }`}
-                                            ></i>
                                             <span>{doc.file_name || 'View File'}</span>
                                         </a>
                                     ) : (
@@ -660,19 +653,11 @@ const ProjectDetail = () => {
                                 </td>
                                 <td>
                                     {doc.doc_key === 'quarterly_gross_receipt_csv' ? (
-                                        <label style={{ display: 'block', textAlign: 'center' }}>
-                                            <a
+                                        <label>
+                                            <a className='status-badge status-approved'
                                                 href={`#`}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                style={{
-                                                    background: '#55915a',
-                                                    boxShadow: '0px 0px 5px #0000001a',
-                                                    borderRadius: '10px',
-                                                    color: '#fff',
-                                                    padding: '4px 5px',
-                                                    display: 'inline-block',
-                                                }}
                                             >
                                                 SDGR &amp; Owner&apos;s Information
                                             </a>
@@ -709,7 +694,7 @@ const ProjectDetail = () => {
                     showFooter={false} // change to true if you need footer buttons
                 >
                     {selectedComments.length > 0 ? (
-                        <ul className="list-group">
+                        <ul className="list-group" style={{ maxHeight: '575px', overflow: 'auto' }}>
                             {selectedComments.map((comment, index) => (
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
@@ -796,13 +781,6 @@ const ProjectDetail = () => {
                                                             target="_blank"
                                                             rel="noreferrer"
                                                         >
-                                                            <i
-                                                                className={`fas ${
-                                                                    doc.file_url.endsWith('.pdf')
-                                                                        ? 'fa-file-pdf'
-                                                                        : 'fa-image'
-                                                                }`}
-                                                            ></i>
                                                             <span>{doc.file_name || 'View File'}</span>
                                                         </a>
                                                     ) : (
@@ -866,7 +844,7 @@ const ProjectDetail = () => {
                                                 ></td>
 
                                                 <td>
-                                                    <div>
+                                                    <div className="d-flex">
                                                         <label style={{ marginRight: '10px' }}>
                                                             <input
                                                                 type="radio"
@@ -893,13 +871,6 @@ const ProjectDetail = () => {
                                                 <td>
                                                     {doc.file_url ? (
                                                         <a href={doc.file_url} target="_blank" rel="noreferrer">
-                                                            <i
-                                                                className={`fas ${
-                                                                    doc.file_url.endsWith('.pdf')
-                                                                        ? 'fa-file-pdf'
-                                                                        : 'fa-image'
-                                                                }`}
-                                                            ></i>
                                                             <span>{doc.file_name || 'View File'}</span>
                                                         </a>
                                                     ) : (
@@ -967,7 +938,7 @@ const ProjectDetail = () => {
                                                 ></td>
 
                                                 <td>
-                                                    <div>
+                                                    <div className="d-flex">
                                                         <label style={{ marginRight: '10px' }}>
                                                             <input
                                                                 type="radio"
@@ -994,13 +965,6 @@ const ProjectDetail = () => {
                                                 <td>
                                                     {doc.file_url ? (
                                                         <a href={doc.file_url} target="_blank" rel="noreferrer">
-                                                            <i
-                                                                className={`fas ${
-                                                                    doc.file_url.endsWith('.pdf')
-                                                                        ? 'fa-file-pdf'
-                                                                        : 'fa-image'
-                                                                }`}
-                                                            ></i>
                                                             <span>{doc.file_name || 'View File'}</span>
                                                         </a>
                                                     ) : (
@@ -1060,7 +1024,7 @@ const ProjectDetail = () => {
                                                     ></td>
 
                                                     <td>
-                                                        <div>
+                                                        <div className="d-flex">
                                                             <label style={{ marginRight: '10px' }}>
                                                                 <input
                                                                     type="radio"
@@ -1147,7 +1111,7 @@ const ProjectDetail = () => {
 
                                                 <td>{doc.signed_up}</td>
                                                 <td>
-                                                    <div>
+                                                    <div className="d-flex">
                                                         <label style={{ marginRight: '10px' }}>
                                                             <input
                                                                 type="radio"
@@ -1191,7 +1155,7 @@ const ProjectDetail = () => {
                 {/* Modal */}
                 <Modal show={showModal} onClose={closeModal} title={selectedDocLabel} showFooter={false}>
                     {selectedComments.length > 0 ? (
-                        <ul className="list-group">
+                        <ul className="list-group" style={{ maxHeight: '575px', overflow: 'auto' }}>
                             {selectedComments.map((comment, index) => (
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
@@ -1270,7 +1234,6 @@ const ProjectDetail = () => {
                                             <td>
                                                 {doc.file_url ? (
                                                     <a href={doc.file_url} target="_blank" rel="noreferrer">
-                                                        <i className={`fas ${doc.file_url.endsWith('.pdf') ? 'fa-file-pdf' : 'fa-image'}`}></i>
                                                         <span>{doc.file_name || 'View File'}</span>
                                                     </a>
                                                 ) : (
@@ -1343,13 +1306,13 @@ const ProjectDetail = () => {
                         {groupIndex === 1 && (
                             <div className="form-check mt-3">
                                 <input
-                                    className="form-check-input"
+                                    className="form-check-input" style={{marginTop :'0px'}}
                                     type="checkbox"
                                     id="undertakingCheck"
                                     checked={undertakingChecked}
                                     onChange={handleCheckboxChange}
                                 />
-                                <label className="form-check-label" htmlFor="undertakingCheck">
+                                <label className="form-check-label" htmlFor="undertakingCheck" style={{marginBottom :'0px'}}>
                                     I did not claim unemployment benefits on these dates
                                 </label>
                             </div>
@@ -1361,7 +1324,7 @@ const ProjectDetail = () => {
                 {/* Comments Modal */}
                 <Modal show={showModal} onClose={closeModal} title={selectedDocLabel} showFooter={false}>
                     {selectedComments.length > 0 ? (
-                        <ul className="list-group">
+                        <ul className="list-group" style={{ maxHeight: '575px', overflow: 'auto' }}>
                             {selectedComments.map((comment, index) => (
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
@@ -7703,7 +7666,7 @@ const ProjectDetail = () => {
 
                             {!loading && !error && companyDocuments?.product_id === "935" && (
                                 <>
-                                    <h5 className="section-title mt-5">Company Documents</h5>
+                                    <h5 className="section-title mt-4">Company Documents</h5>
                                     {loading ? (
                                         <p>Loading documents...</p>
                                     ) : error ? (
@@ -7716,11 +7679,11 @@ const ProjectDetail = () => {
 
                             {!loading && !error && payrollDocuments?.product_id === "935" && (
                               <>
-                                <h5 className="section-title mt-5">Payroll Documents</h5>
+                                <h5 className="section-title mt-4">Payroll Documents</h5>
                                 {payrollDocuments.groups?.length > 0 ? (
                                   payrollDocuments.groups.map((group, index) => (
                                     <div key={index} className="mb-4">
-                                      <h6 className="document-heading">{group.heading}</h6>
+                                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">{group.heading}</h6>
                                       <DocumentTable documents={group.documents} />
                                     </div>
                                   ))
@@ -7733,7 +7696,7 @@ const ProjectDetail = () => {
 
                             {!loading && !error && otherDocuments?.product_id === "935" && (
                                 <>
-                                    <h5 className="section-title mt-5">Other Documents</h5>
+                                    <h5 className="section-title mt-4">Other Documents</h5>
                                     {loading ? (
                                         <p>Loading documents...</p>
                                     ) : error ? (
