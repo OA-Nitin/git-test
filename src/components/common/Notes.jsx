@@ -23,7 +23,7 @@ const Notes = ({
   entityName = '',
   showButtons = true,
   showNotes = false,
-  maxHeight = 300,
+  maxHeight = 600,
   onNotesUpdated = () => {}
 }) => {
   // State for notes data
