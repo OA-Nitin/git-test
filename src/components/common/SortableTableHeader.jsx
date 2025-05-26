@@ -1,35 +1,57 @@
 import React from 'react';
 
 /**
- * A reusable sortable table header component
+ * SortableTableHeader - A component for table headers that can be sorted
+ * 
  * @param {Object} props - Component props
- * @param {string} props.label - The header label
+ * @param {string} props.label - The label to display in the header
  * @param {string} props.field - The field name to sort by
  * @param {string} props.currentSortField - The currently sorted field
  * @param {string} props.currentSortDirection - The current sort direction ('asc' or 'desc')
- * @param {Function} props.onSort - Function to call when header is clicked
- * @returns {JSX.Element} - The sortable table header
+ * @param {Function} props.onSort - Callback when the header is clicked
  */
-const SortableTableHeader = ({ label, field, currentSortField, currentSortDirection, onSort }) => {
-  const isActive = currentSortField === field;
+const SortableTableHeader = ({
+  label,
+  field,
+  currentSortField,
+  currentSortDirection,
+  onSort
+}) => {
+  // Determine if this header is currently sorted
+  const isSorted = currentSortField === field;
+  
+  // Handle click
+  const handleClick = () => {
+    if (onSort) {
+      onSort(field);
+    }
+  };
   
   return (
     <th 
-      className="sortable-header" 
-      onClick={() => onSort(field)}
-      style={{ cursor: 'pointer' }}
+      onClick={handleClick}
+      style={{
+        cursor: 'pointer',
+        userSelect: 'none',
+        backgroundColor: isSorted ? '#f8f9fa' : undefined
+      }}
     >
-      <div className="d-flex align-items-center">
-        {label}
-        <span className="ms-1">
-          {isActive ? (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <span>{label}</span>
+        <span style={{ 
+          display: 'inline-block',
+          width: '16px',
+          textAlign: 'center',
+          marginLeft: '4px'
+        }}>
+          {isSorted ? (
             currentSortDirection === 'asc' ? (
-              <i className="fas fa-sort-up"></i>
+              <i className="fas fa-sort-up" style={{ color: '#007bff' }}></i>
             ) : (
-              <i className="fas fa-sort-down"></i>
+              <i className="fas fa-sort-down" style={{ color: '#007bff' }}></i>
             )
           ) : (
-            <i className="fas fa-sort text-muted" style={{ opacity: 0.3 }}></i>
+            <i className="fas fa-sort" style={{ opacity: 0.3 }}></i>
           )}
         </span>
       </div>

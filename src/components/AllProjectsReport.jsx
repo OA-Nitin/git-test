@@ -1,18 +1,34 @@
+import { useParams, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import './common/CommonStyles.css';
-import './ColumnSelector.css';
+import './common/ReportStyle.css';
+import './common/DateRangePicker.css';
 import SortableTableHeader from './common/SortableTableHeader';
 import { sortArrayByKey } from '../utils/sortUtils';
-import { getAssetPath } from '../utils/assetUtils';
 import Notes from './common/Notes';
 import ContactCard from './common/ContactCard';
+import ReportFilter from './common/ReportFilter';
+import ReportPagination from './common/ReportPagination';
+import PageContainer from './common/PageContainer';
 
-// Function to format date as mm/dd/YYYY H:i:s
+// Map product names to their respective IDs
+// Note: Tax Amendment (936) and Partnership (938) are hidden from reports
+const productIdMap = {
+  erc: 935,
+  stc: 937,
+  rdc: 932,
+  // partnership: 938, // Hidden from reports
+  // 'tax-amendment': 936, // Hidden from reports
+  // 'audit-advisory': 934, // Hidden from reports
+  all: null // to fetch all projects without filtering
+};
+
+
+// Function to format date as MM/DD/YYYY
 const formatDate = (dateString) => {
   if (!dateString) return '';
 
@@ -22,15 +38,12 @@ const formatDate = (dateString) => {
     // Check if date is valid
     if (isNaN(date.getTime())) return dateString;
 
-    // Format as mm/dd/YYYY H:i:s
+    // Format as MM/DD/YYYY
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
 
-    return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+    return `${month}/${day}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return dateString;
@@ -38,17 +51,26 @@ const formatDate = (dateString) => {
 };
 
 const AllProjectsReport = () => {
+  // Get product parameter from URL
+  const { product } = useParams();
+
   // State for API data
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Get product ID from the product name in URL
+  const productId = product ? productIdMap[product.toLowerCase()] : null;
+
   useEffect(() => {
-    document.title = "All Projects Report - Occams Portal"; // Set title for All Projects Report page
+    // Set document title based on product
+    const displayType = product || 'All';
+    const reportTitle = `${displayType.toUpperCase()} Projects Report - Occams Portal`;
+    document.title = reportTitle;
 
     // Fetch projects from API
     fetchProjects();
-  }, []);
+  }, [product, productId]);
 
   // Function to fetch projects from API
   const fetchProjects = async () => {
@@ -56,10 +78,15 @@ const AllProjectsReport = () => {
     setError(null);
 
     try {
-      console.log('Fetching projects from API...');
+      // Log which type of projects we're fetching
+      console.log(`Fetching ${product ? product + ' ' : ''}projects from API...`);
+      console.log('Using product ID:', productId);
 
-      // Use the updated endpoint provided
-      const apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
+      // Construct API URL with product_id parameter if available
+      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
+      if (productId) {
+        apiUrl += `?product_id=${productId}`;
+      }
 
       // Make the API request with proper headers
       const response = await axios.get(apiUrl, {
@@ -74,17 +101,27 @@ const AllProjectsReport = () => {
 
       // Check if we have a valid response with data
       if (response && response.data) {
-        // Check if response.data has a data property that is an array (based on the actual API response structure)
+        // Check if response.data has a data property that is an array
         if (response.data.data && Array.isArray(response.data.data)) {
           const apiProjects = response.data.data;
           console.log('API Projects (nested data):', apiProjects);
           console.log('Number of projects returned:', apiProjects.length);
 
-          // Use the API data even if it's just a few records
-          setProjects(apiProjects);
+          // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+          const filteredApiProjects = apiProjects.filter(project => {
+            const productId = project.product_id;
+            // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+            return productId !== '936' && productId !== '938' && productId !== '934';
+          });
 
-          if (apiProjects.length === 0) {
-            setError('No projects found in API response.');
+          console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
+
+          // Use the filtered API data
+          setProjects(filteredApiProjects);
+
+          if (filteredApiProjects.length === 0) {
+            setError('No data available.');
+            setProjects([]);
           }
         }
         // Check if response.data is an array directly
@@ -94,54 +131,43 @@ const AllProjectsReport = () => {
           console.log('API Projects:', apiProjects);
           console.log('Number of projects returned:', apiProjects.length);
 
-          // Use the API data even if it's just a few records
-          setProjects(apiProjects);
+          // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+          const filteredApiProjects = apiProjects.filter(project => {
+            const productId = project.product_id;
+            // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+            return productId !== '936' && productId !== '938' && productId !== '934';
+          });
 
-          if (apiProjects.length === 0) {
-            setError('No projects found in API response.');
+          console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
+
+          // Use the filtered API data
+          setProjects(filteredApiProjects);
+
+          if (filteredApiProjects.length === 0) {
+            setError('No data available.');
+            setProjects([]);
           }
         }
         else {
           console.error('API response format unexpected:', response);
-          // If API returns unexpected format, use fallback data
-          const errorMsg = 'API returned unexpected data format. Using sample data instead.';
+          // If API returns unexpected format, show error message
+          const errorMsg = 'Data is not available. API returned unexpected data format.';
           setError(errorMsg);
-
-          // Generate fallback data with a clear indicator
-          const fallbackData = generateFallbackProjects();
-          // Add a flag to indicate this is fallback data
-          fallbackData.forEach(project => {
-            project.isFallbackData = true;
-          });
-          setProjects(fallbackData);
+          setProjects([]);
         }
       } else {
         console.error('API response invalid:', response);
-        // If API returns invalid response, use fallback data
-        const errorMsg = 'API returned invalid response. Using sample data instead.';
+        // If API returns invalid response, show error message
+        const errorMsg = 'Data is not available. API returned invalid response.';
         setError(errorMsg);
-
-        // Generate fallback data with a clear indicator
-        const fallbackData = generateFallbackProjects();
-        // Add a flag to indicate this is fallback data
-        fallbackData.forEach(project => {
-          project.isFallbackData = true;
-        });
-        setProjects(fallbackData);
+        setProjects([]);
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
-      const errorMsg = `Failed to fetch projects: ${err.message}. Using sample data instead.`;
+      const errorMsg = `Data is not available. Failed to fetch projects: ${err.message}.`;
       console.error(errorMsg);
       setError(errorMsg);
-
-      // Generate fallback data with a clear indicator
-      const fallbackData = generateFallbackProjects();
-      // Add a flag to indicate this is fallback data
-      fallbackData.forEach(project => {
-        project.isFallbackData = true;
-      });
-      setProjects(fallbackData);
+      setProjects([]);
     } finally {
       setLoading(false);
     }
@@ -162,8 +188,8 @@ const AllProjectsReport = () => {
       'Oscorp Industries'
     ];
 
-    const productNames = ['ERC', 'STC', 'Audit Advisory', 'Tax Amendment', 'RDC'];
-    const projectNames = ['None', 'Updated Comm Cal - ERC', 'Stu Bharat - STC', 'AA play qa - Audit Advisory', 'ERC play sp#12 - ERC'];
+    const productNames = ['ERC', 'STC', 'RDC']; // Removed 'Audit Advisory' and 'Tax Amendment'
+    const projectNames = ['None', 'Updated Comm Cal - ERC', 'Stu Bharat - STC', 'ERC play sp#12 - ERC', 'RDC Project Sample']; // Removed Audit Advisory reference
     const milestones = ['ERC Fulfillment', 'STC Enrollment', 'ERC Enrollment', 'ERC Lead Re-engagement'];
     const stageNames = [
       'Success Fees Processing Client Initiate',
@@ -231,9 +257,11 @@ const AllProjectsReport = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  const [sortField, setSortField] = useState('id');
+  const [sortField, setSortField] = useState('project_id');
   const [sortDirection, setSortDirection] = useState('asc');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -280,8 +308,8 @@ const AllProjectsReport = () => {
   // Flatten all columns for easier access
   const allColumns = columnGroups.flatMap(group => group.columns);
 
-  // Default visible columns - 10 columns as specified
-  const defaultVisibleColumns = ['projectId', 'date', 'businessName', 'productName', 'projectName', 'collaborators', 'milestone', 'stageName', 'taxNowSignupStatus', 'notes'];
+  // Default visible columns - 8 columns as specified, similar to LeadReport
+  const defaultVisibleColumns = ['projectId', 'date', 'businessName', 'productName', 'projectName', 'stageName', 'taxNowSignupStatus', 'notes'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
@@ -321,10 +349,36 @@ const AllProjectsReport = () => {
     setCurrentPage(1);
   };
 
-  // Filter projects based on search term and status
+  // Handle date filter application
+  const handleApplyDateFilter = (start, end) => {
+    setStartDate(start);
+    setEndDate(end);
+    setCurrentPage(1); // Reset to first page when filter changes
+
+    // Show feedback toast
+    if (start || end) {
+      const message = start && end
+        ? `Filtering projects from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`
+        : start
+          ? `Filtering projects from ${new Date(start).toLocaleDateString()}`
+          : `Filtering projects until ${new Date(end).toLocaleDateString()}`;
+
+      Swal.fire({
+        title: 'Date Filter Applied',
+        text: message,
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    }
+  };
+
+  // Filter projects based on search term, status, and date range
   const filteredProjects = projects.filter(project => {
-    // Skip filtering if no search term or status filter is applied
-    if (searchTerm === '' && filterStatus === '') {
+    // Skip filtering if no filters are applied
+    if (searchTerm === '' && filterStatus === '' && !startDate && !endDate) {
       return true;
     }
 
@@ -356,8 +410,58 @@ const AllProjectsReport = () => {
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
 
-    // Return true if both conditions are met
-    return matchesSearch && matchesStatus;
+    // Check if date is within range
+    let matchesDateRange = true;
+
+    if (startDate || endDate) {
+      // Try to parse the created date
+      let projectDate;
+      try {
+        // First try to parse as ISO date
+        projectDate = new Date(project.created_at);
+
+        // If invalid date, try to parse as MM/DD/YYYY
+        if (isNaN(projectDate.getTime())) {
+          const parts = project.created_at.split('/');
+          if (parts.length === 3) {
+            // MM/DD/YYYY format
+            projectDate = new Date(parts[2], parts[0] - 1, parts[1]);
+          }
+        }
+
+        // If still invalid, don't include this project in date-filtered results
+        if (isNaN(projectDate.getTime())) {
+          matchesDateRange = false;
+        } else {
+          // Set time to midnight for date comparison
+          projectDate.setHours(0, 0, 0, 0);
+
+          // Check start date
+          if (startDate) {
+            const startDateObj = new Date(startDate);
+            startDateObj.setHours(0, 0, 0, 0);
+            if (projectDate < startDateObj) {
+              matchesDateRange = false;
+            }
+          }
+
+          // Check end date
+          if (endDate && matchesDateRange) {
+            const endDateObj = new Date(endDate);
+            endDateObj.setHours(0, 0, 0, 0);
+            if (projectDate > endDateObj) {
+              matchesDateRange = false;
+            }
+          }
+        }
+      } catch (e) {
+        // If there's an error parsing the date, don't include this project in date-filtered results
+        matchesDateRange = false;
+      }
+    }
+
+    // Return true if all conditions are met
+    return matchesSearch && matchesStatus && matchesDateRange;
   });
 
   // Sort the filtered projects
@@ -598,457 +702,204 @@ const AllProjectsReport = () => {
 
 
   return (
-    <div className="main_content_iner">
-      <div className="container-fluid p-0">
-        <div className="row justify-content-center">
-          <div className="col-lg-12">
-            <div className="white_card card_height_100 mb_30">
-              <div className="white_card_header">
-                <div className="box_header m-0 new_report_header">
-                  <div className="title_img">
-                    <img src={getAssetPath('assets/images/Knowledge_Ceter_White.svg')} className="page-title-img" alt="" />
-                    <h4 className="text-white">All Projects Report</h4>
-                  </div>
-                </div>
-              </div>
-              <div className="white_card_body">
-                <div className="mb-4">
-                  <div className="row align-items-center">
-                    {/* Search box */}
-                    <div className="col-md-3">
-                      <div className="input-group input-group-sm">
-                        <div className="position-relative flex-grow-1">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search projects by any field..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ paddingRight: '30px' }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                setIsSearching(true);
-                                setTimeout(() => setIsSearching(false), 500);
-                                setCurrentPage(1); // Reset to first page when searching
+    <PageContainer title={`${product ? product.toUpperCase() + ' ' : ''}Projects Report`}>
+      <ReportFilter
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        isSearching={isSearching}
+        setIsSearching={setIsSearching}
+        setCurrentPage={setCurrentPage}
+        startDate={startDate}
+        endDate={endDate}
+        handleApplyDateFilter={handleApplyDateFilter}
+        refreshData={fetchProjects}
+        loading={loading}
+        columnGroups={columnGroups}
+        visibleColumns={visibleColumns}
+        toggleColumnVisibility={toggleColumnVisibility}
+        resetToDefaultColumns={resetToDefaultColumns}
+        selectAllColumns={selectAllColumns}
+        exportToExcel={exportToExcel}
+        exportToPDF={exportToPDF}
+        exportToCSV={exportToCSV}
+      />
 
-                                // Show feedback toast if search term is not empty
-                                if (searchTerm.trim() !== '') {
-                                  Swal.fire({
-                                    title: 'Searching...',
-                                    text: `Searching for "${searchTerm}"`,
-                                    icon: 'info',
-                                    toast: true,
-                                    position: 'top-end',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                  });
-                                }
-                              }
-                            }}
-                          />
-                          {searchTerm && (
-                            <button
-                              type="button"
-                              className="btn btn-sm position-absolute"
-                              style={{ right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none' }}
-                              onClick={() => {
-                                setSearchTerm('');
-                                setCurrentPage(1);
-                              }}
-                            >
-                              <i className="fas fa-times text-muted"></i>
-                            </button>
-                          )}
-                        </div>
-                        <div className="input-group-append">
-                          <button
-                            className="btn btn-sm search-btn"
-                            type="button"
-                            onClick={() => {
-                              setIsSearching(true);
-                              setTimeout(() => setIsSearching(false), 500);
-                              setCurrentPage(1); // Reset to first page when searching
-
-                              // Show feedback toast if search term is not empty
-                              if (searchTerm.trim() !== '') {
-                                Swal.fire({
-                                  title: 'Searching...',
-                                  text: `Searching for "${searchTerm}"`,
-                                  icon: 'info',
-                                  toast: true,
-                                  position: 'top-end',
-                                  showConfirmButton: false,
-                                  timer: 1500
-                                });
-                              }
-                            }}
-                          >
-                            <i className={`fas fa-search ${isSearching ? 'fa-spin' : ''}`}></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Export buttons and Column Selector */}
-                    <div className="col-md-9">
-                      <div className="d-flex justify-content-end">
-                        <button
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={fetchProjects}
-                          disabled={loading}
-                          title="Refresh Data"
-                        >
-                          <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
-                        </button>
-                        <div className="dropdown me-2">
-                          <button
-                            className="column-selector-btn"
-                            type="button"
-                            id="columnSelectorDropdown"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <i className="fas fa-columns"></i> Columns
-                          </button>
-                          <div className="dropdown-menu dropdown-menu-end column-selector" aria-labelledby="columnSelectorDropdown">
-                            <div className="column-selector-header">
-                              <span>Table Columns</span>
-                              <i className="fas fa-table"></i>
-                            </div>
-                            <div className="column-selector-content">
-                              {columnGroups.map(group => (
-                                <div key={group.id} className="column-group">
-                                  <div className="column-group-title">{group.title}</div>
-                                  {group.columns.map(column => (
-                                    <div
-                                      key={column.id}
-                                      className={`dropdown-item ${visibleColumns.includes(column.id) ? 'active' : ''}`}
-                                    >
-                                      <div className="form-check">
-                                        <input
-                                          className="form-check-input"
-                                          type="checkbox"
-                                          id={`column-${column.id}`}
-                                          checked={visibleColumns.includes(column.id)}
-                                          onChange={() => toggleColumnVisibility(column.id)}
-                                        />
-                                        <label className="form-check-label" htmlFor={`column-${column.id}`}>
-                                          {column.label}
-                                        </label>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ))}
-                            </div>
-                            <div className="column-selector-footer">
-                              <button className="btn btn-reset" onClick={resetToDefaultColumns}>
-                                Reset
-                              </button>
-                              <button className="btn btn-apply" onClick={selectAllColumns}>
-                                Select All
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <button className="btn btn-sm export-btn" onClick={exportToExcel}>
-                          <i className="fas fa-file-excel me-1"></i> Excel
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToPDF}>
-                          <i className="fas fa-file-pdf me-1"></i> PDF
-                        </button>
-                        <button className="btn btn-sm export-btn" onClick={exportToCSV}>
-                          <i className="fas fa-file-csv me-1"></i> CSV
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Loading indicator */}
-                {loading && (
-                  <div className="text-center my-5">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    <p className="mt-2">Loading projects data...</p>
-                  </div>
-                )}
-
-                {/* Error message */}
-                {error && !loading && (
-                  <div className="alert alert-warning" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-exclamation-triangle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Data Loading Error</h5>
-                        <p className="mb-0">{error}</p>
-                      </div>
-                    </div>
-                    <hr />
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span>Please try again or contact support if the problem persists.</span>
-                      <button
-                        className="btn btn-primary"
-                        onClick={fetchProjects}
-                      >
-                        <i className="fas fa-sync-alt me-1"></i> Retry
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Fallback data warning */}
-                {projects.length > 0 && projects[0].isFallbackData && !loading && (
-                  <div className="alert alert-info" role="alert">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-info-circle me-3 fs-4"></i>
-                      <div>
-                        <h5 className="alert-heading mb-1">Sample Data</h5>
-                        <p className="mb-0">Showing sample data because the API request failed or returned no results. The highlighted rows contain sample data.</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Data table */}
-                {!loading && (
-                  <div className="table-responsive">
-                    <table className="table table-bordered table-hover table-striped">
-                      <thead>
-                        <tr>
-                          {allColumns.map(column => {
-                            // Only render columns that are in the visibleColumns array
-                            if (visibleColumns.includes(column.id)) {
-                              return column.sortable ? (
-                                <SortableTableHeader
-                                  key={column.id}
-                                  label={column.label}
-                                  field={column.field}
-                                  currentSortField={sortField}
-                                  currentSortDirection={sortDirection}
-                                  onSort={handleSort}
-                                />
-                              ) : (
-                                <th key={column.id}>{column.label}</th>
-                              );
-                            }
-                            return null;
-                          })}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {currentProjects.length > 0 ? (
-                          currentProjects.map((project, index) => (
-                            <tr
-                              key={project.project_id || index}
-                              className={project.isFallbackData ? 'table-warning' : ''}
-                            >
-                              {/* Render cells in the same order as the column definitions */}
-                              {allColumns.map(column => {
-                                // Only render columns that are in the visibleColumns array
-                                if (!visibleColumns.includes(column.id)) {
-                                  return null;
-                                }
-
-                                // Render different cell types based on column id
-                                switch (column.id) {
-                                  case 'projectId':
-                                    return <td key={column.id}>{project.project_id || ''}</td>;
-                                  case 'businessName':
-                                    return (
-                                      <td key={column.id}>
-                                        {project.isFallbackData && (
-                                          <span className="badge bg-warning me-1" title="Sample data">
-                                            <i className="fas fa-exclamation-triangle"></i>
-                                          </span>
-                                        )}
-                                        {project.business_legal_name || ''}
-                                      </td>
-                                    );
-                                  case 'contactCard':
-                                    return (
-                                      <td key={column.id}>
-                                        <ContactCard
-                                          entity={project}
-                                          entityType="project"
-                                        />
-                                      </td>
-                                    );
-                                  case 'projectName':
-                                    return <td key={column.id}>{project.project_name || ''}</td>;
-                                  case 'productName':
-                                    return <td key={column.id}>{project.product_name || ''}</td>;
-                                  case 'collaborators':
-                                    return <td key={column.id}>{project.collaborators || ''}</td>;
-                                  case 'milestone':
-                                    return <td key={column.id}>{project.milestone || ''}</td>;
-                                  case 'stageName':
-                                    return (
-                                      <td key={column.id}>
-                                        <span className={`badge ${
-                                          project.stage_name === 'ERC Fees Fully Paid' ? 'bg-success' :
-                                          project.stage_name === 'Documents Pending' ? 'bg-info' :
-                                          project.stage_name === 'Payment Processing Client Initiate' ? 'bg-primary' :
-                                          project.stage_name === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
-                                          project.stage_name === 'Payment Returned' ? 'bg-danger' :
-                                          'bg-secondary'
-                                        }`}>
-                                          {project.stage_name || ''}
-                                        </span>
-                                      </td>
-                                    );
-                                  case 'date':
-                                    return <td key={column.id}>{formatDate(project.created_at) || ''}</td>;
-                                  case 'projectFee':
-                                    return <td key={column.id}>{project.project_fee || ''}</td>;
-                                  case 'taxNowSignupStatus':
-                                    return (
-                                      <td key={column.id}>
-                                        <span className={`badge ${
-                                          project.taxnow_signup_status === 'Complete' ? 'bg-success' :
-                                          project.taxnow_signup_status ? 'bg-info' :
-                                          'bg-secondary'
-                                        }`}>
-                                          {project.taxnow_signup_status || 'N/A'}
-                                        </span>
-                                      </td>
-                                    );
-                                  case 'notes':
-                                    return (
-                                      <td key={column.id}>
-                                        <Notes
-                                          entityType="project"
-                                          entityId={project.project_id || ''}
-                                          entityName={project.business_legal_name || ''}
-                                        />
-                                      </td>
-                                    );
-                                  default:
-                                    return <td key={column.id}></td>;
-                                }
-                              })}
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={visibleColumns.length} className="text-center py-5">
-                              <div className="d-flex flex-column align-items-center">
-                                <i className="fas fa-search fa-3x text-muted mb-3"></i>
-                                <h5 className="text-muted">No projects found</h5>
-                                <p className="text-muted mb-3">
-                                  {searchTerm || filterStatus ?
-                                    'Try adjusting your search or filter criteria' :
-                                    'No project data is available from the API'}
-                                </p>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* Pagination */}
-                {!loading && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <p>Showing {indexOfFirstProject + 1} to {Math.min(indexOfLastProject, filteredProjects.length)} of {filteredProjects.length} projects (filtered from {projects.length} total)</p>
-                    </div>
-                    <div className="col-md-6">
-                      <nav aria-label="Project report pagination">
-                        <ul className="pagination justify-content-end">
-                          <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToPreviousPage}
-                              disabled={currentPage === 1}
-                            >
-                              Previous
-                            </button>
-                          </li>
-
-                          {/* First page */}
-                          {currentPage > 3 && (
-                            <li className="page-item">
-                              <button className="page-link" onClick={() => paginate(1)}>1</button>
-                            </li>
-                          )}
-
-                          {/* Ellipsis */}
-                          {currentPage > 4 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Page numbers */}
-                          {[...Array(totalPages)].map((_, i) => {
-                            const pageNumber = i + 1;
-                            // Show current page and 1 page before and after
-                            if (
-                              pageNumber === currentPage ||
-                              pageNumber === currentPage - 1 ||
-                              pageNumber === currentPage + 1
-                            ) {
-                              return (
-                                <li
-                                  key={pageNumber}
-                                  className={`page-item ${pageNumber === currentPage ? 'active' : ''}`}
-                                >
-                                  <button
-                                    className="page-link"
-                                    onClick={() => paginate(pageNumber)}
-                                  >
-                                    {pageNumber}
-                                  </button>
-                                </li>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Ellipsis */}
-                          {currentPage < totalPages - 3 && (
-                            <li className="page-item disabled">
-                              <span className="page-link">...</span>
-                            </li>
-                          )}
-
-                          {/* Last page */}
-                          {currentPage < totalPages - 2 && (
-                            <li className="page-item">
-                              <button
-                                className="page-link"
-                                onClick={() => paginate(totalPages)}
-                              >
-                                {totalPages}
-                              </button>
-                            </li>
-                          )}
-
-                          <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                            <button
-                              className="page-link"
-                              onClick={goToNextPage}
-                              disabled={currentPage === totalPages}
-                            >
-                              Next
-                            </button>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+      {/* Loading indicator */}
+      {loading && (
+        <div className="text-center my-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
+          <p className="mt-2">Loading projects data...</p>
         </div>
-      </div>
-    </div>
+      )}
+
+      {/* We've removed the error messages as requested */}
+
+      {/* Data table */}
+      {!loading && (
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover table-striped">
+            <thead>
+              <tr>
+                {allColumns.map(column => {
+                  // Only render columns that are in the visibleColumns array
+                  if (visibleColumns.includes(column.id)) {
+                    return column.sortable ? (
+                      <SortableTableHeader
+                        key={column.id}
+                        label={column.label}
+                        field={column.field}
+                        currentSortField={sortField}
+                        currentSortDirection={sortDirection}
+                        onSort={handleSort}
+                      />
+                    ) : (
+                      <th key={column.id}>{column.label}</th>
+                    );
+                  }
+                  return null;
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {currentProjects.length > 0 ? (
+                currentProjects.map((project, index) => (
+                  <tr
+                    key={project.project_id || index}
+                  >
+                    {/* Render cells in the same order as the column definitions */}
+                    {allColumns.map(column => {
+                      // Only render columns that are in the visibleColumns array
+                      if (!visibleColumns.includes(column.id)) {
+                        return null;
+                      }
+
+                      // Render different cell types based on column id
+                      switch (column.id) {
+                        case 'projectId':
+                          return (
+                            <td key={column.id}>
+                              <Link
+                                to={`/project-detail/${project.project_id}`}
+                                state={{ projectData: project }}
+                                className="lead-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {project.project_id || ''}
+                              </Link>
+                            </td>
+                          );
+                        case 'businessName':
+                          return (
+                            <td key={column.id}>
+                              <Link
+                                to={`/lead-detail/${project.lead_id || project.project_id}`}
+                                state={{ leadData: project }}
+                                className="lead-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {project.business_legal_name || ''}
+                              </Link>
+                            </td>
+                          );
+                        case 'contactCard':
+                          return (
+                            <td key={column.id}>
+                              <ContactCard
+                                entity={project}
+                                entityType="project"
+                              />
+                            </td>
+                          );
+                        case 'projectName':
+                          return <td key={column.id}>{project.project_name || ''}</td>;
+                        case 'productName':
+                          return <td key={column.id}>{project.product_name || ''}</td>;
+                        case 'collaborators':
+                          return <td key={column.id}>{project.collaborators || ''}</td>;
+                        case 'milestone':
+                          return <td key={column.id}>{project.milestone || ''}</td>;
+                        case 'stageName':
+                          return (
+                            <td key={column.id}>
+                              <span className={`badge ${
+                                project.stage_name === 'ERC Fees Fully Paid' ? 'bg-success' :
+                                project.stage_name === 'Documents Pending' ? 'bg-info' :
+                                project.stage_name === 'Payment Processing Client Initiate' ? 'bg-primary' :
+                                project.stage_name === 'Success Fees Processing Client Initiate' ? 'bg-warning' :
+                                project.stage_name === 'Payment Returned' ? 'bg-danger' :
+                                'bg-secondary'
+                              }`}>
+                                {project.stage_name || ''}
+                              </span>
+                            </td>
+                          );
+                        case 'date':
+                          return <td key={column.id}>{formatDate(project.created_at) || ''}</td>;
+                        case 'projectFee':
+                          return <td key={column.id}>{project.project_fee || ''}</td>;
+                        case 'taxNowSignupStatus':
+                          return (
+                            <td key={column.id}>
+                              <span className={`badge ${
+                                project.taxnow_signup_status === 'Complete' ? 'bg-success' :
+                                project.taxnow_signup_status ? 'bg-info' :
+                                'bg-secondary'
+                              }`}>
+                                {project.taxnow_signup_status || 'N/A'}
+                              </span>
+                            </td>
+                          );
+                        case 'notes':
+                          return (
+                            <td key={column.id}>
+                              <Notes
+                                entityType="project"
+                                entityId={project.project_id || ''}
+                                entityName={project.business_legal_name || ''}
+                              />
+                            </td>
+                          );
+                        default:
+                          return <td key={column.id}></td>;
+                      }
+                    })}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={visibleColumns.length} className="text-center py-4">
+                    <div className="d-flex flex-column align-items-center">
+                      <i className="fas fa-database text-muted mb-3" style={{ fontSize: '2rem' }}></i>
+                      <h5 className="text-muted">No records found</h5>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && (
+        <ReportPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          paginate={paginate}
+          goToPreviousPage={goToPreviousPage}
+          goToNextPage={goToNextPage}
+          indexOfFirstItem={indexOfFirstProject}
+          indexOfLastItem={indexOfLastProject}
+          totalFilteredItems={filteredProjects.length}
+          totalItems={projects.length}
+          itemName="projects"
+        />
+      )}
+    </PageContainer>
   );
 };
 

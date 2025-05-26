@@ -48,7 +48,7 @@
   font-size: 14px;
   font-weight: 500;
   padding: 10px 24px;
-  margin: 5px;
+  margin: 5px 15px; /* Increased horizontal margin for more spacing */
   border-radius: 6px; /* Slightly more rounded corners */
   display: inline-block;
   min-width: 120px; /* Minimum width */
@@ -61,21 +61,35 @@
 
 /* Styled cancel button - Red */
 .swal2-styled.swal2-cancel {
-  background-color: #FF0000 !important; /* Red color */
+  background-color: #6c757d !important; /* Gray color instead of red */
   color: #fff;
   border: none;
   font-size: 14px;
   font-weight: 500;
   padding: 10px 24px;
-  margin: 5px;
+  margin: 5px 15px; /* Increased horizontal margin for more spacing */
   border-radius: 6px; /* Slightly more rounded corners */
   display: inline-block;
   min-width: 120px; /* Minimum width */
 }
 
 .swal2-styled.swal2-cancel:hover {
-  background-color: #E60000 !important; /* Slightly darker red on hover */
-  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+  background-color: #5a6268 !important; /* Slightly darker gray on hover */
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* Button container spacing */
+.swal2-actions {
+  margin-top: 20px !important;
+  gap: 15px !important;
+  justify-content: center !important;
+}
+
+/* Custom actions class for more spacing */
+.swal2-actions-custom {
+  display: flex !important;
+  gap: 30px !important; /* Even more spacing between buttons */
+  justify-content: center !important;
 }
 
 /* Custom classes */

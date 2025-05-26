@@ -1,5 +1,35 @@
 /* Lead Detail Styles */
 
+/* Business Information Styles */
+.business_info_title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.business_info_container {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.info_item {
+  margin-bottom: 20px;
+}
+
+.info_label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 5px;
+}
+
+.info_value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #212529;
+}
 .white_card_header {
   background-color: #0d6efd;
   color: white;
@@ -591,6 +621,7 @@ label a.ms-2:hover svg {
   /* color: #0f67ae; */
 }
 
+
 .opp_edit_dlt_btn .edit_contact {
   background: #ff5c00 !important;
   border: 0 !important;
@@ -660,7 +691,6 @@ label a.ms-2:hover svg {
   word-break: break-all;
 }
 
-/* Projects Tab Styles */
 .custom_opp_tab {
   padding: 5px 0px 12px 0px;
   border: 1px solid #d8d8d882;
@@ -701,6 +731,21 @@ label a.ms-2:hover svg {
   height: 25px;
   display: inline-block;
   text-align: center;
+  margin-right: 5px;
+}
+
+.opp_edit_dlt_btn .delete_project {
+  background: #ff5c00 !important;
+  border: 0 !important;
+  padding: 5px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #fff !important;
+  border-radius: 5px;
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+  text-align: center;
 }
 
 .custom_opp_tab .lead_des {
@@ -718,6 +763,47 @@ label a.ms-2:hover svg {
   font-weight: 700;
 }
 
+/* Account Info Section Styles */
+.section-subtitle {
+  font-size: 15px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  z-index: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.sub-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border-bottom: 1px dashed #dee2e6;
+  padding-bottom: 8px;
+}
+
+
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h5 {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: #212529;
+}
+
+/* Style for read-only inputs */
+input[readonly],
+select[disabled] {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .lead-detail-tabs .nav-link {
@@ -732,4 +818,100 @@ label a.ms-2:hover svg {
   .tier-title {
     font-size: 1rem;
   }
+
+  .section-subtitle {
+    font-size: 0.9rem;
+  }
 }
+
+.custom-checkbox {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox label {
+  margin-bottom: 0;
+}
+
+.custom_opp_tab {
+  padding: 0px 0px 12px 0px;
+  border: 1px solid #d8d8d882;
+  box-shadow: 5px 5px 10px 0px rgb(178 178 178 / 40%) !important;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ff5c00;
+}
+
+.custom_opp_tab .custom_opp_tab_header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #d5d5d5;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  align-items: baseline;
+}
+
+.custom_opp_tab .custom_opp_tab_header h5 {
+  font-weight: 600;
+  font-size: 15px;
+  width: 90%;
+}
+
+.badge.bg-cancel {
+  background: #777 !important;
+  color: #fff;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.custom_opp_tab .lead_des {
+  margin-top: 10px;
+}
+
+.custom_opp_tab .lead_des p {
+  color: #000;
+  font-weight: 400;
+  margin-bottom: 5px;
+  margin-top: 8px;
+}
+
+
+/* payment history section css  start*/
+
+.total-payment-invoice{
+    border: 1px solid #b1c9db;
+    margin-bottom: 7px !important;
+    border-radius: 5px;
+    background: rgba(220, 233, 244, 0.50);
+    display: flex;
+    padding: 12px 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.total-payment-invoice h4 {
+  margin-bottom: 0;
+  color: #333333;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+.total-payment-invoice p {
+  margin-bottom: 0;
+  color: #333333;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-right: 82px;
+  margin-top: 0px;
+}
+
+.expand_pp_div{
+    margin-top: 7px;
+    font-weight: 600;
+}
+/* payment history section css  end*/
