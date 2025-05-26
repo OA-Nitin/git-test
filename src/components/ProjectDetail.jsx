@@ -14,7 +14,29 @@ const ProjectDetail = () => {
   const location = useLocation();
   const passedProjectData = location.state?.projectData;
 
-  const [project, setProject] = useState(null);
+  const [project, setProject] = useState({
+    project_id: '',
+    project_fee: '',
+    authorized_signatory_name: '',
+    business_phone: '',
+    business_email: '',
+    business_title: '',
+    zip: '',
+    street_address: '',
+    city: '',
+    state: '',
+    identity_document_type: '',
+    identity_document_number: '',
+    business_legal_name: '',
+    doing_business_as: '',
+    business_category: '',
+    website_url: '',
+    business_entity_type: '',
+    registration_number: '',
+    registration_date: '',
+    state_of_registration :''
+
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('project');
@@ -35,7 +57,7 @@ const ProjectDetail = () => {
     account_holder_name: '',
     account_type: '1', // Default to "1" (N/A)
     other: '',
-    aba_routing_number: '',
+    aba_routing_no: '',
     account_number: '',
     swift: '',
     iban: ''
@@ -600,16 +622,16 @@ const ProjectDetail = () => {
               lead_id: projectData.lead_id || projectData.leadId || projectData.lead || "",
 
               // Personal Info
-              full_name: projectData.authorized_signatory_name || "",
-              contact_no: projectData.business_phone || "",
-              email: projectData.business_email || "",
-              title: projectData.business_title || "",
+              authorized_signatory_name: projectData.authorized_signatory_name || "",
+              business_phone: projectData.business_phone || "",
+              business_email: projectData.business_email || "",
+              business_title: projectData.business_title || "",
               zip: projectData.zip || "",
               street_address: projectData.street_address || "",
               city: projectData.city || "",
               state: projectData.state || "",
               identity_document_type: projectData.identity_document_type || "",
-              document_number: projectData.document_number || projectData.identity_document_number || projectData.document_id || projectData.id_number || "",
+              identity_document_number: projectData.document_number || projectData.identity_document_number || projectData.document_id || projectData.id_number || "",
 
               // Business Info
               business_legal_name: projectData.business_legal_name || "",
@@ -618,7 +640,7 @@ const ProjectDetail = () => {
               website_url: projectData.website_url || projectData.business_website || projectData.company_website || "",
 
               // Business Legal Info
-              business_type: projectData.business_entity_type || projectData.business_type || "",
+              business_entity_type: projectData.business_entity_type || projectData.business_type || "",
               registration_number: projectData.registration_number || "",
               registration_date: projectData.registration_date || "",
               state_of_registration: projectData.state_of_registration || "",
@@ -732,7 +754,7 @@ const ProjectDetail = () => {
             account_holder_name: bankData.account_holder_name || '',
             account_type: bankData.account_type || '1', // Default to "1" (N/A) if not provided
             other: bankData.other || '',
-            aba_routing_number: bankData.aba_routing_number || '',
+            aba_routing_no: bankData.aba_routing_no || '',
             account_number: bankData.account_number || '',
             swift: bankData.swift || '',
             iban: bankData.iban || ''
@@ -759,7 +781,7 @@ const ProjectDetail = () => {
         account_holder_name: '',
         account_type: '1', // Default to "1" (N/A)
         other: '',
-        aba_routing_number: '',
+        aba_routing_no: '',
         account_number: '',
         swift: '',
         iban: ''
@@ -1535,7 +1557,25 @@ const ProjectDetail = () => {
           }
         }
       });
+      data.authorized_signatory_name = project?.authorized_signatory_name;
+      data.business_phone = project?.business_phone;
+      data.business_email = project?.business_email;
+      data.business_title = project?.business_title;
+      data.zip = project?.zip;
+      data.street_address = project?.street_address;
+      data.city = project?.city;
+      data.state = project?.state;
+      data.identity_document_type = project?.identity_document_type;
+      data.identity_document_number = project?.identity_document_number;
 
+      data.business_legal_name = project?.business_legal_name;
+      data.doing_business_as = project?.doing_business_as;
+      data.business_category = project?.business_category;
+      data.website_url = project?.website_url;
+      data.business_entity_type = project?.business_entity_type;
+      data.registration_number = project?.registration_number;
+      data.registration_date = project?.registration_date;
+      data.state_of_registration = project?.state_of_registration;
       // Add folder links
       // data.company_folder_link = companyFolderLink;
       // data.erc_document_folder = documentFolderLink;
@@ -1559,7 +1599,7 @@ const ProjectDetail = () => {
       data.account_holder_name = bankInfo.account_holder_name;
       data.account_type = bankInfo.account_type;
       data.other = bankInfo.other;
-      data.aba_routing_number = bankInfo.aba_routing_number;
+      data.aba_routing_no = bankInfo.aba_routing_no;
       data.account_number = bankInfo.account_number;
       data.swift = bankInfo.swift;
       data.iban = bankInfo.iban;
@@ -1589,6 +1629,7 @@ const ProjectDetail = () => {
 
       // Combine the base data with the tab-specific data
       const combinedData = { ...baseData, ...data };
+      console.log('Combined data:', data);
 
       // Map the data to the correct database column names
       const mappedData = {
@@ -1596,34 +1637,34 @@ const ProjectDetail = () => {
         tab: combinedData.tab,
 
         // Personal Info - Map to the database column names
-        authorized_signatory_name: combinedData.full_name,
-        business_phone: combinedData.contact_no,
-        business_email: combinedData.email,
-        business_title: combinedData.title,
-        zip: combinedData.zip,
-        street_address: combinedData.street_address,
-        city: combinedData.city,
-        state: combinedData.state,
-        identity_document_type: combinedData.identity_document_type,
-        identity_document_number: combinedData.document_number,
+        authorized_signatory_name: project.authorized_signatory_name,
+        business_phone: project.business_phone,
+        business_email: project.business_email,
+        business_title: project.business_title,
+        zip: project.zip,
+        street_address: project.street_address,
+        city: project.city,
+        state: project.state,
+        identity_document_type: project.identity_document_type,
+        identity_document_number: project.identity_document_number,
 
         // Business Info
-        business_legal_name: combinedData.business_legal_name,
-        doing_business_as: combinedData.doing_business_as,
-        business_category: combinedData.business_category,
-        website_url: combinedData.website_url,
+        business_legal_name: project.business_legal_name,
+        doing_business_as: project.doing_business_as,
+        business_category: project.business_category,
+        website_url: project.website_url,
 
         // Business Legal Info
-        business_entity_type: combinedData.business_type,
-        registration_number: combinedData.registration_number,
-        registration_date: combinedData.registration_date,
-        state_of_registration: combinedData.state_of_registration,
+        business_entity_type: project.business_entity_type,
+        registration_number: project.registration_number,
+        registration_date: project.registration_date,
+        state_of_registration: project.state_of_registration,
 
         // Folder Links
-        company_folder_link: combinedData.company_folder_link || companyFolderLink,
-        erc_document_folder: combinedData.erc_document_folder || documentFolderLink,
-        stc_document_folder: combinedData.stc_document_folder || documentFolderLink,
-        agreement_folder: combinedData.agreement_folder,
+        // company_folder_link: combinedData.company_folder_link || companyFolderLink,
+        // erc_document_folder: combinedData.erc_document_folder || documentFolderLink,
+        // stc_document_folder: combinedData.stc_document_folder || documentFolderLink,
+        // agreement_folder: combinedData.agreement_folder,
 
         // Bank Info - Always include bank info regardless of active tab
         bank_name: bankInfo.bank_name,
@@ -1636,7 +1677,7 @@ const ProjectDetail = () => {
         account_holder_name: bankInfo.account_holder_name,
         account_type: bankInfo.account_type,
         other: bankInfo.other,
-        aba_routing_number: bankInfo.aba_routing_number,
+        aba_routing_no: bankInfo.aba_routing_no,
         account_number: bankInfo.account_number,
         swift: bankInfo.swift,
         iban: bankInfo.iban,
@@ -1664,51 +1705,157 @@ const ProjectDetail = () => {
 
       console.log('Mapped data for API:', mappedData);
 
-      // Create a hidden form for direct submission
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = 'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project';
-      form.target = '_blank'; // Open in a new tab
-      form.style.display = 'none';
+      // Make a direct API call instead of form submission
+      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(mappedData),
+      });
 
-      // Add all data as hidden fields
-      for (const key in mappedData) {
-        if (mappedData.hasOwnProperty(key) && mappedData[key] !== undefined) {
-          const hiddenField = document.createElement('input');
-          hiddenField.type = 'hidden';
-          hiddenField.name = key;
-          hiddenField.value = mappedData[key] || '';
-          form.appendChild(hiddenField);
+      // Parse the response
+      const responseData = await response.json();
+      console.log('API response:', responseData);
+
+      // Check if the response indicates success
+      if (response.ok && (responseData.success || responseData.status === 1)) {
+        // Set success state
+        setUpdateSuccess(true);
+
+        // Exit edit mode if we're in edit mode
+        if (isEditMode) {
+          setIsEditMode(false);
         }
+
+        // Scroll to the success message
+        setTimeout(() => {
+          const successElement = document.querySelector('.alert-success');
+          if (successElement) {
+            successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      } else {
+        // Handle API error
+        const errorMessage = responseData.message || 'Server returned an error';
+        throw new Error(errorMessage);
       }
-
-      // Add the form to the body and submit it
-      document.body.appendChild(form);
-      form.submit();
-
-      // Remove the form after submission
-      document.body.removeChild(form);
-
-      // Set success state
-      setUpdateSuccess(true);
-
-      // Exit edit mode if we're in edit mode
-      if (isEditMode) {
-        setIsEditMode(false);
-      }
-
-      // Show a message to the user
-      alert('Update request submitted. Please check the new tab for results.');
-
-      // Reload the current page after a short delay
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
     } catch (error) {
       // Handle any errors that occurred during the process
       console.error('Error updating project:', error);
       setUpdateError(error.message || 'An unknown error occurred');
-      alert('Error updating project: ' + (error.message || 'An unknown error occurred'));
+
+      // Scroll to the error message
+      setTimeout(() => {
+        const errorElement = document.querySelector('.alert-danger');
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    } finally {
+      // Reset loading state
+      setIsUpdating(false);
+    }
+  };
+
+  const handlePersonalInfoUpdateProject = async (data) => {
+    try {
+      // Set loading state
+      setIsUpdating(true);
+      setUpdateError(null);
+      setUpdateSuccess(false);
+
+      console.log('Updating project with data:', data);
+
+      // Always include project ID
+      const baseData = {
+        project_id: project?.project_id,
+        tab: activeTab,
+      };
+
+      // Combine the base data with the tab-specific data
+      const combinedData = { ...baseData, ...data };
+      console.log('Combined data:', data);
+
+      // Map the data to the correct database column names
+      const mappedData = {
+        project_id: combinedData.project_id,
+        tab: combinedData.tab,
+
+        // Personal Info - Map to the database column names
+        authorized_signatory_name: project.authorized_signatory_name,
+        business_phone: project.business_phone,
+        business_email: project.business_email,
+        business_title: project.business_title,
+        zip: project.zip,
+        street_address: project.street_address,
+        city: project.city,
+        state: project.state,
+        identity_document_type: project.identity_document_type,
+        identity_document_number: project.identity_document_number,
+
+        // Business Info
+        business_legal_name: project.business_legal_name,
+        doing_business_as: project.doing_business_as,
+        business_category: project.business_category,
+        website_url: project.website_url,
+
+        // Business Legal Info
+        business_entity_type: project.business_entity_type,
+        registration_number: project.registration_number,
+        registration_date: project.registration_date,
+        state_of_registration: project.state_of_registration,
+      };
+
+      console.log('Mapped data for API:', mappedData);
+
+      // Make a direct API call instead of form submission
+      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(mappedData),
+      });
+
+      // Parse the response
+      const responseData = await response.json();
+      console.log('API response:', responseData);
+
+      // Check if the response indicates success
+      if (response.ok && (responseData.success || responseData.status === 1)) {
+        // Set success state
+        setUpdateSuccess(true);
+
+        // Exit edit mode if we're in edit mode
+        if (isEditMode) {
+          setIsEditMode(false);
+        }
+
+        // Scroll to the success message
+        setTimeout(() => {
+          const successElement = document.querySelector('.alert-success');
+          if (successElement) {
+            successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      } else {
+        // Handle API error
+        const errorMessage = responseData.message || 'Server returned an error';
+        throw new Error(errorMessage);
+      }
+    } catch (error) {
+      // Handle any errors that occurred during the process
+      console.error('Error updating project:', error);
+      setUpdateError(error.message || 'An unknown error occurred');
+
+      // Scroll to the error message
+      setTimeout(() => {
+        const errorElement = document.querySelector('.alert-danger');
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
     } finally {
       // Reset loading state
       setIsUpdating(false);
@@ -1721,7 +1868,7 @@ const ProjectDetail = () => {
     const data = collectFormData();
 
     // Call the update function
-    handleUpdateProject(data);
+    handlePersonalInfoUpdateProject(data);
   };
 
   // Render loading state
@@ -1964,7 +2111,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.full_name || ""}
+                              value={project.authorized_signatory_name}
+                              onChange={(e) => setProject({...project, authorized_signatory_name: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -1975,7 +2123,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.contact_no || ""}
+                              value={project.business_phone}
+                              onChange={(e) => setProject({...project, business_phone: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -1986,7 +2135,8 @@ const ProjectDetail = () => {
                             <input
                               type="email"
                               className="form-control"
-                              defaultValue={project?.email || ""}
+                              value={project.business_email}
+                              onChange={(e) => setProject({...project, business_email: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -1999,7 +2149,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.title || ""}
+                              value={project.business_title}
+                              onChange={(e) => setProject({...project, business_title: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2010,7 +2161,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.zip || ""}
+                              value={project.zip}
+                              onChange={(e) => setProject({...project, zip: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2021,7 +2173,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.street_address || ""}
+                              value={project.street_address}
+                              onChange={(e) => setProject({...project, street_address: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2034,7 +2187,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.city || ""}
+                              value={project.city}
+                              onChange={(e) => setProject({...project, city: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2045,7 +2199,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.state || ""}
+                              value={project.state}
+                              onChange={(e) => setProject({...project, state: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2056,7 +2211,8 @@ const ProjectDetail = () => {
                             <select
                               className="form-select"
                               disabled={!isEditMode}
-                              value={project?.identity_document_type || ""}
+                              value={project.identity_document_type || ""}
+                              onChange={(e) => setProject({...project, identity_document_type: e.target.value})}
                             >
                               <option value="N/A">N/A</option>
                               <option value="SSN">SSN</option>
@@ -2076,7 +2232,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.document_number || ""}
+                              value={project.identity_document_number}
+                              onChange={(e) => setProject({...project, identity_document_number: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2094,7 +2251,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.business_legal_name || ""}
+                              value={project.business_legal_name}
+                              onChange={(e) => setProject({...project, business_legal_name: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2105,7 +2263,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.doing_business_as || ""}
+                              value={project.doing_business_as}
+                              onChange={(e) => setProject({...project, doing_business_as: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2116,7 +2275,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.business_category || ""}
+                              value={project.business_category}
+                              onChange={(e) => setProject({...project, business_category: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2129,7 +2289,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.website_url || ""}
+                              value={project.website_url}
+                              onChange={(e) => setProject({...project, website_url: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2147,7 +2308,8 @@ const ProjectDetail = () => {
                             <select
                               className="form-select"
                               disabled={!isEditMode}
-                              value={project?.business_type || ""}
+                              value={project.business_entity_type || ""}
+                              onChange={(e) => setProject({...project, business_entity_type: e.target.value})}
                             >
                               <option value="1">N/A</option>
                               <option value="4">Sole Proprietorship</option>
@@ -2165,7 +2327,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.registration_number || ""}
+                              value={project.registration_number}
+                              onChange={(e) => setProject({...project, registration_number: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2176,7 +2339,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.registration_date || ""}
+                              value={project.registration_date}
+                              onChange={(e) => setProject({...project, registration_date: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2189,7 +2353,8 @@ const ProjectDetail = () => {
                             <input
                               type="text"
                               className="form-control"
-                              defaultValue={project?.state_of_registration || ""}
+                              value={project.state_of_registration}
+                              onChange={(e) => setProject({...project, state_of_registration: e.target.value})}
                               readOnly={!isEditMode}
                             />
                           </div>
@@ -2286,7 +2451,6 @@ const ProjectDetail = () => {
                                   placeholder="Bank Name"
                                   value={bankInfo.bank_name}
                                   onChange={(e) => setBankInfo({...bankInfo, bank_name: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2299,7 +2463,6 @@ const ProjectDetail = () => {
                                   placeholder="Bank Mailing Address"
                                   value={bankInfo.bank_mailing_address}
                                   onChange={(e) => setBankInfo({...bankInfo, bank_mailing_address: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2315,7 +2478,6 @@ const ProjectDetail = () => {
                                   placeholder="City"
                                   value={bankInfo.city}
                                   onChange={(e) => setBankInfo({...bankInfo, city: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2328,7 +2490,6 @@ const ProjectDetail = () => {
                                   placeholder="State"
                                   value={bankInfo.state}
                                   onChange={(e) => setBankInfo({...bankInfo, state: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2341,7 +2502,6 @@ const ProjectDetail = () => {
                                   placeholder="Zip"
                                   value={bankInfo.zip}
                                   onChange={(e) => setBankInfo({...bankInfo, zip: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2354,7 +2514,6 @@ const ProjectDetail = () => {
                                   placeholder="Country"
                                   value={bankInfo.country}
                                   onChange={(e) => setBankInfo({...bankInfo, country: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2370,7 +2529,6 @@ const ProjectDetail = () => {
                                   placeholder="Bank Phone"
                                   value={bankInfo.bank_phone}
                                   onChange={(e) => setBankInfo({...bankInfo, bank_phone: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2383,7 +2541,6 @@ const ProjectDetail = () => {
                                   placeholder="Account Holder Name"
                                   value={bankInfo.account_holder_name}
                                   onChange={(e) => setBankInfo({...bankInfo, account_holder_name: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2412,7 +2569,6 @@ const ProjectDetail = () => {
                                   placeholder="Other"
                                   value={bankInfo.other}
                                   onChange={(e) => setBankInfo({...bankInfo, other: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2426,9 +2582,8 @@ const ProjectDetail = () => {
                                   type="text"
                                   className="form-control"
                                   placeholder="ABA Routing Number"
-                                  value={bankInfo.aba_routing_number}
-                                  onChange={(e) => setBankInfo({...bankInfo, aba_routing_number: e.target.value})}
-                                  readOnly={!isEditMode}
+                                  value={bankInfo.aba_routing_no}
+                                  onChange={(e) => setBankInfo({...bankInfo, aba_routing_no: e.target.value})}
                                 />
                               </div>
                             </div>
@@ -2441,7 +2596,6 @@ const ProjectDetail = () => {
                                   placeholder="Account Number"
                                   value={bankInfo.account_number}
                                   onChange={(e) => setBankInfo({...bankInfo, account_number: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2454,7 +2608,6 @@ const ProjectDetail = () => {
                                   placeholder="SWIFT"
                                   value={bankInfo.swift}
                                   onChange={(e) => setBankInfo({...bankInfo, swift: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2467,7 +2620,6 @@ const ProjectDetail = () => {
                                   placeholder="IBAN"
                                   value={bankInfo.iban}
                                   onChange={(e) => setBankInfo({...bankInfo, iban: e.target.value})}
-                                  readOnly={!isEditMode}
                                 />
                               </div>
                             </div>
@@ -2512,7 +2664,6 @@ const ProjectDetail = () => {
                               placeholder="W2 Employee Count"
                               value={intakeInfo.w2_employees_count}
                               onChange={(e) => setIntakeInfo({...intakeInfo, w2_employees_count: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2525,7 +2676,6 @@ const ProjectDetail = () => {
                               placeholder="Initial Retain Fee Amount"
                               value={intakeInfo.initial_retain_fee_amount}
                               onChange={(e) => setIntakeInfo({...intakeInfo, initial_retain_fee_amount: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2538,7 +2688,6 @@ const ProjectDetail = () => {
                               placeholder="W2 EE Difference Count"
                               value={intakeInfo.w2_ee_difference_count}
                               onChange={(e) => setIntakeInfo({...intakeInfo, w2_ee_difference_count: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2554,7 +2703,6 @@ const ProjectDetail = () => {
                               placeholder="Balance Retainer Fee"
                               value={intakeInfo.balance_retainer_fee}
                               onChange={(e) => setIntakeInfo({...intakeInfo, balance_retainer_fee: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2567,7 +2715,6 @@ const ProjectDetail = () => {
                               placeholder="Total Max ERC Amount"
                               value={intakeInfo.total_max_erc_amount}
                               onChange={(e) => setIntakeInfo({...intakeInfo, total_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2580,7 +2727,6 @@ const ProjectDetail = () => {
                               placeholder="Total Estimated Fees"
                               value={intakeInfo.total_estimated_fees}
                               onChange={(e) => setIntakeInfo({...intakeInfo, total_estimated_fees: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2596,7 +2742,6 @@ const ProjectDetail = () => {
                               placeholder="Affiliate Referral Fees"
                               value={intakeInfo.affiliate_referral_fees}
                               onChange={(e) => setIntakeInfo({...intakeInfo, affiliate_referral_fees: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2609,7 +2754,7 @@ const ProjectDetail = () => {
                                 id="sdgrCheck"
                                 checked={intakeInfo.sdgr === 'Yes' || intakeInfo.sdgr === true}
                                 onChange={(e) => setIntakeInfo({...intakeInfo, sdgr: e.target.checked ? 'Yes' : 'No'})}
-                                disabled={!isEditMode}
+                                
                               />
                               <label className="form-check-label" htmlFor="sdgrCheck">SDGR</label>
                             </div>
@@ -2703,7 +2848,6 @@ const ProjectDetail = () => {
                               placeholder="Custom Fee"
                               value={intakeInfo.custom_fee}
                               onChange={(e) => setIntakeInfo({...intakeInfo, custom_fee: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2716,7 +2860,6 @@ const ProjectDetail = () => {
                               placeholder="Company Folder Link"
                               value={companyFolderLink}
                               onChange={(e) => setCompanyFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2732,7 +2875,6 @@ const ProjectDetail = () => {
                               placeholder="Document Folder Link"
                               value={documentFolderLink}
                               onChange={(e) => setDocumentFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2745,7 +2887,6 @@ const ProjectDetail = () => {
                               placeholder="Eligible Quarters"
                               value={intakeInfo.eligible_quarters}
                               onChange={(e) => setIntakeInfo({...intakeInfo, eligible_quarters: e.target.value})}
-                              readOnly={!isEditMode}
                             />
                           </div>
                         </div>
@@ -2758,7 +2899,7 @@ const ProjectDetail = () => {
                               placeholder="Welcome Email"
                               value={intakeInfo.welcome_email}
                               onChange={(e) => setIntakeInfo({...intakeInfo, welcome_email: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2774,7 +2915,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice# Initial Retainer"
                               value={intakeInfo.invoice_initial_retainer}
                               onChange={(e) => setIntakeInfo({...intakeInfo, invoice_initial_retainer: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2787,7 +2928,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.retainer_payment_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2800,7 +2941,7 @@ const ProjectDetail = () => {
                               placeholder="Retainer Payment Cleared"
                               value={intakeInfo.retainer_payment_channel}
                               onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_channel: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2816,7 +2957,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.retainer_payment_returned}
                               onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_returned: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2829,7 +2970,7 @@ const ProjectDetail = () => {
                               placeholder="Ret Payment Return Reason"
                               value={intakeInfo.ret_payment_return_reason}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_payment_return_reason: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2842,7 +2983,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.retainer_refund_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, retainer_refund_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2858,7 +2999,7 @@ const ProjectDetail = () => {
                               placeholder="Retainer Refund Amount"
                               value={intakeInfo.retainer_refund_amount}
                               onChange={(e) => setIntakeInfo({...intakeInfo, retainer_refund_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2871,7 +3012,7 @@ const ProjectDetail = () => {
                               placeholder="Retainer Payment Amount"
                               value={intakeInfo.retainer_payment_amount}
                               onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2902,7 +3043,7 @@ const ProjectDetail = () => {
                               placeholder="Bal Retainer Invoice#"
                               value={intakeInfo.ret_retainer_invoiced}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_invoiced: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2915,7 +3056,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ret_retainer_sent_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_sent_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2928,7 +3069,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ret_retainer_pay_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_pay_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2944,7 +3085,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ret_retainer_clear_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_clear_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2957,7 +3098,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ret_retainer_return_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_return_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2970,7 +3111,7 @@ const ProjectDetail = () => {
                               placeholder="Bal Retainer Return Reason"
                               value={intakeInfo.ret_retainer_return_reason}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_return_reason: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -2988,7 +3129,7 @@ const ProjectDetail = () => {
                               placeholder="Interest Percentage(%)"
                               value={intakeInfo.interest_percentage}
                               onChange={(e) => setIntakeInfo({...intakeInfo, interest_percentage: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3001,7 +3142,7 @@ const ProjectDetail = () => {
                               placeholder="Net No"
                               value={intakeInfo.net_no}
                               onChange={(e) => setIntakeInfo({...intakeInfo, net_no: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3374,7 +3515,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ppp_2020_start_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_start_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3405,7 +3546,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ppp_2020_end_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_end_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3418,7 +3559,7 @@ const ProjectDetail = () => {
                               placeholder="PPP 2020 Amount"
                               value={intakeInfo.ppp_2020_amount}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3431,7 +3572,7 @@ const ProjectDetail = () => {
                               placeholder="PPP 2020 Wages Allocated"
                               value={intakeInfo.ppp_2020_wages_allocated}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_wages_allocated: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3463,7 +3604,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ppp_2021_start_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_start_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3494,7 +3635,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.ppp_2021_end_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_end_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3507,7 +3648,7 @@ const ProjectDetail = () => {
                               placeholder="PPP 2021 Amount"
                               value={intakeInfo.ppp_2021_amount}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3520,7 +3661,7 @@ const ProjectDetail = () => {
                               placeholder="PPP 2021 Wages Allocated"
                               value={intakeInfo.ppp_2021_wages_allocated}
                               onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_wages_allocated: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3536,7 +3677,7 @@ const ProjectDetail = () => {
                               placeholder="Additional Comments"
                               value={intakeInfo.additional_comments}
                               onChange={(e) => setIntakeInfo({...intakeInfo, additional_comments: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             ></textarea>
                           </div>
                         </div>
@@ -3553,7 +3694,7 @@ const ProjectDetail = () => {
                               placeholder="Attorney Name"
                               value={intakeInfo.attorney_name}
                               onChange={(e) => setIntakeInfo({...intakeInfo, attorney_name: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3566,7 +3707,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.call_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, call_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3579,7 +3720,7 @@ const ProjectDetail = () => {
                               placeholder="Call Time"
                               value={intakeInfo.call_time}
                               onChange={(e) => setIntakeInfo({...intakeInfo, call_time: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3595,7 +3736,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.memo_received_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, memo_received_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3608,7 +3749,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={intakeInfo.memo_cut_off_date}
                               onChange={(e) => setIntakeInfo({...intakeInfo, memo_cut_off_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3650,7 +3791,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.error_discovered_date}
                               onChange={(e) => setFeesInfo({...feesInfo, error_discovered_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3663,7 +3804,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2020 941 Wages"
                               value={feesInfo.q2_2020_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3676,7 +3817,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2020 941 Wages"
                               value={feesInfo.q3_2020_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3692,7 +3833,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2020 941 Wages"
                               value={feesInfo.q4_2020_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3705,7 +3846,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2021 941 Wages"
                               value={feesInfo.q1_2021_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3718,7 +3859,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2021 941 Wages"
                               value={feesInfo.q2_2021_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3734,7 +3875,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2021 941 Wages"
                               value={feesInfo.q3_2021_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3747,7 +3888,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2021 941 Wages"
                               value={feesInfo.q4_2021_941_wages}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_941_wages: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3764,7 +3905,7 @@ const ProjectDetail = () => {
                               placeholder="Internal Sales Agent"
                               value={feesInfo.internal_sales_agent}
                               onChange={(e) => setFeesInfo({...feesInfo, internal_sales_agent: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3777,7 +3918,7 @@ const ProjectDetail = () => {
                               placeholder="Internal Sales Support"
                               value={feesInfo.internal_sales_support}
                               onChange={(e) => setFeesInfo({...feesInfo, internal_sales_support: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3790,7 +3931,7 @@ const ProjectDetail = () => {
                               placeholder="Affiliate Name"
                               value={feesInfo.affiliate_name}
                               onChange={(e) => setFeesInfo({...feesInfo, affiliate_name: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3806,7 +3947,7 @@ const ProjectDetail = () => {
                               placeholder="Affiliate Percentage"
                               value={feesInfo.affiliate_percentage}
                               onChange={(e) => setFeesInfo({...feesInfo, affiliate_percentage: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3819,7 +3960,7 @@ const ProjectDetail = () => {
                               placeholder="ERC Claim Filed"
                               value={feesInfo.erc_claim_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, erc_claim_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3832,7 +3973,7 @@ const ProjectDetail = () => {
                               placeholder="ERC Amount Received"
                               value={feesInfo.erc_amount_received}
                               onChange={(e) => setFeesInfo({...feesInfo, erc_amount_received: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3848,7 +3989,7 @@ const ProjectDetail = () => {
                               placeholder="Total ERC Fee"
                               value={feesInfo.total_erc_fee}
                               onChange={(e) => setFeesInfo({...feesInfo, total_erc_fee: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3861,7 +4002,7 @@ const ProjectDetail = () => {
                               placeholder="Legal Fees"
                               value={feesInfo.legal_fees}
                               onChange={(e) => setFeesInfo({...feesInfo, legal_fees: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3874,7 +4015,7 @@ const ProjectDetail = () => {
                               placeholder="Total ERC Fees Paid"
                               value={feesInfo.total_erc_fees_paid}
                               onChange={(e) => setFeesInfo({...feesInfo, total_erc_fees_paid: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3890,7 +4031,7 @@ const ProjectDetail = () => {
                               placeholder="Total ERC Fees Pending"
                               value={feesInfo.total_erc_fees_pending}
                               onChange={(e) => setFeesInfo({...feesInfo, total_erc_fees_pending: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3903,7 +4044,7 @@ const ProjectDetail = () => {
                               placeholder="Total Occams Share"
                               value={feesInfo.total_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, total_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3916,7 +4057,7 @@ const ProjectDetail = () => {
                               placeholder="Total Aff/Ref Share"
                               value={feesInfo.total_aff_ref_share}
                               onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3932,7 +4073,7 @@ const ProjectDetail = () => {
                               placeholder="Retain Occams Share"
                               value={feesInfo.retain_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, retain_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3945,7 +4086,7 @@ const ProjectDetail = () => {
                               placeholder="Retain Aff/Ref Share"
                               value={feesInfo.retain_aff_ref_share}
                               onChange={(e) => setFeesInfo({...feesInfo, retain_aff_ref_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3958,7 +4099,7 @@ const ProjectDetail = () => {
                               placeholder="Bal Retain Occams Share"
                               value={feesInfo.bal_retain_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, bal_retain_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3973,7 +4114,7 @@ const ProjectDetail = () => {
                               placeholder="Total Occams Share Paid"
                               value={feesInfo.total_occams_share_paid}
                               onChange={(e) => setFeesInfo({...feesInfo, total_occams_share_paid: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -3986,7 +4127,7 @@ const ProjectDetail = () => {
                               placeholder="Total Aff/Ref Share Paid"
                               value={feesInfo.total_aff_ref_share_paid}
                               onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share_paid: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4001,7 +4142,7 @@ const ProjectDetail = () => {
                               placeholder="Total Occams Share Pending"
                               value={feesInfo.total_occams_share_pending}
                               onChange={(e) => setFeesInfo({...feesInfo, total_occams_share_pending: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4014,7 +4155,7 @@ const ProjectDetail = () => {
                               placeholder="Total Aff/Ref Share Pending"
                               value={feesInfo.total_aff_ref_share_pending}
                               onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share_pending: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4032,7 +4173,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2020 Max ERC Amount"
                               value={feesInfo.q1_2020_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2020_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4045,7 +4186,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2020 Max ERC Amount"
                               value={feesInfo.q2_2020_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4058,7 +4199,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2020 Max ERC Amount"
                               value={feesInfo.q3_2020_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4074,7 +4215,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2020 Max ERC Amount"
                               value={feesInfo.q4_2020_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4092,7 +4233,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2021 Max ERC Amount"
                               value={feesInfo.q1_2021_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4105,7 +4246,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2021 Max ERC Amount"
                               value={feesInfo.q2_2021_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4118,7 +4259,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2021 Max ERC Amount"
                               value={feesInfo.q3_2021_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4134,7 +4275,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2021 Max ERC Amount"
                               value={feesInfo.q4_2021_max_erc_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_max_erc_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4170,7 +4311,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q1_2020_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2020_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4183,7 +4324,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2020 Amount Filed"
                               value={feesInfo.q1_2020_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2020_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4199,7 +4340,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2020 Benefits"
                               value={feesInfo.q1_2020_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2020_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4247,7 +4388,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q2_2020_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4260,7 +4401,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2020 Amount Filed"
                               value={feesInfo.q2_2020_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4276,7 +4417,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2020 Benefits"
                               value={feesInfo.q2_2020_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4324,7 +4465,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q3_2020_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4337,7 +4478,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2020 Amount Filed"
                               value={feesInfo.q3_2020_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4353,7 +4494,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2020 Benefits"
                               value={feesInfo.q3_2020_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4401,7 +4542,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q4_2020_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4414,7 +4555,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2020 Amount Filed"
                               value={feesInfo.q4_2020_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4430,7 +4571,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2020 Benefits"
                               value={feesInfo.q4_2020_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4480,7 +4621,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q1_2021_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4493,7 +4634,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2021 Amount Filed"
                               value={feesInfo.q1_2021_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4509,7 +4650,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2021 Benefits"
                               value={feesInfo.q1_2021_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4557,7 +4698,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q2_2021_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4570,7 +4711,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2021 Amount Filed"
                               value={feesInfo.q2_2021_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4586,7 +4727,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2021 Benefits"
                               value={feesInfo.q2_2021_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4634,7 +4775,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q3_2021_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4647,7 +4788,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2021 Amount Filed"
                               value={feesInfo.q3_2021_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4663,7 +4804,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2021 Benefits"
                               value={feesInfo.q3_2021_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4711,7 +4852,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q4_2021_filing_date}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_filing_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4724,7 +4865,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2021 Amount Filed"
                               value={feesInfo.q4_2021_amount_filed}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_amount_filed: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4740,7 +4881,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2021 Benefits"
                               value={feesInfo.q4_2021_benefits}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_benefits: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4774,7 +4915,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q1_2020_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2020_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4817,7 +4958,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2020 Chq Amt"
                               value={feesInfo.q1_2020_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2020_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4833,7 +4974,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q2_2020_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4876,7 +5017,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2020 Chq Amt"
                               value={feesInfo.q2_2020_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2020_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4892,7 +5033,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q3_2020_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4935,7 +5076,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2020 Chq Amt"
                               value={feesInfo.q3_2020_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2020_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4951,7 +5092,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q4_2020_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -4994,7 +5135,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2020 Chq Amt"
                               value={feesInfo.q4_2020_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2020_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5012,7 +5153,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q1_2021_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5055,7 +5196,7 @@ const ProjectDetail = () => {
                               placeholder="Q1 2021 Chq Amt"
                               value={feesInfo.q1_2021_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q1_2021_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5071,7 +5212,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q2_2021_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5114,7 +5255,7 @@ const ProjectDetail = () => {
                               placeholder="Q2 2021 Chq Amt"
                               value={feesInfo.q2_2021_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q2_2021_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5130,7 +5271,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q3_2021_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5173,7 +5314,7 @@ const ProjectDetail = () => {
                               placeholder="Q3 2021 Chq Amt"
                               value={feesInfo.q3_2021_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q3_2021_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5189,7 +5330,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.q4_2021_loop}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_loop: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5232,7 +5373,7 @@ const ProjectDetail = () => {
                               placeholder="Q4 2021 Chq Amt"
                               value={feesInfo.q4_2021_chq_amt}
                               onChange={(e) => setFeesInfo({...feesInfo, q4_2021_chq_amt: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5251,7 +5392,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice number"
                               value={feesInfo.i_invoice_number}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_number: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5264,7 +5405,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice Amount"
                               value={feesInfo.i_invoice_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5277,7 +5418,7 @@ const ProjectDetail = () => {
                               placeholder="Invoiced Qtrs"
                               value={feesInfo.i_invoiced_qtrs}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoiced_qtrs: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5293,7 +5434,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.i_invoice_sent_date}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_sent_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5325,7 +5466,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.i_invoice_payment_date}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_payment_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5341,7 +5482,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.i_invoice_pay_cleared}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_pay_cleared: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5354,7 +5495,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.i_invoice_pay_returned}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_pay_returned: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5367,7 +5508,7 @@ const ProjectDetail = () => {
                               placeholder="Return Reason"
                               value={feesInfo.i_invoice_return_reason}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_return_reason: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5383,7 +5524,7 @@ const ProjectDetail = () => {
                               placeholder="Occams Share"
                               value={feesInfo.i_invoice_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5396,7 +5537,7 @@ const ProjectDetail = () => {
                               placeholder="Aff/Ref Share"
                               value={feesInfo.i_invoice_affref_share}
                               onChange={(e) => setFeesInfo({...feesInfo, i_invoice_affref_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5413,7 +5554,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice number"
                               value={feesInfo.ii_invoice_number}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_number: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5426,7 +5567,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice Amount"
                               value={feesInfo.ii_invoice_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5439,7 +5580,7 @@ const ProjectDetail = () => {
                               placeholder="Invoiced Qtrs"
                               value={feesInfo.ii_invoiced_qtrs}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoiced_qtrs: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5455,7 +5596,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.ii_invoice_sent_date}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_sent_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5487,7 +5628,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.ii_invoice_payment_date}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_payment_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5503,7 +5644,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.ii_invoice_pay_cleared}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_pay_cleared: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5516,7 +5657,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.ii_invoice_pay_returned}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_pay_returned: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5529,7 +5670,7 @@ const ProjectDetail = () => {
                               placeholder="Return Reason"
                               value={feesInfo.ii_invoice_return_reason}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_return_reason: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5545,7 +5686,7 @@ const ProjectDetail = () => {
                               placeholder="Occams Share"
                               value={feesInfo.ii_invoice_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5558,7 +5699,7 @@ const ProjectDetail = () => {
                               placeholder="Aff/Ref Share"
                               value={feesInfo.ii_invoice_affref_share}
                               onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_affref_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5575,7 +5716,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice number"
                               value={feesInfo.iii_invoice_number}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_number: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5588,7 +5729,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice Amount"
                               value={feesInfo.iii_invoice_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5601,7 +5742,7 @@ const ProjectDetail = () => {
                               placeholder="Invoiced Qtrs"
                               value={feesInfo.iii_invoiced_qtrs}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoiced_qtrs: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5617,7 +5758,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iii_invoice_sent_date}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_sent_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5649,7 +5790,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iii_invoice_payment_date}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_payment_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5665,7 +5806,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iii_invoice_pay_cleared}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_pay_cleared: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5678,7 +5819,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iii_invoice_pay_returned}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_pay_returned: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5691,7 +5832,7 @@ const ProjectDetail = () => {
                               placeholder="Return Reason"
                               value={feesInfo.iii_invoice_return_reason}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_return_reason: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5707,7 +5848,7 @@ const ProjectDetail = () => {
                               placeholder="Occams Share"
                               value={feesInfo.iii_invoice_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5720,7 +5861,7 @@ const ProjectDetail = () => {
                               placeholder="Aff/Ref Share"
                               value={feesInfo.iii_invoice_affref_share}
                               onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_affref_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5737,7 +5878,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice number"
                               value={feesInfo.iv_invoice_number}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_number: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5750,7 +5891,7 @@ const ProjectDetail = () => {
                               placeholder="Invoice Amount"
                               value={feesInfo.iv_invoice_amount}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_amount: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5763,7 +5904,7 @@ const ProjectDetail = () => {
                               placeholder="Invoiced Qtrs"
                               value={feesInfo.iv_invoiced_qtrs}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoiced_qtrs: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5779,7 +5920,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iv_invoice_sent_date}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_sent_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5811,7 +5952,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iv_invoice_payment_date}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_payment_date: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5827,7 +5968,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iv_invoice_pay_cleared}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_pay_cleared: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5840,7 +5981,7 @@ const ProjectDetail = () => {
                               placeholder="MM/DD/YYYY"
                               value={feesInfo.iv_invoice_pay_returned}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_pay_returned: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5853,7 +5994,7 @@ const ProjectDetail = () => {
                               placeholder="Return Reason"
                               value={feesInfo.iv_invoice_return_reason}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_return_reason: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5869,7 +6010,7 @@ const ProjectDetail = () => {
                               placeholder="Occams Share"
                               value={feesInfo.iv_invoice_occams_share}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_occams_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
@@ -5882,7 +6023,7 @@ const ProjectDetail = () => {
                               placeholder="Aff/Ref Share"
                               value={feesInfo.iv_invoice_affref_share}
                               onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_affref_share: e.target.value})}
-                              readOnly={!isEditMode}
+                              
                             />
                           </div>
                         </div>
