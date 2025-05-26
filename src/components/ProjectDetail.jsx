@@ -327,175 +327,176 @@ const ProjectDetail = () => {
   const [stcRequiredDocuments, setSTCRequiredDocuments] = useState(null);
   const [stcImpactedDays, setSTCImpactedDays] = useState(null);
 
+  const [documentsLoading, setDocumentsLoading] = useState(false);
 
   const fetchERCDocuments = async (id, formId) => {
     try {
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('project_id', id);
-        formData.append('form_id', formId);
+      setDocumentsLoading(true);
+      setError(null);
+      const formData = new FormData();
+      formData.append('project_id', id);
+      formData.append('form_id', formId);
 
-        const response = await axios.post(
+      const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
-            headers: { Accept: 'application/json' },
-            validateStatus: () => true,
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true,
         }
-        );
+      );
 
-        if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 300) {
         setERCDocuments(response.data);
-        } else {
+      } else {
         setError('Failed to fetch ERC documents.');
-        }
-        setLoading(false);
+      }
     } catch (err) {
-        setError('Fetch error: ' + err.message);
-        setLoading(false);
+      setError('Fetch error: ' + err.message);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
 
   const fetchCompanyDocuments = async (id, formId) => {
     try {
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('project_id', id);
-        formData.append('form_id', formId);
+      setDocumentsLoading(true);
+      setError(null);
+      const formData = new FormData();
+      formData.append('project_id', id);
+      formData.append('form_id', formId);
 
-        const response = await axios.post(
+      const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
-            headers: { Accept: 'application/json' },
-            validateStatus: () => true,
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true,
         }
-        );
+      );
 
-        if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 300) {
         setCompanyDocuments(response.data);
-        } else {
+      } else {
         setError('Failed to fetch company documents.');
-        }
-        setLoading(false);
+      }
     } catch (err) {
-        setError('Fetch error: ' + err.message);
-        setLoading(false);
+      setError('Fetch error: ' + err.message);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
 
   const fetchOtherDocuments = async (id, formId) => {
     try {
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('project_id', id);
-        formData.append('form_id', formId);
+      setDocumentsLoading(true);
+      setError(null);
+      const formData = new FormData();
+      formData.append('project_id', id);
+      formData.append('form_id', formId);
 
-        const response = await axios.post(
+      const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
-            headers: { Accept: 'application/json' },
-            validateStatus: () => true,
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true,
         }
-        );
+      );
 
-        if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 300) {
         setOtherDocuments(response.data);
-        } else {
+      } else {
         setError('Failed to fetch other documents.');
-        }
-        setLoading(false);
+      }
     } catch (err) {
-        setError('Fetch error: ' + err.message);
-        setLoading(false);
+      setError('Fetch error: ' + err.message);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
 
-  const fetchPayrollDocuments = async (id, formId) => {
+  const fetchPayrollDocuments = async (id) => {
     try {
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('project_id', id);
+      setDocumentsLoading(true);
+      setError(null);
+      const formData = new FormData();
+      formData.append('project_id', id);
 
-        const response = await axios.post(
+      const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
         formData,
         {
-            headers: { Accept: 'application/json' },
-            validateStatus: () => true,
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true,
         }
-        );
+      );
 
-        if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 300) {
         setPayrollDocuments(response.data);
-        } else {
+      } else {
         setError('Failed to fetch payroll documents.');
-        }
-        setLoading(false);
+      }
     } catch (err) {
-        setError('Fetch error: ' + err.message);
-        setLoading(false);
+      setError('Fetch error: ' + err.message);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
 
   const fetchSTCRequiredDocuments = async (id) => {
     try {
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('project_id', id);
+      setDocumentsLoading(true);
+      setError(null);
+      const formData = new FormData();
+      formData.append('project_id', id);
 
-        const response = await axios.post(
+      const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
         formData,
         {
-            headers: { Accept: 'application/json' },
-            validateStatus: () => true,
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true,
         }
-        );
+      );
 
-        if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 300) {
         setSTCRequiredDocuments(response.data);
-        } else {
+      } else {
         setError('Failed to fetch STC Required documents.');
-        }
-        setLoading(false);
+      }
     } catch (err) {
-        setError('Fetch error: ' + err.message);
-        setLoading(false);
+      setError('Fetch error: ' + err.message);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
 
   const fetchSTCImpactedDays = async (id) => {
     try {
-        setLoading(true);
-        setError(null);
-        const formData = new FormData();
-        formData.append('project_id', id);
+      setDocumentsLoading(true);
+      setError(null);
+      const formData = new FormData();
+      formData.append('project_id', id);
 
-        const response = await axios.post(
+      const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
         formData,
         {
-            headers: { Accept: 'application/json' },
-            validateStatus: () => true,
+          headers: { Accept: 'application/json' },
+          validateStatus: () => true,
         }
-        );
+      );
 
-        if (response.status >= 200 && response.status < 300) {
+      if (response.status >= 200 && response.status < 300) {
         setSTCImpactedDays(response.data);
-        } else {
+      } else {
         setError('Failed to fetch STC Impacted Days.');
-        }
-        setLoading(false);
+      }
     } catch (err) {
-        setError('Fetch error: ' + err.message);
-        setLoading(false);
+      setError('Fetch error: ' + err.message);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
   // Collaborators related state
@@ -639,7 +640,7 @@ const ProjectDetail = () => {
                     <table className="table document-table">
                         <thead>
                         <tr>
-                            <th>Documents</th>
+                            <th style={{width: '480px'}}>Documents</th>
                             <th>Files</th>
                             <th>Status</th>
                             <th>Comments</th>
@@ -660,13 +661,6 @@ const ProjectDetail = () => {
                                             target="_blank"
                                             rel="noreferrer"
                                         >
-                                            <i
-                                                className={`fas ${
-                                                    doc.file_url.endsWith('.pdf')
-                                                        ? 'fa-file-pdf'
-                                                        : 'fa-image'
-                                                }`}
-                                            ></i>
                                             <span>{doc.file_name || 'View File'}</span>
                                         </a>
                                     ) : (
@@ -687,19 +681,11 @@ const ProjectDetail = () => {
                                 </td>
                                 <td>
                                     {doc.doc_key === 'quarterly_gross_receipt_csv' ? (
-                                        <label style={{ display: 'block', textAlign: 'center' }}>
-                                            <a
+                                        <label>
+                                            <a className='status-badge status-approved'
                                                 href={`#`}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                style={{
-                                                    background: '#55915a',
-                                                    boxShadow: '0px 0px 5px #0000001a',
-                                                    borderRadius: '10px',
-                                                    color: '#fff',
-                                                    padding: '4px 5px',
-                                                    display: 'inline-block',
-                                                }}
                                             >
                                                 SDGR &amp; Owner&apos;s Information
                                             </a>
@@ -736,7 +722,7 @@ const ProjectDetail = () => {
                     showFooter={false} // change to true if you need footer buttons
                 >
                     {selectedComments.length > 0 ? (
-                        <ul className="list-group">
+                        <ul className="list-group" style={{ maxHeight: '575px', overflow: 'auto' }}>
                             {selectedComments.map((comment, index) => (
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
@@ -823,13 +809,6 @@ const ProjectDetail = () => {
                                                             target="_blank"
                                                             rel="noreferrer"
                                                         >
-                                                            <i
-                                                                className={`fas ${
-                                                                    doc.file_url.endsWith('.pdf')
-                                                                        ? 'fa-file-pdf'
-                                                                        : 'fa-image'
-                                                                }`}
-                                                            ></i>
                                                             <span>{doc.file_name || 'View File'}</span>
                                                         </a>
                                                     ) : (
@@ -893,7 +872,7 @@ const ProjectDetail = () => {
                                                 ></td>
 
                                                 <td>
-                                                    <div>
+                                                    <div className="d-flex">
                                                         <label style={{ marginRight: '10px' }}>
                                                             <input
                                                                 type="radio"
@@ -920,13 +899,6 @@ const ProjectDetail = () => {
                                                 <td>
                                                     {doc.file_url ? (
                                                         <a href={doc.file_url} target="_blank" rel="noreferrer">
-                                                            <i
-                                                                className={`fas ${
-                                                                    doc.file_url.endsWith('.pdf')
-                                                                        ? 'fa-file-pdf'
-                                                                        : 'fa-image'
-                                                                }`}
-                                                            ></i>
                                                             <span>{doc.file_name || 'View File'}</span>
                                                         </a>
                                                     ) : (
@@ -994,7 +966,7 @@ const ProjectDetail = () => {
                                                 ></td>
 
                                                 <td>
-                                                    <div>
+                                                    <div className="d-flex">
                                                         <label style={{ marginRight: '10px' }}>
                                                             <input
                                                                 type="radio"
@@ -1021,13 +993,6 @@ const ProjectDetail = () => {
                                                 <td>
                                                     {doc.file_url ? (
                                                         <a href={doc.file_url} target="_blank" rel="noreferrer">
-                                                            <i
-                                                                className={`fas ${
-                                                                    doc.file_url.endsWith('.pdf')
-                                                                        ? 'fa-file-pdf'
-                                                                        : 'fa-image'
-                                                                }`}
-                                                            ></i>
                                                             <span>{doc.file_name || 'View File'}</span>
                                                         </a>
                                                     ) : (
@@ -1087,7 +1052,7 @@ const ProjectDetail = () => {
                                                     ></td>
 
                                                     <td>
-                                                        <div>
+                                                        <div className="d-flex">
                                                             <label style={{ marginRight: '10px' }}>
                                                                 <input
                                                                     type="radio"
@@ -1174,7 +1139,7 @@ const ProjectDetail = () => {
 
                                                 <td>{doc.signed_up}</td>
                                                 <td>
-                                                    <div>
+                                                    <div className="d-flex">
                                                         <label style={{ marginRight: '10px' }}>
                                                             <input
                                                                 type="radio"
@@ -1218,7 +1183,7 @@ const ProjectDetail = () => {
                 {/* Modal */}
                 <Modal show={showModal} onClose={closeModal} title={selectedDocLabel} showFooter={false}>
                     {selectedComments.length > 0 ? (
-                        <ul className="list-group">
+                        <ul className="list-group" style={{ maxHeight: '575px', overflow: 'auto' }}>
                             {selectedComments.map((comment, index) => (
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
@@ -1297,7 +1262,6 @@ const ProjectDetail = () => {
                                             <td>
                                                 {doc.file_url ? (
                                                     <a href={doc.file_url} target="_blank" rel="noreferrer">
-                                                        <i className={`fas ${doc.file_url.endsWith('.pdf') ? 'fa-file-pdf' : 'fa-image'}`}></i>
                                                         <span>{doc.file_name || 'View File'}</span>
                                                     </a>
                                                 ) : (
@@ -1370,13 +1334,13 @@ const ProjectDetail = () => {
                         {groupIndex === 1 && (
                             <div className="form-check mt-3">
                                 <input
-                                    className="form-check-input"
+                                    className="form-check-input" style={{marginTop :'0px'}}
                                     type="checkbox"
                                     id="undertakingCheck"
                                     checked={undertakingChecked}
                                     onChange={handleCheckboxChange}
                                 />
-                                <label className="form-check-label" htmlFor="undertakingCheck">
+                                <label className="form-check-label" htmlFor="undertakingCheck" style={{marginBottom :'0px'}}>
                                     I did not claim unemployment benefits on these dates
                                 </label>
                             </div>
@@ -1388,7 +1352,7 @@ const ProjectDetail = () => {
                 {/* Comments Modal */}
                 <Modal show={showModal} onClose={closeModal} title={selectedDocLabel} showFooter={false}>
                     {selectedComments.length > 0 ? (
-                        <ul className="list-group">
+                        <ul className="list-group" style={{ maxHeight: '575px', overflow: 'auto' }}>
                             {selectedComments.map((comment, index) => (
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
@@ -8210,97 +8174,101 @@ const ProjectDetail = () => {
                   )}
 
                   {/* Documents Tab Content */}
-                    {activeTab === 'documents' && (
-                        <div className="mb-4 left-section-container">
-
-                            {!loading && !error && ercDocuments?.product_id === "935" && (
-                                <>
-                                    <h5 className="section-title">ERC Documents</h5>
-                                    {loading ? (
-                                        <p>Loading documents...</p>
-                                    ) : error ? (
-                                        <p className="text-danger">{error}</p>
-                                    ) : (
-                                        <DocumentTable documents={ercDocuments?.documents} />
-                                    )}
-                                </>
-                            )}
-
-                            {!loading && !error && companyDocuments?.product_id === "935" && (
-                                <>
-                                    <h5 className="section-title mt-5">Company Documents</h5>
-                                    {loading ? (
-                                        <p>Loading documents...</p>
-                                    ) : error ? (
-                                        <p className="text-danger">{error}</p>
-                                    ) : (
-                                        <DocumentTable documents={companyDocuments?.documents} />
-                                    )}
-                                </>
-                            )}
-
-                            {!loading && !error && payrollDocuments?.product_id === "935" && (
-                              <>
-                                <h5 className="section-title mt-5">Payroll Documents</h5>
-                                {payrollDocuments.groups?.length > 0 ? (
-                                  payrollDocuments.groups.map((group, index) => (
-                                    <div key={index} className="mb-4">
-                                      <h6 className="document-heading">{group.heading}</h6>
-                                      <DocumentTable documents={group.documents} />
-                                    </div>
-                                  ))
-                                ) : (
-                                  <p>No payroll documents found.</p>
-                                )}
-                              </>
-                            )}
-
-
-                            {!loading && !error && otherDocuments?.product_id === "935" && (
-                                <>
-                                    <h5 className="section-title mt-5">Other Documents</h5>
-                                    {loading ? (
-                                        <p>Loading documents...</p>
-                                    ) : error ? (
-                                        <p className="text-danger">{error}</p>
-                                    ) : (
-                                        <DocumentTable documents={otherDocuments?.documents} />
-                                    )}
-                                </>
-                            )}
-
-
-
-                            {/* STC Documents */}
-                            {!loading && !error && stcRequiredDocuments?.product_id === "937" && (
-                                <>
-                                    <h5 className="section-title">Required Documents</h5>
-                                    {loading ? (
-                                        <p>Loading documents...</p>
-                                    ) : error ? (
-                                        <p className="text-danger">{error}</p>
-                                    ) : (
-                                        <STCDocumentTable stc_documents_groups={stcRequiredDocuments} />
-                                    )}
-                                </>
-                            )}
-
-                            {/* STC Impacted Days */}
-                            {!loading && !error && stcImpactedDays?.product_id === "937" && (
-                                <>
-                                    <h5 className="section-title">Impacted Days</h5>
-                                    {loading ? (
-                                        <p>Loading documents...</p>
-                                    ) : error ? (
-                                        <p className="text-danger">{error}</p>
-                                    ) : (
-                                        <STCImpactedDaysTable impacted_days_groups={stcImpactedDays?.groups  || []} />
-                                    )}
-                                </>
-                            )}
-
+                  {activeTab === 'documents' && (
+                    <div className="mb-4 left-section-container">
+                      {/* Centralized loading spinner for documents only */}
+                      {documentsLoading && (
+                        <div className="text-center mb-3">
+                          <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading documents...</span>
+                          </div>
+                          <p className="mt-2">Loading documents...</p>
                         </div>
-                    )}
+                      )}
+
+                      {/* Error message */}
+                      {error && !documentsLoading && (
+                        <p className="text-danger text-center">{error}</p>
+                      )}
+
+                      {!documentsLoading && ercDocuments?.product_id === "935" && (
+                        <>
+                          <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
+                            <h5 className="mb-0">ERC Documents</h5>
+                            <a
+                              href={ercDocuments?.view_document}
+                              className="btn btn-primary"
+                              title="View ERC Documents"
+                              style={{ fontSize: '14px', lineHeight: '1.5' }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              View Documents
+                            </a>
+                          </div>
+                          <DocumentTable documents={ercDocuments?.documents} />
+                        </>
+                      )}
+
+                      {!documentsLoading && companyDocuments?.product_id === "935" && (
+                        <>
+                          <h5 className="section-title mt-5">Company Documents</h5>
+                          <DocumentTable documents={companyDocuments?.documents} />
+                        </>
+                      )}
+
+                      {!documentsLoading && payrollDocuments?.product_id === "935" && (
+                        <>
+                          <h5 className="section-title mt-5">Payroll Documents</h5>
+                          {payrollDocuments.groups?.length > 0 ? (
+                            payrollDocuments.groups.map((group, index) => (
+                              <div key={index} className="mb-4">
+                                <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">{group.heading}</h6>
+                                <DocumentTable documents={group.documents} />
+                              </div>
+                            ))
+                          ) : (
+                            <p>No payroll documents found.</p>
+                          )}
+                        </>
+                      )}
+
+                      {!documentsLoading && otherDocuments?.product_id === "935" && (
+                        <>
+                          <h5 className="section-title mt-5">Other Documents</h5>
+                          <DocumentTable documents={otherDocuments?.documents} />
+                        </>
+                      )}
+
+                      {/* STC Documents */}
+                      {!documentsLoading && stcRequiredDocuments?.product_id === "937" && (
+                        <>
+                          <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
+                            <h5 className="mb-0">Required Documents</h5>
+                            <a
+                              href={stcRequiredDocuments?.view_document}
+                              className="btn btn-primary"
+                              title="View ERC Documents"
+                              style={{ fontSize: '14px', lineHeight: '1.5' }}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              View Documents
+                            </a>
+                          </div>
+                          <STCDocumentTable stc_documents_groups={stcRequiredDocuments} />
+                        </>
+                      )}
+
+                      {/* STC Impacted Days */}
+                      {!documentsLoading && stcImpactedDays?.product_id === "937" && (
+                        <>
+                          <h5 className="section-title">Impacted Days</h5>
+                          <STCImpactedDaysTable impacted_days_groups={stcImpactedDays?.groups || []} />
+                        </>
+                      )}
+                    </div>
+                  )}
 
                    {/* Invoices Tab Content */}
                     {activeTab === 'invoices' && (
@@ -8533,37 +8501,13 @@ const ProjectDetail = () => {
                     </div>
                   )}
 
-                  <div className="mt-4">
-                    <div className="action-buttons d-flex align-items-center justify-content-center">
-                      <button
-                        className="btn save-btn"
-                        onClick={() => {
-                          const data = collectFormData();
-                          handleUpdateProject(data);
-                        }}
-                        disabled={isUpdating}
-                      >
-                        {isUpdating ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            Updating...
-                          </>
-                        ) : 'Update'}
-                      </button>
-                    </div>
-                    {updateSuccess && (
-                      <div className="alert alert-success mt-3" role="alert">
-                        <strong><i className="fas fa-check-circle me-2"></i>Project updated successfully!</strong>
-                        <p className="mb-0 mt-1">Your changes have been submitted.</p>
+                  {activeTab !== 'documents' ? (
+                      <div className="mt-4">
+                        <div className="action-buttons d-flex align-items-center justify-content-center">
+                          <button className="btn save-btn">Update</button>
+                        </div>
                       </div>
-                    )}
-                    {updateError && (
-                      <div className="alert alert-danger mt-3" role="alert">
-                        <strong><i className="fas fa-exclamation-circle me-2"></i>Error updating project!</strong>
-                        <p className="mb-0 mt-1">{updateError}</p>
-                      </div>
-                    )}
-                  </div>
+                  ) : null}
 
                 </div>
 

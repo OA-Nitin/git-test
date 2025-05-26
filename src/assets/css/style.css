@@ -16244,3 +16244,7 @@ html {
 input[readonly], select[disabled] {
     cursor: revert !important;
 }
+
+.form-check-input:checked {
+  background-color:transparent
+}
