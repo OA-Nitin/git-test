@@ -28,7 +28,7 @@ const productIdMap = {
 };
 
 
-// Function to format date as mm/dd/YYYY H:i:s
+// Function to format date as MM/DD/YYYY
 const formatDate = (dateString) => {
   if (!dateString) return '';
 
@@ -38,15 +38,12 @@ const formatDate = (dateString) => {
     // Check if date is valid
     if (isNaN(date.getTime())) return dateString;
 
-    // Format as mm/dd/YYYY H:i:s
+    // Format as MM/DD/YYYY
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
 
-    return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+    return `${month}/${day}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return dateString;
