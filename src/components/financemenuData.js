@@ -1,10 +1,10 @@
 const financeMenuData = [
-  {
-    key: 'home',
-    name: 'Dashboard',
-    icon: 'dashicons-admin-home',
-    path: '/dashboard'
-  },
+  // {
+  //   key: 'home',
+  //   name: 'Dashboard',
+  //   icon: 'dashicons-admin-home',
+  //   path: '/dashboard'
+  // },
   {
     key: 'reports',
     name: 'Reports',
@@ -32,18 +32,18 @@ const financeMenuData = [
       { key: 'rdcProjects', name: 'RDC Projects', path: '/reports/projects/rdc' },
     ],
   },
-  {
-    key: 'finance',
-    name: 'Finance',
-    icon: 'dashicons-media-document',
-    children: [
-      { key: 'manageInvoices', name: 'Manage Invoices', path: '/finance/invoices' },
-      //{ key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
-      //{ key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
-      //{ key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
-      //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
-    ],
-  },
+  // {
+  //   key: 'finance',
+  //   name: 'Finance',
+  //   icon: 'dashicons-media-document',
+  //   children: [
+  //     { key: 'manageInvoices', name: 'Manage Invoices', path: '/finance/invoices' },
+  //     //{ key: 'createInvoice', name: 'Create Invoice', path: '/finance/create-invoice' },
+  //     //{ key: 'invoiceTemplates', name: 'Invoice Templates', path: '/finance/invoice-templates' },
+  //     //{ key: 'overdueInvoices', name: 'Overdue Invoices', path: '/finance/past-due-invoices' },
+  //     //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/finance/interest-automation' },
+  //   ],
+  // },
   // {
   //   key: 'finance',
   //   name: 'Finance',
@@ -127,12 +127,12 @@ const financeMenuData = [
   //     { key: 'allInvoices', name: 'All Invoices', path: '/reporting/all-invoices' },
   //   ],
   // },
-  {
-    key: 'support',
-    name: 'Support',
-    icon: 'dashicons-admin-users',
-    path: '/support'
-  },
+  // {
+  //   key: 'support',
+  //   name: 'Support',
+  //   icon: 'dashicons-admin-users',
+  //   path: '/support'
+  // },
   // {
   //   key: 'contact',
   //   name: 'Contact',
