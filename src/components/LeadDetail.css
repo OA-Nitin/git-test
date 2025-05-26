@@ -735,7 +735,7 @@ label a.ms-2:hover svg {
 }
 
 .opp_edit_dlt_btn .delete_project {
-  background: #dc3545 !important;
+  background: #ff5c00 !important;
   border: 0 !important;
   padding: 5px;
   font-weight: 600;
@@ -876,3 +876,42 @@ select[disabled] {
   margin-bottom: 5px;
   margin-top: 8px;
 }
+
+
+/* payment history section css  start*/
+
+.total-payment-invoice{
+    border: 1px solid #b1c9db;
+    margin-bottom: 7px !important;
+    border-radius: 5px;
+    background: rgba(220, 233, 244, 0.50);
+    display: flex;
+    padding: 12px 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.total-payment-invoice h4 {
+  margin-bottom: 0;
+  color: #333333;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+.total-payment-invoice p {
+  margin-bottom: 0;
+  color: #333333;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-right: 82px;
+  margin-top: 0px;
+}
+
+.expand_pp_div{
+    margin-top: 7px;
+    font-weight: 600;
+}
+/* payment history section css  end*/

@@ -258,9 +258,9 @@
   background-color: rgba(16, 134, 190, 0.05) !important;
 }
 
-.table tbody tr:first-child td {
+/* .table tbody tr:first-child td {
   font-weight: 500;
-}
+} */
 
 /* Info Banner Styling */
 .info-banner {

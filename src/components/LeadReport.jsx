@@ -16,6 +16,28 @@ import ReportPagination from './common/ReportPagination';
 import { sortArrayByKey } from '../utils/sortUtils';
 import PageContainer from './common/PageContainer';
 
+// Function to format date as MM/DD/YYYY
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return dateString;
+
+    // Format as MM/DD/YYYY
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
 const productIdMap = {
  erc: 935,
   stc: 937,
@@ -523,7 +545,7 @@ const LeadReport = ({ projectType }) => {
       return visibleColumnsData.map(column => {
         // Handle special columns with custom rendering
         if (column.id === 'leadId') return lead.lead_id || '';
-        if (column.id === 'date') return lead.created || '';
+        if (column.id === 'date') return formatDate(lead.created) || '';
         if (column.id === 'businessName') {
           const businessName = lead.business_legal_name || '';
           return `"${businessName.replace(/"/g, '""')}"`; // Escape quotes
@@ -622,7 +644,7 @@ const LeadReport = ({ projectType }) => {
         return visibleColumnsData.map(column => {
           // Handle special columns with custom rendering
           if (column.id === 'leadId') return lead.lead_id || '';
-          if (column.id === 'date') return lead.created || '';
+          if (column.id === 'date') return formatDate(lead.created) || '';
           if (column.id === 'businessName') return lead.business_legal_name || '';
           if (column.id === 'taxNowStatus') return lead.lead_status || '';
           if (column.id === 'businessEmail') return lead.business_email || '';
@@ -702,7 +724,7 @@ const LeadReport = ({ projectType }) => {
         visibleColumnsData.forEach(column => {
           // Handle special columns with custom rendering
           if (column.id === 'leadId') rowData[column.label] = lead.lead_id || '';
-          else if (column.id === 'date') rowData[column.label] = lead.created || '';
+          else if (column.id === 'date') rowData[column.label] = formatDate(lead.created) || '';
           else if (column.id === 'businessName') rowData[column.label] = lead.business_legal_name || '';
           else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || '';
           else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
@@ -875,7 +897,7 @@ const LeadReport = ({ projectType }) => {
                                       </td>
                                     );
                                   case 'date':
-                                    return <td key={column.id}>{lead.created || ''}</td>;
+                                    return <td key={column.id}>{formatDate(lead.created) || ''}</td>;
                                   case 'businessName':
                                     return (
                                       <td key={column.id}>

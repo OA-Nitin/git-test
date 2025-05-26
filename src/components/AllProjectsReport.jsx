@@ -16,18 +16,19 @@ import ReportPagination from './common/ReportPagination';
 import PageContainer from './common/PageContainer';
 
 // Map product names to their respective IDs
+// Note: Tax Amendment (936) and Partnership (938) are hidden from reports
 const productIdMap = {
   erc: 935,
   stc: 937,
   rdc: 932,
-  partnership: 104,
-  'tax-amendment': 936,
-  'audit-advisory': 934,
+  // partnership: 938, // Hidden from reports
+  // 'tax-amendment': 936, // Hidden from reports
+  // 'audit-advisory': 934, // Hidden from reports
   all: null // to fetch all projects without filtering
 };
 
 
-// Function to format date as mm/dd/YYYY H:i:s
+// Function to format date as MM/DD/YYYY
 const formatDate = (dateString) => {
   if (!dateString) return '';
 
@@ -37,15 +38,12 @@ const formatDate = (dateString) => {
     // Check if date is valid
     if (isNaN(date.getTime())) return dateString;
 
-    // Format as mm/dd/YYYY H:i:s
+    // Format as MM/DD/YYYY
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
 
-    return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+    return `${month}/${day}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return dateString;
@@ -109,10 +107,19 @@ const AllProjectsReport = () => {
           console.log('API Projects (nested data):', apiProjects);
           console.log('Number of projects returned:', apiProjects.length);
 
-          // Use the API data even if it's just a few records
-          setProjects(apiProjects);
+          // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+          const filteredApiProjects = apiProjects.filter(project => {
+            const productId = project.product_id;
+            // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+            return productId !== '936' && productId !== '938' && productId !== '934';
+          });
 
-          if (apiProjects.length === 0) {
+          console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
+
+          // Use the filtered API data
+          setProjects(filteredApiProjects);
+
+          if (filteredApiProjects.length === 0) {
             setError('No data available.');
             setProjects([]);
           }
@@ -124,10 +131,19 @@ const AllProjectsReport = () => {
           console.log('API Projects:', apiProjects);
           console.log('Number of projects returned:', apiProjects.length);
 
-          // Use the API data even if it's just a few records
-          setProjects(apiProjects);
+          // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+          const filteredApiProjects = apiProjects.filter(project => {
+            const productId = project.product_id;
+            // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
+            return productId !== '936' && productId !== '938' && productId !== '934';
+          });
 
-          if (apiProjects.length === 0) {
+          console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
+
+          // Use the filtered API data
+          setProjects(filteredApiProjects);
+
+          if (filteredApiProjects.length === 0) {
             setError('No data available.');
             setProjects([]);
           }
@@ -172,8 +188,8 @@ const AllProjectsReport = () => {
       'Oscorp Industries'
     ];
 
-    const productNames = ['ERC', 'STC', 'Audit Advisory', 'Tax Amendment', 'RDC'];
-    const projectNames = ['None', 'Updated Comm Cal - ERC', 'Stu Bharat - STC', 'AA play qa - Audit Advisory', 'ERC play sp#12 - ERC'];
+    const productNames = ['ERC', 'STC', 'RDC']; // Removed 'Audit Advisory' and 'Tax Amendment'
+    const projectNames = ['None', 'Updated Comm Cal - ERC', 'Stu Bharat - STC', 'ERC play sp#12 - ERC', 'RDC Project Sample']; // Removed Audit Advisory reference
     const milestones = ['ERC Fulfillment', 'STC Enrollment', 'ERC Enrollment', 'ERC Lead Re-engagement'];
     const stageNames = [
       'Success Fees Processing Client Initiate',
@@ -779,8 +795,8 @@ const AllProjectsReport = () => {
                           return (
                             <td key={column.id}>
                               <Link
-                                to={`/project-detail/${project.project_id}`}
-                                state={{ projectData: project }}
+                                to={`/lead-detail/${project.lead_id || project.project_id}`}
+                                state={{ leadData: project }}
                                 className="lead-link"
                                 target="_blank"
                                 rel="noopener noreferrer"
