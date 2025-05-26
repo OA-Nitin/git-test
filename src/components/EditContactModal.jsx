@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import './EditContactModal.css';
-import LoadingOverlay from '../components/common/LoadingOverlay';
-=======
 import { useState, useEffect } from "react";
 import axios from "axios";
 import "./EditContactModal.css";
 import LoadingOverlay from "./common/LoadingOverlay";
->>>>>>> 6cba97d872aee81cdcf3ff05b399a28613ae70df
 
 const EditContactModal = ({
   isOpen,
