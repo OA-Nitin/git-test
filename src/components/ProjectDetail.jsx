@@ -7698,7 +7698,7 @@ const ProjectDetail = () => {
                           {payrollDocuments.groups?.length > 0 ? (
                             payrollDocuments.groups.map((group, index) => (
                               <div key={index} className="mb-4">
-                                <h6 className="document-heading">{group.heading}</h6>
+                                <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">{group.heading}</h6>
                                 <DocumentTable documents={group.documents} />
                               </div>
                             ))
@@ -7976,11 +7976,13 @@ const ProjectDetail = () => {
                     </div>
                   )}
 
-                  <div className="mt-4">
-                    <div className="action-buttons d-flex align-items-center justify-content-center">
-                      <button className="btn save-btn">Update</button>
-                    </div>
-                  </div>
+                  {activeTab !== 'documents' ? (
+                      <div className="mt-4">
+                        <div className="action-buttons d-flex align-items-center justify-content-center">
+                          <button className="btn save-btn">Update</button>
+                        </div>
+                      </div>
+                  ) : null}
 
                 </div>
 
