@@ -90,37 +90,22 @@ const ContactCard = ({
   // Render the contact card content
   const renderContactCardContent = () => {
     return (
-      <div className="contact-card-content">
-        <table className="table table-bordered">
-          <tbody>
-            {id && (
-              <tr>
-                <th>{entityType === 'lead' ? 'Lead ID' : 'Project ID'}</th>
-                <td>{id}</td>
-              </tr>
-            )}
-            {projectName && entityType !== 'lead' && (
-              <tr>
-                <th>Project Name</th>
-                <td>{projectName}</td>
-              </tr>
-            )}
-            {entity[fields.signatory] && (
-              <tr>
-                <th>Authorized Signatory</th>
-                <td>{entity[fields.signatory]}</td>
-              </tr>
-            )}
-            <tr>
-              <th>Business Phone</th>
-              <td>{businessPhone}</td>
-            </tr>
-            <tr>
-              <th>Business Email</th>
-              <td>{businessEmail}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="contact-card">
+        <div class="card-exam">
+          <div class="d-flex w-100 align-items-center">
+            <div class="circle"><i class="fa-solid fa-id-badge" style={{fontSize:'26px'}}></i></div>
+            <div class="card-exam-title">
+              {projectName && entityType !== 'lead' && (
+                <p>{projectName}</p>
+                )}
+                {entity[fields.signatory] && (
+                <p>{entity[fields.signatory]}</p>
+                )}
+                <p>{businessPhone}</p>
+                <p>{businessEmail}</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
