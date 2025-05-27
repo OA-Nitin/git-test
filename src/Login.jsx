@@ -13,7 +13,7 @@ const Login = () => {
         const userData = localStorage.getItem('user');
         if (userData) {
             // User is already logged in, redirect to dashboard
-            navigate('/dashboard');
+            navigate('/reports/leads/all');
         }
     }, [navigate]);
 
