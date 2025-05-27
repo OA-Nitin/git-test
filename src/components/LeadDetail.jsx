@@ -5484,7 +5484,7 @@ const LeadDetail = () => {
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container Audit-logs-class">
+                    <div className="mb-4 left-section-container">
                       <AuditLogsMultiSection leadId={leadId || '9020'} />
                     </div>
                   )}
