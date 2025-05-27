@@ -8504,8 +8504,34 @@ const ProjectDetail = () => {
                   {activeTab !== 'documents' ? (
                       <div className="mt-4">
                         <div className="action-buttons d-flex align-items-center justify-content-center">
-                          <button className="btn save-btn">Update</button>
+                          <button
+                            className="btn save-btn"
+                            onClick={() => {
+                              const data = collectFormData();
+                              handleUpdateProject(data);
+                            }}
+                            disabled={isUpdating}
+                          >
+                            {isUpdating ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Updating...
+                              </>
+                            ) : 'Update'}
+                          </button>
                         </div>
+                        {updateSuccess && (
+                          <div className="alert alert-success mt-3" role="alert">
+                            <strong><i className="fas fa-check-circle me-2"></i>Project updated successfully!</strong>
+                            <p className="mb-0 mt-1">Your changes have been submitted.</p>
+                          </div>
+                        )}
+                        {updateError && (
+                          <div className="alert alert-danger mt-3" role="alert">
+                            <strong><i className="fas fa-exclamation-circle me-2"></i>Error updating project!</strong>
+                            <p className="mb-0 mt-1">{updateError}</p>
+                          </div>
+                        )}
                       </div>
                   ) : null}
 
