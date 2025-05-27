@@ -370,7 +370,10 @@ const AllProjectsReport = () => {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 3000
+        timer: 3000,
+        customClass: {
+          container: 'swal-toast-container-custom'
+        }
       });
     }
   };
