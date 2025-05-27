@@ -9,7 +9,7 @@ import Notes from './common/Notes';
 
 import './common/ReportStyle.css';
 import './LeadDetail.css';
-import { getAssetPath } from '../utils/assetUtils';
+import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 
@@ -3425,11 +3425,15 @@ const LeadDetail = () => {
         ...allTabsData,
         ...formData,
         lead_id: leadId,
+        user_id: getUserId(), // Add user_id to the form data
         // Include all tables to update
         tables: ['business_info', 'contacts', 'projects', 'fees', 'bank_info', 'opportunity'],
         // Also include the table parameter for backward compatibility
         table: 'all'
       };
+
+      // Log user_id for debugging
+      console.log('Current user_id being sent:', getUserId());
 
       // Make API call to update the lead
       console.log('Sending data to API:', mergedData);
@@ -3703,6 +3707,11 @@ const LeadDetail = () => {
                              {errors.business_legal_name && (
                                 <div className="invalid-feedback">{errors.business_legal_name.message}</div>
                               )}
+                            <input
+                              type="hidden"
+                              name="user_id"
+                              value={getUserId()}
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3907,6 +3916,7 @@ const LeadDetail = () => {
                               name="primary_contact_email"
                               value={primaryContact.email || ''}
                               onChange={handleInputChange}
+
                               disabled
                             />
                               {errors.primary_contact_email && (
@@ -3924,6 +3934,7 @@ const LeadDetail = () => {
                               name="primary_contact_phone"
                               value={primaryContact.phone || ''}
                               onChange={handleInputChange}
+
                               disabled
                             />
                             {errors.primary_contact_phone && (
@@ -3941,11 +3952,13 @@ const LeadDetail = () => {
                               name="primary_contact_ext"
                               value={primaryContact.ext || ''}
                               onChange={handleInputChange}
+
                               disabled
                             />
                             {errors.primary_contact_ext && (
                               <div className="invalid-feedback">{errors.primary_contact_ext.message}</div>
                             )}
+
                           </div>
                         </div>
                       </div>
@@ -3960,11 +3973,13 @@ const LeadDetail = () => {
                               name="contact_phone_type"
                               value={primaryContact.phoneType || ''}
                               onChange={handleInputChange}
+
                               disabled
                             />
                             {errors.contact_phone_type && (
                               <div className="invalid-feedback">{errors.contact_phone_type.message}</div>
                             )}
+
                           </div>
                         </div>
                       </div>
@@ -4860,7 +4875,7 @@ const LeadDetail = () => {
                           <div key={project.id} className="row custom_opp_tab">
                             <div className="col-sm-12">
                               <div className="custom_opp_tab_header">
-                                <h5><a href="javascript:void(0)">{project.projectName}</a></h5>
+                                <h5><a href={`/reporting/project-detail/${project.id}`}>{project.projectName}</a></h5>
                                 <div className="opp_edit_dlt_btn projects-iris">
                                   <a
                                     className="edit_project"
@@ -5714,7 +5729,7 @@ const LeadDetail = () => {
 
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container Audit-logs-class">
+                    <div className="mb-4 left-section-container">
                       <AuditLogsMultiSection leadId={leadId || '9020'} />
                     </div>
                   )}

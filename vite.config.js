@@ -28,9 +28,10 @@ export default defineConfig({
       allow: ['..']
     },
     hmr: {
-      // Fix WebSocket connection issues
-      clientPort: 5185,
-      path: '',
+      // Use the same port as the dev server
+      clientPort: 5174,
+      host: 'localhost',
+      protocol: 'ws',
     },
     proxy: {
       '/api': {

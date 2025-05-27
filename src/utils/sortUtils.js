@@ -16,11 +16,14 @@ export const sortArrayByKey = (array, key, direction) => {
     // Map field names to possible API field names
     const fieldMappings = {
       'lead_id': ['lead_id', 'id'],
+      'project_id': ['project_id', 'id'],
+      'id': ['id', 'lead_id', 'project_id'],
       'business_legal_name': ['business_legal_name', 'business_name', 'name'],
       'business_email': ['business_email', 'email'],
       'business_phone': ['business_phone', 'phone'],
       'lead_status': ['lead_status', 'status'],
       'created': ['created', 'date'],
+      'created_at': ['created_at', 'created', 'date'],
       'employee_id': ['employee_id', 'employee'],
       'internal_sales_agent': ['internal_sales_agent', 'sales_agent'],
       'internal_sales_support': ['internal_sales_support', 'sales_support'],
