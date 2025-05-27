@@ -13,6 +13,17 @@ import { getAssetPath } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 
+
+
+// validations
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { leadDetailSchema } from './validationSchemas/leadSchema';
+import { projectSchema } from './validationSchemas/leadSchema';
+
+
+
+
 const LeadDetail = () => {
   const { leadId } = useParams();
   const location = useLocation();
@@ -46,6 +57,31 @@ const LeadDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
   const [unassignLoading, setUnassignLoading] = useState(false);
+
+
+  // validation 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    trigger,
+  } = useForm({
+    resolver: yupResolver(leadDetailSchema),
+    mode: 'all',
+  });
+  
+  const {
+    register: registerProject,
+    handleSubmit: handleSubmitProject,
+    formState: { errors: projectErrors },
+    setValue: setProjectValue,
+    reset: resetProjectForm,
+    watch: watchProject
+  } = useForm({
+    resolver: yupResolver(projectSchema),
+    mode: "all"
+  });
 
   // Contacts related state
   const [primaryContact, setPrimaryContact] = useState({
@@ -1722,13 +1758,17 @@ const LeadDetail = () => {
         confirmButton: 'btn btn-primary',
         cancelButton: 'btn btn-secondary'
       },
-      preConfirm: () => {
-        const content = document.getElementById('note-content').value;
-        if (!content.trim()) {
-          Swal.showValidationMessage('Please enter a note');
+      preConfirm: async () => {
+        const content = document.getElementById('note-content').value.trim();
+        console.log('content' + content);
+        try {
+          const validated = await noteFormSchema.validate({ note: content });
+          console.log('validated' + validated);
+          return validated; // returns { note: "..." }
+        } catch (err) {
+          Swal.showValidationMessage(err.message);
           return false;
         }
-        return { content };
       },
       willClose: () => {
         // Reset the flag when the modal is closed
@@ -2648,7 +2688,7 @@ const LeadDetail = () => {
 
       console.log('Project update API response:', response);
 
-      if (response.data && response.data.success) {
+      if (response.data && response.data.status) {
         // Update the project in the projects array
         const updatedProjects = projects.map(project => {
           if (project.id === projectFormData.projectID) {
@@ -3190,7 +3230,8 @@ const LeadDetail = () => {
   };
 
   // Handle form submission
-  const handleSave = async () => {
+  const handleSave = async (validatedData) => {
+    console.log('Validated data:', validatedData);
     setLoading(true);
     setError(null);
     setUpdateSuccess(false);
@@ -3615,11 +3656,15 @@ const LeadDetail = () => {
                             <label className="form-label">Business Legal Name*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
+                              {...register('business_legal_name')}
                               name="business_legal_name"
                               value={lead.business_legal_name || ''}
                               onChange={handleInputChange}
                             />
+                             {errors.business_legal_name && (
+                                <div className="invalid-feedback">{errors.business_legal_name.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3627,11 +3672,15 @@ const LeadDetail = () => {
                             <label className="form-label">Doing Business As</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.doing_business_as ? 'is-invalid' : ''}`}
+                              {...register('doing_business_as')}
                               name="doing_business_as"
                               value={lead.doing_business_as || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.doing_business_as && (
+                                <div className="invalid-feedback">{errors.doing_business_as.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -3641,11 +3690,15 @@ const LeadDetail = () => {
                             <label className="form-label">Business Category*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.category ? 'is-invalid' : ''}`}
+                              {...register('category')}
                               name="category"
                               value={lead.category || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.category && (
+                                <div className="invalid-feedback">{errors.category.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3653,11 +3706,15 @@ const LeadDetail = () => {
                             <label className="form-label">Website URL*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.website ? 'is-invalid' : ''}`}
+                              {...register('website')}
                               name="website"
                               value={lead.website || ''}
                               onChange={handleInputChange}
                             />
+                              {errors.website && (
+                                <div className="invalid-feedback">{errors.website.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -3669,11 +3726,15 @@ const LeadDetail = () => {
                             <label className="form-label">Authorized Signatory Name</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.authorized_signatory_name ? 'is-invalid' : ''}`}
+                              {...register('authorized_signatory_name')}
                               name="authorized_signatory_name"
                               value={lead.authorized_signatory_name || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.authorized_signatory_name && (
+                                <div className="invalid-feedback">{errors.authorized_signatory_name.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3681,11 +3742,15 @@ const LeadDetail = () => {
                             <label className="form-label">Business Phone*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_phone ? 'is-invalid' : ''}`}
+                              {...register('business_phone')}
                               name="business_phone"
                               value={lead.business_phone || ''}
                               onChange={handleInputChange}
                             />
+                             {errors.business_phone && (
+                                <div className="invalid-feedback">{errors.business_phone.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -3695,11 +3760,15 @@ const LeadDetail = () => {
                             <label className="form-label">Business Email*</label>
                             <input
                               type="email"
-                              className="form-control"
+                              className={`form-control ${errors.business_email ? 'is-invalid' : ''}`}
+                              {...register('business_email')}
                               name="business_email"
                               value={lead.business_email || ''}
                               onChange={handleInputChange}
                             />
+                              {errors.business_email && (
+                                <div className="invalid-feedback">{errors.business_email.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3707,11 +3776,15 @@ const LeadDetail = () => {
                             <label className="form-label">Business Title*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_title ? 'is-invalid' : ''}`}
+                              {...register('business_title')}
                               name="business_title"
                               value={lead.business_title || ''}
                               onChange={handleInputChange}
                             />
+                              {errors.business_title && (
+                                <div className="invalid-feedback">{errors.business_title.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -3721,11 +3794,15 @@ const LeadDetail = () => {
                             <label className="form-label">Street Address*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_address ? 'is-invalid' : ''}`}
+                              {...register('business_address')}
                               name="business_address"
                               value={lead.business_address || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.business_address && (
+                              <div className="invalid-feedback">{errors.business_address.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3733,11 +3810,15 @@ const LeadDetail = () => {
                             <label className="form-label">City*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.city ? 'is-invalid' : ''}`}
+                               {...register('city')}
                               name="city"
                               value={lead.city || ''}
                               onChange={handleInputChange}
                             />
+                              {errors.city && (
+                                <div className="invalid-feedback">{errors.city.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -3747,11 +3828,15 @@ const LeadDetail = () => {
                             <label className="form-label">State*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.state ? 'is-invalid' : ''}`}
+                              {...register('state')}
                               name="state"
                               value={lead.state || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.state && (
+                              <div className="invalid-feedback">{errors.state.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3759,11 +3844,15 @@ const LeadDetail = () => {
                             <label className="form-label">ZIP*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.zip ? 'is-invalid' : ''}`}
+                              {...register('zip')}
                               name="zip"
                               value={lead.zip || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.zip && (
+                              <div className="invalid-feedback">{errors.zip.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -3775,11 +3864,15 @@ const LeadDetail = () => {
                             <label className="form-label">Email</label>
                             <input
                               type="email"
-                              className="form-control"
+                              className={`form-control ${errors.primary_contact_email ? 'is-invalid' : ''}`}
+                              {...register('primary_contact_email')}
                               name="primary_contact_email"
                               value={primaryContact.email || ''}
                               onChange={handleInputChange}
                             />
+                              {errors.primary_contact_email && (
+                                <div className="invalid-feedback">{errors.primary_contact_email.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -3787,11 +3880,15 @@ const LeadDetail = () => {
                             <label className="form-label">Phone</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.primary_contact_phone ? 'is-invalid' : ''}`}
+                              {...register('primary_contact_phone')}
                               name="primary_contact_phone"
                               value={primaryContact.phone || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.primary_contact_phone && (
+                              <div className="invalid-feedback">{errors.primary_contact_phone.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-2">
@@ -3799,11 +3896,15 @@ const LeadDetail = () => {
                             <label className="form-label">Contact Ext</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.primary_contact_ext ? 'is-invalid' : ''}`}
+                              {...register('primary_contact_ext')}
                               name="primary_contact_ext"
                               value={primaryContact.ext || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.primary_contact_ext && (
+                              <div className="invalid-feedback">{errors.primary_contact_ext.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -3813,11 +3914,15 @@ const LeadDetail = () => {
                             <label className="form-label">Contact Phone Type</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.contact_phone_type ? 'is-invalid' : ''}`}
+                              {...register('contact_phone_type')}
                               name="contact_phone_type"
                               value={primaryContact.phoneType || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.contact_phone_type && (
+                              <div className="invalid-feedback">{errors.contact_phone_type.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -3828,7 +3933,8 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Select Billing Profile</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.billing_profile ? 'is-invalid' : ''}`}
+                              {...register('billing_profile')}
                               name="billing_profile"
                               value={lead.billing_profile || ''}
                               onChange={handleInputChange}
@@ -3840,6 +3946,9 @@ const LeadDetail = () => {
                                 </option>
                               ))}
                             </select>
+                            {errors.billing_profile && (
+                              <div className="invalid-feedback">{errors.billing_profile.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -3850,7 +3959,8 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Select TaxNow Signup Status</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.taxnow_signup_status ? 'is-invalid' : ''}`}
+                              {...register('taxnow_signup_status')}
                               name="taxnow_signup_status"
                               value={taxNowSignupStatus}
                               onChange={handleInputChange}
@@ -3859,13 +3969,17 @@ const LeadDetail = () => {
                               <option value="Complete">Complete</option>
                               <option value="Incomplete">Incomplete</option>
                             </select>
+                            {errors.taxnow_signup_status && (
+                              <div className="invalid-feedback">{errors.taxnow_signup_status.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Select TaxNow Onboarding Status</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.taxnow_onboarding_status ? 'is-invalid' : ''}`}
+                              {...register('taxnow_onboarding_status')}
                               name="taxnow_onboarding_status"
                               value={taxNowOnboardingStatus}
                               onChange={handleInputChange}
@@ -3886,6 +4000,9 @@ const LeadDetail = () => {
                                 </>
                               ) : null}
                             </select>
+                            {errors.taxnow_onboarding_status && (
+                              <div className="invalid-feedback">{errors.taxnow_onboarding_status.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -3896,7 +4013,8 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Business Entity Type*</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.business_type ? 'is-invalid' : ''}`}
+                              {...register('business_type')}
                               name="business_type"
                               value={lead.business_type || 'N/A'}
                               onChange={handleInputChange}
@@ -3909,6 +4027,9 @@ const LeadDetail = () => {
                               <option value="Trust">Trust</option>
                               <option value="Other">Other</option>
                             </select>
+                            {errors.business_type && (
+                              <div className="invalid-feedback">{errors.business_type.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -3916,12 +4037,16 @@ const LeadDetail = () => {
                             <label className="form-label">If Other*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_type_other ? 'is-invalid' : ''}`}
+                              {...register('business_type_other')}
                               name="business_type_other"
                               value={lead.business_type_other || ''}
                               onChange={handleInputChange}
                               placeholder="If other, specify type"
                             />
+                            {errors.business_type_other && (
+                              <div className="invalid-feedback">{errors.business_type_other.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -3929,11 +4054,15 @@ const LeadDetail = () => {
                             <label className="form-label">Registration Number*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.registration_number ? 'is-invalid' : ''}`}
+                              {...register('registration_number')}
                               name="registration_number"
                               value={lead.registration_number || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.registration_number && (
+                              <div className="invalid-feedback">{errors.registration_number.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -3943,11 +4072,15 @@ const LeadDetail = () => {
                             <label className="form-label">Registration Date*</label>
                             <input
                               type="date"
-                              className="form-control"
+                              className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
+                              {...register('registration_date')}
                               name="registration_date"
                               value={lead.registration_date || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.registration_date && (
+                              <div className="invalid-feedback">{errors.registration_date.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-3">
@@ -3955,11 +4088,15 @@ const LeadDetail = () => {
                             <label className="form-label">State of Registration*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.state_of_registration ? 'is-invalid' : ''}`}
+                              {...register('state_of_registration')}
                               name="state_of_registration"
                               value={lead.state_of_registration || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.state_of_registration && (
+                              <div className="invalid-feedback">{errors.state_of_registration.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-3">
@@ -3967,18 +4104,23 @@ const LeadDetail = () => {
                             <label className="form-label">EIN*</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.ein ? 'is-invalid' : ''}`}
+                              {...register('ein')}
                               name="ein"
                               value={lead.ein || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.ein && (
+                              <div className="invalid-feedback">{errors.ein.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Tax ID Type*</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.tax_id_type ? 'is-invalid' : ''}`}
+                              {...register('tax_id_type')}
                               name="tax_id_type"
                               value={lead.tax_id_type || 'N/A'}
                               onChange={handleInputChange}
@@ -3988,6 +4130,9 @@ const LeadDetail = () => {
                               <option value="TIN">TIN</option>
                               <option value="SSN">SSN</option>
                             </select>
+                            {errors.tax_id_type && (
+                              <div className="invalid-feedback">{errors.tax_id_type.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -4000,11 +4145,15 @@ const LeadDetail = () => {
                             <label className="form-label">Internal Sales Agent</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.internal_sales_agent ? 'is-invalid' : ''}`}
+                              {...register('internal_sales_agent')}
                               name="internal_sales_agent"
                               value={lead.internal_sales_agent || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.internal_sales_agent && (
+                              <div className="invalid-feedback">{errors.internal_sales_agent.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -4012,11 +4161,15 @@ const LeadDetail = () => {
                             <label className="form-label">Internal Sales Support</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.internal_sales_support ? 'is-invalid' : ''}`}
+                              {...register('internal_sales_support')}
                               name="internal_sales_support"
                               value={lead.internal_sales_support || ''}
                               onChange={handleInputChange}
                             />
+                            {errors.internal_sales_support && (
+                              <div className="invalid-feedback">{errors.internal_sales_support.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -4041,11 +4194,14 @@ const LeadDetail = () => {
                             </label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.company_folder_link ? 'is-invalid' : ''}`}
                               name="company_folder_link"
                               value={companyFolderLink}
                               onChange={handleInputChange}
                             />
+                            {errors.company_folder_link && (
+                              <div className="invalid-feedback">{errors.company_folder_link.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -4066,11 +4222,14 @@ const LeadDetail = () => {
                             </label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.document_folder_link ? 'is-invalid' : ''}`}
                               name="document_folder_link"
                               value={documentFolderLink}
                               onChange={handleInputChange}
                             />
+                            {errors.document_folder_link && (
+                              <div className="invalid-feedback">{errors.document_folder_link.message}</div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -4725,14 +4884,16 @@ const LeadDetail = () => {
                                   <button type="button" className="btn-close" onClick={handleCloseEditProjectModal}></button>
                                 </div>
                                 <div className="modal-body">
-                                  <form onSubmit={(e) => { e.preventDefault(); handleUpdateProject(); }}>
+                                  {/* <form onSubmit={(e) => { e.preventDefault(); handleUpdateProject(); }}> */}
+                                  <form onSubmit={handleSubmitProject(handleUpdateProject)}>
                                     <div className="row mb-3">
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Project Name:*</label>
                                           <input
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${projectErrors.project_name ? 'is-invalid' : ''}`}
+                                            {...registerProject("project_name")}
                                             name="project_name"
                                             value={projectFormData.project_name}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -4740,8 +4901,13 @@ const LeadDetail = () => {
                                               project_name: e.target.value
                                             }))}
                                             placeholder="Enter project name"
-                                            required
+                                            
                                           />
+                                          {projectErrors.project_name && (
+                                            <div className="invalid-feedback">
+                                              {projectErrors.project_name.message}
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -4774,7 +4940,8 @@ const LeadDetail = () => {
                                           <label className="form-label">Fee:</label>
                                           <input
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${projectErrors.project_fee ? 'is-invalid' : ''}`}
+                                            {...registerProject("project_fee")}
                                             name="project_fee"
                                             value={projectFormData.project_fee}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -4783,6 +4950,11 @@ const LeadDetail = () => {
                                             }))}
                                             placeholder="Enter fee"
                                           />
+                                            {projectErrors.project_fee && (
+                                              <div className="invalid-feedback">
+                                                {projectErrors.project_fee.message}
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     </div>
@@ -4793,7 +4965,8 @@ const LeadDetail = () => {
                                           <label className="form-label">Maximum Credit:</label>
                                           <input
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${projectErrors.maximum_credit ? 'is-invalid' : ''}`}
+                                            {...registerProject("maximum_credit")}
                                             name="maximum_credit"
                                             value={projectFormData.maximum_credit}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -4802,6 +4975,11 @@ const LeadDetail = () => {
                                             }))}
                                             placeholder="Enter maximum credit"
                                           />
+                                            {projectErrors.maximum_credit && (
+                                              <div className="invalid-feedback">
+                                                {projectErrors.maximum_credit.message}
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -4809,7 +4987,8 @@ const LeadDetail = () => {
                                           <label className="form-label">Estimated Fee:</label>
                                           <input
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${projectErrors.estimated_fee ? 'is-invalid' : ''}`}
+                                            {...registerProject("estimated_fee")}
                                             name="estimated_fee"
                                             value={projectFormData.estimated_fee}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -4818,6 +4997,11 @@ const LeadDetail = () => {
                                             }))}
                                             placeholder="Enter estimated fee"
                                           />
+                                          {projectErrors.estimated_fee && (
+                                            <div className="invalid-feedback">
+                                              {projectErrors.estimated_fee.message}
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -4830,7 +5014,8 @@ const LeadDetail = () => {
                                           {console.log('Project milestone dropdown - available milestones:', milestones)}
                                           <div className="milestone-select-wrapper">
                                             <select
-                                              className="form-select"
+                                              className={`form-select ${projectErrors.Milestone ? 'is-invalid' : ''}`}
+                                              {...registerProject("Milestone")}
                                               name="Milestone"
                                               value={projectFormData.Milestone}
                                               onChange={async (e) => {
@@ -4906,8 +5091,9 @@ const LeadDetail = () => {
                                                   setMilestoneStages([]);
                                                 }
                                               }}
-                                              required
+                                              
                                             >
+                                              
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
                                                 <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
@@ -4915,6 +5101,11 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
+                                            {projectErrors.Milestone && (
+                                              <div className="invalid-feedback">
+                                                {projectErrors.Milestone.message}
+                                              </div>
+                                            )}
                                           </div>
                                         </div>
                                       </div>
@@ -4923,7 +5114,8 @@ const LeadDetail = () => {
                                           <label className="form-label">Stage:*</label>
                                           <div className="milestone-select-wrapper">
                                             <select
-                                              className="form-select"
+                                              className={`form-select ${projectErrors.MilestoneStage ? 'is-invalid' : ''}`}
+                                              {...registerProject("MilestoneStage")}
                                               name="MilestoneStage"
                                               value={projectFormData.MilestoneStage}
                                               onChange={(e) => {
@@ -4933,7 +5125,7 @@ const LeadDetail = () => {
                                                   MilestoneStage: e.target.value
                                                 }));
                                               }}
-                                              required
+                                              
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
@@ -4942,6 +5134,11 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
+                                            {projectErrors.MilestoneStage && (
+                                              <div className="invalid-feedback">
+                                                {projectErrors.MilestoneStage.message}
+                                              </div>
+                                            )}
                                           </div>
                                         </div>
                                       </div>
@@ -5713,7 +5910,7 @@ const LeadDetail = () => {
                       <div className="action-buttons">
                         <button
                           className="btn save-btn"
-                          onClick={handleSave}
+                          onClick={handleSubmit(handleSave)}
                           disabled={loading}
                         >
                           {loading ? (
