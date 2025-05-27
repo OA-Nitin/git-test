@@ -643,6 +643,36 @@ const ProjectDetail = () => {
   const [updateError, setUpdateError] = useState(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
+  // Audit Logs state
+  const [auditLogsData, setAuditLogsData] = useState({
+    project_fields: [],
+    milestone_stage: [],
+    invoices: [],
+    business_audit_log: []
+  });
+  const [auditLogsLoading, setAuditLogsLoading] = useState(false);
+  const [auditLogsError, setAuditLogsError] = useState(null);
+
+  // Audit Logs search, pagination, and sorting state
+  const [auditLogsSearch, setAuditLogsSearch] = useState({
+    project_fields: '',
+    milestone_stage: '',
+    invoices: '',
+    business_audit_log: ''
+  });
+  const [auditLogsPagination, setAuditLogsPagination] = useState({
+    project_fields: { currentPage: 1, itemsPerPage: 10 },
+    milestone_stage: { currentPage: 1, itemsPerPage: 10 },
+    invoices: { currentPage: 1, itemsPerPage: 10 },
+    business_audit_log: { currentPage: 1, itemsPerPage: 10 }
+  });
+  const [auditLogsSorting, setAuditLogsSorting] = useState({
+    project_fields: { column: 'change_date', direction: 'desc' },
+    milestone_stage: { column: 'change_date', direction: 'desc' },
+    invoices: { column: 'changed_date', direction: 'desc' },
+    business_audit_log: { column: 'change_date', direction: 'desc' }
+  });
+
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
@@ -2809,6 +2839,226 @@ const ProjectDetail = () => {
     }
   };
 
+  // Function to fetch project audit logs
+  const fetchProjectAuditLogs = async () => {
+    try {
+      setAuditLogsLoading(true);
+      setAuditLogsError(null);
+      console.log('=== PROJECT AUDIT LOGS API CALL START ===');
+      console.log('Project ID:', projectId);
+      console.log('Lead ID:', project?.lead_id);
+      console.log('Product ID:', project?.product_id);
+
+      // Validate required parameters
+      if (!projectId) {
+        throw new Error('Project ID is required');
+      }
+      if (!project?.lead_id) {
+        throw new Error('Lead ID is required but not available');
+      }
+      if (!project?.product_id) {
+        throw new Error('Product ID is required but not available');
+      }
+
+      // Build API URL with query parameters
+      const apiUrl = new URL('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
+      apiUrl.searchParams.append('project_id', projectId);
+      apiUrl.searchParams.append('lead_id', project.lead_id);
+      apiUrl.searchParams.append('product_id', project.product_id);
+
+      console.log('API URL:', apiUrl.toString());
+
+      // Make API call to fetch audit logs
+      const response = await axios.get(apiUrl.toString());
+
+      console.log('Project Audit Logs API Response:', response.data);
+
+      if (response.data && response.data.status) {
+        // Set the audit logs data
+        setAuditLogsData({
+          project_fields: response.data.project_fields || [],
+          milestone_stage: response.data.milestone_stage || [],
+          invoices: response.data.invoices || [],
+          business_audit_log: response.data.business_audit_log || []
+        });
+        console.log('Audit logs data set successfully');
+      } else {
+        console.warn('Unexpected audit logs API response structure:', response.data);
+        setAuditLogsError('Unexpected response format from audit logs API');
+      }
+    } catch (error) {
+      console.error('Error fetching project audit logs:', error);
+      setAuditLogsError('Failed to fetch audit logs: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setAuditLogsLoading(false);
+      console.log('=== PROJECT AUDIT LOGS API CALL END ===');
+    }
+  };
+
+  // Helper function to format date for audit logs
+  const formatAuditDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'N/A';
+
+      // Format as mm/dd/yyyy H:i:s (24-hour format)
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+
+      return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+    } catch (err) {
+      console.error('Error formatting audit date:', err);
+      return 'N/A';
+    }
+  };
+
+  // Helper functions for audit logs search, pagination, and sorting
+  const handleAuditLogsSearch = (tableType, searchValue) => {
+    setAuditLogsSearch(prev => ({
+      ...prev,
+      [tableType]: searchValue
+    }));
+    // Reset to first page when searching
+    setAuditLogsPagination(prev => ({
+      ...prev,
+      [tableType]: { ...prev[tableType], currentPage: 1 }
+    }));
+  };
+
+  const handleAuditLogsPagination = (tableType, page) => {
+    setAuditLogsPagination(prev => ({
+      ...prev,
+      [tableType]: { ...prev[tableType], currentPage: page }
+    }));
+  };
+
+  const handleAuditLogsSorting = (tableType, column) => {
+    setAuditLogsSorting(prev => {
+      const currentSort = prev[tableType];
+      const newDirection = currentSort.column === column && currentSort.direction === 'asc' ? 'desc' : 'asc';
+      return {
+        ...prev,
+        [tableType]: { column, direction: newDirection }
+      };
+    });
+  };
+
+  const filterAndSortAuditData = (data, tableType) => {
+    if (!data || !Array.isArray(data)) return [];
+
+    const searchTerm = auditLogsSearch[tableType].toLowerCase();
+    const sorting = auditLogsSorting[tableType];
+
+    // Filter data based on search term
+    let filteredData = data.filter(item => {
+      const searchableFields = Object.values(item).join(' ').toLowerCase();
+      return searchableFields.includes(searchTerm);
+    });
+
+    // Sort data
+    filteredData.sort((a, b) => {
+      let aValue = a[sorting.column] || '';
+      let bValue = b[sorting.column] || '';
+
+      // Handle date sorting
+      if (sorting.column.includes('date')) {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      } else {
+        aValue = aValue.toString().toLowerCase();
+        bValue = bValue.toString().toLowerCase();
+      }
+
+      if (sorting.direction === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return filteredData;
+  };
+
+  const getPaginatedData = (data, tableType) => {
+    const pagination = auditLogsPagination[tableType];
+    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+    const endIndex = startIndex + pagination.itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = (data, tableType) => {
+    const pagination = auditLogsPagination[tableType];
+    return Math.ceil(data.length / pagination.itemsPerPage);
+  };
+
+  const renderPaginationControls = (data, tableType) => {
+    const totalPages = getTotalPages(data, tableType);
+    const currentPage = auditLogsPagination[tableType].currentPage;
+
+    if (totalPages <= 1) return null;
+
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+
+    return (
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <div className="text-muted">
+          Showing {((currentPage - 1) * auditLogsPagination[tableType].itemsPerPage) + 1} to{' '}
+          {Math.min(currentPage * auditLogsPagination[tableType].itemsPerPage, data.length)} of {data.length} entries
+        </div>
+        <nav>
+          <ul className="pagination pagination-sm mb-0">
+            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+              <button
+                className="page-link"
+                onClick={() => handleAuditLogsPagination(tableType, currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+            </li>
+            {pages.map(page => (
+              <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handleAuditLogsPagination(tableType, page)}
+                >
+                  {page}
+                </button>
+              </li>
+            ))}
+            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+              <button
+                className="page-link"
+                onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    );
+  };
+
+  const renderSortIcon = (tableType, column) => {
+    const sorting = auditLogsSorting[tableType];
+    if (sorting.column !== column) {
+      return <i className="fas fa-sort text-muted ms-1"></i>;
+    }
+    return sorting.direction === 'asc'
+      ? <i className="fas fa-sort-up text-primary ms-1"></i>
+      : <i className="fas fa-sort-down text-primary ms-1"></i>;
+  };
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
 
@@ -2825,6 +3075,17 @@ const ProjectDetail = () => {
     // If fees tab is selected, fetch fees information
     if (tab === 'fees') {
       fetchFeesInfo();
+    }
+
+    // If audit logs tab is selected, fetch audit logs
+    if (tab === 'auditLogs') {
+      // Only fetch if project data is available
+      if (project && project.lead_id && project.product_id) {
+        fetchProjectAuditLogs();
+      } else {
+        console.warn('Cannot fetch audit logs: project data not fully loaded');
+        setAuditLogsError('Project data not fully loaded. Please wait and try again.');
+      }
     }
   };
 
@@ -8400,38 +8661,366 @@ const ProjectDetail = () => {
                   {activeTab === 'auditLogs' && (
                     <div className="mb-4 left-section-container">
                       <h5 className="section-title">Audit Logs</h5>
-                      <div className="table-responsive">
-                        <table className="table table-striped table-hover">
-                          <thead>
-                            <tr>
-                              <th>Date</th>
-                              <th>User</th>
-                              <th>Action</th>
-                              <th>Details</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>2023-05-15 09:30 AM</td>
-                              <td>System</td>
-                              <td>Project Created</td>
-                              <td>Project was created with ID {projectId}</td>
-                            </tr>
-                            <tr>
-                              <td>2023-05-15 10:15 AM</td>
-                              <td>Master Ops</td>
-                              <td>Status Updated</td>
-                              <td>Project status changed to "ERC Fulfillment"</td>
-                            </tr>
-                            <tr>
-                              <td>2023-05-16 02:45 PM</td>
-                              <td>Occams Finance</td>
-                              <td>Invoice Created</td>
-                              <td>Invoice #6580 created for $5,000</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+
+                      {auditLogsLoading ? (
+                        <div className="text-center my-4">
+                          <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
+                          <p className="mt-2">Loading audit logs...</p>
+                        </div>
+                      ) : auditLogsError ? (
+                        <div className="alert alert-warning" role="alert">
+                          {auditLogsError}
+                          <button
+                            className="btn btn-sm btn-primary ms-3"
+                            onClick={fetchProjectAuditLogs}
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="audit-logs-container">
+
+                          {/* Project Fields Table */}
+                          <div className="mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6 className="section-subtitle mb-0">Project Fields</h6>
+                              <div className="search-box" style={{ width: '300px' }}>
+                                <input
+                                  type="text"
+                                  className="form-control form-control-sm"
+                                  placeholder="Search project fields..."
+                                  value={auditLogsSearch.project_fields}
+                                  onChange={(e) => handleAuditLogsSearch('project_fields', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {(() => {
+                              const filteredData = filterAndSortAuditData(auditLogsData.project_fields, 'project_fields');
+                              const paginatedData = getPaginatedData(filteredData, 'project_fields');
+
+                              return filteredData.length > 0 ? (
+                                <>
+                                  <div className="table-responsive">
+                                    <table className="table table-striped table-hover">
+                                      <thead>
+                                        <tr>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('project_fields', 'fieldname')}
+                                          >
+                                            Field Name {renderSortIcon('project_fields', 'fieldname')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('project_fields', 'from')}
+                                          >
+                                            From {renderSortIcon('project_fields', 'from')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('project_fields', 'to')}
+                                          >
+                                            To {renderSortIcon('project_fields', 'to')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('project_fields', 'change_date')}
+                                          >
+                                            Changed On {renderSortIcon('project_fields', 'change_date')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('project_fields', 'changed_by')}
+                                          >
+                                            Changed By {renderSortIcon('project_fields', 'changed_by')}
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {paginatedData.map((record, index) => (
+                                          <tr key={index}>
+                                            <td>{record.fieldname || 'N/A'}</td>
+                                            <td>{record.from || 'N/A'}</td>
+                                            <td>{record.to || 'N/A'}</td>
+                                            <td>{formatAuditDate(record.change_date)}</td>
+                                            <td>{record.changed_by || 'N/A'}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                  {renderPaginationControls(filteredData, 'project_fields')}
+                                </>
+                              ) : (
+                                <div className="alert alert-info">
+                                  {auditLogsSearch.project_fields ? 'No project field records match your search.' : 'No project field audit records found.'}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          {/* Milestone & Stage Table */}
+                          <div className="mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6 className="section-subtitle mb-0">Milestone & Stage</h6>
+                              <div className="search-box" style={{ width: '300px' }}>
+                                <input
+                                  type="text"
+                                  className="form-control form-control-sm"
+                                  placeholder="Search milestone & stage..."
+                                  value={auditLogsSearch.milestone_stage}
+                                  onChange={(e) => handleAuditLogsSearch('milestone_stage', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {(() => {
+                              const filteredData = filterAndSortAuditData(auditLogsData.milestone_stage, 'milestone_stage');
+                              const paginatedData = getPaginatedData(filteredData, 'milestone_stage');
+
+                              return filteredData.length > 0 ? (
+                                <>
+                                  <div className="table-responsive">
+                                    <table className="table table-striped table-hover">
+                                      <thead>
+                                        <tr>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'from_milestone_name')}
+                                          >
+                                            From Milestone {renderSortIcon('milestone_stage', 'from_milestone_name')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'milestone_name')}
+                                          >
+                                            To Milestone {renderSortIcon('milestone_stage', 'milestone_name')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'from_stage_name')}
+                                          >
+                                            From Stage {renderSortIcon('milestone_stage', 'from_stage_name')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'stage_name')}
+                                          >
+                                            To Stage {renderSortIcon('milestone_stage', 'stage_name')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'change_date')}
+                                          >
+                                            Changed On {renderSortIcon('milestone_stage', 'change_date')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'changed_by')}
+                                          >
+                                            Changed By {renderSortIcon('milestone_stage', 'changed_by')}
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {paginatedData.map((record, index) => (
+                                          <tr key={index}>
+                                            <td>{record.from_milestone_name || 'N/A'}</td>
+                                            <td>{record.milestone_name || 'N/A'}</td>
+                                            <td>{record.from_stage_name || 'N/A'}</td>
+                                            <td>{record.stage_name || 'N/A'}</td>
+                                            <td>{formatAuditDate(record.change_date)}</td>
+                                            <td>{record.changed_by || 'N/A'}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                  {renderPaginationControls(filteredData, 'milestone_stage')}
+                                </>
+                              ) : (
+                                <div className="alert alert-info">
+                                  {auditLogsSearch.milestone_stage ? 'No milestone & stage records match your search.' : 'No milestone & stage audit records found.'}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          {/* Invoice Changes Table */}
+                          <div className="mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6 className="section-subtitle mb-0">Invoice Changes</h6>
+                              <div className="search-box" style={{ width: '300px' }}>
+                                <input
+                                  type="text"
+                                  className="form-control form-control-sm"
+                                  placeholder="Search invoice changes..."
+                                  value={auditLogsSearch.invoices}
+                                  onChange={(e) => handleAuditLogsSearch('invoices', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {(() => {
+                              const filteredData = filterAndSortAuditData(auditLogsData.invoices, 'invoices');
+                              const paginatedData = getPaginatedData(filteredData, 'invoices');
+
+                              return filteredData.length > 0 ? (
+                                <>
+                                  <div className="table-responsive">
+                                    <table className="table table-striped table-hover">
+                                      <thead>
+                                        <tr>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('invoices', 'customer_invoice_no')}
+                                          >
+                                            Invoice No {renderSortIcon('invoices', 'customer_invoice_no')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('invoices', 'fieldname')}
+                                          >
+                                            Field Name {renderSortIcon('invoices', 'fieldname')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('invoices', 'from')}
+                                          >
+                                            From Value {renderSortIcon('invoices', 'from')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('invoices', 'to')}
+                                          >
+                                            To Value {renderSortIcon('invoices', 'to')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('invoices', 'changed_date')}
+                                          >
+                                            Changed On {renderSortIcon('invoices', 'changed_date')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('invoices', 'changed_by')}
+                                          >
+                                            Changed By {renderSortIcon('invoices', 'changed_by')}
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {paginatedData.map((record, index) => (
+                                          <tr key={index}>
+                                            <td>{record.customer_invoice_no || 'N/A'}</td>
+                                            <td>{record.fieldname || 'N/A'}</td>
+                                            <td>{record.from || 'N/A'}</td>
+                                            <td>{record.to || 'N/A'}</td>
+                                            <td>{formatAuditDate(record.changed_date)}</td>
+                                            <td>{record.changed_by || 'N/A'}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                  {renderPaginationControls(filteredData, 'invoices')}
+                                </>
+                              ) : (
+                                <div className="alert alert-info">
+                                  {auditLogsSearch.invoices ? 'No invoice records match your search.' : 'No invoice audit records found.'}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          {/* Business Audit Log Table */}
+                          <div className="mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <h6 className="section-subtitle mb-0">Business Audit Log</h6>
+                              <div className="search-box" style={{ width: '300px' }}>
+                                <input
+                                  type="text"
+                                  className="form-control form-control-sm"
+                                  placeholder="Search business audit log..."
+                                  value={auditLogsSearch.business_audit_log}
+                                  onChange={(e) => handleAuditLogsSearch('business_audit_log', e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            {(() => {
+                              const filteredData = filterAndSortAuditData(auditLogsData.business_audit_log, 'business_audit_log');
+                              const paginatedData = getPaginatedData(filteredData, 'business_audit_log');
+
+                              return filteredData.length > 0 ? (
+                                <>
+                                  <div className="table-responsive">
+                                    <table className="table table-striped table-hover">
+                                      <thead>
+                                        <tr>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'fieldname')}
+                                          >
+                                            Field Name {renderSortIcon('business_audit_log', 'fieldname')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'from')}
+                                          >
+                                            From Value {renderSortIcon('business_audit_log', 'from')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'to')}
+                                          >
+                                            To Value {renderSortIcon('business_audit_log', 'to')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'note')}
+                                          >
+                                            Note {renderSortIcon('business_audit_log', 'note')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'change_date')}
+                                          >
+                                            Changed On {renderSortIcon('business_audit_log', 'change_date')}
+                                          </th>
+                                          <th
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'changed_by')}
+                                          >
+                                            Changed By {renderSortIcon('business_audit_log', 'changed_by')}
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {paginatedData.map((record, index) => (
+                                          <tr key={index}>
+                                            <td>{record.fieldname || 'N/A'}</td>
+                                            <td>{record.from || 'N/A'}</td>
+                                            <td>{record.to || 'N/A'}</td>
+                                            <td>{record.note || 'N/A'}</td>
+                                            <td>{formatAuditDate(record.change_date)}</td>
+                                            <td>{record.changed_by || 'N/A'}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                  {renderPaginationControls(filteredData, 'business_audit_log')}
+                                </>
+                              ) : (
+                                <div className="alert alert-info">
+                                  {auditLogsSearch.business_audit_log ? 'No business audit records match your search.' : 'No business audit records found.'}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                        </div>
+                      )}
                     </div>
                   )}
 
