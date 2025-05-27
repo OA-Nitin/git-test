@@ -93,7 +93,7 @@ const EditContactModal = ({
 
       // Make a POST request to fetch contact details
       const response = await axios.post(
-        `https://play.occamsadvisory.com/portal/wp-json/v1/lead-contacts`,
+        `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-contacts`,
         {
           lead_id: leadId,
           contact_id: contactId,
@@ -269,7 +269,7 @@ const EditContactModal = ({
 
       // Use the API endpoint with type parameter
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
+        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
       );
 
       console.log("Contact referrals API response:", response.data);
@@ -436,7 +436,7 @@ const EditContactModal = ({
       console.log("Submitting contact data:", submitData);
 
       const response = await axios.put(
-        `https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
+        `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
         submitData
       );
 

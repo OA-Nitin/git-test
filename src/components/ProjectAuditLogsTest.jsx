@@ -18,7 +18,7 @@ const ProjectAuditLogsTest = ({ project }) => {
       console.log('Product ID:', project.product_id);
       
       // Build the API URL
-      const apiUrl = new URL('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
+      const apiUrl = new URL('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
       apiUrl.searchParams.append('project_id', projectId);
       apiUrl.searchParams.append('lead_id', project.lead_id);
       apiUrl.searchParams.append('product_id', project.product_id);
@@ -61,7 +61,7 @@ const ProjectAuditLogsTest = ({ project }) => {
     );
   }
 
-  const apiUrl = new URL('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
+  const apiUrl = new URL('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
   apiUrl.searchParams.append('project_id', projectId);
   apiUrl.searchParams.append('lead_id', project.lead_id);
   apiUrl.searchParams.append('product_id', project.product_id);
