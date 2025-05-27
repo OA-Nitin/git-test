@@ -86,7 +86,7 @@ const LeadReport = ({ projectType }) => {
 
       // Construct API URL - if projectType is provided, we could add it as a query parameter
       // For now, we'll fetch all leads and filter them client-side
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/leads';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }
@@ -273,7 +273,7 @@ const LeadReport = ({ projectType }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('lead_id');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDirection, setSortDirection] = useState('desc'); // Changed to desc for latest leads first
   const [isSearching, setIsSearching] = useState(false);
 
 
@@ -357,9 +357,10 @@ const LeadReport = ({ projectType }) => {
       // If already sorting by this field, toggle direction
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // If sorting by a new field, set it and default to ascending
+      // If sorting by a new field, set it and default direction based on field type
       setSortField(field);
-      setSortDirection('asc');
+      // For lead_id, default to descending (latest first), for others default to ascending
+      setSortDirection(field === 'lead_id' ? 'desc' : 'asc');
     }
     // Reset to first page when sorting changes
     setCurrentPage(1);

@@ -250,8 +250,8 @@ const AuditLogsMultiSection = ({ leadId }) => {
   }, [leadId]);
 
   return (
-    <div className="audit-logs-multi-section">
-      <h2 className="main-heading">Audit Logs</h2>
+    <>
+      <h2 className="section-title">Audit Logs</h2>
 
       {/* Field Activity Section */}
       <div className="audit-section">
@@ -508,7 +508,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
           ]}
         />
       </div>
-    </div>
+    </>
   );
 };
 
