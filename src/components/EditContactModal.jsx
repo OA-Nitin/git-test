@@ -66,6 +66,18 @@ const EditContactModal = ({
     mode: "onTouched",
   });
 
+
+      // Modify your useEffect to set form values based on the currently opened contact edit form
+      useEffect(() => {
+        if (contactId) {
+          Object.keys(formData).forEach((key) => {
+            setValue(key, formData[key]);
+          });
+        }
+      }, [contactId, formData, setValue]);
+      
+
+
     // Watch form values for conditional validation
     const watchReferralType = watch("referral_type");
 

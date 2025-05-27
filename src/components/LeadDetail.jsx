@@ -59,30 +59,6 @@ const LeadDetail = () => {
   const [unassignLoading, setUnassignLoading] = useState(false);
 
 
-  // validation 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-    trigger,
-  } = useForm({
-    resolver: yupResolver(leadDetailSchema),
-    mode: 'all',
-  });
-  
-  const {
-    register: registerProject,
-    handleSubmit: handleSubmitProject,
-    formState: { errors: projectErrors },
-    setValue: setProjectValue,
-    reset: resetProjectForm,
-    watch: watchProject
-  } = useForm({
-    resolver: yupResolver(projectSchema),
-    mode: "all"
-  });
-
   // Contacts related state
   const [primaryContact, setPrimaryContact] = useState({
     name: '',
@@ -216,6 +192,69 @@ const LeadDetail = () => {
   // Master Affiliate Commission state
   const [masterCommissionType, setMasterCommissionType] = useState({ value: '', label: 'Select Commission Type' });
   const [masterCommissionValue, setMasterCommissionValue] = useState('');
+
+
+
+  
+  // validation 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    getValues,
+    trigger,
+  } = useForm({
+    resolver: yupResolver(leadDetailSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+  });
+
+
+  // Modify your useEffect that sets form values to properly register them 
+  useEffect(() => {
+    if (lead) {
+      Object.keys(lead).forEach((key) => {
+        setValue(key, lead[key]);
+      });
+    }
+  }, [lead, setValue]);
+  
+  const {
+    register: registerProject,
+    handleSubmit: handleSubmitProject,
+    formState: { errors: projectErrors },
+    setValue: setProjectValue,
+    reset: resetProjectForm,
+    watch: watchProject
+  } = useForm({
+    resolver: yupResolver(projectSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+  });
+
+    // Modify your useEffect to set form values based on the currently opened project edit form
+    useEffect(() => {
+      if (currentProject) {
+      Object.keys(currentProject).forEach((key) => {
+        // Map the field names if they are different
+        const mappedKey = {
+        id: 'projectID',
+        projectName: 'project_name',
+        fee: 'project_fee',
+        maxCredit: 'maximum_credit',
+        estFee: 'estimated_fee',
+        milestone: 'Milestone',
+        stage: 'MilestoneStage',
+        contactId: 'ContactList',
+        collaborator: 'collaborators'
+        }[key] || key; // Use the mapped key or fallback to the original key
+
+        setProjectValue(mappedKey, currentProject[key]);
+      });
+      }
+    }, [currentProject, setProjectValue]);
+
 
   // Fetch lead data when leadId changes
   // Function to fetch groups from API
@@ -3230,8 +3269,7 @@ const LeadDetail = () => {
   };
 
   // Handle form submission
-  const handleSave = async (validatedData) => {
-    console.log('Validated data:', validatedData);
+  const handleSave = async () => {
     setLoading(true);
     setError(null);
     setUpdateSuccess(false);
@@ -3869,6 +3907,7 @@ const LeadDetail = () => {
                               name="primary_contact_email"
                               value={primaryContact.email || ''}
                               onChange={handleInputChange}
+                              disabled
                             />
                               {errors.primary_contact_email && (
                                 <div className="invalid-feedback">{errors.primary_contact_email.message}</div>
@@ -3885,6 +3924,7 @@ const LeadDetail = () => {
                               name="primary_contact_phone"
                               value={primaryContact.phone || ''}
                               onChange={handleInputChange}
+                              disabled
                             />
                             {errors.primary_contact_phone && (
                               <div className="invalid-feedback">{errors.primary_contact_phone.message}</div>
@@ -3901,6 +3941,7 @@ const LeadDetail = () => {
                               name="primary_contact_ext"
                               value={primaryContact.ext || ''}
                               onChange={handleInputChange}
+                              disabled
                             />
                             {errors.primary_contact_ext && (
                               <div className="invalid-feedback">{errors.primary_contact_ext.message}</div>
@@ -3919,6 +3960,7 @@ const LeadDetail = () => {
                               name="contact_phone_type"
                               value={primaryContact.phoneType || ''}
                               onChange={handleInputChange}
+                              disabled
                             />
                             {errors.contact_phone_type && (
                               <div className="invalid-feedback">{errors.contact_phone_type.message}</div>

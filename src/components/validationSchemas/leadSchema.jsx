@@ -9,7 +9,6 @@ export const noteFormSchema = yup.object().shape({
 const phoneRegex = /^(\d{3}-\d{3}-\d{4}|\d{10})$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const nameRegex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
-
 const businessNameRegex = /^([\w!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]+(?: [\w!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]+)*)$/;
 const dateRegex = /^(?:(\d{2})[\/\-](\d{2})[\/\-](\d{4})|(\d{4})[\/\-](\d{2})[\/\-](\d{2}))$/;
 
@@ -255,40 +254,39 @@ export const contactSchema = yup.object().shape({
     .string()
     .notRequired(),
     
-  // Mailing Info
-  primary_address_street: yup
+// Mailing Info
+primary_address_street: yup
     .string()
     .notRequired()
     .max(100, 'Maximum 100 characters allowed'),
     
-  house_no: yup
+house_no: yup
     .string()
     .notRequired()
     .max(20, 'Maximum 20 characters allowed'),
     
-  primary_address_city: yup
+primary_address_city: yup
     .string()
     .notRequired()
     .max(60, 'Maximum 60 characters allowed')
     .test('is-valid', 'Please enter a valid city name', value => !value || nameRegex.test(value)),
     
-  primary_address_state: yup
+primary_address_state: yup
     .string()
     .notRequired()
     .max(60, 'Maximum 60 characters allowed')
     .test('is-valid', 'Please enter a valid state name', value => !value || nameRegex.test(value)),
     
-  primary_address_postalcode: yup
+primary_address_postalcode: yup
     .string()
     .notRequired()
     .max(10, 'Maximum 10 characters allowed')
-    .test('is-valid-zip', 'Please enter a valid ZIP code', value => !value || zipRegex.test(value)),
-    
-  primary_address_country: yup
+    .test('is-valid-zip', 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789).', value => !value || /^\d{5}(-\d{4})?$/.test(value)),
+
+primary_address_country: yup
     .string()
     .notRequired()
     .max(60, 'Maximum 60 characters allowed'),
-    
   // Contact Preferences
   dnd: yup
     .string()
