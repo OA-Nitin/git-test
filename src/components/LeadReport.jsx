@@ -86,7 +86,7 @@ const LeadReport = ({ projectType }) => {
 
       // Construct API URL - if projectType is provided, we could add it as a query parameter
       // For now, we'll fetch all leads and filter them client-side
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/v1/leads';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/leads';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }

@@ -183,7 +183,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching groups...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-groups');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-groups');
 
       console.log('Groups API response:', response);
 
@@ -234,7 +234,7 @@ const LeadDetail = () => {
   // function to fectch link contact list
   const fetchAvailableContacts = async () => {
     try {
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
 
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         const contactOptions = response.data.data.map(contact => ({
@@ -272,7 +272,7 @@ const LeadDetail = () => {
       console.log('Linking contact with data:', requestData);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
+        'https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
         requestData,
         {
           headers: {
@@ -366,7 +366,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching campaigns...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-campaigns');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-campaigns');
 
       console.log('Campaigns API response:', response);
 
@@ -419,7 +419,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching sources...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/sources');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/sources');
 
       console.log('Sources API response:', response);
 
@@ -472,7 +472,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching billing profiles...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
 
       console.log('Billing Profiles API response:', response);
 
@@ -641,7 +641,7 @@ const LeadDetail = () => {
       console.log('Fetching assigned users for lead ID:', leadId);
       setUnassignLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
 
       console.log('Assigned users API response:', response);
       //  && response.data.success && Array.isArray(response.data.data)
@@ -674,7 +674,7 @@ const LeadDetail = () => {
       setIsLoadingOptions(true);
 
       // Use the same API endpoint as the sales team
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
 
       console.log('User data API response:', response);
 
@@ -749,7 +749,7 @@ const LeadDetail = () => {
   const fetchBusinessData = async () => {
     try {
       console.log('Fetching business data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
         console.log('Business data fetched successfully:', response.data);
@@ -860,7 +860,7 @@ const LeadDetail = () => {
   const fetchAffiliateCommissionData = async () => {
     try {
       console.log('Fetching affiliate commission data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-affiliate-commission-data/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-affiliate-commission-data/${leadId}`);
 
       if (response.data && (response.data.status === 'success' || response.data.success)) {
         console.log('Affiliate commission data fetched successfully:', response.data);
@@ -1047,7 +1047,7 @@ const LeadDetail = () => {
       });
 
       // Call the API to disable the contact
-      const response = await axios.delete(`https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
+      const response = await axios.delete(`https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
 
       console.log('Disable contact API response:', response);
 
@@ -1093,7 +1093,7 @@ const LeadDetail = () => {
       // Make the API call with a cache-busting parameter to ensure fresh data
       const timestamp = new Date().getTime();
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
+        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
       );
 
       if (response.data && response.data.status === 'success') {
@@ -1176,7 +1176,7 @@ const LeadDetail = () => {
   const fetchProjectData = async () => {
     try {
       console.log('Fetching project data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-project-data/${leadId}/0`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-project-data/${leadId}/0`);
 
       console.log('Project API raw response:', response);
 
@@ -1296,7 +1296,7 @@ const LeadDetail = () => {
           console.log('Fetching lead data from API with lead_id:', leadId);
 
           // Use a more direct approach with explicit configuration
-          const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/v1/leads?lead_id=${leadId}`;
+          const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/leads?lead_id=${leadId}`;
           console.log('API URL:', apiUrl);
 
           const response = await axios({
@@ -1613,7 +1613,7 @@ const LeadDetail = () => {
           // Call the API to assign the user
           console.log('Assigning user with user_id:', selectedUser.user.id);
           const response = await axios.post(
-            'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
+            'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
             {
               lead_id: leadId,
               user_id: selectedUser.user.id,
@@ -1692,7 +1692,7 @@ const LeadDetail = () => {
       // Call the API to unassign the user
       console.log('Unassigning user with user_id:', userId);
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
         {
           lead_id: leadId,
           user_id: userId,
@@ -1911,7 +1911,7 @@ const LeadDetail = () => {
       }
 
       // Build the API URL with the milestone_id parameter
-      let apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${encodeURIComponent(milestone_id)}`;
+      let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${encodeURIComponent(milestone_id)}`;
 
       // Add product_id parameter if provided
       if (product_id) {
@@ -2026,7 +2026,7 @@ const LeadDetail = () => {
       ];
 
       // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
       if (product_id) {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
@@ -2222,7 +2222,7 @@ const LeadDetail = () => {
 
       // Make the API call
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field',
         projectFormData
       );
 
@@ -2318,7 +2318,7 @@ const LeadDetail = () => {
 
       // Uncomment and modify when API is available
       /*
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
 
       console.log('Opportunities API response:', response);
 
@@ -2349,7 +2349,7 @@ const LeadDetail = () => {
       ];
 
       // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
       if (product_id) {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
@@ -2582,7 +2582,7 @@ const LeadDetail = () => {
       // Uncomment and modify when API is available
       /*
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
         opportunityFormData
       );
 
@@ -2659,7 +2659,7 @@ const LeadDetail = () => {
       });
 
       // Make the DELETE request to the API
-      const response = await axios.delete('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
+      const response = await axios.delete('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
         data: { id: opportunityId }
       });
 
@@ -2939,7 +2939,7 @@ const LeadDetail = () => {
       // Make API call to update the lead
       console.log('Sending data to API:', mergedData);
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/leads',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/leads',
         mergedData,
         {
           headers: {

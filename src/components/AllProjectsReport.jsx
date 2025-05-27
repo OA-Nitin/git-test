@@ -83,7 +83,7 @@ const AllProjectsReport = () => {
       console.log('Using product ID:', productId);
 
       // Construct API URL with product_id parameter if available
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }

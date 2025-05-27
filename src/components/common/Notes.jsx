@@ -47,25 +47,25 @@ const Notes = ({
     switch (entityType) {
       case 'lead':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
       case 'project':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
         };
       case 'opportunity':
         console.log('Opportunity ID for notes API:', safeEntityId);
         // Use the exact API endpoint from the Postman GET screenshot
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
         };
       default:
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
     }
   };

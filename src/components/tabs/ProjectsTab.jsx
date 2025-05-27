@@ -243,7 +243,7 @@ const ProjectsTab = ({
                                     console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
 
                                     // Fetch milestone stages using the API endpoint with milestone_id
-                                    const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
+                                    const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
                                     console.log('Calling milestone stages API with URL:', apiUrl);
 
                                     const response = await axios.get(apiUrl);

@@ -229,7 +229,7 @@ const DataTable = ({
       ) : (
         <>
           <div className="table-responsive">
-            <table className="data-table">
+            <table className="table table-bordered table-hover table-striped">
               {renderTableHeader()}
               {renderTableBody()}
             </table>

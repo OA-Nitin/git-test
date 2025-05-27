@@ -1,55 +1,17 @@
 // src/data/menuData.js
 export const menuData = [
   {
-    key: 'dashboard',
-    name: 'Dashboard',
-    path: '/dashboard',
-    icon: 'dashicons-dashboard',
-  },
-  {
-    key: 'createUser',
-    name: 'Create User',
-    path: '/create-user',
-    icon: 'dashicons-admin-users',
-  },
-  {
-    key: 'myProfile',
-    name: 'My Profile',
-    path: '/my-profile',
-    icon: 'dashicons-id',
-  },
-  {
-    key: 'projects',
-    name: 'Projects',
-    icon: 'dashicons-portfolio',
-    children: [
-
-      { key: 'projectsReport', name: 'Project Reports', path: '/reports/projects' },
-      { key: 'ercProjects', name: 'ERC Projects Report', path: '/projects/erc' },
-      { key: 'stcProjects', name: 'STC Projects', path: '/projects/stc' },
-      // { key: 'taxAmendmentProjects', name: 'Tax Amendment Projects', path: '/projects/tax-amendment' },
-      // { key: 'auditAdvisoryProjects', name: 'Audit Advisory Projects', path: '/projects/audit-advisory' },
-      { key: 'rdcProjects', name: 'RDC Projects', path: '/projects/rdc' },
-      { key: 'projectSettings', name: 'Project Settings', path: '/projects/settings' },
-    ],
-  },
-  {
     key: 'reports',
     name: 'Reports',
     icon: 'dashicons-chart-bar',
     children: [
-      { key: 'leadReports', name: 'Lead Reports', path: '/reports/leads' },
-      { key: 'salesReports', name: 'Sales Reports', path: '/reports/sales' },
-      { key: 'analytics', name: 'Analytics', path: '/reports/analytics' },
-    ],
-  },
-  {
-    key: 'finance',
-    name: 'Finance',
-    icon: 'dashicons-money-alt',
-    children: [
-      { key: 'manageInvoice', name: 'Manage Invoice', path: '/finance/invoices' },
-      { key: 'createinvoice', name: 'Create Invoice', path: '/finance/create-invoice' }
+    { key: 'allLeads', name: 'Leads Reports', path: '/reports/leads/all' },
+    { key: 'ercLeadReport', name: 'ERC Lead Report', path: '/reports/leads/erc' },
+    { key: 'stcLeadReport', name: 'STC Lead Report', path: '/reports/leads/stc' },
+    { key: 'rdcLeadReport', name: 'RDC Lead Report', path: '/reports/leads/rdc' },
+    { key: 'partnershipLeadReport', name: 'Partnership Lead Report', path: '/reports/leads/partnership' },
+    { key: 'taxAmendmentLeadReport', name: 'Tax Amendment Lead Report', path: '/reports/leads/tax-amendment' },
+    { key: 'auditAdvisoryLeadReport', name: 'Audit Advisory Lead Report', path: '/reports/leads/audit-advisory' },
     ],
   },
   {
@@ -57,24 +19,27 @@ export const menuData = [
     name: 'Opportunities',
     icon: 'dashicons-image-filter',
     children: [
-      { key: 'opportunitiesReport', name: 'Opportunities Report', path: '/opportunities/report' },
-      { key: 'ercOpportunities', name: 'ERC Opportunities', path: '/opportunities/erc' },
-      { key: 'stcOpportunities', name: 'STC Opportunities', path: '/opportunities/stc' },
-      { key: 'taxAmendmentOpportunities', name: 'Tax Amendment Opportunities', path: '/opportunities/tax-amendment' },
-      { key: 'auditAdvisoryOpportunities', name: 'Audit Advisory Opportunities', path: '/opportunities/audit-advisory' },
-      { key: 'rdcOpportunities', name: 'RDC Opportunities', path: '/opportunities/rdc' },
-      { key: 'partnershipOpportunities', name: 'Partnership Opportunities', path: '/opportunities/partnership' },
-      { key: 'milestoneStages', name: 'Milestone & Stages', path: '/opportunities/milestone-stages' },
+      { key: 'opportunitiesReport', name: 'All Opportunities', path: '/reports/opportunities/all' },
+      { key: 'ercOpportunities', name: 'ERC Opportunities', path: '/reports/opportunities/erc' },
+      { key: 'stcOpportunities', name: 'STC Opportunities', path: '/reports/opportunities/stc' },
+      { key: 'taxAmendmentOpportunities', name: 'Tax Amendment Opportunities', path: '/reports/opportunities/tax-amendment' },
+      { key: 'auditAdvisoryOpportunities', name: 'Audit Advisory Opportunities', path: '/reports/opportunities/audit-advisory' },
+      { key: 'rdcOpportunities', name: 'RDC Opportunities', path: '/reports/opportunities/rdc' },
+      { key: 'partnershipOpportunities', name: 'Partnership Opportunities', path: '/reports/opportunities/partnership' },
+      //{ key: 'milestoneStages', name: 'Milestone & Stages', path: '/reports/opportunities/milestone-stages' },
     ],
   },
   {
-    key: 'examples',
-    name: 'Examples',
-    icon: 'dashicons-admin-appearance',
+    key: 'projects',
+    name: 'Projects',
+    icon: 'dashicons-analytics',
     children: [
-      { key: 'notesExample', name: 'Notes Example', path: '/examples/notes' },
-      { key: 'buttonsExample', name: 'Buttons Example', path: '/examples/buttons' },
-      { key: 'pageContainerExample', name: 'Page Container', path: '/examples/page-container' }
+      { key: 'allProjects', name: 'All Projects', path: '/reports/projects/all' },
+      { key: 'ercProjects', name: 'ERC Projects', path: '/reports/projects/erc' },
+      { key: 'stcProjects', name: 'STC Projects', path: '/reports/projects/stc' },
+      // { key: 'taxAmendmentProjects', name: 'Tax Amendment Projects', path: '/reports/projects/tax-amendment' },
+      // { key: 'auditAdvisoryProjects', name: 'Audit Advisory Projects', path: '/reports/projects/audit-advisory' },
+      { key: 'rdcProjects', name: 'RDC Projects', path: '/reports/projects/rdc' },
     ],
   },
 ];

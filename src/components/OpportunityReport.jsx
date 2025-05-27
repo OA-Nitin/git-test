@@ -241,7 +241,7 @@ const OpportunityReport = ({ projectType }) => {
       console.log('Using product ID:', productId);
 
       // Construct API URL with product_id parameter if available
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }
