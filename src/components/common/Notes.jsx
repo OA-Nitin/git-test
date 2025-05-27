@@ -12,6 +12,28 @@ import { noteFormSchema } from '../../components/validationSchemas/leadSchema.js
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+// Standardized date formatting function for MM/DD/YYYY format
+const formatDateToMMDDYYYY = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return dateString;
+
+    // Format as MM/DD/YYYY
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
 
 /**
  * Reusable Notes component that can be used throughout the application
@@ -51,7 +73,7 @@ const Notes = ({
     resolver: yupResolver(noteFormSchema),
     mode: 'onTouched'
   });
-  
+
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
 
@@ -202,23 +224,13 @@ const Notes = ({
         }
       }
 
-      // Format the notes for display
+      // Format the notes for display in MM/DD/YYYY format (no time)
       const formattedNotes = fetchedNotes.map(note => {
         // Parse the date from the note (handle different field names)
         const originalDate = new Date(note.created_at || note.date || note.created || new Date());
 
-        // Format the date
-        const formattedDate = originalDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-
-        const formattedTime = originalDate.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        });
+        // Format the date in MM/DD/YYYY format
+        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date());
 
         // Clean up the note text - remove any leading numbers or IDs
         let noteText = note.note || note.text || note.content || '';
@@ -232,8 +244,7 @@ const Notes = ({
           text: noteText,
           author: note.author || note.user_name || note.created_by || 'User',
           date: originalDate,
-          formattedDate,
-          formattedTime
+          formattedDate
         };
       });
 
@@ -348,11 +359,9 @@ const Notes = ({
   };
 
   // Function to handle adding a new note
-  const handleAddNote = (e) => {
-    e.preventDefault();
-
+  const handleAddNote = (data) => {
     // Allow empty notes to be submitted, but trim it for the API call
-    const trimmedNote = newNote.trim();
+    const trimmedNote = data.note ? data.note.trim() : '';
 
     // Debug information
     console.log('Adding note for:', { entityType, entityId, trimmedNote });
@@ -560,7 +569,6 @@ const Notes = ({
             >
               <div className="d-flex justify-content-between">
                 <div className="note-date fw-bold">{note.formattedDate}</div>
-                <div className="note-date fw-bold">{note.formattedTime}</div>
               </div>
               <div className="note-content mt-2">
                 <div className="d-flex align-items-start">
