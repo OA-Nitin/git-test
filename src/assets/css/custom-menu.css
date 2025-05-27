@@ -1,0 +1,63 @@
+/* Custom Menu Styles */
+.custom-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu-items {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    color: #007bff;
+}
+
+/* Custom styling for the Projects menu */
+#menu-item-projects > a {
+  background-color: #0073aa !important;
+  color: #fff !important;
+}
+
+#menu-item-projects .mm-collapse {
+  background-color: #0073aa !important;
+  display: block !important;
+}
+
+#menu-item-projects .mm-collapse li a {
+  color: #fff !important;
+  padding-left: 35px;
+}
+
+#menu-item-projects .mm-collapse li a:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#menu-item-projects .mm-collapse li.current a {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Make the Projects menu always expanded */
+#menu-item-projects .menu-arrow {
+  transform: rotate(90deg);
+  color: #fff;
+}
+
+/* Add a cyan color for "All Projects" */
+#menu-item-projects .mm-collapse li:first-child a {
+  color: #00ffff !important;
+}
