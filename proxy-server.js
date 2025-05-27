@@ -16,7 +16,7 @@ const fs = require('fs');
 const app = express();
 
 // API configuration
-const API_BASE_URL = 'https://play.occamsadvisory.com/portal';
+const API_BASE_URL = 'https://portal.occamsadvisory.com/portal';
 const API_PATH = '/wp-json/oc-login-api/v1';
 const API_KEY = 'qV9@8kJz#2dP!mNc';
 const PORT = process.env.PORT || 3001;

@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // API configuration
-const API_BASE_URL = 'https://play.occamsadvisory.com/portal/wp-json/oc-login-api/v1';
+const API_BASE_URL = 'https://portal.occamsadvisory.com/portal/wp-json/oc-login-api/v1';
 const API_KEY = 'qV9@8kJz#2dP!mNc';
 
 // Enable CORS for all routes

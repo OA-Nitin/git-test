@@ -338,7 +338,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -367,7 +367,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -396,7 +396,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -424,7 +424,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -452,7 +452,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -480,7 +480,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -1450,7 +1450,7 @@ const ProjectDetail = () => {
 
       try {
         const response = await axios.post(
-          "https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
+          "https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
           { project_id: projectId }
         );
 
@@ -1557,7 +1557,7 @@ const ProjectDetail = () => {
       console.log('Fetching collaborators for project ID:', projectId);
       setCollaboratorLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
 
       console.log('Collaborators API response:', response);
 
@@ -1607,7 +1607,7 @@ const ProjectDetail = () => {
       console.log('Fetching owners for project ID:', projectId);
       setOwnerLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
 
       console.log('Owners API response:', response);
 
@@ -1668,7 +1668,7 @@ const ProjectDetail = () => {
       console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
       setContactLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
 
       console.log('Contacts API response:', response);
 
@@ -1729,7 +1729,7 @@ const ProjectDetail = () => {
       console.log('Fetching milestone and stage for project ID:', projectId);
       setIsLoadingMilestones(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
 
       console.log('Milestone API response:', response);
 
@@ -1790,7 +1790,7 @@ const ProjectDetail = () => {
       console.log('Fetching all available milestones');
 
       // Build the API URL with the product_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
       console.log('All milestones API URL:', apiUrl);
 
       // Make the API call
@@ -1917,7 +1917,7 @@ const ProjectDetail = () => {
             // If proxy server fails, try direct API
             try {
               console.log('Trying direct API request');
-              response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
+              response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -2121,7 +2121,7 @@ const ProjectDetail = () => {
       console.log('Fetching bank information for project ID:', project.project_id);
 
       // Make a POST request to the bank info API
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2205,7 +2205,7 @@ const ProjectDetail = () => {
       console.log('Fetching intake information for project ID:', project.project_id);
 
       // Make a POST request to the intake info API
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2399,12 +2399,12 @@ const ProjectDetail = () => {
     try {
       console.log('=== FEES API CALL START ===');
       console.log('Project ID:', project.project_id);
-      console.log('API Endpoint: https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
+      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
       const requestBody = { project_id: project.project_id };
       console.log('Request Body:', JSON.stringify(requestBody));
 
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2796,7 +2796,7 @@ const ProjectDetail = () => {
       }
 
       // Build API URL with query parameters
-      const apiUrl = new URL('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
+      const apiUrl = new URL('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
       apiUrl.searchParams.append('project_id', projectId);
       apiUrl.searchParams.append('lead_id', project.lead_id);
       apiUrl.searchParams.append('product_id', project.product_id);
@@ -3137,7 +3137,7 @@ const ProjectDetail = () => {
 
           // Call the API to assign the collaborator
           const response = await axios.post(
-            'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+            'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
             {
               project_id: projectId,
               user_id: selectedCollaborator.collaborator.id,
@@ -3222,7 +3222,7 @@ const ProjectDetail = () => {
 
       // Call the API to unassign the collaborator
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
         {
           project_id: projectId,
           user_id: collaboratorId,
@@ -3298,7 +3298,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the owner
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
         {
           project_id: projectId,
           owner_id: owner.value
@@ -3358,7 +3358,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the contact
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
         {
           project_id: projectId,
           contact_id: selectedContact.value
@@ -3424,7 +3424,7 @@ const ProjectDetail = () => {
       console.log('Fetching milestones for product ID:', selectedProductId);
 
       // Build the API URL with the product_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
       console.log('Milestones API URL:', apiUrl);
 
       // Make the API call
@@ -3555,7 +3555,7 @@ const ProjectDetail = () => {
       const currentStage = !isUserSelection ? projectStage : null;
 
       // Build the API URL with the milestone_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
       console.log('Milestone stages API URL:', apiUrl);
 
       // Make the API call
@@ -3711,7 +3711,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the milestone and stage
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
         {
           project_id: projectId,
           milestone_id: milestone.value,
@@ -4102,7 +4102,7 @@ const ProjectDetail = () => {
       console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -4206,7 +4206,7 @@ const ProjectDetail = () => {
       console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

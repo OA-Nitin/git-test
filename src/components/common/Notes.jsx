@@ -6,6 +6,13 @@ import './Notes.css';
 import { SaveButton } from './ActionButtons';
 import Modal from './Modal';
 
+
+// validations
+import { noteFormSchema } from '../../components/validationSchemas/leadSchema.jsx';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+
 /**
  * Reusable Notes component that can be used throughout the application
  * @param {Object} props - Component props
@@ -34,7 +41,17 @@ const Notes = ({
   const [notesPage, setNotesPage] = useState(1);
   const [showViewNotesModal, setShowViewNotesModal] = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
-  const [newNote, setNewNote] = useState('');
+  // const [newNote, setNewNote] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm({
+    resolver: yupResolver(noteFormSchema),
+    mode: 'onTouched'
+  });
+  
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
 
@@ -47,25 +64,25 @@ const Notes = ({
     switch (entityType) {
       case 'lead':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
       case 'project':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
         };
       case 'opportunity':
         console.log('Opportunity ID for notes API:', safeEntityId);
         // Use the exact API endpoint from the Postman GET screenshot
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
         };
       default:
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
     }
   };
@@ -324,8 +341,10 @@ const Notes = ({
 
   // Function to toggle the add note modal
   const toggleAddNoteModal = () => {
+    // setShowAddNoteModal(!showAddNoteModal);
+    // setNewNote('');
     setShowAddNoteModal(!showAddNoteModal);
-    setNewNote('');
+    reset(); // clear form and validation
   };
 
   // Function to handle adding a new note
@@ -595,19 +614,21 @@ const Notes = ({
         title="Add Note"
         showFooter={false}
       >
-        <form onSubmit={handleAddNote}>
+        <form onSubmit={handleSubmit(handleAddNote)}>
           <div className="text-start">
             <div className="mb-3">
               <textarea
-                className="form-control"
+                className={`form-control ${errors.note ? 'is-invalid' : ''}`}
                 id="note-content"
                 rows="5"
                 placeholder="Enter your note here..."
                 style={{ resize: 'vertical', minHeight: '100px' }}
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                required
+                {...register('note')}
+                maxLength={1000}
               ></textarea>
+              {errors.note && (
+                <div className="invalid-feedback">{errors.note.message}</div>
+              )}
             </div>
             <div className="text-muted small">
               <i className="fas fa-info-circle me-1"></i>
@@ -618,13 +639,13 @@ const Notes = ({
             <SaveButton
               type="submit"
               text="Save Note"
-              onClick={() => {}} // Form will handle submission
               disabled={loading}
               loading={loading}
             />
           </div>
         </form>
       </Modal>
+
     );
   };
 
