@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './DataTable.css';
 
-const DataTable = ({ 
-  data, 
-  columns, 
-  title, 
-  loading, 
-  error, 
-  emptyMessage = 'No data found.' 
+const DataTable = ({
+  data,
+  columns,
+  title,
+  loading,
+  error,
+  emptyMessage = 'No data found.'
 }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +18,7 @@ const DataTable = ({
   // Filter and sort data when dependencies change
   useEffect(() => {
     let filtered = [...data];
-    
+
     // Apply search filter
     if (searchTerm.trim() !== '') {
       filtered = filtered.filter(item => {
@@ -29,13 +29,13 @@ const DataTable = ({
         });
       });
     }
-    
+
     // Apply sorting
     if (sortConfig.key) {
       filtered.sort((a, b) => {
         const aValue = a[sortConfig.key] || '';
         const bValue = b[sortConfig.key] || '';
-        
+
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
@@ -45,7 +45,7 @@ const DataTable = ({
         return 0;
       });
     }
-    
+
     setFilteredData(filtered);
     setCurrentPage(1); // Reset to first page when filter/sort changes
   }, [data, searchTerm, sortConfig, columns]);
@@ -80,36 +80,36 @@ const DataTable = ({
 
     const pageNumbers = [];
     const maxPagesToShow = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = startPage + maxPagesToShow - 1;
-    
+
     if (endPage > totalPages) {
       endPage = totalPages;
       startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pageNumbers.push(i);
     }
 
     return (
       <div className="pagination-container">
-        <button 
-          onClick={() => paginate(1)} 
+        <button
+          onClick={() => paginate(1)}
           disabled={currentPage === 1}
           className="pagination-button"
         >
           &laquo;
         </button>
-        <button 
-          onClick={() => paginate(currentPage - 1)} 
+        <button
+          onClick={() => paginate(currentPage - 1)}
           disabled={currentPage === 1}
           className="pagination-button"
         >
           &lsaquo;
         </button>
-        
+
         {pageNumbers.map(number => (
           <button
             key={number}
@@ -119,26 +119,26 @@ const DataTable = ({
             {number}
           </button>
         ))}
-        
-        <button 
-          onClick={() => paginate(currentPage + 1)} 
+
+        <button
+          onClick={() => paginate(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="pagination-button"
         >
           &rsaquo;
         </button>
-        <button 
-          onClick={() => paginate(totalPages)} 
+        <button
+          onClick={() => paginate(totalPages)}
           disabled={currentPage === totalPages}
           className="pagination-button"
         >
           &raquo;
         </button>
-        
+
         <div className="pagination-info">
           <span>Page {currentPage} of {totalPages}</span>
-          <select 
-            value={itemsPerPage} 
+          <select
+            value={itemsPerPage}
             onChange={handleItemsPerPageChange}
             className="items-per-page"
           >
@@ -158,8 +158,8 @@ const DataTable = ({
       <thead>
         <tr>
           {columns.map((column, index) => (
-            <th 
-              key={index} 
+            <th
+              key={index}
               onClick={() => column.sortable !== false && requestSort(column.accessor)}
               className={column.sortable !== false ? 'sortable' : ''}
             >
@@ -203,20 +203,20 @@ const DataTable = ({
 
   // Main render
   return (
-    <div className="data-table-container">
-      <div className="data-table-header">
-        <h3 className="data-table-title">{title}</h3>
-        <div className="data-table-search">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
+    <>   
+    <div className="d-flex justify-content-between align-items-center mb-3">
+      <h6 className="section-subtitle mb-0">{title}</h6>
+      <div className="search-box" style={{ width: '300px' }}>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="form-control form-control-sm"
+        />
       </div>
-      
+    </div>
+
       {loading ? (
         <div className="loading-spinner">
           <div className="spinner"></div>
@@ -229,12 +229,12 @@ const DataTable = ({
       ) : (
         <>
           <div className="table-responsive">
-            <table className="data-table">
+            <table className="table table-striped table-hover">
               {renderTableHeader()}
               {renderTableBody()}
             </table>
           </div>
-          
+
           <div className="data-table-footer">
             <div className="showing-entries">
               Showing {filteredData.length > 0 ? indexOfFirstItem + 1 : 0} to {Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} entries
@@ -244,7 +244,7 @@ const DataTable = ({
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 
