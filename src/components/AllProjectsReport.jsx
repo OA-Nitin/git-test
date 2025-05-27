@@ -83,7 +83,7 @@ const AllProjectsReport = () => {
       console.log('Using product ID:', productId);
 
       // Construct API URL with product_id parameter if available
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }
@@ -262,7 +262,7 @@ const AllProjectsReport = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState('project_id');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDirection, setSortDirection] = useState('desc'); // Changed to desc for latest projects first
   const [isSearching, setIsSearching] = useState(false);
 
   // Define all available columns with groups based on API response
@@ -341,9 +341,10 @@ const AllProjectsReport = () => {
       // If already sorting by this field, toggle direction
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // If sorting by a new field, set it and default to ascending
+      // If sorting by a new field, set it and default direction based on field type
       setSortField(field);
-      setSortDirection('asc');
+      // For project_id, default to descending (latest first), for others default to ascending
+      setSortDirection(field === 'project_id' ? 'desc' : 'asc');
     }
     // Reset to first page when sorting changes
     setCurrentPage(1);
