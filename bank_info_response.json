@@ -1,8 +1,0 @@
-
-
-
-
-
-
-
- {"status":1,"message":"Bank Detail","result":[{"bank_name":"test bank","bank_mailing_addres":"testbank@bank.com","city":"test city","state":"test state","zip":"35007","country":"test country","bank_phone":"9988776655","account_holder_name":"test holder","account_type":"test type","other":"test other","aba_routing_number":"9988776655","account_number":"9988776644","swift":"fg","iban":"fh"}]}
