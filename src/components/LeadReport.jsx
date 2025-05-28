@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -331,6 +331,32 @@ const LeadReport = ({ projectType }) => {
   const [sortDirection, setSortDirection] = useState('desc'); // Changed to desc for latest leads first
   const [isSearching, setIsSearching] = useState(false);
 
+  // Add a useEffect hook to reset search term when product/report type changes
+  useEffect(() => {
+    // Reset search term when product changes
+    setSearchTerm('');
+    setIsSearching(false);
+    
+    // Also reset other filters if needed
+    setFilterStatus('');
+    
+    // Reset to first page
+    setCurrentPage(1);
+    
+    console.log('Reset search and filters due to product change:', product);
+  }, [product]); // This will run whenever the product/report type changes
+
+  // Add another useEffect to reset search when the URL path changes
+  const location = useLocation();
+  useEffect(() => {
+    // Reset search term when URL changes
+    setSearchTerm('');
+    setIsSearching(false);
+    setFilterStatus('');
+    setCurrentPage(1);
+    
+    console.log('Reset search and filters due to URL change');
+  }, [location.pathname]); // This will run whenever the URL path changes
 
   // Define all available columns with groups based on API data structure
   const columnGroups = [
@@ -369,7 +395,6 @@ const LeadReport = ({ projectType }) => {
       columns: [
         { id: 'affiliateSource', label: 'Source', field: 'source', sortable: false },
         { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
-        { id: 'category', label: 'Category', field: 'category', sortable: false },
         { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false },
         { id: 'notes', label: 'Notes', field: 'notes', sortable: false },
         { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
@@ -467,6 +492,23 @@ const LeadReport = ({ projectType }) => {
     }
   };
 
+  // Add this debugging code near the top of your component
+  useEffect(() => {
+    if (searchTerm && leads.length > 0) {
+      // Log the first few leads to see their structure
+      console.log('Sample leads for debugging search:', leads.slice(0, 3));
+      
+      // Check if any leads have the search term in their ID
+      const searchTermLower = searchTerm.toLowerCase().trim();
+      const matchingLeads = leads.filter(lead => 
+        String(lead.lead_id || lead.id || '').toLowerCase().includes(searchTermLower)
+      );
+      
+      console.log(`Found ${matchingLeads.length} leads with ID matching "${searchTerm}":`, 
+        matchingLeads.length > 0 ? matchingLeads.slice(0, 3) : 'None');
+    }
+  }, [searchTerm, leads]);
+
 
 
 
@@ -478,11 +520,17 @@ const LeadReport = ({ projectType }) => {
       return true;
     }
 
+    // Get the lead ID directly - make sure we're getting the right property
+    const leadId = String(lead.lead_id || lead.id || '').toLowerCase();
+    
     // Handle different possible field names in the API response
-    const id = String(lead.id || lead.lead_id || '').toLowerCase();
     const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
     const email = String(lead.email || lead.business_email || '').toLowerCase();
-    const phone = String(lead.phone || lead.business_phone || '');
+    
+    // Clean phone numbers by removing all non-digit characters for comparison
+    const rawPhone = String(lead.phone || lead.business_phone || '');
+    const cleanedPhone = rawPhone.replace(/\D/g, ''); // Remove all non-digit characters
+    
     const status = String(lead.status || lead.lead_status || '');
     const signatory = String(lead.authorized_signatory_name || '').toLowerCase();
     const campaign = String(lead.campaign || '').toLowerCase();
@@ -500,22 +548,47 @@ const LeadReport = ({ projectType }) => {
 
     // Check if search term matches any field
     const searchTermLower = searchTerm.toLowerCase().trim();
-
-    const matchesSearch = searchTerm === '' ||
-      id.includes(searchTermLower) ||
-      name.includes(searchTermLower) ||
-      email.includes(searchTermLower) ||
-      phone.includes(searchTermLower) ||
-      signatory.includes(searchTermLower) ||
-      campaign.includes(searchTermLower) ||
-      source.includes(searchTermLower) ||
-      category.includes(searchTermLower) ||
-      leadGroup.includes(searchTermLower) ||
-      salesAgent.includes(searchTermLower) ||
-      salesSupport.includes(searchTermLower) ||
-      employeeId.includes(searchTermLower) ||
-      currentMilestone.includes(searchTermLower) ||
-      currentStage.includes(searchTermLower);
+  
+    // Clean the search term for phone comparison by removing non-digits
+    const cleanedSearchTerm = searchTermLower.replace(/\D/g, '');
+  
+    // First, check if the search term exactly matches the lead ID
+    if (leadId === searchTermLower) {
+      return true;
+    }
+  
+    // Check if the cleaned search term matches the cleaned phone number
+    // This allows searching for phone numbers regardless of format
+    if (cleanedSearchTerm.length > 0 && cleanedPhone.includes(cleanedSearchTerm)) {
+      return true;
+    }
+  
+    // Split search term into words for more flexible searching
+    const searchWords = searchTermLower.split(/\s+/).filter(word => word.length > 0);
+  
+    // If no search words, return true (no filtering)
+    if (searchWords.length === 0) {
+      return true;
+    }
+  
+    // Check if ALL search words match at least one field
+    const matchesSearch = searchWords.every(word => 
+      leadId.includes(word) ||
+      name.includes(word) ||
+      email.includes(word) ||
+      // For phone, we'll check the raw phone string as well
+      rawPhone.includes(word) ||
+      signatory.includes(word) ||
+      campaign.includes(word) ||
+      source.includes(word) ||
+      category.includes(word) ||
+      leadGroup.includes(word) ||
+      salesAgent.includes(word) ||
+      salesSupport.includes(word) ||
+      employeeId.includes(word) ||
+      currentMilestone.includes(word) ||
+      currentStage.includes(word)
+    );
 
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
@@ -638,8 +711,8 @@ const LeadReport = ({ projectType }) => {
         if (column.id === 'businessEmail') return lead.business_email || '';
         if (column.id === 'businessPhone') return lead.business_phone || '';
         if (column.id === 'employee') return lead.employee_id || '';
-        if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
-        if (column.id === 'salesSupport') return lead.internal_sales_support || '';
+        if (column.id === 'salesAgent') return lead.InternalSalesAgent || '';
+        if (column.id === 'salesSupport') return lead.InternalSalesSupport || '';
         if (column.id === 'affiliateSource') return lead.source || '';
         if (column.id === 'leadCampaign') return lead.campaign || '';
         if (column.id === 'category') return lead.category || '';
@@ -738,8 +811,8 @@ const LeadReport = ({ projectType }) => {
           if (column.id === 'businessEmail') return lead.business_email || '';
           if (column.id === 'businessPhone') return lead.business_phone || '';
           if (column.id === 'employee') return lead.employee_id || '';
-          if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
-          if (column.id === 'salesSupport') return lead.internal_sales_support || '';
+          if (column.id === 'salesAgent') return lead.InternalSalesAgent || '';
+          if (column.id === 'salesSupport') return lead.InternalSalesSupport || '';
           if (column.id === 'affiliateSource') return lead.source || '';
           if (column.id === 'leadCampaign') return lead.campaign || '';
           if (column.id === 'category') return lead.category || '';
@@ -822,8 +895,8 @@ const LeadReport = ({ projectType }) => {
           else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
           else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
           else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
-          else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
-          else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
+          else if (column.id === 'salesAgent') rowData[column.label] = lead.InternalSalesAgent || '';
+          else if (column.id === 'salesSupport') rowData[column.label] = lead.InternalSalesSupport || '';
           else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
@@ -1022,9 +1095,9 @@ const LeadReport = ({ projectType }) => {
                                   case 'employee':
                                     return <td key={column.id}>{lead.employee_id || ''}</td>;
                                   case 'salesAgent':
-                                    return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
+                                    return <td key={column.id}>{lead.InternalSalesAgent || ''}</td>;
                                   case 'salesSupport':
-                                    return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
+                                    return <td key={column.id}>{lead.InternalSalesSupport || ''}</td>;
                                   case 'currentMilestone':
                                     return <td key={column.id}>{lead.current_milestone || ''}</td>;
                                   case 'currentStage':

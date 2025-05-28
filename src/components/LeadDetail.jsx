@@ -242,6 +242,30 @@ const LeadDetail = () => {
   const [masterCommissionType, setMasterCommissionType] = useState({ value: '', label: 'Select Commission Type' });
   const [masterCommissionValue, setMasterCommissionValue] = useState('');
 
+  // First, let's create a ref to store the contact data that won't be affected by re-renders
+  const contactDataRef = useRef({
+    primary: {
+      name: '',
+      middleName: '',
+      title: '',
+      email: '',
+      phone: '',
+      ext: '',
+      phoneType: '',
+      initials: ''
+    },
+    secondary: {
+      name: '',
+      middleName: '',
+      title: '',
+      email: '',
+      phone: '',
+      ext: '',
+      phoneType: '',
+      initials: ''
+    }
+  });
+
 
 
 
@@ -1245,20 +1269,18 @@ const LeadDetail = () => {
 
           console.log('Filtered unique contacts:', uniqueContacts);
 
-          // Update the contacts state with the unique contacts (preserving original order)
+          // Update the contacts state with the unique contacts
           setContacts(uniqueContacts);
 
           // Find primary contact
           const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
-          // Find secondary contact
-          const secondaryContactData = uniqueContacts.find(contact =>
-            contact.contact_type === 'secondary');
+          console.log('Found primary contact data:', primaryContactData);
 
           // Update primary contact state if found
           if (primaryContactData) {
-            setPrimaryContact({
+            const updatedPrimaryContact = {
               name: primaryContactData.name || '',
               middleName: primaryContactData.middle_name || '',
               title: primaryContactData.title || '',
@@ -1267,12 +1289,23 @@ const LeadDetail = () => {
               ext: primaryContactData.ph_extension || '',
               phoneType: primaryContactData.phone_type || '',
               initials: primaryContactData.name ? primaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            });
+            };
+            
+            console.log('Updating primary contact to:', updatedPrimaryContact);
+            setPrimaryContact(updatedPrimaryContact);
+            
+            // Also update the ref
+            contactDataRef.current.primary = updatedPrimaryContact;
+            console.log('Updated primary contact ref:', contactDataRef.current.primary);
           }
+
+          // Find secondary contact
+          const secondaryContactData = uniqueContacts.find(contact =>
+            contact.contact_type === 'secondary');
 
           // Update secondary contact state if found
           if (secondaryContactData) {
-            setSecondaryContact({
+            const updatedSecondaryContact = {
               name: secondaryContactData.name || '',
               middleName: secondaryContactData.middle_name || '',
               title: secondaryContactData.title || '',
@@ -1281,27 +1314,26 @@ const LeadDetail = () => {
               ext: secondaryContactData.ph_extension || '',
               phoneType: secondaryContactData.phone_type || '',
               initials: secondaryContactData.name ? secondaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            });
+            };
+            
+            setSecondaryContact(updatedSecondaryContact);
+            
+            // Also update the ref
+            contactDataRef.current.secondary = updatedSecondaryContact;
           }
-
-          console.log('Contact state updated with data');
-          setContactsLoading(false);
-          return true; // Return success
-        } else {
-          // If no contacts array or empty array
-          setContacts([]);
-          setContactsLoading(false);
-          return true;
         }
+        
+        setContactsLoading(false);
+        return true;
       } else {
         console.warn('Failed to fetch contact data:', response.data);
         setContactsLoading(false);
-        return false; // Return failure
+        return false;
       }
     } catch (err) {
       console.error('Error fetching contact data:', err);
       setContactsLoading(false);
-      return false; // Return failure
+      return false;
     }
   };
 
@@ -1719,7 +1751,25 @@ const LeadDetail = () => {
   };
 
   const handleTabChange = (tab) => {
+    console.log(`Switching from tab ${activeTab} to ${tab}`);
+    
+    // Before changing tabs, ensure we've saved the current contact data to our ref
+    contactDataRef.current.primary = { ...primaryContact };
+    contactDataRef.current.secondary = { ...secondaryContact };
+    
+    // Set the new active tab
     setActiveTab(tab);
+    
+    // After changing tabs, restore the contact data from our ref
+    console.log('Restoring primary contact from ref:', contactDataRef.current.primary);
+    setPrimaryContact(contactDataRef.current.primary);
+    setSecondaryContact(contactDataRef.current.secondary);
+    
+    // If we're switching to the contacts tab, refresh the contacts list
+    if (tab === 'contacts') {
+      console.log('Switching to contacts tab, refreshing contact data');
+      fetchContactData();
+    }
   };
 
   // Function to fetch notes with pagination
@@ -4835,7 +4885,13 @@ const LeadDetail = () => {
                   {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
-                        <a href="javascript:void(0)">
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.open(`/reporting/create-contact?lead_id=${leadId}`, '_blank');
+                          }}
+                        >
                             <i className="fa-solid fa-plus"></i> New Contact
                         </a>
                         <a
@@ -6082,8 +6138,29 @@ const LeadDetail = () => {
                 </div>
               </div>
 
-
-
+                {/* Debug Panel */}
+                <div style={{
+                  position: 'fixed',
+                  bottom: '10px',
+                  right: '10px',
+                  background: 'rgba(0,0,0,0.7)',
+                  color: 'white',
+                  padding: '10px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  maxWidth: '300px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                  zIndex: 9999,
+                  display: 'none' // Set to 'block' to show
+                }}>
+                  <h6>Debug Info</h6>
+                  <p>Active Tab: {activeTab}</p>
+                  <p>Primary Contact Email: {primaryContact.email}</p>
+                  <p>Primary Contact Phone: {primaryContact.phone}</p>
+                  <p>Ref Primary Email: {contactDataRef.current.primary.email}</p>
+                  <p>Ref Primary Phone: {contactDataRef.current.primary.phone}</p>
+                </div>
             </div>
           </div>
         </div>
