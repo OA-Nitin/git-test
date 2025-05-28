@@ -9,7 +9,7 @@ const Header = ({ user, onLogout }) => {
   return (
     <div id="wpadminbar" className="nojq header_iner">
       <div className="quicklinks" id="wp-toolbar" role="navigation" aria-label="Toolbar">
-        <ul id="wp-admin-bar-root-default" className="ab-top-menu">
+        {/* <ul id="wp-admin-bar-root-default" className="ab-top-menu">
           <li className="">
             <Link to="/send-lead" className="send_doc">
               <span><img src={getAssetPath('assets/images/send_lead.svg')} alt="Send Lead" /></span>
@@ -26,7 +26,7 @@ const Header = ({ user, onLogout }) => {
               Affiliate Form
             </Link>
           </li>
-        </ul>
+        </ul> */}
         <div id="wpadminbar" className="d-flex justify-content-end">
           <ul id="wp-admin-bar-top-secondary" className="ab-top-secondary ab-top-menu d-flex align-items-center">
             {/* User Profile Dropdown */}
