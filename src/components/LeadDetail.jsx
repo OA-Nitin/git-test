@@ -13,6 +13,55 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 
+// Standardized date formatting function for MM/DD/YYYY format
+const formatDateToMMDDYYYY = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return dateString;
+
+    // Format as MM/DD/YYYY
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
+// Function to convert MM/DD/YYYY to YYYY-MM-DD for date input
+const formatDateForInput = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    // If it's already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return '';
+
+    // Format as YYYY-MM-DD for date input
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Error formatting date for input:', error);
+    return '';
+  }
+};
+
 
 
 // validations
@@ -195,8 +244,8 @@ const LeadDetail = () => {
 
 
 
-  
-  // validation 
+
+  // validation
   const {
     register,
     handleSubmit,
@@ -210,8 +259,7 @@ const LeadDetail = () => {
     reValidateMode: 'onChange',
   });
 
-
-  // Modify your useEffect that sets form values to properly register them 
+  // Modify your useEffect that sets form values to properly register them
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
@@ -219,7 +267,7 @@ const LeadDetail = () => {
       });
     }
   }, [lead, setValue]);
-  
+
   const {
     register: registerProject,
     handleSubmit: handleSubmitProject,
@@ -1699,14 +1747,13 @@ const LeadDetail = () => {
 
       console.log('Processed notes data:', notesData);
 
-      // Format dates and times
+      // Format dates in MM/DD/YYYY format (no time)
       const formattedNotes = notesData.map(note => ({
         id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
         text: note.note || note.text || note.content || '',
         author: note.user_name || note.author || 'User',
         date: note.created_at || note.date || new Date().toISOString(),
-        formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-        formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+        formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
       }));
 
       console.log('Formatted notes:', formattedNotes);
@@ -1952,14 +1999,13 @@ const LeadDetail = () => {
           notesData = [response.data];
         }
 
-        // Format the notes for display
+        // Format the notes for display in MM/DD/YYYY format (no time)
         const formattedNotes = notesData.map(note => ({
           id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
           text: note.note || note.text || note.content || '',
           author: note.user_name || note.author || 'User',
           date: note.created_at || note.date || new Date().toISOString(),
-          formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-          formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+          formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
         }));
 
         // Generate HTML for the notes
@@ -1981,7 +2027,6 @@ const LeadDetail = () => {
             <div class="note-item mb-3 p-3 bg-white rounded shadow-sm">
               <div class="d-flex justify-content-between">
                 <div class="note-date fw-bold">${note.formattedDate}</div>
-                <div class="note-time text-muted">${note.formattedTime}</div>
               </div>
               <div class="note-content mt-2">
                 <div class="d-flex align-items-center mb-1">
@@ -4127,14 +4172,32 @@ const LeadDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Registration Date*</label>
-                            <input
-                              type="date"
-                              className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
-                              {...register('registration_date')}
-                              name="registration_date"
-                              value={lead.registration_date || ''}
-                              onChange={handleInputChange}
-                            />
+                            <div className="input-group">
+                              <input
+                                type="text"
+                                className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
+                                {...register('registration_date')}
+                                name="registration_date"
+                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
+                                onChange={handleInputChange}
+                                placeholder="MM/DD/YYYY"
+                                maxLength="10"
+                                onInput={(e) => {
+                                  // Auto-format as user types MM/DD/YYYY
+                                  let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                  if (value.length >= 2) {
+                                    value = value.substring(0, 2) + '/' + value.substring(2);
+                                  }
+                                  if (value.length >= 5) {
+                                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                                  }
+                                  e.target.value = value;
+                                }}
+                              />
+                              <span className="input-group-text">
+                                <i className="fas fa-calendar-alt"></i>
+                              </span>
+                            </div>
                             {errors.registration_date && (
                               <div className="invalid-feedback">{errors.registration_date.message}</div>
                             )}
@@ -4958,7 +5021,7 @@ const LeadDetail = () => {
                                               project_name: e.target.value
                                             }))}
                                             placeholder="Enter project name"
-                                            
+
                                           />
                                           {projectErrors.project_name && (
                                             <div className="invalid-feedback">
@@ -5148,9 +5211,9 @@ const LeadDetail = () => {
                                                   setMilestoneStages([]);
                                                 }
                                               }}
-                                              
+
                                             >
-                                              
+
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
                                                 <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
@@ -5182,7 +5245,7 @@ const LeadDetail = () => {
                                                   MilestoneStage: e.target.value
                                                 }));
                                               }}
-                                              
+
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
@@ -5327,7 +5390,7 @@ const LeadDetail = () => {
                             </div>
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
-                                <p><b>Created Date:</b> {opportunity.created_date}</p>
+                                <p><b>Created Date:</b> {formatDateToMMDDYYYY(opportunity.created_date)}</p>
                                 <p><b>Current Stage:</b> {opportunity.stage}</p>
                                 <p><b>Next Step:</b> {opportunity.next_step || '-'}</p>
                               </div>
@@ -5336,7 +5399,7 @@ const LeadDetail = () => {
                               <div className="lead_des">
                                 <p><b>Opportunity Owner:</b> {opportunity.created_by}</p>
                                 <p><b>Opportunity Amount:</b> {opportunity.currency} {opportunity.opportunity_amount}</p>
-                                <p><b>Expected Close date:</b> {opportunity.expected_close_date}</p>
+                                <p><b>Expected Close date:</b> {formatDateToMMDDYYYY(opportunity.expected_close_date)}</p>
                               </div>
                             </div>
                           </div>
@@ -5527,16 +5590,34 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Created Date:*</label>
-                                          <input
-                                            type="date"
-                                            className="form-control"
-                                            value={opportunityFormData.created_date}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              created_date: e.target.value
-                                            }))}
-                                            required
-                                          />
+                                          <div className="input-group">
+                                            <input
+                                              type="text"
+                                              className="form-control"
+                                              value={opportunityFormData.created_date ? formatDateToMMDDYYYY(opportunityFormData.created_date) : ''}
+                                              onChange={(e) => setOpportunityFormData(prev => ({
+                                                ...prev,
+                                                created_date: e.target.value
+                                              }))}
+                                              placeholder="MM/DD/YYYY"
+                                              maxLength="10"
+                                              onInput={(e) => {
+                                                // Auto-format as user types MM/DD/YYYY
+                                                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                                if (value.length >= 2) {
+                                                  value = value.substring(0, 2) + '/' + value.substring(2);
+                                                }
+                                                if (value.length >= 5) {
+                                                  value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                                                }
+                                                e.target.value = value;
+                                              }}
+                                              required
+                                            />
+                                            <span className="input-group-text">
+                                              <i className="fas fa-calendar-alt"></i>
+                                            </span>
+                                          </div>
                                         </div>
                                       </div>
                                       <div className="col-md-6">
