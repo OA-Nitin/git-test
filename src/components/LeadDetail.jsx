@@ -259,7 +259,6 @@ const LeadDetail = () => {
     reValidateMode: 'onChange',
   });
 
-
   // Modify your useEffect that sets form values to properly register them
   useEffect(() => {
     if (lead) {
