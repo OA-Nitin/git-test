@@ -158,12 +158,12 @@
 
 /* Fix for dropdown portal positioning */
 .react-select__menu-portal {
-  z-index: 10000 !important;
+  z-index: 1070 !important; /* Higher than modal (1060) */
 }
 
 /* Ensure dropdown appears above modal */
 body .react-select__menu {
-  z-index: 10000 !important;
+  z-index: 1070 !important; /* Higher than modal (1060) */
 }
 
 /* Modal backdrop and modal styles */

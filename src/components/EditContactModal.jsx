@@ -3,6 +3,12 @@ import axios from "axios";
 import "./EditContactModal.css";
 import LoadingOverlay from "./common/LoadingOverlay";
 
+
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { contactSchema } from "./validationSchemas/leadSchema.jsx";
+
+
 const EditContactModal = ({
   isOpen,
   onClose,
@@ -45,6 +51,36 @@ const EditContactModal = ({
 
   // State to store business options from the API
   const [businessOptions, setBusinessOptions] = useState([]);
+
+  
+  // Initialize form validation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    reset,
+    watch
+  } = useForm({
+    resolver: yupResolver(contactSchema),
+    mode: "onTouched",
+  });
+
+
+      // Modify your useEffect to set form values based on the currently opened contact edit form
+      useEffect(() => {
+        if (contactId) {
+          Object.keys(formData).forEach((key) => {
+            setValue(key, formData[key]);
+          });
+        }
+      }, [contactId, formData, setValue]);
+      
+
+
+    // Watch form values for conditional validation
+    const watchReferralType = watch("referral_type");
+
 
   // Extract lead ID from URL or use the prop (for future reference)
   useEffect(() => {
@@ -93,7 +129,7 @@ const EditContactModal = ({
 
       // Make a POST request to fetch contact details
       const response = await axios.post(
-        `https://play.occamsadvisory.com/portal/wp-json/v1/lead-contacts`,
+        `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-contacts`,
         {
           lead_id: leadId,
           contact_id: contactId,
@@ -190,6 +226,7 @@ const EditContactModal = ({
         console.log("Business info:", businessInfo);
         console.log("Selected businesses:", selectedBusinesses);
 
+        selectedBusinesses = [leadId];
         // Set form data with values from API response
         setFormData({
           first_name: contactData.first_name || "",
@@ -269,7 +306,7 @@ const EditContactModal = ({
 
       // Use the API endpoint with type parameter
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
+        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
       );
 
       console.log("Contact referrals API response:", response.data);
@@ -405,38 +442,30 @@ const EditContactModal = ({
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     try {
       setUpdateSuccess(false);
       setUpdateError(null);
-      setLoading(true); // Show loading overlay during form submission
+      setLoading(true);
 
-      // Convert DND from Yes/No to 1/0
-      // Log the form data before submission
-      console.log("Form data before submission:", formData);
+      console.log("Form data before submission:", data);
 
       const submitData = {
-        ...formData,
-        dnd: formData.dnd === "Yes" ? "1" : "0",
+        ...data,
+        dnd: data.dnd === "Yes" ? "1" : "0",
         contact_id: contactId,
-        // Use the first selected business as the report_to_id
+        // Use the first selected business as the report_to_id if not already set
         report_to_id:
-          formData.selected_businesses &&
-            formData.selected_businesses.length > 0
-            ? formData.selected_businesses[0]
-            : formData.report_to_id,
-        // Include all selected businesses
-        selected_businesses: formData.selected_businesses,
-        // Ensure contact_referral is included
-        contact_referral: formData.contact_referral,
+          data.report_to_id || 
+          (data.selected_businesses && data.selected_businesses.length > 0
+            ? data.selected_businesses[0]
+            : ""),
       };
 
       console.log("Submitting contact data:", submitData);
 
       const response = await axios.put(
-        `https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
+        `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
         submitData
       );
 
@@ -456,7 +485,7 @@ const EditContactModal = ({
         "An error occurred while updating the contact. Please try again."
       );
     } finally {
-      setLoading(false); // Hide loading overlay after form submission completes
+      setLoading(false);
     }
   };
 
@@ -513,7 +542,7 @@ const EditContactModal = ({
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     {/* Professional Info Section */}
                     <h5 class="section-title">Professional Info</h5>
                     <div className="row mb-3">
@@ -522,7 +551,8 @@ const EditContactModal = ({
                           <label htmlFor="first_name">First Name:*</label>
                           <div className="input-group">
                             <select
-                              className="form-select title-select"
+                               className={`form-select title-select ${errors.title ? 'is-invalid' : ''}`}
+                               {...register("title")}
                               name="title"
                               value={formData.title}
                               onChange={handleInputChange}
@@ -536,11 +566,17 @@ const EditContactModal = ({
                               type="text"
                               id="first_name"
                               name="first_name"
-                              className="form-control"
+                              className={`form-control ${errors.first_name ? 'is-invalid' : ''}`}
+                              {...register("first_name")}
                               value={formData.first_name}
                               onChange={handleInputChange}
-                              required
+                              
                             />
+                            {errors.first_name && (
+                              <div className="invalid-feedback d-block">
+                                {errors.first_name.message}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -551,10 +587,16 @@ const EditContactModal = ({
                             type="text"
                             id="middle_name"
                             name="middle_name"
-                            className="form-control"
+                            className={`form-control ${errors.middle_name ? 'is-invalid' : ''}`}
+                            {...register("middle_name")}
                             value={formData.middle_name}
                             onChange={handleInputChange}
                           />
+                          {errors.middle_name && (
+                            <div className="invalid-feedback">
+                              {errors.middle_name.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -564,11 +606,17 @@ const EditContactModal = ({
                             type="text"
                             id="last_name"
                             name="last_name"
-                            className="form-control"
+                            className={`form-control ${errors.last_name ? 'is-invalid' : ''}`}
+                            {...register("last_name")}
                             value={formData.last_name}
                             onChange={handleInputChange}
-                            required
+                            
                           />
+                          {errors.last_name && (
+                            <div className="invalid-feedback">
+                              {errors.last_name.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -581,25 +629,37 @@ const EditContactModal = ({
                             type="text"
                             id="name_alias"
                             name="name_alias"
-                            className="form-control"
+                            className={`form-control ${errors.name_alias ? 'is-invalid' : ''}`}
+                            {...register("name_alias")}
                             value={formData.name_alias}
                             onChange={handleInputChange}
                           />
+                          {errors.name_alias && (
+                            <div className="invalid-feedback">
+                              {errors.name_alias.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
                         <div className="form-group">
                           <label htmlFor="business_name">Business Name:*</label>
                           <select
-                            id="business_name"
+                            id="selected_businesses"
                             name="selected_businesses"
-                            className="form-select"
+                            className={`form-select ${errors.selected_businesses ? 'is-invalid' : ''}`}
+                            {...register("selected_businesses")}
                             value={formData.selected_businesses}
                             onChange={handleBusinessChange}
                             multiple
-                            required
-                            disabled={true} // Disable the field
-                            style={{ height: "100px" }} // Make the dropdown taller for multiple selections
+                            
+                            // disabled={true} // Disable the field
+                            style={{
+                              height: "100px",
+                              backgroundColor: '#e9ecef',
+                              pointerEvents: 'none',   // make it readonly-like
+                              color: '#6c757d',         // match disabled look
+                            }}// Make the dropdown taller for multiple selections
                           >
                             {businessOptions.map((business) => (
                               <option
@@ -610,7 +670,12 @@ const EditContactModal = ({
                               </option>
                             ))}
                           </select>
-                        </div>
+                          {errors.selected_businesses && (
+                            <div className="invalid-feedback">
+                              {errors.selected_businesses.message}
+                            </div>
+                          )}
+                      </div>
                       </div>
                       <div class="col-md-4">
                         <div className="form-group">
@@ -619,10 +684,16 @@ const EditContactModal = ({
                             type="text"
                             id="job_title"
                             name="job_title"
-                            className="form-control"
+                            className={`form-control ${errors.job_title ? 'is-invalid' : ''}`}
+                            {...register("job_title")}
                             value={formData.job_title}
                             onChange={handleInputChange}
                           />
+                          {errors.job_title && (
+                            <div className="invalid-feedback">
+                              {errors.job_title.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -637,10 +708,16 @@ const EditContactModal = ({
                             type="date"
                             id="birthdate"
                             name="birthdate"
-                            className="form-control"
+                            className={`form-control ${errors.birthdate ? 'is-invalid' : ''}`}
+                            {...register("birthdate")}
                             value={formData.birthdate}
                             onChange={handleInputChange}
                           />
+                          {errors.birthdate && (
+                            <div className="invalid-feedback">
+                              {errors.birthdate.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -655,11 +732,17 @@ const EditContactModal = ({
                             type="email"
                             id="email"
                             name="email"
-                            className="form-control"
+                            className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                            {...register("email")}
                             value={formData.email}
                             onChange={handleInputChange}
-                            required
+                            
                           />
+                          {errors.email && (
+                            <div className="invalid-feedback">
+                              {errors.email.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -671,11 +754,17 @@ const EditContactModal = ({
                               type="tel"
                               id="phone"
                               name="phone"
-                              className="form-control"
+                              className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+                              {...register("phone")}
                               value={formData.phone}
                               onChange={handleInputChange}
-                              required
+                              
                             />
+                            {errors.phone && (
+                            <div className="invalid-feedback d-block">
+                              {errors.phone.message}
+                            </div>
+                          )}
                           </div>
                         </div>
                       </div>
@@ -686,10 +775,16 @@ const EditContactModal = ({
                             type="text"
                             id="phone_ext"
                             name="phone_ext"
-                            className="form-control"
+                            className={`form-control ${errors.phone_ext ? 'is-invalid' : ''}`}
+                            {...register("phone_ext")}
                             value={formData.phone_ext}
                             onChange={handleInputChange}
                           />
+                          {errors.phone_ext && (
+                            <div className="invalid-feedback">
+                              {errors.phone_ext.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -698,7 +793,8 @@ const EditContactModal = ({
                           <select
                             id="phone_type"
                             name="phone_type"
-                            className="form-select"
+                            className={`form-select ${errors.phone_type ? 'is-invalid' : ''}`}
+                            {...register("phone_type")}
                             value={formData.phone_type}
                             onChange={handleInputChange}
                           >
@@ -707,6 +803,11 @@ const EditContactModal = ({
                             <option value="Home">Home</option>
                             <option value="Other">Other</option>
                           </select>
+                          {errors.phone_type && (
+                            <div className="invalid-feedback">
+                              {errors.phone_type.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -720,10 +821,16 @@ const EditContactModal = ({
                             type="email"
                             id="secondary_email"
                             name="secondary_email"
-                            className="form-control"
+                            className={`form-control ${errors.secondary_email ? 'is-invalid' : ''}`}
+                            {...register("secondary_email")}
                             value={formData.secondary_email}
                             onChange={handleInputChange}
                           />
+                          {errors.secondary_email && (
+                            <div className="invalid-feedback">
+                              {errors.secondary_email.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -737,10 +844,16 @@ const EditContactModal = ({
                               type="tel"
                               id="secondary_phone"
                               name="secondary_phone"
-                              className="form-control"
+                              className={`form-control ${errors.secondary_phone ? 'is-invalid' : ''}`}
+                              {...register("secondary_phone")}
                               value={formData.secondary_phone}
                               onChange={handleInputChange}
                             />
+                            {errors.secondary_phone && (
+                              <div className="invalid-feedback d-block">
+                                {errors.secondary_phone.message}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -752,7 +865,8 @@ const EditContactModal = ({
                           <select
                             id="secondary_phone_type"
                             name="secondary_phone_type"
-                            className="form-select"
+                            className={`form-select ${errors.secondary_phone_type ? 'is-invalid' : ''}`}
+                            {...register("secondary_phone_type")}
                             value={formData.secondary_phone_type}
                             onChange={handleInputChange}
                           >
@@ -761,14 +875,19 @@ const EditContactModal = ({
                             <option value="Home">Home</option>
                             <option value="Other">Other</option>
                           </select>
+                          {errors.secondary_phone_type && (
+                            <div className="invalid-feedback">
+                              {errors.secondary_phone_type.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
 
                     {/* Mailing Info Section */}
-                    <h5 class="section-title mt-4">Mailing Info</h5>
+                    <h5 className="section-title mt-4">Mailing Info</h5>
                     <div className="row mb-3">
-                      <div class="col-md-4">
+                      <div className="col-md-4">
                         <div className="form-group">
                           <label htmlFor="primary_address_postalcode">
                             Zip Code:
@@ -776,42 +895,51 @@ const EditContactModal = ({
                           <input
                             type="text"
                             id="primary_address_postalcode"
-                            name="primary_address_postalcode"
-                            className="form-control"
-                            value={formData.primary_address_postalcode}
-                            onChange={handleInputChange}
+                            className={`form-control ${errors.primary_address_postalcode ? 'is-invalid' : ''}`}
+                            {...register("primary_address_postalcode")}
                           />
+                          {errors.primary_address_postalcode && (
+                            <div className="invalid-feedback">
+                              {errors.primary_address_postalcode.message}
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div className="col-md-4">
                         <div className="form-group">
                           <label htmlFor="primary_address_city">City:</label>
                           <input
                             type="text"
                             id="primary_address_city"
-                            name="primary_address_city"
-                            className="form-control"
-                            value={formData.primary_address_city}
-                            onChange={handleInputChange}
+                            className={`form-control ${errors.primary_address_city ? 'is-invalid' : ''}`}
+                            {...register("primary_address_city")}
                           />
+                          {errors.primary_address_city && (
+                            <div className="invalid-feedback">
+                              {errors.primary_address_city.message}
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div className="col-md-4">
                         <div className="form-group">
                           <label htmlFor="primary_address_state">State:</label>
                           <input
                             type="text"
                             id="primary_address_state"
-                            name="primary_address_state"
-                            className="form-control"
-                            value={formData.primary_address_state}
-                            onChange={handleInputChange}
+                            className={`form-control ${errors.primary_address_state ? 'is-invalid' : ''}`}
+                            {...register("primary_address_state")}
                           />
+                          {errors.primary_address_state && (
+                            <div className="invalid-feedback">
+                              {errors.primary_address_state.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                     <div className="row mb-3">
-                      <div class="col-md-4">
+                      <div className="col-md-4">
                         <div className="form-group">
                           <label htmlFor="primary_address_country">
                             Country:
@@ -819,14 +947,17 @@ const EditContactModal = ({
                           <input
                             type="text"
                             id="primary_address_country"
-                            name="primary_address_country"
-                            className="form-control"
-                            value={formData.primary_address_country}
-                            onChange={handleInputChange}
+                            className={`form-control ${errors.primary_address_country ? 'is-invalid' : ''}`}
+                            {...register("primary_address_country")}
                           />
+                          {errors.primary_address_country && (
+                            <div className="invalid-feedback">
+                              {errors.primary_address_country.message}
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div className="col-md-4">
                         <div className="form-group">
                           <label htmlFor="primary_address_street">
                             Street Address:
@@ -834,27 +965,34 @@ const EditContactModal = ({
                           <input
                             type="text"
                             id="primary_address_street"
-                            name="primary_address_street"
-                            className="form-control"
-                            value={formData.primary_address_street}
-                            onChange={handleInputChange}
+                            className={`form-control ${errors.primary_address_street ? 'is-invalid' : ''}`}
+                            {...register("primary_address_street")}
                           />
+                          {errors.primary_address_street && (
+                            <div className="invalid-feedback">
+                              {errors.primary_address_street.message}
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div class="col-md-4">
+                      <div className="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="house_no">Apt/Suite/House:</label>
+                          <label htmlFor="house_no">House/Apt Number:</label>
                           <input
                             type="text"
                             id="house_no"
-                            name="house_no"
-                            className="form-control"
-                            value={formData.house_no}
-                            onChange={handleInputChange}
+                            className={`form-control ${errors.house_no ? 'is-invalid' : ''}`}
+                            {...register("house_no")}
                           />
+                          {errors.house_no && (
+                            <div className="invalid-feedback">
+                              {errors.house_no.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
+
 
                     {/* Contact Preferences Section */}
                     <h5 class="section-title mt-4">Contact Preferences</h5>
@@ -865,14 +1003,20 @@ const EditContactModal = ({
                           <select
                             id="dnd"
                             name="dnd"
-                            className="form-select"
+                            className={`form-select ${errors.dnd ? 'is-invalid' : ''}`}
+                            {...register("dnd")}
                             value={formData.dnd}
                             onChange={handleInputChange}
-                            required
+                            
                           >
                             <option value="No">No</option>
                             <option value="Yes">Yes</option>
                           </select>
+                          {errors.dnd && (
+                            <div className="invalid-feedback">
+                              {errors.dnd.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -883,11 +1027,17 @@ const EditContactModal = ({
                           <select
                             id="contact_type"
                             name="contact_type"
-                            className="form-select"
+                            className={`form-select ${errors.contact_type ? 'is-invalid' : ''}`}
+                            {...register("contact_type")}
                             value={formData.contact_type}
                             onChange={handleInputChange}
-                            required
+                            
                           >
+                            {errors.contact_type && (
+                              <div className="invalid-feedback">
+                                {errors.contact_type.message}
+                              </div>
+                            )}
                             <option value="primary">Primary</option>
                             <option value="secondary">Secondary</option>
                           </select>
@@ -904,15 +1054,21 @@ const EditContactModal = ({
                           <select
                             id="referral_type"
                             name="referral_type"
-                            className="form-select"
+                            className={`form-select ${errors.referral_type ? 'is-invalid' : ''}`}
+                            {...register("referral_type")}
                             value={formData.referral_type}
                             onChange={handleReferralTypeChange}
-                            required
+                            
                           >
                             <option value="">Select Referral Type</option>
                             <option value="1">Internal Users</option>
                             <option value="2">Affiliate Referral</option>
                           </select>
+                          {errors.referral_type && (
+                            <div className="invalid-feedback">
+                              {errors.referral_type.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div class="col-md-4">
@@ -927,10 +1083,11 @@ const EditContactModal = ({
                           <select
                             id="contact_referral"
                             name="contact_referral"
-                            className="form-select"
+                            className={`form-select ${errors.contact_referral ? 'is-invalid' : ''}`}
+                            {...register("contact_referral")}
                             value={formData.contact_referral || ""}
                             onChange={handleContactReferralChange}
-                            required
+                            
                           >
                             <option key="default" value="">
                               Select Contact Referral
@@ -967,6 +1124,11 @@ const EditContactModal = ({
                               </option>
                             )}
                           </select>
+                          {errors.contact_referral && (
+                            <div className="invalid-feedback">
+                              {errors.contact_referral.message}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

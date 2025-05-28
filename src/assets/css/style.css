@@ -2289,6 +2289,12 @@ table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child::before {
 
 /******** header css here *********/
 
+/* Ensure header has proper z-index to stay above notifications */
+.header_iner {
+  position: relative;
+  z-index: 1050;
+}
+
 /* line 29, G:/admin_project/8 admin/management_html/scss/_header.scss */
 .header_iner.default_header {
   background: #f65365;
@@ -16243,4 +16249,8 @@ html {
 
 input[readonly], select[disabled] {
     cursor: revert !important;
+}
+
+.form-check-input:checked {
+  background-color:transparent
 }

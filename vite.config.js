@@ -28,13 +28,14 @@ export default defineConfig({
       allow: ['..']
     },
     hmr: {
-      // Fix WebSocket connection issues
-      clientPort: 5185,
-      path: '',
+      // Use the same port as the dev server
+      clientPort: 5174,
+      host: 'localhost',
+      protocol: 'ws',
     },
     proxy: {
       '/api': {
-        target: 'https://play.occamsadvisory.com/portal',
+        target: 'https://portal.occamsadvisory.com/portal',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '/wp-json/oc-login-api/v1'),
         secure: false,
@@ -54,7 +55,7 @@ export default defineConfig({
         }
       },
       '/api/opportunities': {
-        target: 'https://play.occamsadvisory.com/portal',
+        target: 'https://portal.occamsadvisory.com/portal',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/opportunities/, '/wp-json/productsplugin/v1/opportunities'),
         secure: false,

@@ -1,10 +1,10 @@
 const opsMenuData = [
-  {
-    key: 'home',
-    name: 'Home',
-    icon: 'dashicons-admin-home',
-    path: '/dashboard'
-  },
+  // {
+  //   key: 'home',
+  //   name: 'Home',
+  //   icon: 'dashicons-admin-home',
+  //   path: '/dashboard'
+  // },
   {
     key: 'reports',
     name: 'Reports',
@@ -131,18 +131,18 @@ const opsMenuData = [
   //     { key: 'salesManagement', name: 'Sales Management', path: '/sales/management' },
   //   ],
   // },
-  {
-    key: 'products',
-    name: 'Products',
-    icon: 'dashicons-products',
-    children: [
-      { key: 'productsList', name: 'Products', path: '/products/list' },
-      { key: 'unitTypes', name: 'Unit Types', path: '/products/unit-types' },
-      { key: 'productTypes', name: 'Product Types', path: '/products/product-types' },
-      { key: 'productCategories', name: 'Product Categories', path: '/products/product-categories' },
-      { key: 'currency', name: 'Currency', path: '/products/currency' },
-    ],
-  },
+  // {
+  //   key: 'products',
+  //   name: 'Products',
+  //   icon: 'dashicons-products',
+  //   children: [
+  //     { key: 'productsList', name: 'Products', path: '/products/list' },
+  //     { key: 'unitTypes', name: 'Unit Types', path: '/products/unit-types' },
+  //     { key: 'productTypes', name: 'Product Types', path: '/products/product-types' },
+  //     { key: 'productCategories', name: 'Product Categories', path: '/products/product-categories' },
+  //     { key: 'currency', name: 'Currency', path: '/products/currency' },
+  //   ],
+  // },
   // {
   //   key: 'oneDriveSettings',
   //   name: 'OneDrive Settings',
@@ -163,12 +163,12 @@ const opsMenuData = [
   //     { key: 'userUpdationForm', name: 'User Updation Form', path: '/templates/user-updation-form' },
   //   ],
   // },
-  {
-    key: 'support',
-    name: 'Support',
-    icon: 'dashicons-admin-users',
-    path: '/support'
-  },
+  // {
+  //   key: 'support',
+  //   name: 'Support',
+  //   icon: 'dashicons-admin-users',
+  //   path: '/support'
+  // },
   // {
   //   key: 'contacts',
   //   name: 'Contacts',

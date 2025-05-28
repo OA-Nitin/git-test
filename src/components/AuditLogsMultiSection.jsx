@@ -35,7 +35,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
     communicationLogs: null
   });
 
-  // Format date for display
+  // Format date for display in mm/dd/yyyy H:i:s format
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
 
@@ -44,15 +44,16 @@ const AuditLogsMultiSection = ({ leadId }) => {
       if (isNaN(date.getTime())) {
         return 'N/A';
       }
-      return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      });
+
+      // Format as mm/dd/yyyy H:i:s (24-hour format)
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${month}/${day}/${year} ${hours}:${minutes}`;
     } catch (err) {
       console.error('Error formatting date:', err);
       return 'N/A';
@@ -79,7 +80,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Field Activity
       try {
         const fieldActivityResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
           { params: { lead_id: leadId } }
         );
         console.log('Field Activity API response:', fieldActivityResponse.data);
@@ -103,7 +104,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Communication Lead Mapping
       try {
         const communicationLeadMappingResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/communication-lead-mapping`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/communication-lead-mapping`,
           { params: { lead_id: leadId } }
         );
         console.log('Communication Lead Mapping API response:', communicationLeadMappingResponse.data);
@@ -127,7 +128,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Opt In/Out
       try {
         const optInOutResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/opt-in-out`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/opt-in-out`,
           { params: { lead_id: leadId } }
         );
         console.log('Opt In/Out API response:', optInOutResponse.data);
@@ -151,7 +152,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Status Changes
       try {
         const statusChangesResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/status-changes`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/status-changes`,
           { params: { lead_id: leadId } }
         );
         console.log('Status Changes API response:', statusChangesResponse.data);
@@ -175,7 +176,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Campaign Changes
       try {
         const campaignChangesResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/campaign-changes`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/campaign-changes`,
           { params: { lead_id: leadId } }
         );
         console.log('Campaign Changes API response:', campaignChangesResponse.data);
@@ -199,7 +200,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Source Changes
       try {
         const sourceChangesResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/source-changes`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/source-changes`,
           { params: { lead_id: leadId } }
         );
         console.log('Source Changes API response:', sourceChangesResponse.data);
@@ -223,7 +224,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Communication Logs
       try {
         const communicationLogsResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/communication-logs`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/communication-logs`,
           { params: { lead_id: leadId } }
         );
         console.log('Communication Logs API response:', communicationLogsResponse.data);
@@ -249,8 +250,8 @@ const AuditLogsMultiSection = ({ leadId }) => {
   }, [leadId]);
 
   return (
-    <div className="audit-logs-multi-section">
-      <h2 className="main-heading">Audit Logs</h2>
+    <>
+      <h2 className="section-title">Audit Logs</h2>
 
       {/* Field Activity Section */}
       <div className="audit-section">
@@ -507,7 +508,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
           ]}
         />
       </div>
-    </div>
+    </>
   );
 };
 
