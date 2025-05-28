@@ -359,9 +359,9 @@ const Notes = ({
   };
 
   // Function to handle adding a new note
-  const handleAddNote = (data) => {
+  const handleAddNote = (formData) => {
     // Allow empty notes to be submitted, but trim it for the API call
-    const trimmedNote = data.note ? data.note.trim() : '';
+    const trimmedNote = formData.note ? formData.note.trim() : '';
 
     // Debug information
     console.log('Adding note for:', { entityType, entityId, trimmedNote });
