@@ -76,6 +76,11 @@ const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "f
   );
 };
 
+// validations
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { projectDetailSchema } from './validationSchemas/projectDetailSchema';
+
 const ProjectDetail = () => {
   const { projectId } = useParams();
   const location = useLocation();
@@ -396,6 +401,32 @@ const ProjectDetail = () => {
 
   const [documentsLoading, setDocumentsLoading] = useState(false);
 
+
+    // validation 
+    const {
+      register,
+      handleSubmit,
+      setValue,
+      formState: { errors },
+      getValues,
+      trigger,
+    } = useForm({
+      resolver: yupResolver(projectDetailSchema),
+      mode: 'onSubmit',
+      reValidateMode: 'onChange',
+    });
+  
+    useEffect(() => {
+      if (project) {
+        Object.keys(project).forEach((key) => {
+          setValue(key, project[key]);
+        });
+        trigger(); // <- validate after setting
+      }
+    }, [project, setValue, trigger]);
+    
+
+
   const fetchERCDocuments = async (id, formId) => {
     try {
       setDocumentsLoading(true);
@@ -405,7 +436,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -434,7 +465,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -463,7 +494,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -491,7 +522,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -519,7 +550,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -547,7 +578,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -672,7 +703,29 @@ const ProjectDetail = () => {
     invoices: { column: 'changed_date', direction: 'desc' },
     business_audit_log: { column: 'change_date', direction: 'desc' }
   });
-
+  // Fulfilment tab state
+  const [fulfilmentData, setFulfilmentData] = useState({
+    // Input section
+    income_2019: '',
+    income_2020: '',
+    income_2021: '',
+    // Bank Information
+    bank_name: '',
+    account_holder_name: '',
+    account_number: '',
+    routing_number: '',
+    // Output section
+    stc_amount_2020: '',
+    stc_amount_2021: '',
+    // Credit Amount & Fee
+    maximum_credit: '',
+    actual_credit: '',
+    estimated_fee: '',
+    actual_fee: '',
+    years: ''
+  });
+  const [fulfilmentLoading, setFulfilmentLoading] = useState(false);
+  const [fulfilmentError, setFulfilmentError] = useState(null);
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
@@ -779,7 +832,7 @@ const ProjectDetail = () => {
                                         <label>
                                             <a className='status-badge status-approved'
                                                 href={`#`}
-                                                target="_blank"
+                                                target="_self"
                                                 rel="noreferrer"
                                             >
                                                 SDGR &amp; Owner&apos;s Information
@@ -1515,7 +1568,7 @@ const ProjectDetail = () => {
 
       try {
         const response = await axios.post(
-          "https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
+          "https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
           { project_id: projectId }
         );
 
@@ -1622,7 +1675,7 @@ const ProjectDetail = () => {
       console.log('Fetching collaborators for project ID:', projectId);
       setCollaboratorLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
 
       console.log('Collaborators API response:', response);
 
@@ -1672,7 +1725,7 @@ const ProjectDetail = () => {
       console.log('Fetching owners for project ID:', projectId);
       setOwnerLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
 
       console.log('Owners API response:', response);
 
@@ -1733,7 +1786,7 @@ const ProjectDetail = () => {
       console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
       setContactLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
 
       console.log('Contacts API response:', response);
 
@@ -1794,7 +1847,7 @@ const ProjectDetail = () => {
       console.log('Fetching milestone and stage for project ID:', projectId);
       setIsLoadingMilestones(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
 
       console.log('Milestone API response:', response);
 
@@ -1855,7 +1908,7 @@ const ProjectDetail = () => {
       console.log('Fetching all available milestones');
 
       // Build the API URL with the product_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
       console.log('All milestones API URL:', apiUrl);
 
       // Make the API call
@@ -1982,7 +2035,7 @@ const ProjectDetail = () => {
             // If proxy server fails, try direct API
             try {
               console.log('Trying direct API request');
-              response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
+              response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -2186,7 +2239,7 @@ const ProjectDetail = () => {
       console.log('Fetching bank information for project ID:', project.project_id);
 
       // Make a POST request to the bank info API
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2270,7 +2323,7 @@ const ProjectDetail = () => {
       console.log('Fetching intake information for project ID:', project.project_id);
 
       // Make a POST request to the intake info API
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2466,12 +2519,12 @@ const ProjectDetail = () => {
     try {
       console.log('=== FEES API CALL START ===');
       console.log('Project ID:', project.project_id);
-      console.log('API Endpoint: https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
+      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
       const requestBody = { project_id: project.project_id };
       console.log('Request Body:', JSON.stringify(requestBody));
 
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2865,7 +2918,7 @@ const ProjectDetail = () => {
       }
 
       // Build API URL with query parameters
-      const apiUrl = new URL('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
+      const apiUrl = new URL('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
       apiUrl.searchParams.append('project_id', projectId);
       apiUrl.searchParams.append('lead_id', project.lead_id);
       apiUrl.searchParams.append('product_id', project.product_id);
@@ -2898,7 +2951,103 @@ const ProjectDetail = () => {
       console.log('=== PROJECT AUDIT LOGS API CALL END ===');
     }
   };
+  // Function to fetch fulfilment information from the API
+  const fetchFulfilmentInfo = async () => {
+    if (!project?.project_id) {
+      console.log('No project ID available for fulfilment API call');
+      return;
+    }
 
+    setFulfilmentLoading(true);
+    setFulfilmentError(null);
+
+    try {
+      console.log('=== FULFILMENT API CALL START ===');
+      console.log('Project ID:', project.project_id);
+      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment');
+
+      const requestBody = { project_id: project.project_id };
+      console.log('Request Body:', JSON.stringify(requestBody));
+
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('Response Status:', response.status);
+      console.log('Response OK:', response.ok);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Raw API Response:', data);
+      console.log('Response Type:', typeof data);
+      console.log('Response Keys:', Object.keys(data));
+
+      // Check if the API response has the expected structure
+      if (data && data.result) {
+        const apiData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
+        console.log('Fulfilment Data from API:', apiData);
+
+        if (apiData) {
+          // Update fulfilment info state with the data from API - following fees API pattern
+          setFulfilmentData({
+            income_2019: apiData.income_2019 || '',
+            income_2020: apiData.income_2020 || '',
+            income_2021: apiData.income_2021 || '',
+            bank_name: apiData.bank_name || '',
+            account_holder_name: apiData.account_holder_name || '',
+            account_number: apiData.account_number || '',
+            routing_number: apiData.aba_routing_no || '',
+            stc_amount_2020: apiData.stc_amount_2020 || '',
+            stc_amount_2021: apiData.stc_amount_2021 || '',
+            maximum_credit: apiData.maximum_credit || '',
+            actual_credit: apiData.actual_credit || '',
+            estimated_fee: apiData.estimated_fee || '',
+            actual_fee: apiData.actual_fee || '',
+            years: apiData.years || ''
+          });
+
+          console.log('✅ Fulfilment data successfully loaded from API');
+          setFulfilmentError(null); // Clear any previous errors
+        } else {
+          throw new Error('No fulfilment data found in the API response');
+        }
+      } else {
+        throw new Error(`API returned error status: ${data.status}, message: ${data.message || 'Unknown error'}`);
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching fulfilment information:', error);
+      setFulfilmentError(`Failed to fetch fulfilment information: ${error.message}`);
+
+      // Clear the form on error
+      setFulfilmentData({
+        income_2019: '',
+        income_2020: '',
+        income_2021: '',
+        bank_name: '',
+        account_holder_name: '',
+        account_number: '',
+        routing_number: '',
+        stc_amount_2020: '',
+        stc_amount_2021: '',
+        maximum_credit: '',
+        actual_credit: '',
+        estimated_fee: '',
+        actual_fee: '',
+        years: ''
+      });
+    } finally {
+      setFulfilmentLoading(false);
+      console.log('=== FULFILMENT API CALL END ===');
+    }
+  };
   // Helper function to format date for audit logs
   const formatAuditDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -3080,7 +3229,10 @@ const ProjectDetail = () => {
     if (tab === 'fees') {
       fetchFeesInfo();
     }
-
+    // If fulfilment tab is selected, fetch fulfilment information
+    if (tab === 'fulfilment') {
+      fetchFulfilmentInfo();
+    }
     // If audit logs tab is selected, fetch audit logs
     if (tab === 'auditLogs') {
       // Only fetch if project data is available
@@ -3206,7 +3358,7 @@ const ProjectDetail = () => {
 
           // Call the API to assign the collaborator
           const response = await axios.post(
-            'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+            'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
             {
               project_id: projectId,
               user_id: selectedCollaborator.collaborator.id,
@@ -3291,7 +3443,7 @@ const ProjectDetail = () => {
 
       // Call the API to unassign the collaborator
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
         {
           project_id: projectId,
           user_id: collaboratorId,
@@ -3367,7 +3519,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the owner
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
         {
           project_id: projectId,
           owner_id: owner.value
@@ -3427,7 +3579,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the contact
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
         {
           project_id: projectId,
           contact_id: selectedContact.value
@@ -3493,7 +3645,7 @@ const ProjectDetail = () => {
       console.log('Fetching milestones for product ID:', selectedProductId);
 
       // Build the API URL with the product_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
       console.log('Milestones API URL:', apiUrl);
 
       // Make the API call
@@ -3624,7 +3776,7 @@ const ProjectDetail = () => {
       const currentStage = !isUserSelection ? projectStage : null;
 
       // Build the API URL with the milestone_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
       console.log('Milestone stages API URL:', apiUrl);
 
       // Make the API call
@@ -3780,7 +3932,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the milestone and stage
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
         {
           project_id: projectId,
           milestone_id: milestone.value,
@@ -4230,7 +4382,7 @@ const ProjectDetail = () => {
       console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -4330,7 +4482,7 @@ const ProjectDetail = () => {
       console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -4442,6 +4594,26 @@ const ProjectDetail = () => {
                     Project
                   </a>
                 </li>
+                {/* Show Fulfilment tab only for STC (937) projects */}
+                {project?.product_id === '937' && (
+                  <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-fulfilment"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('fulfilment');
+                      }}
+                      href="#pills-fulfilment"
+                      role="tab"
+                      aria-controls="pills-fulfilment"
+                      aria-selected={activeTab === 'fulfilment'}
+                    >
+                      Fulfilment
+                    </a>
+                  </li>
+                )}
+
                 {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
                 {project?.product_id !== '937' && project?.product_id !== '932' && (
                   <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
@@ -4635,11 +4807,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Full Name</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.authorized_signatory_name ? 'is-invalid' : ''}`}
+                              {...register('authorized_signatory_name')}
                               value={project.authorized_signatory_name}
                               onChange={(e) => setProject({...project, authorized_signatory_name: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.authorized_signatory_name && (
+                                <div className="invalid-feedback">{errors.authorized_signatory_name.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4647,11 +4823,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Contact No.</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_phone ? 'is-invalid' : ''}`}
+                              {...register('business_phone')}
                               value={project.business_phone}
                               onChange={(e) => setProject({...project, business_phone: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.business_phone && (
+                                <div className="invalid-feedback">{errors.business_phone.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4659,11 +4839,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Email</label>
                             <input
                               type="email"
-                              className="form-control"
+                              className={`form-control ${errors.business_email ? 'is-invalid' : ''}`}
+                              {...register('business_email')}
                               value={project.business_email}
                               onChange={(e) => setProject({...project, business_email: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.business_email && (
+                                <div className="invalid-feedback">{errors.business_email.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4673,11 +4857,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Title</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_title ? 'is-invalid' : ''}`}
+                              {...register('business_title')}
                               value={project.business_title}
                               onChange={(e) => setProject({...project, business_title: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.business_title && (
+                                <div className="invalid-feedback">{errors.business_title.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4685,11 +4873,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Zip</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.zip ? 'is-invalid' : ''}`}
+                              {...register('zip')}
                               value={project.zip}
                               onChange={(e) => setProject({...project, zip: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.zip && (
+                                <div className="invalid-feedback">{errors.zip.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4697,11 +4889,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Street Address</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.street_address ? 'is-invalid' : ''}`}
+                              {...register('street_address')}
                               value={project.street_address}
                               onChange={(e) => setProject({...project, street_address: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.street_address && (
+                                <div className="invalid-feedback">{errors.street_address.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4711,11 +4907,15 @@ const ProjectDetail = () => {
                             <label className="form-label">City</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.city ? 'is-invalid' : ''}`}
+                              {...register('city')}
                               value={project.city}
                               onChange={(e) => setProject({...project, city: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.city && (
+                                <div className="invalid-feedback">{errors.city.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4723,18 +4923,23 @@ const ProjectDetail = () => {
                             <label className="form-label">State</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.state ? 'is-invalid' : ''}`}
+                              {...register('state')}
                               value={project.state}
                               onChange={(e) => setProject({...project, state: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.state && (
+                                <div className="invalid-feedback">{errors.state.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Identity Document Type</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.identity_document_type ? 'is-invalid' : ''}`}
+                              {...register('identity_document_type')}
 
                               value={project.identity_document_type || ""}
                               onChange={(e) => setProject({...project, identity_document_type: e.target.value})}
@@ -4748,6 +4953,9 @@ const ProjectDetail = () => {
                               <option value="State ID">State ID</option>
                               <option value="Others">Others</option>
                             </select>
+                            {errors.identity_document_type && (
+                                <div className="invalid-feedback">{errors.identity_document_type.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4757,11 +4965,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Document Number</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.identity_document_number ? 'is-invalid' : ''}`}
+                              {...register('identity_document_number')}
                               value={project.identity_document_number}
                               onChange={(e) => setProject({...project, identity_document_number: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.identity_document_number && (
+                                <div className="invalid-feedback">{errors.identity_document_number.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4776,11 +4988,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Business Legal Name</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
+                              {...register('business_legal_name')}
                               value={project.business_legal_name}
                               onChange={(e) => setProject({...project, business_legal_name: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.business_legal_name && (
+                                <div className="invalid-feedback">{errors.business_legal_name.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4788,11 +5004,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Doing Business As</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.doing_business_as ? 'is-invalid' : ''}`}
+                              {...register('doing_business_as')}
                               value={project.doing_business_as}
                               onChange={(e) => setProject({...project, doing_business_as: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.doing_business_as && (
+                                <div className="invalid-feedback">{errors.doing_business_as.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4800,11 +5020,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Business Category</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.business_category ? 'is-invalid' : ''}`}
+                              {...register('business_category')}
                               value={project.business_category}
                               onChange={(e) => setProject({...project, business_category: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.business_category && (
+                                <div className="invalid-feedback">{errors.business_category.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4814,11 +5038,15 @@ const ProjectDetail = () => {
                             <label className="form-label">Website URL</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
+                              {...register('website_url')}
                               value={project.website_url}
                               onChange={(e) => setProject({...project, website_url: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.website_url && (
+                                <div className="invalid-feedback">{errors.website_url.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4832,7 +5060,8 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Business Entity Type</label>
                             <select
-                              className="form-select"
+                              className={`form-select ${errors.business_entity_type ? 'is-invalid' : ''}`}
+                              {...register('business_entity_type')}
 
                               value={project.business_entity_type || ""}
                               onChange={(e) => setProject({...project, business_entity_type: e.target.value})}
@@ -4846,6 +5075,9 @@ const ProjectDetail = () => {
                               <option value="7">Trust</option>
                               <option value="5">Other</option>
                             </select>
+                            {errors.business_entity_type && (
+                                <div className="invalid-feedback">{errors.business_entity_type.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4886,11 +5118,15 @@ const ProjectDetail = () => {
                             <label className="form-label">State of Registration</label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.state_of_registration ? 'is-invalid' : ''}`}
+                              {...register('state_of_registration')}
                               value={project.state_of_registration}
                               onChange={(e) => setProject({...project, state_of_registration: e.target.value})}
                               readOnly={!isEditMode}
                             />
+                            {errors.state_of_registration && (
+                                <div className="invalid-feedback">{errors.state_of_registration.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4915,11 +5151,15 @@ const ProjectDetail = () => {
                             </label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.company_folder_link ? 'is-invalid' : ''}`}
+                              {...register('company_folder_link')}
                               value={companyFolderLink}
                               onChange={(e) => setCompanyFolderLink(e.target.value)}
                               readOnly={!isEditMode}
                             />
+                            {errors.company_folder_link && (
+                                <div className="invalid-feedback">{errors.company_folder_link.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4940,11 +5180,15 @@ const ProjectDetail = () => {
                             </label>
                             <input
                               type="text"
-                              className="form-control"
+                              className={`form-control ${errors.document_folder_link ? 'is-invalid' : ''}`}
+                              {...register('document_folder_link')}
                               value={documentFolderLink}
                               onChange={(e) => setDocumentFolderLink(e.target.value)}
                               readOnly={!isEditMode}
                             />
+                            {errors.document_folder_link && (
+                                <div className="invalid-feedback">{errors.document_folder_link.message}</div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -4952,7 +5196,225 @@ const ProjectDetail = () => {
 
                     </div>
                   )}
+                  {/* Fulfilment Tab Content */}
+                  {activeTab === 'fulfilment' && (
+                    <div className="mb-4 left-section-container">
+                      {/* Display loading state */}
+                      {fulfilmentLoading && (
+                        <div className="text-center mb-3">
+                          <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading fulfilment information...</span>
+                          </div>
+                          <p className="mt-2">Loading fulfilment information...</p>
+                        </div>
+                      )}
 
+                      {/* Display error state */}
+                      {fulfilmentError && (
+                        <div className="alert alert-warning alert-dismissible fade show" role="alert">
+                          <strong>API Error:</strong> {fulfilmentError}
+                          <button type="button" className="btn-close" onClick={() => setFulfilmentError(null)} aria-label="Close"></button>
+                        </div>
+                      )}
+
+
+
+                          {/* Input Section */}
+                          <h5 className="section-title">Input</h5>
+
+                          {/* Annual Income Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            Annual Income
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">2019 Income</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.income_2019}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2019: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">2020 Income</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.income_2020}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2020: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">2021 Income</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.income_2021}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2021: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bank Information Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            Bank Information
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Bank Name</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.bank_name}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, bank_name: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Account Holder Name</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.account_holder_name}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, account_holder_name: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Account Number</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.account_number}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, account_number: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Routing Number</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.routing_number}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, routing_number: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Output Section */}
+                          <h5 className="section-title mt-4">Output</h5>
+
+                          {/* STC Amount Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            STC Amount
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label className="form-label">2020 STC Amount</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.stc_amount_2020}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, stc_amount_2020: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label className="form-label">2021 STC Amount</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.stc_amount_2021}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, stc_amount_2021: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Credit Amount & Fee Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            Credit Amount & Fee
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Maximum Credit</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.maximum_credit}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, maximum_credit: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Actual Credit</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.actual_credit}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, actual_credit: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Estimated Fee</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.estimated_fee}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, estimated_fee: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Actual Fee</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.actual_fee}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, actual_fee: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Years</label>
+                                <select
+                                  className="form-select"
+                                  value={fulfilmentData.years}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, years: e.target.value})}
+                                >
+                                  <option value="2020">2020</option>
+                                  <option value="2021">2021</option>
+                                  <option value="2020,2021">2020,2021</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                    </div>
+                  )}
                   {/* Bank Info Tab */}
                   {activeTab === 'bankInfo' && (
                     <div className="mb-4 left-section-container">
@@ -8462,16 +8924,18 @@ const ProjectDetail = () => {
                         <>
                           <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
                             <h5 className="mb-0">ERC Documents</h5>
-                            <a
-                              href={ercDocuments?.view_document}
-                              className="btn btn-primary"
-                              title="View ERC Documents"
-                              style={{ fontSize: '14px', lineHeight: '1.5' }}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Documents
-                            </a>
+                            {ercDocuments?.view_document && (
+                                <a
+                                    href={ercDocuments.view_document}
+                                    className="btn btn-primary"
+                                    title="View ERC Documents"
+                                    style={{ fontSize: '14px', lineHeight: '1.5' }}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                  View Documents
+                                </a>
+                            )}
                           </div>
                           <DocumentTable documents={ercDocuments?.documents} />
                         </>
@@ -8512,16 +8976,18 @@ const ProjectDetail = () => {
                         <>
                           <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
                             <h5 className="mb-0">Required Documents</h5>
-                            <a
-                              href={stcRequiredDocuments?.view_document}
-                              className="btn btn-primary"
-                              title="View ERC Documents"
-                              style={{ fontSize: '14px', lineHeight: '1.5' }}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Documents
-                            </a>
+                            {stcRequiredDocuments?.view_document && (
+                                <a
+                                    href={stcRequiredDocuments.view_document}
+                                    className="btn btn-primary"
+                                    title="View ERC Documents"
+                                    style={{ fontSize: '14px', lineHeight: '1.5' }}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                  View Documents
+                                </a>
+                            )}
                           </div>
                           <STCDocumentTable stc_documents_groups={stcRequiredDocuments} />
                         </>
@@ -9101,10 +9567,7 @@ const ProjectDetail = () => {
                         <div className="action-buttons d-flex align-items-center justify-content-center">
                           <button
                             className="btn save-btn"
-                            onClick={() => {
-                              const data = collectFormData();
-                              handleUpdateProject(data);
-                            }}
+                            onClick={handleSubmit(handleUpdateProject)}
                             disabled={isUpdating}
                           >
                             {isUpdating ? (

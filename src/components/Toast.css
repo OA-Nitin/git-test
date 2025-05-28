@@ -2,7 +2,7 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 9999;
+  z-index: 1075; /* Higher than modals (1060) but lower than loading overlay (1080) */
   max-width: 300px;
   transform: translateX(110%);
   transition: transform 0.3s ease-in-out, opacity 0.3s ease;

@@ -94,4 +94,30 @@
 #wpadminbar {
   position: relative;
   display: inline-block;
+  z-index: 1050; /* Ensure header is above most elements but below modals */
+}
+
+/* Ensure profile info has proper z-index */
+.profile_info {
+  z-index: 1051; /* Higher than header bar */
+}
+
+/* Profile name display should be above notifications */
+.profile_info .ab-item {
+  position: relative;
+  z-index: 1052;
+}
+
+/* Custom SweetAlert2 toast positioning to avoid header overlap */
+.swal-toast-container-custom {
+  top: 80px !important; /* Position below header */
+  z-index: 1049 !important; /* Below header but above other content, below modals */
+}
+
+/* Ensure SweetAlert2 toasts don't overlap with header on mobile */
+@media (max-width: 768px) {
+  .swal-toast-container-custom {
+    top: 70px !important;
+    right: 10px !important;
+  }
 }
