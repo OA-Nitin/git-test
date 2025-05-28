@@ -4371,6 +4371,26 @@ const ProjectDetail = () => {
         iv_invoice_occams_share: feesInfo.iv_invoice_occams_share,
         iv_invoice_aff_ref_share: feesInfo.iv_invoice_aff_ref_share,
 
+        // fulfilment
+          // Input section
+          income_2019: fulfilmentData.income_2019 || '',
+          income_2020: fulfilmentData.income_2020 || '',
+          income_2021: fulfilmentData.income_2021 || '',
+          // Bank Information
+          bank_name: fulfilmentData.bank_name || '',
+          account_holder_name: fulfilmentData.account_holder_name || '',
+          account_number: fulfilmentData.account_number || '',
+          routing_number: fulfilmentData.aba_routing_no || '',
+          // Output section
+          stc_amount_2020: fulfilmentData.stc_amount_2020 || '',
+          stc_amount_2021: fulfilmentData.stc_amount_2021 || '',
+          // Credit Amount & Fee
+          maximum_credit: fulfilmentData.maximum_credit || '',
+          actual_credit: fulfilmentData.actual_credit || '',
+          estimated_fee: fulfilmentData.estimated_fee || '',
+          actual_fee: fulfilmentData.actual_fee || '',
+          years: fulfilmentData.years || '',
+
 
         // Other Info
         milestone: milestone?.value || project?.milestone,
