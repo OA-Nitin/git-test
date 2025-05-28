@@ -50,6 +50,8 @@ import NotesExample from "./components/common/NotesExample";
 import ButtonsExample from "./components/common/ButtonsExample";
 import PageContainerExample from "./components/common/PageContainerExample";
 
+import CreateContact from "./components/CreateContact";
+
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
   // Check if user is logged in by looking for user data in localStorage
@@ -350,6 +352,14 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/create-contact" element={
+          <ProtectedRoute>
+            <Layout>
+              <CreateContact />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
         {/* Page Container Example */}
         <Route

@@ -1,0 +1,75 @@
+.calendar {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 280px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  padding: 12px;
+  z-index: 9999;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.calendar.visible {
+  display: block;
+}
+
+.calendar .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.calendar .header button {
+  background-color: #f1f1f1;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.calendar .header button:hover {
+  background-color: #e0e0e0;
+}
+
+.calendar .days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.calendar .days button {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 8px 0;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar .days button:hover {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+}
+
+.calendar .days button:disabled {
+  background-color: #f5f5f5;
+  border-color: #eee;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.calendar .empty {
+  visibility: hidden;
+}
+
+.select-error .select__control {
+  border-color: red !important;
+}
