@@ -7,7 +7,9 @@
   margin-bottom: 20px;
   color: #333;
 }
-
+.check{
+  color:#000;
+}
 .business_info_container {
   background-color: #f8f9fa;
   border-radius: 8px;

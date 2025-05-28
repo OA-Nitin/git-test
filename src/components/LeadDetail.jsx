@@ -4835,7 +4835,13 @@ const LeadDetail = () => {
                   {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
-                        <a href="javascript:void(0)">
+                        <a
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.open(`/reporting/create-contact?lead_id=${leadId}`, '_blank');
+                          }}
+                        >
                             <i className="fa-solid fa-plus"></i> New Contact
                         </a>
                         <a
