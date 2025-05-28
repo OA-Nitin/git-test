@@ -338,7 +338,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -367,7 +367,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -396,7 +396,7 @@ const ProjectDetail = () => {
       formData.append('form_id', formId);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -424,7 +424,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-erc-payroll-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -452,7 +452,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-required-documents',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -480,7 +480,7 @@ const ProjectDetail = () => {
       formData.append('project_id', id);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-stc-impacted-days',
         formData,
         {
           headers: { Accept: 'application/json' },
@@ -607,7 +607,29 @@ const ProjectDetail = () => {
     invoices: { column: 'changed_date', direction: 'desc' },
     business_audit_log: { column: 'change_date', direction: 'desc' }
   });
-
+  // Fulfilment tab state
+  const [fulfilmentData, setFulfilmentData] = useState({
+    // Input section
+    income_2019: '',
+    income_2020: '',
+    income_2021: '',
+    // Bank Information
+    bank_name: '',
+    account_holder_name: '',
+    account_number: '',
+    routing_number: '',
+    // Output section
+    stc_amount_2020: '',
+    stc_amount_2021: '',
+    // Credit Amount & Fee
+    maximum_credit: '',
+    actual_credit: '',
+    estimated_fee: '',
+    actual_fee: '',
+    years: ''
+  });
+  const [fulfilmentLoading, setFulfilmentLoading] = useState(false);
+  const [fulfilmentError, setFulfilmentError] = useState(null);
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
@@ -1450,7 +1472,7 @@ const ProjectDetail = () => {
 
       try {
         const response = await axios.post(
-          "https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
+          "https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-invoices",
           { project_id: projectId }
         );
 
@@ -1557,7 +1579,7 @@ const ProjectDetail = () => {
       console.log('Fetching collaborators for project ID:', projectId);
       setCollaboratorLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
 
       console.log('Collaborators API response:', response);
 
@@ -1607,7 +1629,7 @@ const ProjectDetail = () => {
       console.log('Fetching owners for project ID:', projectId);
       setOwnerLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
 
       console.log('Owners API response:', response);
 
@@ -1668,7 +1690,7 @@ const ProjectDetail = () => {
       console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
       setContactLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
 
       console.log('Contacts API response:', response);
 
@@ -1729,7 +1751,7 @@ const ProjectDetail = () => {
       console.log('Fetching milestone and stage for project ID:', projectId);
       setIsLoadingMilestones(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
 
       console.log('Milestone API response:', response);
 
@@ -1790,7 +1812,7 @@ const ProjectDetail = () => {
       console.log('Fetching all available milestones');
 
       // Build the API URL with the product_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
       console.log('All milestones API URL:', apiUrl);
 
       // Make the API call
@@ -1917,7 +1939,7 @@ const ProjectDetail = () => {
             // If proxy server fails, try direct API
             try {
               console.log('Trying direct API request');
-              response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
+              response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -2121,7 +2143,7 @@ const ProjectDetail = () => {
       console.log('Fetching bank information for project ID:', project.project_id);
 
       // Make a POST request to the bank info API
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2205,7 +2227,7 @@ const ProjectDetail = () => {
       console.log('Fetching intake information for project ID:', project.project_id);
 
       // Make a POST request to the intake info API
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2399,12 +2421,12 @@ const ProjectDetail = () => {
     try {
       console.log('=== FEES API CALL START ===');
       console.log('Project ID:', project.project_id);
-      console.log('API Endpoint: https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
+      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
       const requestBody = { project_id: project.project_id };
       console.log('Request Body:', JSON.stringify(requestBody));
 
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2796,7 +2818,7 @@ const ProjectDetail = () => {
       }
 
       // Build API URL with query parameters
-      const apiUrl = new URL('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
+      const apiUrl = new URL('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
       apiUrl.searchParams.append('project_id', projectId);
       apiUrl.searchParams.append('lead_id', project.lead_id);
       apiUrl.searchParams.append('product_id', project.product_id);
@@ -2829,7 +2851,103 @@ const ProjectDetail = () => {
       console.log('=== PROJECT AUDIT LOGS API CALL END ===');
     }
   };
+  // Function to fetch fulfilment information from the API
+  const fetchFulfilmentInfo = async () => {
+    if (!project?.project_id) {
+      console.log('No project ID available for fulfilment API call');
+      return;
+    }
 
+    setFulfilmentLoading(true);
+    setFulfilmentError(null);
+
+    try {
+      console.log('=== FULFILMENT API CALL START ===');
+      console.log('Project ID:', project.project_id);
+      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment');
+
+      const requestBody = { project_id: project.project_id };
+      console.log('Request Body:', JSON.stringify(requestBody));
+
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log('Response Status:', response.status);
+      console.log('Response OK:', response.ok);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Raw API Response:', data);
+      console.log('Response Type:', typeof data);
+      console.log('Response Keys:', Object.keys(data));
+
+      // Check if the API response has the expected structure
+      if (data && data.result) {
+        const apiData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
+        console.log('Fulfilment Data from API:', apiData);
+
+        if (apiData) {
+          // Update fulfilment info state with the data from API - following fees API pattern
+          setFulfilmentData({
+            income_2019: apiData.income_2019 || '',
+            income_2020: apiData.income_2020 || '',
+            income_2021: apiData.income_2021 || '',
+            bank_name: apiData.bank_name || '',
+            account_holder_name: apiData.account_holder_name || '',
+            account_number: apiData.account_number || '',
+            routing_number: apiData.aba_routing_no || '',
+            stc_amount_2020: apiData.stc_amount_2020 || '',
+            stc_amount_2021: apiData.stc_amount_2021 || '',
+            maximum_credit: apiData.maximum_credit || '',
+            actual_credit: apiData.actual_credit || '',
+            estimated_fee: apiData.estimated_fee || '',
+            actual_fee: apiData.actual_fee || '',
+            years: apiData.years || ''
+          });
+
+          console.log('✅ Fulfilment data successfully loaded from API');
+          setFulfilmentError(null); // Clear any previous errors
+        } else {
+          throw new Error('No fulfilment data found in the API response');
+        }
+      } else {
+        throw new Error(`API returned error status: ${data.status}, message: ${data.message || 'Unknown error'}`);
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching fulfilment information:', error);
+      setFulfilmentError(`Failed to fetch fulfilment information: ${error.message}`);
+
+      // Clear the form on error
+      setFulfilmentData({
+        income_2019: '',
+        income_2020: '',
+        income_2021: '',
+        bank_name: '',
+        account_holder_name: '',
+        account_number: '',
+        routing_number: '',
+        stc_amount_2020: '',
+        stc_amount_2021: '',
+        maximum_credit: '',
+        actual_credit: '',
+        estimated_fee: '',
+        actual_fee: '',
+        years: ''
+      });
+    } finally {
+      setFulfilmentLoading(false);
+      console.log('=== FULFILMENT API CALL END ===');
+    }
+  };
   // Helper function to format date for audit logs
   const formatAuditDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -3011,7 +3129,10 @@ const ProjectDetail = () => {
     if (tab === 'fees') {
       fetchFeesInfo();
     }
-
+    // If fulfilment tab is selected, fetch fulfilment information
+    if (tab === 'fulfilment') {
+      fetchFulfilmentInfo();
+    }
     // If audit logs tab is selected, fetch audit logs
     if (tab === 'auditLogs') {
       // Only fetch if project data is available
@@ -3137,7 +3258,7 @@ const ProjectDetail = () => {
 
           // Call the API to assign the collaborator
           const response = await axios.post(
-            'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+            'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
             {
               project_id: projectId,
               user_id: selectedCollaborator.collaborator.id,
@@ -3222,7 +3343,7 @@ const ProjectDetail = () => {
 
       // Call the API to unassign the collaborator
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators',
         {
           project_id: projectId,
           user_id: collaboratorId,
@@ -3298,7 +3419,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the owner
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
         {
           project_id: projectId,
           owner_id: owner.value
@@ -3358,7 +3479,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the contact
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
         {
           project_id: projectId,
           contact_id: selectedContact.value
@@ -3424,7 +3545,7 @@ const ProjectDetail = () => {
       console.log('Fetching milestones for product ID:', selectedProductId);
 
       // Build the API URL with the product_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
       console.log('Milestones API URL:', apiUrl);
 
       // Make the API call
@@ -3555,7 +3676,7 @@ const ProjectDetail = () => {
       const currentStage = !isUserSelection ? projectStage : null;
 
       // Build the API URL with the milestone_id parameter
-      const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
+      const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
       console.log('Milestone stages API URL:', apiUrl);
 
       // Make the API call
@@ -3711,7 +3832,7 @@ const ProjectDetail = () => {
 
       // Call the API to update the milestone and stage
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones',
         {
           project_id: projectId,
           milestone_id: milestone.value,
@@ -4102,7 +4223,7 @@ const ProjectDetail = () => {
       console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -4206,7 +4327,7 @@ const ProjectDetail = () => {
       console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
-      const response = await fetch('https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
+      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -4320,6 +4441,26 @@ const ProjectDetail = () => {
                     Project
                   </a>
                 </li>
+                {/* Show Fulfilment tab only for STC (937) projects */}
+                {project?.product_id === '937' && (
+                  <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-fulfilment"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('fulfilment');
+                      }}
+                      href="#pills-fulfilment"
+                      role="tab"
+                      aria-controls="pills-fulfilment"
+                      aria-selected={activeTab === 'fulfilment'}
+                    >
+                      Fulfilment
+                    </a>
+                  </li>
+                )}
+
                 {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
                 {project?.product_id !== '937' && project?.product_id !== '932' && (
                   <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
@@ -4819,7 +4960,225 @@ const ProjectDetail = () => {
 
                     </div>
                   )}
+                  {/* Fulfilment Tab Content */}
+                  {activeTab === 'fulfilment' && (
+                    <div className="mb-4 left-section-container">
+                      {/* Display loading state */}
+                      {fulfilmentLoading && (
+                        <div className="text-center mb-3">
+                          <div className="spinner-border text-primary" role="status">
+                            <span className="visually-hidden">Loading fulfilment information...</span>
+                          </div>
+                          <p className="mt-2">Loading fulfilment information...</p>
+                        </div>
+                      )}
 
+                      {/* Display error state */}
+                      {fulfilmentError && (
+                        <div className="alert alert-warning alert-dismissible fade show" role="alert">
+                          <strong>API Error:</strong> {fulfilmentError}
+                          <button type="button" className="btn-close" onClick={() => setFulfilmentError(null)} aria-label="Close"></button>
+                        </div>
+                      )}
+
+
+
+                          {/* Input Section */}
+                          <h5 className="section-title">Input</h5>
+
+                          {/* Annual Income Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            Annual Income
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">2019 Income</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.income_2019}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2019: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">2020 Income</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.income_2020}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2020: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">2021 Income</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.income_2021}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2021: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bank Information Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            Bank Information
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Bank Name</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.bank_name}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, bank_name: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Account Holder Name</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.account_holder_name}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, account_holder_name: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Account Number</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.account_number}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, account_number: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Routing Number</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.routing_number}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, routing_number: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Output Section */}
+                          <h5 className="section-title mt-4">Output</h5>
+
+                          {/* STC Amount Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            STC Amount
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label className="form-label">2020 STC Amount</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.stc_amount_2020}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, stc_amount_2020: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-6">
+                              <div className="form-group">
+                                <label className="form-label">2021 STC Amount</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.stc_amount_2021}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, stc_amount_2021: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Credit Amount & Fee Section */}
+                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
+                            Credit Amount & Fee
+                          </h6>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Maximum Credit</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.maximum_credit}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, maximum_credit: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Actual Credit</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.actual_credit}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, actual_credit: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Estimated Fee</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.estimated_fee}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, estimated_fee: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="row mb-3">
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Actual Fee</label>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={fulfilmentData.actual_fee}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, actual_fee: e.target.value})}
+                                />
+                              </div>
+                            </div>
+                            <div className="col-md-4">
+                              <div className="form-group">
+                                <label className="form-label">Years</label>
+                                <select
+                                  className="form-select"
+                                  value={fulfilmentData.years}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, years: e.target.value})}
+                                >
+                                  <option value="2020">2020</option>
+                                  <option value="2021">2021</option>
+                                  <option value="2020,2021">2020,2021</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                    </div>
+                  )}
                   {/* Bank Info Tab */}
                   {activeTab === 'bankInfo' && (
                     <div className="mb-4 left-section-container">
