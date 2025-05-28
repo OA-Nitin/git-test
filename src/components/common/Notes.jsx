@@ -51,7 +51,7 @@ const Notes = ({
     resolver: yupResolver(noteFormSchema),
     mode: 'onTouched'
   });
-  
+
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
 
@@ -348,11 +348,9 @@ const Notes = ({
   };
 
   // Function to handle adding a new note
-  const handleAddNote = (e) => {
-    e.preventDefault();
-
+  const handleAddNote = (formData) => {
     // Allow empty notes to be submitted, but trim it for the API call
-    const trimmedNote = newNote.trim();
+    const trimmedNote = formData.note ? formData.note.trim() : '';
 
     // Debug information
     console.log('Adding note for:', { entityType, entityId, trimmedNote });
