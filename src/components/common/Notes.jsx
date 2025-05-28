@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import './Notes.css';
 import { SaveButton } from './ActionButtons';
 import Modal from './Modal';
-
+import { getUserId } from '../../utils/userUtils';
 
 // validations
 import { noteFormSchema } from '../../components/validationSchemas/leadSchema.jsx';
@@ -373,15 +373,21 @@ const Notes = ({
 
     // Make sure entityId is not undefined or null
     const safeEntityId = entityId || '';
-
+    const userId = getUserId();
     // Prepare the data for the API based on entity type
     let noteData;
-
-    if (entityType === 'project') {
+    if (entityType === 'lead') {
+      noteData = {
+        lead_id: safeEntityId,
+        note: trimmedNote,
+        user_id: userId  // This should ideally come from a user context
+      };
+    }
+    else if (entityType === 'project') {
       noteData = {
         project_id: safeEntityId,
         note: trimmedNote,
-        user_id: 1  // This should ideally come from a user context
+        user_id: userId  // This should ideally come from a user context
       };
     } else if (entityType === 'opportunity') {
       // For opportunities, ensure we're sending the correct data format
@@ -389,7 +395,7 @@ const Notes = ({
       noteData = {
         opportunity_id: safeEntityId,
         note: trimmedNote,
-        user_id: 1  // Required parameter as shown in the Postman screenshot
+        user_id: userId  // Required parameter as shown in the Postman screenshot
       };
 
       // Log the data being sent for debugging
