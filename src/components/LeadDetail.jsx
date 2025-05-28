@@ -13,6 +13,55 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 
+// Standardized date formatting function for MM/DD/YYYY format
+const formatDateToMMDDYYYY = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return dateString;
+
+    // Format as MM/DD/YYYY
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
+// Function to convert MM/DD/YYYY to YYYY-MM-DD for date input
+const formatDateForInput = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    // If it's already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return '';
+
+    // Format as YYYY-MM-DD for date input
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Error formatting date for input:', error);
+    return '';
+  }
+};
+
 
 
 // validations
@@ -195,8 +244,8 @@ const LeadDetail = () => {
 
 
 
-  
-  // validation 
+
+  // validation
   const {
     register,
     handleSubmit,
@@ -210,7 +259,7 @@ const LeadDetail = () => {
     reValidateMode: 'onChange',
   });
 
-  // Modify your useEffect that sets form values to properly register them 
+  // Modify your useEffect that sets form values to properly register them
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
@@ -218,7 +267,7 @@ const LeadDetail = () => {
       });
     }
   }, [lead, setValue]);
-  
+
   const {
     register: registerProject,
     handleSubmit: handleSubmitProject,
@@ -261,7 +310,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching groups...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-groups');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-groups');
 
       console.log('Groups API response:', response);
 
@@ -312,7 +361,7 @@ const LeadDetail = () => {
   // function to fectch link contact list
   const fetchAvailableContacts = async () => {
     try {
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
 
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         const contactOptions = response.data.data.map(contact => ({
@@ -350,7 +399,7 @@ const LeadDetail = () => {
       console.log('Linking contact with data:', requestData);
 
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
+        'https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
         requestData,
         {
           headers: {
@@ -444,7 +493,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching campaigns...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-campaigns');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-campaigns');
 
       console.log('Campaigns API response:', response);
 
@@ -497,7 +546,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching sources...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/sources');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/sources');
 
       console.log('Sources API response:', response);
 
@@ -550,7 +599,7 @@ const LeadDetail = () => {
     try {
       setIsLoadingOptions(true);
       console.log('Fetching billing profiles...');
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
 
       console.log('Billing Profiles API response:', response);
 
@@ -724,7 +773,7 @@ const LeadDetail = () => {
       console.log('Fetching assigned users for lead ID:', leadId);
       setUnassignLoading(true);
 
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
 
       console.log('Assigned users API response:', response);
       //  && response.data.success && Array.isArray(response.data.data)
@@ -757,7 +806,7 @@ const LeadDetail = () => {
       setIsLoadingOptions(true);
 
       // Use the same API endpoint as the sales team
-      const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
+      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
 
       console.log('User data API response:', response);
 
@@ -832,7 +881,7 @@ const LeadDetail = () => {
   const fetchBusinessData = async () => {
     try {
       console.log('Fetching business data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
         console.log('Business data fetched successfully:', response.data);
@@ -943,7 +992,7 @@ const LeadDetail = () => {
   const fetchAffiliateCommissionData = async () => {
     try {
       console.log('Fetching affiliate commission data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-affiliate-commission-data/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-affiliate-commission-data/${leadId}`);
 
       if (response.data && (response.data.status === 'success' || response.data.success)) {
         console.log('Affiliate commission data fetched successfully:', response.data);
@@ -1130,7 +1179,7 @@ const LeadDetail = () => {
       });
 
       // Call the API to disable the contact
-      const response = await axios.delete(`https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
+      const response = await axios.delete(`https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
 
       console.log('Disable contact API response:', response);
 
@@ -1176,7 +1225,7 @@ const LeadDetail = () => {
       // Make the API call with a cache-busting parameter to ensure fresh data
       const timestamp = new Date().getTime();
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
+        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
       );
 
       if (response.data && response.data.status === 'success') {
@@ -1259,7 +1308,7 @@ const LeadDetail = () => {
   const fetchProjectData = async () => {
     try {
       console.log('Fetching project data for lead ID:', leadId);
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-project-data/${leadId}/0`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-project-data/${leadId}/0`);
 
       console.log('Project API raw response:', response);
 
@@ -1379,7 +1428,7 @@ const LeadDetail = () => {
           console.log('Fetching lead data from API with lead_id:', leadId);
 
           // Use a more direct approach with explicit configuration
-          const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/v1/leads?lead_id=${leadId}`;
+          const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/leads?lead_id=${leadId}`;
           console.log('API URL:', apiUrl);
 
           const response = await axios({
@@ -1681,7 +1730,7 @@ const LeadDetail = () => {
       setNotesError(null);
 
       // Fetch notes from the API
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
       console.log('Notes API response:', response);
 
       let notesData = [];
@@ -1698,14 +1747,13 @@ const LeadDetail = () => {
 
       console.log('Processed notes data:', notesData);
 
-      // Format dates and times
+      // Format dates in MM/DD/YYYY format (no time)
       const formattedNotes = notesData.map(note => ({
         id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
         text: note.note || note.text || note.content || '',
         author: note.user_name || note.author || 'User',
         date: note.created_at || note.date || new Date().toISOString(),
-        formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-        formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+        formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
       }));
 
       console.log('Formatted notes:', formattedNotes);
@@ -1855,7 +1903,7 @@ const LeadDetail = () => {
       console.log('Sending note data:', noteData); // For debugging
 
       // Send the data to the API
-      const response = await axios.post('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData);
+      const response = await axios.post('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData);
       console.log('Add note API response:', response);
 
       // Show success message
@@ -1934,7 +1982,7 @@ const LeadDetail = () => {
     });
 
     // Fetch notes from the API
-    axios.get(`https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
+    axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
       .then(response => {
         const notes = response.data || [];
         console.log('Notes API response for modal:', notes);
@@ -1951,14 +1999,13 @@ const LeadDetail = () => {
           notesData = [response.data];
         }
 
-        // Format the notes for display
+        // Format the notes for display in MM/DD/YYYY format (no time)
         const formattedNotes = notesData.map(note => ({
           id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
           text: note.note || note.text || note.content || '',
           author: note.user_name || note.author || 'User',
           date: note.created_at || note.date || new Date().toISOString(),
-          formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-          formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+          formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
         }));
 
         // Generate HTML for the notes
@@ -1980,7 +2027,6 @@ const LeadDetail = () => {
             <div class="note-item mb-3 p-3 bg-white rounded shadow-sm">
               <div class="d-flex justify-content-between">
                 <div class="note-date fw-bold">${note.formattedDate}</div>
-                <div class="note-time text-muted">${note.formattedTime}</div>
               </div>
               <div class="note-content mt-2">
                 <div class="d-flex align-items-center mb-1">
@@ -2106,7 +2152,7 @@ const LeadDetail = () => {
           // Call the API to assign the user
           console.log('Assigning user with user_id:', selectedUser.user.id);
           const response = await axios.post(
-            'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
+            'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
             {
               lead_id: leadId,
               user_id: selectedUser.user.id,
@@ -2188,7 +2234,7 @@ const LeadDetail = () => {
       // Call the API to unassign the user
       console.log('Unassigning user with user_id:', userId);
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
         {
           lead_id: leadId,
           user_id: userId,
@@ -2409,7 +2455,7 @@ const LeadDetail = () => {
       }
 
       // Build the API URL with the milestone_id parameter
-      let apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${encodeURIComponent(milestone_id)}`;
+      let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${encodeURIComponent(milestone_id)}`;
 
       // Add product_id parameter if provided
       if (product_id) {
@@ -2524,7 +2570,7 @@ const LeadDetail = () => {
       ];
 
       // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
       if (product_id) {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
@@ -2720,7 +2766,7 @@ const LeadDetail = () => {
 
       // Make the API call
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field',
         projectFormData
       );
 
@@ -2816,7 +2862,7 @@ const LeadDetail = () => {
 
       // Uncomment and modify when API is available
       /*
-      const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
 
       console.log('Opportunities API response:', response);
 
@@ -2847,7 +2893,7 @@ const LeadDetail = () => {
       ];
 
       // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
       if (product_id) {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
@@ -3080,7 +3126,7 @@ const LeadDetail = () => {
       // Uncomment and modify when API is available
       /*
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
         opportunityFormData
       );
 
@@ -3157,7 +3203,7 @@ const LeadDetail = () => {
       });
 
       // Make the DELETE request to the API
-      const response = await axios.delete('https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
+      const response = await axios.delete('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
         data: { id: opportunityId }
       });
 
@@ -3437,7 +3483,7 @@ const LeadDetail = () => {
       // Make API call to update the lead
       console.log('Sending data to API:', mergedData);
       const response = await axios.post(
-        'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/leads',
+        'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/leads',
         mergedData,
         {
           headers: {
@@ -3703,6 +3749,14 @@ const LeadDetail = () => {
                               value={lead.business_legal_name || ''}
                               onChange={handleInputChange}
                             />
+                             {errors.business_legal_name && (
+                                <div className="invalid-feedback">{errors.business_legal_name.message}</div>
+                              )}
+                            <input
+                              type="hidden"
+                              name="user_id"
+                              value={getUserId()}
+                            />
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3907,7 +3961,12 @@ const LeadDetail = () => {
                               name="primary_contact_email"
                               value={primaryContact.email || ''}
                               onChange={handleInputChange}
+
+                              disabled
                             />
+                              {errors.primary_contact_email && (
+                                <div className="invalid-feedback">{errors.primary_contact_email.message}</div>
+                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -3920,7 +3979,12 @@ const LeadDetail = () => {
                               name="primary_contact_phone"
                               value={primaryContact.phone || ''}
                               onChange={handleInputChange}
+
+                              disabled
                             />
+                            {errors.primary_contact_phone && (
+                              <div className="invalid-feedback">{errors.primary_contact_phone.message}</div>
+                            )}
                           </div>
                         </div>
                         <div className="col-md-2">
@@ -3933,7 +3997,13 @@ const LeadDetail = () => {
                               name="primary_contact_ext"
                               value={primaryContact.ext || ''}
                               onChange={handleInputChange}
+
+                              disabled
                             />
+                            {errors.primary_contact_ext && (
+                              <div className="invalid-feedback">{errors.primary_contact_ext.message}</div>
+                            )}
+
                           </div>
                         </div>
                       </div>
@@ -3948,7 +4018,13 @@ const LeadDetail = () => {
                               name="contact_phone_type"
                               value={primaryContact.phoneType || ''}
                               onChange={handleInputChange}
+
+                              disabled
                             />
+                            {errors.contact_phone_type && (
+                              <div className="invalid-feedback">{errors.contact_phone_type.message}</div>
+                            )}
+
                           </div>
                         </div>
                       </div>
@@ -4096,14 +4172,32 @@ const LeadDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Registration Date*</label>
-                            <input
-                              type="date"
-                              className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
-                              {...register('registration_date')}
-                              name="registration_date"
-                              value={lead.registration_date || ''}
-                              onChange={handleInputChange}
-                            />
+                            <div className="input-group">
+                              <input
+                                type="text"
+                                className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
+                                {...register('registration_date')}
+                                name="registration_date"
+                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
+                                onChange={handleInputChange}
+                                placeholder="MM/DD/YYYY"
+                                maxLength="10"
+                                onInput={(e) => {
+                                  // Auto-format as user types MM/DD/YYYY
+                                  let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                  if (value.length >= 2) {
+                                    value = value.substring(0, 2) + '/' + value.substring(2);
+                                  }
+                                  if (value.length >= 5) {
+                                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                                  }
+                                  e.target.value = value;
+                                }}
+                              />
+                              <span className="input-group-text">
+                                <i className="fas fa-calendar-alt"></i>
+                              </span>
+                            </div>
                             {errors.registration_date && (
                               <div className="invalid-feedback">{errors.registration_date.message}</div>
                             )}
@@ -4927,7 +5021,7 @@ const LeadDetail = () => {
                                               project_name: e.target.value
                                             }))}
                                             placeholder="Enter project name"
-                                            
+
                                           />
                                           {projectErrors.project_name && (
                                             <div className="invalid-feedback">
@@ -5083,7 +5177,7 @@ const LeadDetail = () => {
                                                     console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
 
                                                     // Fetch milestone stages using the API endpoint with milestone_id
-                                                    const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
+                                                    const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
                                                     console.log('Calling milestone stages API with URL:', apiUrl);
 
                                                     const response = await axios.get(apiUrl);
@@ -5117,9 +5211,9 @@ const LeadDetail = () => {
                                                   setMilestoneStages([]);
                                                 }
                                               }}
-                                              
+
                                             >
-                                              
+
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
                                                 <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
@@ -5151,7 +5245,7 @@ const LeadDetail = () => {
                                                   MilestoneStage: e.target.value
                                                 }));
                                               }}
-                                              
+
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
@@ -5296,7 +5390,7 @@ const LeadDetail = () => {
                             </div>
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
-                                <p><b>Created Date:</b> {opportunity.created_date}</p>
+                                <p><b>Created Date:</b> {formatDateToMMDDYYYY(opportunity.created_date)}</p>
                                 <p><b>Current Stage:</b> {opportunity.stage}</p>
                                 <p><b>Next Step:</b> {opportunity.next_step || '-'}</p>
                               </div>
@@ -5305,7 +5399,7 @@ const LeadDetail = () => {
                               <div className="lead_des">
                                 <p><b>Opportunity Owner:</b> {opportunity.created_by}</p>
                                 <p><b>Opportunity Amount:</b> {opportunity.currency} {opportunity.opportunity_amount}</p>
-                                <p><b>Expected Close date:</b> {opportunity.expected_close_date}</p>
+                                <p><b>Expected Close date:</b> {formatDateToMMDDYYYY(opportunity.expected_close_date)}</p>
                               </div>
                             </div>
                           </div>
@@ -5444,7 +5538,7 @@ const LeadDetail = () => {
                                                     console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
 
                                                     // Fetch milestone stages using the API endpoint with milestone_id
-                                                    const apiUrl = `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
+                                                    const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
                                                     console.log('Calling milestone stages API with URL:', apiUrl);
 
                                                     const response = await axios.get(apiUrl);
@@ -5496,16 +5590,34 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Created Date:*</label>
-                                          <input
-                                            type="date"
-                                            className="form-control"
-                                            value={opportunityFormData.created_date}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              created_date: e.target.value
-                                            }))}
-                                            required
-                                          />
+                                          <div className="input-group">
+                                            <input
+                                              type="text"
+                                              className="form-control"
+                                              value={opportunityFormData.created_date ? formatDateToMMDDYYYY(opportunityFormData.created_date) : ''}
+                                              onChange={(e) => setOpportunityFormData(prev => ({
+                                                ...prev,
+                                                created_date: e.target.value
+                                              }))}
+                                              placeholder="MM/DD/YYYY"
+                                              maxLength="10"
+                                              onInput={(e) => {
+                                                // Auto-format as user types MM/DD/YYYY
+                                                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                                if (value.length >= 2) {
+                                                  value = value.substring(0, 2) + '/' + value.substring(2);
+                                                }
+                                                if (value.length >= 5) {
+                                                  value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                                                }
+                                                e.target.value = value;
+                                              }}
+                                              required
+                                            />
+                                            <span className="input-group-text">
+                                              <i className="fas fa-calendar-alt"></i>
+                                            </span>
+                                          </div>
                                         </div>
                                       </div>
                                       <div className="col-md-6">

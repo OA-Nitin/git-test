@@ -10,7 +10,7 @@ const cors = require('cors');
 const app = express();
 
 // API configuration
-const API_BASE_URL = 'https://play.occamsadvisory.com/portal';
+const API_BASE_URL = 'https://portal.occamsadvisory.com/portal';
 const API_KEY = 'qV9@8kJz#2dP!mNc';
 const PORT = process.env.PORT || 3002;
 

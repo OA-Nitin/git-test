@@ -14,7 +14,7 @@ const AuditLogs = ({ leadId }) => {
         setError(null);
         
         // Use the specified API endpoint for audit logs
-        const response = await axios.get(`https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity?lead_id=${leadId || '9020'}`);
+        const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity?lead_id=${leadId || '9020'}`);
         
         console.log('Audit logs API response:', response.data);
         

@@ -84,23 +84,49 @@ const LeadReport = ({ projectType }) => {
       console.log(`Fetching ${reportType ? reportType + ' ' : ''}leads from API...`);
       console.log('Using product ID:', productId);
 
-      // Construct API URL - if projectType is provided, we could add it as a query parameter
-      // For now, we'll fetch all leads and filter them client-side
+      // Define filterType early so it can be used throughout the function
+      const filterType = product || projectType;
+
+      // Construct API URL - always fetch all leads first, then filter client-side
+      // This ensures we get data even if the server-side filtering has issues
       let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/leads';
-      if (productId) {
+
+      // For debugging: try with product_id parameter first, but fallback to all leads
+      if (productId && filterType && filterType.toLowerCase() !== 'all') {
         apiUrl += `?product_id=${productId}`;
+        console.log('Trying API call with product_id filter:', apiUrl);
+      } else {
+        console.log('Fetching all leads without server-side filtering:', apiUrl);
       }
 
       // Make the API request with proper headers
-      const response = await axios.get(apiUrl, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        timeout: 40000 // 40 second timeout
-      });
-
-      console.log('API Response:', response);
+      let response;
+      try {
+        response = await axios.get(apiUrl, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          timeout: 80000 // 80 second timeout
+        });
+        console.log('API Response:', response);
+      } catch (apiError) {
+        // If API call with product_id fails, try without it
+        if (productId && apiUrl.includes('product_id')) {
+          console.warn('API call with product_id failed, trying without filter:', apiError.message);
+          const fallbackUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/leads';
+          response = await axios.get(fallbackUrl, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            timeout: 80000 // 80 second timeout
+          });
+          console.log('Fallback API Response:', response);
+        } else {
+          throw apiError; // Re-throw if it's not a product_id related issue
+        }
+      }
 
       // Check if we have a valid response with data
       if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
@@ -109,30 +135,51 @@ const LeadReport = ({ projectType }) => {
         console.log('API Leads (before filtering):', apiLeads);
 
         // Filter leads by product parameter or project type prop if specified
-        const filterType = product || projectType;
+        // filterType is already defined earlier in the function
 
         // Special case for "all" - don't filter the leads
         if (filterType && filterType.toLowerCase() !== 'all') {
           console.log('Filtering leads for specific type:', filterType);
-          apiLeads = apiLeads.filter(lead => {
-            // Check if the lead's category or product_type matches the filterType
-            // Adjust these fields based on the actual API response structure
-            const category = (lead.category || '').toLowerCase();
-            const productType = (lead.product_type || '').toLowerCase();
-            const leadGroup = (lead.lead_group || '').toLowerCase();
-            const leadProductId = lead.product_id ? String(lead.product_id).toLowerCase() : '';
+          console.log('Product ID to match:', productId);
+          console.log('Sample lead data for debugging:', apiLeads[0]);
 
-            const typeToMatch = filterType.toLowerCase();
-            const productIdToMatch = productId ? String(productId).toLowerCase() : '';
+          // If we have a specific product ID, filter by that first
+          if (productId) {
+            apiLeads = apiLeads.filter(lead => {
+              const leadProductId = lead.product_id ? String(lead.product_id) : '';
+              const matches = leadProductId === String(productId);
+              if (!matches) {
+                console.log(`Lead ${lead.lead_id} product_id: ${leadProductId} doesn't match expected: ${productId}`);
+              }
+              return matches;
+            });
+            console.log(`Filtered leads by product_id ${productId}:`, apiLeads.length, 'leads found');
+          } else {
+            // Fallback to text-based filtering if no product ID
+            const originalCount = apiLeads.length;
+            apiLeads = apiLeads.filter(lead => {
+              // Check if the lead's category or product_type matches the filterType
+              const category = (lead.category || '').toLowerCase();
+              const productType = (lead.product_type || '').toLowerCase();
+              const leadGroup = (lead.lead_group || '').toLowerCase();
 
-            // Match by text fields or product ID
-            return category.includes(typeToMatch) ||
-                   productType.includes(typeToMatch) ||
-                   leadGroup.includes(typeToMatch) ||
-                   (productIdToMatch && leadProductId === productIdToMatch);
-          });
+              const typeToMatch = filterType.toLowerCase();
 
-          console.log(`Filtered leads for ${filterType}:`, apiLeads);
+              // Match by text fields
+              const matches = category.includes(typeToMatch) ||
+                             productType.includes(typeToMatch) ||
+                             leadGroup.includes(typeToMatch);
+
+              if (!matches) {
+                console.log(`Lead ${lead.lead_id} - category: "${category}", productType: "${productType}", leadGroup: "${leadGroup}" doesn't match: "${typeToMatch}"`);
+              }
+
+              return matches;
+            });
+            console.log(`Text-based filtering: ${originalCount} -> ${apiLeads.length} leads`);
+          }
+
+          console.log(`Final filtered leads for ${filterType}:`, apiLeads);
         } else if (filterType && filterType.toLowerCase() === 'all') {
           console.log('Showing all leads without filtering by type');
         }
@@ -141,16 +188,24 @@ const LeadReport = ({ projectType }) => {
           setLeads(apiLeads);
           setError(null); // Clear any previous error
         } else {
-          const reportType = product || projectType;
-          // Show no data available message
-          if (reportType && reportType.toLowerCase() === 'all') {
-            console.warn('No leads found in API response');
-            setLeads([]);
-            setError('No data available.');
+          // If filtering resulted in no leads, but we had original data, show all leads as fallback
+          const originalLeads = response.data.data;
+          if (originalLeads && originalLeads.length > 0 && filterType && filterType.toLowerCase() !== 'all') {
+            console.warn(`No leads found after filtering for ${filterType}, showing all leads as fallback`);
+            setLeads(originalLeads);
+            setError(null);
           } else {
-            console.warn(`No ${reportType ? reportType + ' ' : ''}leads found in API response`);
-            setLeads([]);
-            setError(`No ${reportType ? reportType + ' ' : ''}data available.`);
+            const reportType = product || projectType;
+            // Show no data available message
+            if (reportType && reportType.toLowerCase() === 'all') {
+              console.warn('No leads found in API response');
+              setLeads([]);
+              setError('No data available.');
+            } else {
+              console.warn(`No ${reportType ? reportType + ' ' : ''}leads found in API response`);
+              setLeads([]);
+              setError(`No ${reportType ? reportType + ' ' : ''}data available.`);
+            }
           }
         }
       } else {
@@ -286,7 +341,8 @@ const LeadReport = ({ projectType }) => {
         { id: 'leadId', label: 'Lead #', field: 'lead_id', sortable: true },
         { id: 'date', label: 'Date', field: 'created', sortable: false },
         { id: 'businessName', label: 'Business Name', field: 'business_legal_name', sortable: true },
-        { id: 'taxNowStatus', label: 'Lead Status', field: 'lead_status', sortable: true }
+        { id: 'currentMilestone', label: 'Current Milestone', field: 'current_milestone', sortable: true },
+        { id: 'currentStage', label: 'Current Stage', field: 'current_stage', sortable: true }
       ]
     },
     {
@@ -324,11 +380,23 @@ const LeadReport = ({ projectType }) => {
   // Flatten all columns for easier access
   const allColumns = columnGroups.flatMap(group => group.columns);
 
-  // Default visible columns
-  const defaultVisibleColumns = ['leadId', 'date', 'businessName', 'taxNowStatus', 'businessEmail', 'businessPhone', 'notes', 'bookACall'];
+  // Default visible columns - conditionally exclude milestone and stage for "all" reports
+  const isAllReport = product?.toLowerCase() === 'all';
+  const defaultVisibleColumns = isAllReport
+    ? ['leadId', 'date', 'businessName', 'businessEmail', 'businessPhone', 'notes', 'bookACall']
+    : ['leadId', 'date', 'businessName', 'currentMilestone', 'currentStage', 'businessEmail', 'businessPhone', 'notes', 'bookACall'];
 
   // State to track visible columns
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
+
+  // Update visible columns when product changes (to handle navigation between different report types)
+  useEffect(() => {
+    const isAllReport = product?.toLowerCase() === 'all';
+    const newDefaultColumns = isAllReport
+      ? ['leadId', 'date', 'businessName', 'businessEmail', 'businessPhone', 'notes', 'bookACall']
+      : ['leadId', 'date', 'businessName', 'currentMilestone', 'currentStage', 'businessEmail', 'businessPhone', 'notes', 'bookACall'];
+    setVisibleColumns(newDefaultColumns);
+  }, [product]); // Re-run when product parameter changes
 
   // Toggle column visibility
   const toggleColumnVisibility = (columnId) => {
@@ -343,7 +411,11 @@ const LeadReport = ({ projectType }) => {
 
   // Reset to default columns
   const resetToDefaultColumns = () => {
-    setVisibleColumns(defaultVisibleColumns);
+    const isAllReport = product?.toLowerCase() === 'all';
+    const newDefaultColumns = isAllReport
+      ? ['leadId', 'date', 'businessName', 'businessEmail', 'businessPhone', 'notes', 'bookACall']
+      : ['leadId', 'date', 'businessName', 'currentMilestone', 'currentStage', 'businessEmail', 'businessPhone', 'notes', 'bookACall'];
+    setVisibleColumns(newDefaultColumns);
   };
 
   // Select all columns
@@ -420,6 +492,8 @@ const LeadReport = ({ projectType }) => {
     const salesAgent = String(lead.internal_sales_agent || '').toLowerCase();
     const salesSupport = String(lead.internal_sales_support || '').toLowerCase();
     const employeeId = String(lead.employee_id || '').toLowerCase();
+    const currentMilestone = String(lead.current_milestone || '').toLowerCase();
+    const currentStage = String(lead.current_stage || '').toLowerCase();
 
     // Get the created date from the lead
     const createdDate = lead.created || lead.created_at || lead.date_created || '';
@@ -439,7 +513,9 @@ const LeadReport = ({ projectType }) => {
       leadGroup.includes(searchTermLower) ||
       salesAgent.includes(searchTermLower) ||
       salesSupport.includes(searchTermLower) ||
-      employeeId.includes(searchTermLower);
+      employeeId.includes(searchTermLower) ||
+      currentMilestone.includes(searchTermLower) ||
+      currentStage.includes(searchTermLower);
 
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
@@ -528,9 +604,12 @@ const LeadReport = ({ projectType }) => {
 
   // Handle export to CSV
   const exportToCSV = () => {
+    // Use sorted leads to maintain the same order as displayed in the table
+    const leadsToExport = sortedLeads;
+
     // Confirm export with user if there are many leads
-    if (filteredLeads.length > 100) {
-      if (!confirm(`You are about to export ${filteredLeads.length} leads. This may take a moment. Continue?`)) {
+    if (leadsToExport.length > 100) {
+      if (!confirm(`You are about to export ${leadsToExport.length} leads. This may take a moment. Continue?`)) {
         return;
       }
     }
@@ -544,8 +623,8 @@ const LeadReport = ({ projectType }) => {
     // Create headers from visible columns
     const headers = visibleColumnsData.map(column => column.label);
 
-    // Create CSV data rows
-    const csvData = filteredLeads.map(lead => {
+    // Create CSV data rows (using sorted leads to maintain descending order by lead_id)
+    const csvData = leadsToExport.map(lead => {
       return visibleColumnsData.map(column => {
         // Handle special columns with custom rendering
         if (column.id === 'leadId') return lead.lead_id || '';
@@ -554,7 +633,8 @@ const LeadReport = ({ projectType }) => {
           const businessName = lead.business_legal_name || '';
           return `"${businessName.replace(/"/g, '""')}"`; // Escape quotes
         }
-        if (column.id === 'taxNowStatus') return lead.lead_status || '';
+        if (column.id === 'currentMilestone') return lead.current_milestone || '';
+        if (column.id === 'currentStage') return lead.current_stage || '';
         if (column.id === 'businessEmail') return lead.business_email || '';
         if (column.id === 'businessPhone') return lead.business_phone || '';
         if (column.id === 'employee') return lead.employee_id || '';
@@ -589,9 +669,12 @@ const LeadReport = ({ projectType }) => {
   // Handle export to PDF
   const exportToPDF = () => {
     try {
+      // Use sorted leads to maintain the same order as displayed in the table
+      const leadsToExport = sortedLeads;
+
       // Confirm export with user if there are many leads
-      if (filteredLeads.length > 100) {
-        if (!confirm(`You are about to export ${filteredLeads.length} leads to PDF. This may take a moment and result in a large file. Continue?`)) {
+      if (leadsToExport.length > 100) {
+        if (!confirm(`You are about to export ${leadsToExport.length} leads to PDF. This may take a moment and result in a large file. Continue?`)) {
           return;
         }
       }
@@ -643,14 +726,15 @@ const LeadReport = ({ projectType }) => {
       // Create table data
       const tableColumn = visibleColumnsData.map(column => column.label);
 
-      // Create table rows with data for visible columns
-      const tableRows = filteredLeads.map(lead => {
+      // Create table rows with data for visible columns (using sorted leads to maintain descending order by lead_id)
+      const tableRows = leadsToExport.map(lead => {
         return visibleColumnsData.map(column => {
           // Handle special columns with custom rendering
           if (column.id === 'leadId') return lead.lead_id || '';
           if (column.id === 'date') return formatDate(lead.created) || '';
           if (column.id === 'businessName') return lead.business_legal_name || '';
-          if (column.id === 'taxNowStatus') return lead.lead_status || '';
+          if (column.id === 'currentMilestone') return lead.current_milestone || '';
+          if (column.id === 'currentStage') return lead.current_stage || '';
           if (column.id === 'businessEmail') return lead.business_email || '';
           if (column.id === 'businessPhone') return lead.business_phone || '';
           if (column.id === 'employee') return lead.employee_id || '';
@@ -707,9 +791,12 @@ const LeadReport = ({ projectType }) => {
   // Handle export to Excel
   const exportToExcel = () => {
     try {
+      // Use sorted leads to maintain the same order as displayed in the table
+      const leadsToExport = sortedLeads;
+
       // Confirm export with user if there are many leads
-      if (filteredLeads.length > 100) {
-        if (!confirm(`You are about to export ${filteredLeads.length} leads to Excel. This may take a moment. Continue?`)) {
+      if (leadsToExport.length > 100) {
+        if (!confirm(`You are about to export ${leadsToExport.length} leads to Excel. This may take a moment. Continue?`)) {
           return;
         }
       }
@@ -720,8 +807,8 @@ const LeadReport = ({ projectType }) => {
         visibleColumns.includes(column.id) && !columnsToExclude.includes(column.id)
       );
 
-      // Prepare data for Excel
-      const excelData = filteredLeads.map(lead => {
+      // Prepare data for Excel (using sorted leads to maintain descending order by lead_id)
+      const excelData = leadsToExport.map(lead => {
         const rowData = {};
 
         // Add data for each visible column
@@ -730,14 +817,14 @@ const LeadReport = ({ projectType }) => {
           if (column.id === 'leadId') rowData[column.label] = lead.lead_id || '';
           else if (column.id === 'date') rowData[column.label] = formatDate(lead.created) || '';
           else if (column.id === 'businessName') rowData[column.label] = lead.business_legal_name || '';
-          else if (column.id === 'taxNowStatus') rowData[column.label] = lead.lead_status || '';
+          else if (column.id === 'currentMilestone') rowData[column.label] = lead.current_milestone || '';
+          else if (column.id === 'currentStage') rowData[column.label] = lead.current_stage || '';
           else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
           else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
           else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
           else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
           else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
           else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
-          else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
           else if (column.id === 'leadGroup') rowData[column.label] = lead.lead_group || '';
@@ -758,7 +845,8 @@ const LeadReport = ({ projectType }) => {
         if (column.id === 'leadId') wscols[index] = { wch: 10 };
         else if (column.id === 'businessName') wscols[index] = { wch: 25 };
         else if (column.id === 'date') wscols[index] = { wch: 12 };
-        else if (column.id === 'taxNowStatus') wscols[index] = { wch: 15 };
+        else if (column.id === 'currentMilestone') wscols[index] = { wch: 20 };
+        else if (column.id === 'currentStage') wscols[index] = { wch: 20 };
         else if (column.id === 'actions') wscols[index] = { wch: 20 };
       });
 
@@ -937,20 +1025,10 @@ const LeadReport = ({ projectType }) => {
                                     return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
                                   case 'salesSupport':
                                     return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
-                                  case 'taxNowStatus':
-                                    return (
-                                      <td key={column.id}>
-                                        <span className={`badge ${
-                                          lead.lead_status === 'New' ? 'bg-info' :
-                                          lead.lead_status === 'Contacted' ? 'bg-primary' :
-                                          lead.lead_status === 'Qualified' ? 'bg-warning' :
-                                          lead.lead_status === 'Active' ? 'bg-success' :
-                                          'bg-secondary'
-                                        }`}>
-                                          {lead.lead_status || ''}
-                                        </span>
-                                      </td>
-                                    );
+                                  case 'currentMilestone':
+                                    return <td key={column.id}>{lead.current_milestone || ''}</td>;
+                                  case 'currentStage':
+                                    return <td key={column.id}>{lead.current_stage || ''}</td>;
                                   case 'leadCampaign':
                                     return <td key={column.id}>{lead.campaign || ''}</td>;
                                   case 'category':
