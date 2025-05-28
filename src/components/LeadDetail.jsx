@@ -1417,6 +1417,9 @@ const LeadDetail = () => {
   // We've removed the duplicate functions for fetching dropdown options
   // These options are now fetched using fetchGroups, fetchCampaigns, and fetchSources functions
 
+  // Add state for product_id
+  const [leadProductId, setLeadProductId] = useState('');
+
   const fetchLeadDetails = async () => {
     setLoading(true);
     setError(null);
@@ -1489,6 +1492,12 @@ const LeadDetail = () => {
             };
 
             setLead(apiLead);
+
+            // Extract product_id from the response
+            if (leadData.product_id) {
+              console.log('Found product_id in lead data:', leadData.product_id);
+              setLeadProductId(leadData.product_id);
+            }
 
             // DIRECT APPROACH: Get lead_group key value from API and set to dropdown
             console.log('Setting lead_group value directly from API response');
@@ -1753,21 +1762,17 @@ const LeadDetail = () => {
   const handleTabChange = (tab) => {
     console.log(`Switching from tab ${activeTab} to ${tab}`);
     
-    // Before changing tabs, ensure we've saved the current contact data to our ref
-    contactDataRef.current.primary = { ...primaryContact };
-    contactDataRef.current.secondary = { ...secondaryContact };
-    
-    // Set the new active tab
     setActiveTab(tab);
     
-    // After changing tabs, restore the contact data from our ref
-    console.log('Restoring primary contact from ref:', contactDataRef.current.primary);
-    setPrimaryContact(contactDataRef.current.primary);
-    setSecondaryContact(contactDataRef.current.secondary);
+    // If switching to opportunities tab, fetch opportunities
+    if (tab === 'opportunities' && leadId) {
+      console.log('Switching to opportunities tab, fetching opportunities');
+      fetchOpportunities();
+    }
     
-    // If we're switching to the contacts tab, refresh the contacts list
-    if (tab === 'contacts') {
-      console.log('Switching to contacts tab, refreshing contact data');
+    // If switching to contacts tab, fetch contacts
+    if (tab === 'contacts' && leadId) {
+      console.log('Switching to contacts tab, fetching contacts');
       fetchContactData();
     }
   };
@@ -2865,57 +2870,21 @@ const LeadDetail = () => {
   const fetchOpportunities = async () => {
     try {
       console.log('Fetching opportunities for lead ID:', leadId);
-
-      // Mock data for now - replace with actual API call
-      const mockOpportunities = [
-        {
-          id: '1',
-          opportunity_name: 'STC Live Sp - STC',
-          lead_name: 'Test New Lead',
-          product: 'STC',
-          milestone: 'STC Onboarding',
-          milestone_id: '2', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '04/18/2024',
-          created_by: 'Master Ops',
-          stage: 'Opportunity Identified',
-          currency: '$',
-          opportunity_amount: '0.00',
-          probability: '30',
-          expected_close_date: '06/26/2024',
-          next_step: '',
-          description: 'Initial opportunity for STC'
-        },
-        {
-          id: '2',
-          opportunity_name: 'STC Live Sp - ERC',
-          lead_name: 'Test New Lead',
-          product: 'ERC',
-          milestone: 'ERC Onboarding',
-          milestone_id: '1', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '08/26/2024',
-          created_by: 'Demomoter ops',
-          stage: 'Won-Agreement Signed',
-          currency: '$',
-          opportunity_amount: '1.00',
-          probability: '100',
-          expected_close_date: '09/30/2024',
-          next_step: '',
-          description: 'ERC opportunity'
-        }
-      ];
-
-      // Log the mock opportunities for debugging
-      console.log('Mock opportunities:', mockOpportunities);
-
-      setOpportunities(mockOpportunities);
-      console.log('Opportunities set:', mockOpportunities);
-
-      // Uncomment and modify when API is available
-      /*
-      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
-
-      console.log('Opportunities API response:', response);
-
+      
+      // Build the API URL with product_id if available
+      let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}`;
+      
+      if (leadProductId) {
+        apiUrl += `/${leadProductId}`;
+        console.log('Using API URL with product_id:', apiUrl);
+      } else {
+        console.log('Using API URL without product_id:', apiUrl);
+      }
+      
+      const response = await axios.get(apiUrl);
+      
+      console.log('Opportunity data API response:', response);
+      
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setOpportunities(response.data.data);
         console.log('Opportunities set:', response.data.data);
@@ -2923,7 +2892,6 @@ const LeadDetail = () => {
         console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
       }
-      */
     } catch (err) {
       console.error('Error fetching opportunities:', err);
       setOpportunities([]);
