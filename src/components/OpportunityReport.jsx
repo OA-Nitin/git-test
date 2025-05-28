@@ -241,7 +241,7 @@ const OpportunityReport = ({ projectType }) => {
       console.log('Using product ID:', productId);
 
       // Construct API URL with product_id parameter if available
-      let apiUrl = 'https://play.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }
@@ -420,9 +420,10 @@ const OpportunityReport = ({ projectType }) => {
       // If already sorting by this field, toggle direction
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // If sorting by a new field, set it and default to ascending
+      // If sorting by a new field, set it and default direction based on field type
       setSortField(field);
-      setSortDirection('asc');
+      // For id, default to descending (latest first), for others default to ascending
+      setSortDirection(field === 'id' ? 'desc' : 'asc');
     }
     // Reset to first page when sorting changes
     setCurrentPage(1);
@@ -449,7 +450,10 @@ const OpportunityReport = ({ projectType }) => {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 3000
+        timer: 3000,
+        customClass: {
+          container: 'swal-toast-container-custom'
+        }
       });
     }
   };
