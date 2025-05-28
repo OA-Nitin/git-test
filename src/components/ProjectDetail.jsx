@@ -713,7 +713,7 @@ const ProjectDetail = () => {
     bank_name: '',
     account_holder_name: '',
     account_number: '',
-    routing_number: '',
+    aba_routing_no: '',
     // Output section
     stc_amount_2020: '',
     stc_amount_2021: '',
@@ -3003,7 +3003,7 @@ const ProjectDetail = () => {
             bank_name: apiData.bank_name || '',
             account_holder_name: apiData.account_holder_name || '',
             account_number: apiData.account_number || '',
-            routing_number: apiData.aba_routing_no || '',
+            aba_routing_no: apiData.aba_routing_no || '',
             stc_amount_2020: apiData.stc_amount_2020 || '',
             stc_amount_2021: apiData.stc_amount_2021 || '',
             maximum_credit: apiData.maximum_credit || '',
@@ -3034,7 +3034,7 @@ const ProjectDetail = () => {
         bank_name: '',
         account_holder_name: '',
         account_number: '',
-        routing_number: '',
+        aba_routing_no: '',
         stc_amount_2020: '',
         stc_amount_2021: '',
         maximum_credit: '',
@@ -3996,7 +3996,6 @@ const ProjectDetail = () => {
       project_id: project?.project_id,
       tab: activeTab,
     };
-
     // Add data based on active tab
     if (activeTab === 'project') {
       // Get all input values from the project tab
@@ -4123,18 +4122,18 @@ const ProjectDetail = () => {
         // agreement_folder: combinedData.agreement_folder,
 
         // Bank Info - Always include bank info regardless of active tab
-        bank_name: bankInfo.bank_name,
+        bank_name: combinedData.tab === "fulfilment" ? fulfilmentData.bank_name : bankInfo.bank_name,
         bank_mailing_address: bankInfo.bank_mailing_address,
         bank_city: bankInfo.city,
         bank_state: bankInfo.state,
         bank_zip: bankInfo.zip,
         bank_country: bankInfo.country,
         bank_phone: bankInfo.bank_phone,
-        account_holder_name: bankInfo.account_holder_name,
+        account_holder_name: combinedData.tab === "fulfilment" ? fulfilmentData.account_holder_name : bankInfo.account_holder_name,
         account_type: bankInfo.account_type,
         other: bankInfo.other,
-        aba_routing_no: bankInfo.aba_routing_no,
-        account_number: bankInfo.account_number,
+        aba_routing_no: combinedData.tab === "fulfilment" ? fulfilmentData.aba_routing_no : bankInfo.aba_routing_no,
+        account_number: combinedData.tab === "fulfilment" ? fulfilmentData.account_number : bankInfo.account_number,
         swift: bankInfo.swift,
         iban: bankInfo.iban,
 
@@ -4376,11 +4375,7 @@ const ProjectDetail = () => {
           income_2019: fulfilmentData.income_2019 || '',
           income_2020: fulfilmentData.income_2020 || '',
           income_2021: fulfilmentData.income_2021 || '',
-          // Bank Information
-          bank_name: fulfilmentData.bank_name || '',
-          account_holder_name: fulfilmentData.account_holder_name || '',
-          account_number: fulfilmentData.account_number || '',
-          routing_number: fulfilmentData.aba_routing_no || '',
+          
           // Output section
           stc_amount_2020: fulfilmentData.stc_amount_2020 || '',
           stc_amount_2021: fulfilmentData.stc_amount_2021 || '',
@@ -5328,8 +5323,8 @@ const ProjectDetail = () => {
                                 <input
                                   type="text"
                                   className="form-control"
-                                  value={fulfilmentData.routing_number}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, routing_number: e.target.value})}
+                                  value={fulfilmentData.aba_routing_no}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, aba_routing_no: e.target.value})}
                                 />
                               </div>
                             </div>
