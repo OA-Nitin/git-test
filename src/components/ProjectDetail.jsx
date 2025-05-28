@@ -714,7 +714,7 @@ const ProjectDetail = () => {
                                         <label>
                                             <a className='status-badge status-approved'
                                                 href={`#`}
-                                                target="_blank"
+                                                target="_self"
                                                 rel="noreferrer"
                                             >
                                                 SDGR &amp; Owner&apos;s Information
@@ -8456,16 +8456,18 @@ const ProjectDetail = () => {
                         <>
                           <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
                             <h5 className="mb-0">ERC Documents</h5>
-                            <a
-                              href={ercDocuments?.view_document}
-                              className="btn btn-primary"
-                              title="View ERC Documents"
-                              style={{ fontSize: '14px', lineHeight: '1.5' }}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Documents
-                            </a>
+                            {ercDocuments?.view_document && (
+                                <a
+                                    href={ercDocuments.view_document}
+                                    className="btn btn-primary"
+                                    title="View ERC Documents"
+                                    style={{ fontSize: '14px', lineHeight: '1.5' }}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                  View Documents
+                                </a>
+                            )}
                           </div>
                           <DocumentTable documents={ercDocuments?.documents} />
                         </>
@@ -8506,16 +8508,18 @@ const ProjectDetail = () => {
                         <>
                           <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
                             <h5 className="mb-0">Required Documents</h5>
-                            <a
-                              href={stcRequiredDocuments?.view_document}
-                              className="btn btn-primary"
-                              title="View ERC Documents"
-                              style={{ fontSize: '14px', lineHeight: '1.5' }}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Documents
-                            </a>
+                            {stcRequiredDocuments?.view_document && (
+                                <a
+                                    href={stcRequiredDocuments.view_document}
+                                    className="btn btn-primary"
+                                    title="View ERC Documents"
+                                    style={{ fontSize: '14px', lineHeight: '1.5' }}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                  View Documents
+                                </a>
+                            )}
                           </div>
                           <STCDocumentTable stc_documents_groups={stcRequiredDocuments} />
                         </>
