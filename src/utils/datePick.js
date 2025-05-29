@@ -25,7 +25,7 @@
 
 export function createDatepicker(input, setFormValue, fieldName, minDate, maxDate) {
   const calendar = document.createElement('div');
-  calendar.className = 'calendar';
+  calendar.className = 'calendar-single';
   let currentDate = new Date();
 
   function renderCalendar(date) {
