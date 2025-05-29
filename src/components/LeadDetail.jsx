@@ -6,7 +6,7 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Notes from './common/Notes';
 // import './common/CommonStyles.css';
-
+import { hasRoleAccess, hasSpecificRole, isAdministrator, isEcheckClient } from '../utils/accessControl';
 import './common/ReportStyle.css';
 import './LeadDetail.css';
 import { getAssetPath, getUserId } from '../utils/assetUtils';
@@ -3562,6 +3562,8 @@ const LeadDetail = () => {
     setLinkContactError(null);
   };
 
+  const shouldShowAffiliateTab = hasRoleAccess(['administrator', 'echeck_client']);
+
   if (loading) {
     return (
       <div className="container-fluid">
@@ -3645,6 +3647,7 @@ const LeadDetail = () => {
                     Business Info
                   </a>
                 </li>
+                {shouldShowAffiliateTab && (
                 <li className={`nav-item ${activeTab === 'affiliateCommission' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -3661,6 +3664,8 @@ const LeadDetail = () => {
                     Affiliate Commission
                   </a>
                 </li>
+                )}
+
                 <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -4370,7 +4375,7 @@ const LeadDetail = () => {
 
 
                   {/* Affiliate Commission Tab Content */}
-                  {activeTab === 'affiliateCommission' && (
+{shouldShowAffiliateTab && activeTab === 'affiliateCommission' ? (
                     <div className="mb-4 left-section-container">
                       <h5 className="section-title">Tier 1 Affiliate Commission</h5>
                       <div className="row mb-3">
@@ -4829,8 +4834,8 @@ const LeadDetail = () => {
                         </div>
                       </div>
                     </div>
-                  )}
-
+                  
+) : null}
                   {/* Contacts Tab Content */}
                   {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
