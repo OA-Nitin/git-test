@@ -103,7 +103,7 @@ const Sidebar = () => {
     <div id="adminmenumain" className="sidebar ps ps--active-y">
       <div id="adminmenuwrap">
         <div className="logo d-flex justify-content-between">
-          <Link className="large_logo" to="/dashboard">
+          <Link className="large_logo">
             <img src={getAssetPath('assets/images/logo-blue-360.svg')} alt="Occams Logo" />
           </Link>
         </div>

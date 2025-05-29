@@ -2129,7 +2129,12 @@ const ProjectDetail = () => {
               product_id: projectData.product_id || "",
               project_name: projectData.project_name || "",
               product_name: projectData.product_name || "",
-              project_fee: projectData.project_fee || "",
+              
+              // Conditionally set project_fee based on product_id
+              project_fee: projectData.product_id === "935" 
+                ? (projectData.fee_type || "") 
+                : (projectData.project_fee || ""),
+              
               milestone: projectData.milestone || "",
               stage_name: projectData.stage_name || "",
               created_at: projectData.created_at || "",
@@ -2173,6 +2178,7 @@ const ProjectDetail = () => {
             console.log('Mapped project data:', mappedProject);
             console.log('Website URL:', mappedProject.website_url);
             console.log('Product ID:', mappedProject.product_id);
+            console.log('Project Fee:', mappedProject.project_fee); // Log the project fee for debugging
             setProject(mappedProject);
           } else {
             throw new Error('Invalid data received from API');
@@ -2202,7 +2208,7 @@ const ProjectDetail = () => {
             product_name: "",
             milestone: "",
             stage_name: "",
-            project_fee: "",
+            project_fee: projectId === "1700" ? "Retainer Fee @$90 Per EE + Success Fee @15%" : "",
             created_at: "",
             collaborators: "",
             taxnow_signup_status: "",

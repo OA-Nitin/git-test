@@ -13,7 +13,7 @@ import '../assets/css/datePick.css';
 axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 
 const titleOptions = [
   { value: "Mr", label: "Mr" },

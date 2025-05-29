@@ -1,5 +1,5 @@
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -331,6 +331,94 @@ const LeadReport = ({ projectType }) => {
   const [sortDirection, setSortDirection] = useState('desc'); // Changed to desc for latest leads first
   const [isSearching, setIsSearching] = useState(false);
 
+  // Add a useEffect hook to reset search term when product/report type changes
+  useEffect(() => {
+    // Reset search term when product changes
+    setSearchTerm('');
+    setIsSearching(false);
+    
+    // Also reset other filters if needed
+    setFilterStatus('');
+    
+    // Reset to first page
+    setCurrentPage(1);
+    
+    console.log('Reset search and filters due to product change:', product);
+  }, [product]); // This will run whenever the product/report type changes
+
+  // Add another useEffect to reset search when the URL path changes
+  const location = useLocation();
+  useEffect(() => {
+    // Reset search term when URL changes
+    setSearchTerm('');
+    setIsSearching(false);
+    setFilterStatus('');
+    setCurrentPage(1);
+    
+    console.log('Reset search and filters due to URL change');
+  }, [location.pathname]); // This will run whenever the URL path changes
+
+  // Add useEffect to log when date filters change
+  useEffect(() => {
+    console.log('Date filter changed - startDate:', startDate, 'endDate:', endDate);
+    console.log('Total leads:', leads.length);
+    
+    if (startDate || endDate) {
+      // Count how many leads match the date filter
+      const matchingLeads = leads.filter(lead => {
+        try {
+          const createdDate = lead.created_at || lead.date_created || '';
+          let leadDate = new Date(createdDate);
+          
+          if (isNaN(leadDate.getTime())) {
+            const parts = createdDate.split('/');
+            if (parts.length === 3) {
+              leadDate = new Date(parts[2], parts[0] - 1, parts[1]);
+            }
+          }
+          
+          if (isNaN(leadDate.getTime())) {
+            return false;
+          }
+          
+          leadDate.setHours(0, 0, 0, 0);
+          
+          let matches = true;
+          
+          if (startDate) {
+            const startDateObj = new Date(startDate);
+            startDateObj.setHours(0, 0, 0, 0);
+            if (leadDate < startDateObj) {
+              matches = false;
+            }
+          }
+          
+          if (endDate && matches) {
+            const endDateObj = new Date(endDate);
+            endDateObj.setHours(23, 59, 59, 999);
+            if (leadDate > endDateObj) {
+              matches = false;
+            }
+          }
+          
+          return matches;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      console.log(`Date filter matches ${matchingLeads.length} leads out of ${leads.length}`);
+      
+      // Log a few sample leads with their dates for debugging
+      if (leads.length > 0) {
+        console.log('Sample lead dates:');
+        leads.slice(0, 5).forEach(lead => {
+          const createdDate = lead.created_at || lead.date_created || '';
+          console.log(`Lead ${lead.lead_id}: ${createdDate}`);
+        });
+      }
+    }
+  }, [startDate, endDate, leads]);
 
   // Define all available columns with groups based on API data structure
   const columnGroups = [
@@ -369,7 +457,6 @@ const LeadReport = ({ projectType }) => {
       columns: [
         { id: 'affiliateSource', label: 'Source', field: 'source', sortable: false },
         { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
-        { id: 'category', label: 'Category', field: 'category', sortable: false },
         { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false },
         { id: 'notes', label: 'Notes', field: 'notes', sortable: false },
         { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
@@ -440,18 +527,63 @@ const LeadReport = ({ projectType }) => {
 
   // Handle date filter application
   const handleApplyDateFilter = (start, end) => {
-    setStartDate(start);
-    setEndDate(end);
-    setCurrentPage(1); // Reset to first page when filter changes
-
+    console.log('Raw date inputs:', { start, end });
+    
+    // Format dates consistently as YYYY-MM-DD
+    let formattedStart = '';
+    let formattedEnd = '';
+    
+    if (start) {
+      try {
+        const startDate = new Date(start);
+        if (!isNaN(startDate.getTime())) {
+          formattedStart = startDate.toISOString().split('T')[0];
+        } else {
+          console.error('Invalid start date:', start);
+        }
+      } catch (error) {
+        console.error('Error parsing start date:', error);
+      }
+    }
+    
+    if (end) {
+      try {
+        const endDate = new Date(end);
+        if (!isNaN(endDate.getTime())) {
+          formattedEnd = endDate.toISOString().split('T')[0];
+        } else {
+          console.error('Invalid end date:', end);
+        }
+      } catch (error) {
+        console.error('Error parsing end date:', error);
+      }
+    }
+    
+    console.log('Formatted dates:', { formattedStart, formattedEnd });
+    
+    // Update state with formatted dates
+    setStartDate(formattedStart);
+    setEndDate(formattedEnd);
+    
+    // Reset to first page
+    setCurrentPage(1);
+    
     // Show feedback toast
-    if (start || end) {
-      const message = start && end
-        ? `Filtering leads from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}`
-        : start
-          ? `Filtering leads from ${new Date(start).toLocaleDateString()}`
-          : `Filtering leads until ${new Date(end).toLocaleDateString()}`;
-
+    if (formattedStart || formattedEnd) {
+      let message;
+      
+      if (formattedStart && formattedEnd) {
+        const startDisplay = new Date(formattedStart).toLocaleDateString();
+        const endDisplay = new Date(formattedEnd).toLocaleDateString();
+        message = `Filtering leads from ${startDisplay} to ${endDisplay}`;
+      } else if (formattedStart) {
+        const startDisplay = new Date(formattedStart).toLocaleDateString();
+        message = `Filtering leads from ${startDisplay}`;
+      } else {
+        const endDisplay = new Date(formattedEnd).toLocaleDateString();
+        message = `Filtering leads until ${endDisplay}`;
+      }
+      
       Swal.fire({
         title: 'Date Filter Applied',
         text: message,
@@ -459,120 +591,177 @@ const LeadReport = ({ projectType }) => {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 3000,
-        customClass: {
-          container: 'swal-toast-container-custom'
-        }
+        timer: 3000
+      });
+    } else {
+      // If both dates are cleared, show a message
+      Swal.fire({
+        title: 'Date Filter Cleared',
+        text: 'Showing all leads without date filtering',
+        icon: 'info',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
       });
     }
+    
+    // Log the filter application
+    console.log(`Date filter applied: ${formattedStart} to ${formattedEnd}`);
   };
 
-
-
-
-
-  // Filter leads based on search term, status, and date range
-  const filteredLeads = leads.filter(lead => {
-    // Skip filtering if no filters are applied
-    if (searchTerm === '' && filterStatus === '' && !startDate && !endDate) {
-      return true;
+  // Add this debugging code near the top of your component
+  useEffect(() => {
+    if (searchTerm && leads.length > 0) {
+      // Log the first few leads to see their structure
+      console.log('Sample leads for debugging search:', leads.slice(0, 3));
+      
+      // Check if any leads have the search term in their ID
+      const searchTermLower = searchTerm.toLowerCase().trim();
+      const matchingLeads = leads.filter(lead => 
+        String(lead.lead_id || lead.id || '').toLowerCase().includes(searchTermLower)
+      );
+      
+      console.log(`Found ${matchingLeads.length} leads with ID matching "${searchTerm}":`, 
+        matchingLeads.length > 0 ? matchingLeads.slice(0, 3) : 'None');
     }
+  }, [searchTerm, leads]);
 
-    // Handle different possible field names in the API response
-    const id = String(lead.id || lead.lead_id || '').toLowerCase();
-    const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
-    const email = String(lead.email || lead.business_email || '').toLowerCase();
-    const phone = String(lead.phone || lead.business_phone || '');
-    const status = String(lead.status || lead.lead_status || '');
-    const signatory = String(lead.authorized_signatory_name || '').toLowerCase();
-    const campaign = String(lead.campaign || '').toLowerCase();
-    const source = String(lead.source || '').toLowerCase();
-    const category = String(lead.category || '').toLowerCase();
-    const leadGroup = String(lead.lead_group || '').toLowerCase();
-    const salesAgent = String(lead.internal_sales_agent || '').toLowerCase();
-    const salesSupport = String(lead.internal_sales_support || '').toLowerCase();
-    const employeeId = String(lead.employee_id || '').toLowerCase();
-    const currentMilestone = String(lead.current_milestone || '').toLowerCase();
-    const currentStage = String(lead.current_stage || '').toLowerCase();
-
-    // Get the created date from the lead
-    const createdDate = lead.created || lead.created_at || lead.date_created || '';
-
-    // Check if search term matches any field
-    const searchTermLower = searchTerm.toLowerCase().trim();
-
-    const matchesSearch = searchTerm === '' ||
-      id.includes(searchTermLower) ||
-      name.includes(searchTermLower) ||
-      email.includes(searchTermLower) ||
-      phone.includes(searchTermLower) ||
-      signatory.includes(searchTermLower) ||
-      campaign.includes(searchTermLower) ||
-      source.includes(searchTermLower) ||
-      category.includes(searchTermLower) ||
-      leadGroup.includes(searchTermLower) ||
-      salesAgent.includes(searchTermLower) ||
-      salesSupport.includes(searchTermLower) ||
-      employeeId.includes(searchTermLower) ||
-      currentMilestone.includes(searchTermLower) ||
-      currentStage.includes(searchTermLower);
-
-    // Check if status matches
-    const matchesStatus = filterStatus === '' || status === filterStatus;
-
-    // Check if date is within range
-    let matchesDateRange = true;
-
-    if (startDate || endDate) {
-      // Try to parse the created date
-      let leadDate;
-      try {
-        // First try to parse as ISO date
-        leadDate = new Date(createdDate);
-
-        // If invalid date, try to parse as MM/DD/YYYY
-        if (isNaN(leadDate.getTime())) {
-          const parts = createdDate.split('/');
-          if (parts.length === 3) {
-            // MM/DD/YYYY format
-            leadDate = new Date(parts[2], parts[0] - 1, parts[1]);
-          }
-        }
-
-        // If still invalid, don't include this lead in date-filtered results
-        if (isNaN(leadDate.getTime())) {
-          matchesDateRange = false;
-        } else {
-          // Set time to midnight for date comparison
-          leadDate.setHours(0, 0, 0, 0);
-
-          // Check start date
-          if (startDate) {
-            const startDateObj = new Date(startDate);
-            startDateObj.setHours(0, 0, 0, 0);
-            if (leadDate < startDateObj) {
-              matchesDateRange = false;
-            }
-          }
-
-          // Check end date
-          if (endDate && matchesDateRange) {
-            const endDateObj = new Date(endDate);
-            endDateObj.setHours(0, 0, 0, 0);
-            if (leadDate > endDateObj) {
-              matchesDateRange = false;
-            }
-          }
-        }
-      } catch (e) {
-        // If there's an error parsing the date, don't include this lead in date-filtered results
-        matchesDateRange = false;
+  // Add a helper function to parse dates consistently
+  const parseLeadDate = (dateString) => {
+    if (!dateString) return null;
+    
+    console.log(`Parsing date: "${dateString}"`);
+    
+    // Try different date formats
+    let date;
+    
+    // Try as ISO date (YYYY-MM-DD)
+    date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      console.log(`  Parsed as ISO: ${date.toISOString().split('T')[0]}`);
+      return date;
+    }
+    
+    // Try as MM/DD/YYYY
+    const mmddyyyy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const mmddyyyyMatch = dateString.match(mmddyyyy);
+    if (mmddyyyyMatch) {
+      const [_, month, day, year] = mmddyyyyMatch;
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (!isNaN(date.getTime())) {
+        console.log(`  Parsed as MM/DD/YYYY: ${date.toISOString().split('T')[0]}`);
+        return date;
       }
     }
+    
+    // Try as M/D/YYYY
+    const mdyyyy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const mdyyyyMatch = dateString.match(mdyyyy);
+    if (mdyyyyMatch) {
+      const [_, month, day, year] = mdyyyyMatch;
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (!isNaN(date.getTime())) {
+        console.log(`  Parsed as M/D/YYYY: ${date.toISOString().split('T')[0]}`);
+        return date;
+      }
+    }
+    
+    // Try as YYYY/MM/DD
+    const yyyymmdd = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/;
+    const yyyymmddMatch = dateString.match(yyyymmdd);
+    if (yyyymmddMatch) {
+      const [_, year, month, day] = yyyymmddMatch;
+      date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      if (!isNaN(date.getTime())) {
+        console.log(`  Parsed as YYYY/MM/DD: ${date.toISOString().split('T')[0]}`);
+        return date;
+      }
+    }
+    
+    console.log(`  Failed to parse date: "${dateString}"`);
+    return null;
+  };
 
-    // Return true if all conditions are met
-    return matchesSearch && matchesStatus && matchesDateRange;
-  });
+  // Update the filteredLeads function to use our new date parsing helper
+  const filteredLeads = useMemo(() => {
+    console.log('Filtering leads with:', {
+      searchTerm,
+      filterStatus,
+      startDate,
+      endDate,
+      totalLeads: leads.length
+    });
+    
+    // Convert filter dates to Date objects once
+    const startDateObj = startDate ? new Date(startDate) : null;
+    const endDateObj = endDate ? new Date(endDate) : null;
+    
+    if (startDateObj) startDateObj.setHours(0, 0, 0, 0);
+    if (endDateObj) endDateObj.setHours(23, 59, 59, 999);
+    
+    console.log('Filter date objects:', {
+      startDate: startDateObj ? startDateObj.toISOString() : null,
+      endDate: endDateObj ? endDateObj.toISOString() : null
+    });
+    
+    return leads.filter(lead => {
+      // Skip filtering if no filters are applied
+      if (!searchTerm && !filterStatus && !startDate && !endDate) {
+        return true;
+      }
+      
+      // Search term filtering
+      let matchesSearch = true;
+      if (searchTerm) {
+        const searchTermLower = searchTerm.toLowerCase().trim();
+        const leadId = String(lead.lead_id || lead.id || '').toLowerCase();
+        const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
+        const email = String(lead.email || lead.business_email || '').toLowerCase();
+        
+        matchesSearch = 
+          leadId.includes(searchTermLower) || 
+          name.includes(searchTermLower) || 
+          email.includes(searchTermLower);
+      }
+      
+      // Status filtering
+      let matchesStatus = true;
+      if (filterStatus) {
+        const leadStatus = String(lead.status || '').toLowerCase();
+        matchesStatus = leadStatus === filterStatus.toLowerCase();
+      }
+      
+      // Date range filtering
+      let matchesDateRange = true;
+      if (startDateObj || endDateObj) {
+        // Get the created date from various possible fields
+        const createdDateStr = lead.created_at || lead.date_created || lead.created || '';
+        const leadDate = parseLeadDate(createdDateStr);
+        
+        if (!leadDate) {
+          console.log(`Lead ${lead.lead_id}: Invalid date "${createdDateStr}"`);
+          matchesDateRange = false;
+        } else {
+          // Set to midnight for date comparison
+          leadDate.setHours(0, 0, 0, 0);
+          
+          // Check if date is within range
+          if (startDateObj && leadDate < startDateObj) {
+            console.log(`Lead ${lead.lead_id}: Date ${leadDate.toISOString().split('T')[0]} is before start date ${startDateObj.toISOString().split('T')[0]}`);
+            matchesDateRange = false;
+          }
+          
+          if (endDateObj && leadDate > endDateObj) {
+            console.log(`Lead ${lead.lead_id}: Date ${leadDate.toISOString().split('T')[0]} is after end date ${endDateObj.toISOString().split('T')[0]}`);
+            matchesDateRange = false;
+          }
+        }
+      }
+      
+      return matchesSearch && matchesStatus && matchesDateRange;
+    });
+  }, [leads, searchTerm, filterStatus, startDate, endDate]);
 
   // Sort the filtered leads
   const sortedLeads = sortArrayByKey(filteredLeads, sortField, sortDirection);
@@ -638,8 +827,8 @@ const LeadReport = ({ projectType }) => {
         if (column.id === 'businessEmail') return lead.business_email || '';
         if (column.id === 'businessPhone') return lead.business_phone || '';
         if (column.id === 'employee') return lead.employee_id || '';
-        if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
-        if (column.id === 'salesSupport') return lead.internal_sales_support || '';
+        if (column.id === 'salesAgent') return lead.InternalSalesAgent || '';
+        if (column.id === 'salesSupport') return lead.InternalSalesSupport || '';
         if (column.id === 'affiliateSource') return lead.source || '';
         if (column.id === 'leadCampaign') return lead.campaign || '';
         if (column.id === 'category') return lead.category || '';
@@ -738,8 +927,8 @@ const LeadReport = ({ projectType }) => {
           if (column.id === 'businessEmail') return lead.business_email || '';
           if (column.id === 'businessPhone') return lead.business_phone || '';
           if (column.id === 'employee') return lead.employee_id || '';
-          if (column.id === 'salesAgent') return lead.internal_sales_agent || '';
-          if (column.id === 'salesSupport') return lead.internal_sales_support || '';
+          if (column.id === 'salesAgent') return lead.InternalSalesAgent || '';
+          if (column.id === 'salesSupport') return lead.InternalSalesSupport || '';
           if (column.id === 'affiliateSource') return lead.source || '';
           if (column.id === 'leadCampaign') return lead.campaign || '';
           if (column.id === 'category') return lead.category || '';
@@ -822,8 +1011,8 @@ const LeadReport = ({ projectType }) => {
           else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
           else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
           else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
-          else if (column.id === 'salesAgent') rowData[column.label] = lead.internal_sales_agent || '';
-          else if (column.id === 'salesSupport') rowData[column.label] = lead.internal_sales_support || '';
+          else if (column.id === 'salesAgent') rowData[column.label] = lead.InternalSalesAgent || '';
+          else if (column.id === 'salesSupport') rowData[column.label] = lead.InternalSalesSupport || '';
           else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
           else if (column.id === 'leadCampaign') rowData[column.label] = lead.campaign || '';
           else if (column.id === 'category') rowData[column.label] = lead.category || '';
@@ -1022,9 +1211,9 @@ const LeadReport = ({ projectType }) => {
                                   case 'employee':
                                     return <td key={column.id}>{lead.employee_id || ''}</td>;
                                   case 'salesAgent':
-                                    return <td key={column.id}>{lead.internal_sales_agent || ''}</td>;
+                                    return <td key={column.id}>{lead.InternalSalesAgent || ''}</td>;
                                   case 'salesSupport':
-                                    return <td key={column.id}>{lead.internal_sales_support || ''}</td>;
+                                    return <td key={column.id}>{lead.InternalSalesSupport || ''}</td>;
                                   case 'currentMilestone':
                                     return <td key={column.id}>{lead.current_milestone || ''}</td>;
                                   case 'currentStage':

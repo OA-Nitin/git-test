@@ -242,6 +242,30 @@ const LeadDetail = () => {
   const [masterCommissionType, setMasterCommissionType] = useState({ value: '', label: 'Select Commission Type' });
   const [masterCommissionValue, setMasterCommissionValue] = useState('');
 
+  // First, let's create a ref to store the contact data that won't be affected by re-renders
+  const contactDataRef = useRef({
+    primary: {
+      name: '',
+      middleName: '',
+      title: '',
+      email: '',
+      phone: '',
+      ext: '',
+      phoneType: '',
+      initials: ''
+    },
+    secondary: {
+      name: '',
+      middleName: '',
+      title: '',
+      email: '',
+      phone: '',
+      ext: '',
+      phoneType: '',
+      initials: ''
+    }
+  });
+
 
 
 
@@ -1245,20 +1269,18 @@ const LeadDetail = () => {
 
           console.log('Filtered unique contacts:', uniqueContacts);
 
-          // Update the contacts state with the unique contacts (preserving original order)
+          // Update the contacts state with the unique contacts
           setContacts(uniqueContacts);
 
           // Find primary contact
           const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
-          // Find secondary contact
-          const secondaryContactData = uniqueContacts.find(contact =>
-            contact.contact_type === 'secondary');
+          console.log('Found primary contact data:', primaryContactData);
 
           // Update primary contact state if found
           if (primaryContactData) {
-            setPrimaryContact({
+            const updatedPrimaryContact = {
               name: primaryContactData.name || '',
               middleName: primaryContactData.middle_name || '',
               title: primaryContactData.title || '',
@@ -1267,12 +1289,23 @@ const LeadDetail = () => {
               ext: primaryContactData.ph_extension || '',
               phoneType: primaryContactData.phone_type || '',
               initials: primaryContactData.name ? primaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            });
+            };
+            
+            console.log('Updating primary contact to:', updatedPrimaryContact);
+            setPrimaryContact(updatedPrimaryContact);
+            
+            // Also update the ref
+            contactDataRef.current.primary = updatedPrimaryContact;
+            console.log('Updated primary contact ref:', contactDataRef.current.primary);
           }
+
+          // Find secondary contact
+          const secondaryContactData = uniqueContacts.find(contact =>
+            contact.contact_type === 'secondary');
 
           // Update secondary contact state if found
           if (secondaryContactData) {
-            setSecondaryContact({
+            const updatedSecondaryContact = {
               name: secondaryContactData.name || '',
               middleName: secondaryContactData.middle_name || '',
               title: secondaryContactData.title || '',
@@ -1281,27 +1314,26 @@ const LeadDetail = () => {
               ext: secondaryContactData.ph_extension || '',
               phoneType: secondaryContactData.phone_type || '',
               initials: secondaryContactData.name ? secondaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            });
+            };
+            
+            setSecondaryContact(updatedSecondaryContact);
+            
+            // Also update the ref
+            contactDataRef.current.secondary = updatedSecondaryContact;
           }
-
-          console.log('Contact state updated with data');
-          setContactsLoading(false);
-          return true; // Return success
-        } else {
-          // If no contacts array or empty array
-          setContacts([]);
-          setContactsLoading(false);
-          return true;
         }
+        
+        setContactsLoading(false);
+        return true;
       } else {
         console.warn('Failed to fetch contact data:', response.data);
         setContactsLoading(false);
-        return false; // Return failure
+        return false;
       }
     } catch (err) {
       console.error('Error fetching contact data:', err);
       setContactsLoading(false);
-      return false; // Return failure
+      return false;
     }
   };
 
@@ -1385,6 +1417,9 @@ const LeadDetail = () => {
   // We've removed the duplicate functions for fetching dropdown options
   // These options are now fetched using fetchGroups, fetchCampaigns, and fetchSources functions
 
+  // Add state for product_id
+  const [leadProductId, setLeadProductId] = useState('');
+
   const fetchLeadDetails = async () => {
     setLoading(true);
     setError(null);
@@ -1457,6 +1492,12 @@ const LeadDetail = () => {
             };
 
             setLead(apiLead);
+
+            // Extract product_id from the response
+            if (leadData.product_id) {
+              console.log('Found product_id in lead data:', leadData.product_id);
+              setLeadProductId(leadData.product_id);
+            }
 
             // DIRECT APPROACH: Get lead_group key value from API and set to dropdown
             console.log('Setting lead_group value directly from API response');
@@ -1719,7 +1760,21 @@ const LeadDetail = () => {
   };
 
   const handleTabChange = (tab) => {
+    console.log(`Switching from tab ${activeTab} to ${tab}`);
+    
     setActiveTab(tab);
+    
+    // If switching to opportunities tab, fetch opportunities
+    if (tab === 'opportunities' && leadId) {
+      console.log('Switching to opportunities tab, fetching opportunities');
+      fetchOpportunities();
+    }
+    
+    // If switching to contacts tab, fetch contacts
+    if (tab === 'contacts' && leadId) {
+      console.log('Switching to contacts tab, fetching contacts');
+      fetchContactData();
+    }
   };
 
   // Function to fetch notes with pagination
@@ -2815,57 +2870,21 @@ const LeadDetail = () => {
   const fetchOpportunities = async () => {
     try {
       console.log('Fetching opportunities for lead ID:', leadId);
-
-      // Mock data for now - replace with actual API call
-      const mockOpportunities = [
-        {
-          id: '1',
-          opportunity_name: 'STC Live Sp - STC',
-          lead_name: 'Test New Lead',
-          product: 'STC',
-          milestone: 'STC Onboarding',
-          milestone_id: '2', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '04/18/2024',
-          created_by: 'Master Ops',
-          stage: 'Opportunity Identified',
-          currency: '$',
-          opportunity_amount: '0.00',
-          probability: '30',
-          expected_close_date: '06/26/2024',
-          next_step: '',
-          description: 'Initial opportunity for STC'
-        },
-        {
-          id: '2',
-          opportunity_name: 'STC Live Sp - ERC',
-          lead_name: 'Test New Lead',
-          product: 'ERC',
-          milestone: 'ERC Onboarding',
-          milestone_id: '1', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '08/26/2024',
-          created_by: 'Demomoter ops',
-          stage: 'Won-Agreement Signed',
-          currency: '$',
-          opportunity_amount: '1.00',
-          probability: '100',
-          expected_close_date: '09/30/2024',
-          next_step: '',
-          description: 'ERC opportunity'
-        }
-      ];
-
-      // Log the mock opportunities for debugging
-      console.log('Mock opportunities:', mockOpportunities);
-
-      setOpportunities(mockOpportunities);
-      console.log('Opportunities set:', mockOpportunities);
-
-      // Uncomment and modify when API is available
-      /*
-      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
-
-      console.log('Opportunities API response:', response);
-
+      
+      // Build the API URL with product_id if available
+      let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}`;
+      
+      if (leadProductId) {
+        apiUrl += `/${leadProductId}`;
+        console.log('Using API URL with product_id:', apiUrl);
+      } else {
+        console.log('Using API URL without product_id:', apiUrl);
+      }
+      
+      const response = await axios.get(apiUrl);
+      
+      console.log('Opportunity data API response:', response);
+      
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setOpportunities(response.data.data);
         console.log('Opportunities set:', response.data.data);
@@ -2873,7 +2892,6 @@ const LeadDetail = () => {
         console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
       }
-      */
     } catch (err) {
       console.error('Error fetching opportunities:', err);
       setOpportunities([]);
@@ -6088,8 +6106,29 @@ const LeadDetail = () => {
                 </div>
               </div>
 
-
-
+                {/* Debug Panel */}
+                <div style={{
+                  position: 'fixed',
+                  bottom: '10px',
+                  right: '10px',
+                  background: 'rgba(0,0,0,0.7)',
+                  color: 'white',
+                  padding: '10px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  maxWidth: '300px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                  zIndex: 9999,
+                  display: 'none' // Set to 'block' to show
+                }}>
+                  <h6>Debug Info</h6>
+                  <p>Active Tab: {activeTab}</p>
+                  <p>Primary Contact Email: {primaryContact.email}</p>
+                  <p>Primary Contact Phone: {primaryContact.phone}</p>
+                  <p>Ref Primary Email: {contactDataRef.current.primary.email}</p>
+                  <p>Ref Primary Phone: {contactDataRef.current.primary.phone}</p>
+                </div>
             </div>
           </div>
         </div>
