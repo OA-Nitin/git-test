@@ -6,13 +6,13 @@ Successfully implemented API-based audit logs tab for the Project Detail page wi
 ## Implementation Details
 
 ### 1. API Integration
-- **Endpoint**: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs`
+- **Endpoint**: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs`
 - **Method**: GET
 - **Parameters**:
   - `project_id` (required, dynamic from URL)
   - `lead_id` (required, dynamic from project data)
   - `product_id` (required, dynamic from project data)
-- **Example URL**: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs?project_id=1695&lead_id=9020&product_id=935`
+- **Example URL**: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs?project_id=1695&lead_id=9020&product_id=935`
 - **Trigger**: Only when Audit Logs tab is clicked (lazy loading)
 
 ### 2. State Management
