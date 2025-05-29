@@ -24,7 +24,7 @@ const AuditLogTab = ({ leadId, isActive }) => {
 
       // Call the audit logs API
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
+        `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
         { params: { lead_id: leadId } }
       );
 

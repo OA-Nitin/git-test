@@ -28,7 +28,7 @@ const Login = () => {
         setIsLoading(true); // Set loading state to true
         setResponseMessage(""); // Clear any existing messages
         setError(null); // Clear any existing errors
-        const apiUrl = "https://play.occamsadvisory.com/portal/wp-json/oc/v1/login"; // New API endpoint
+        const apiUrl = "https://portal.occamsadvisory.com/portal/wp-json/oc/v1/login"; // New API endpoint
 
         // POST request with username and password
         axios

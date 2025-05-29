@@ -160,7 +160,7 @@ const SAMPLE_FILTER_OPTIONS = {
 class InvoiceApiClient {
   constructor() {
     // Direct API URL - no proxy needed
-    this.baseUrl = 'https://play.occamsadvisory.com/portal/wp-json/oc-login-api/v1';
+    this.baseUrl = 'https://portal.occamsadvisory.com/portal/wp-json/oc-login-api/v1';
     this.apiKey = 'qV9@8kJz#2dP!mNc';
 
     // Create axios instance with default config - no authentication
