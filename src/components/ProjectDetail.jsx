@@ -710,10 +710,7 @@ const ProjectDetail = () => {
     income_2020: '',
     income_2021: '',
     // Bank Information
-    bank_name: '',
-    account_holder_name: '',
-    account_number: '',
-    aba_routing_no: '',
+    
     // Output section
     stc_amount_2020: '',
     stc_amount_2021: '',
@@ -2275,7 +2272,7 @@ const ProjectDetail = () => {
             account_holder_name: bankData.account_holder_name || '',
             account_type: bankData.account_type || '1', // Default to "1" (N/A) if not provided
             other: bankData.other || '',
-            aba_routing_no: bankData.aba_routing_no || '',
+            aba_routing_no: bankData.aba_routing_number || '',
             account_number: bankData.account_number || '',
             swift: bankData.swift || '',
             iban: bankData.iban || ''
@@ -4048,7 +4045,7 @@ const ProjectDetail = () => {
       data.bank_city = bankInfo.city;
       data.bank_state = bankInfo.state;
       data.bank_zip = bankInfo.zip;
-      data.bank_country = bankInfo.country;
+      data.country = bankInfo.country;
       data.bank_phone = bankInfo.bank_phone;
       data.account_holder_name = bankInfo.account_holder_name;
       data.account_type = bankInfo.account_type;
@@ -4127,7 +4124,7 @@ const ProjectDetail = () => {
         bank_city: bankInfo.city,
         bank_state: bankInfo.state,
         bank_zip: bankInfo.zip,
-        bank_country: bankInfo.country,
+        country: bankInfo.country,
         bank_phone: bankInfo.bank_phone,
         account_holder_name: combinedData.tab === "fulfilment" ? fulfilmentData.account_holder_name : bankInfo.account_holder_name,
         account_type: bankInfo.account_type,
