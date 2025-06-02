@@ -710,10 +710,7 @@ const ProjectDetail = () => {
     income_2020: '',
     income_2021: '',
     // Bank Information
-    bank_name: '',
-    account_holder_name: '',
-    account_number: '',
-    routing_number: '',
+    
     // Output section
     stc_amount_2020: '',
     stc_amount_2021: '',
@@ -2281,7 +2278,7 @@ const ProjectDetail = () => {
             account_holder_name: bankData.account_holder_name || '',
             account_type: bankData.account_type || '1', // Default to "1" (N/A) if not provided
             other: bankData.other || '',
-            aba_routing_no: bankData.aba_routing_no || '',
+            aba_routing_no: bankData.aba_routing_number || '',
             account_number: bankData.account_number || '',
             swift: bankData.swift || '',
             iban: bankData.iban || ''
@@ -2670,7 +2667,7 @@ const ProjectDetail = () => {
             q4_2021_check: feesData.q4_2021_check === 'Yes' || feesData.q4_2021_check === 'true' || feesData.q4_2021_check === true || feesData.q4_2021_check === 1,
             q4_2021_chq_amt: feesData.q4_2021_chq_amt || '',
             // Success Fee Invoice Details - I Invoice
-            i_invoice_no: feesData.i_invoice_no || '',
+            i_invoice_no: feesData.i_invoice_number || '',
             i_invoice_amount: feesData.i_invoice_amount || '',
             i_invoiced_qtrs: feesData.i_invoiced_qtrs || '',
             i_invoice_sent_date: feesData.i_invoice_sent_date || '',
@@ -2682,7 +2679,7 @@ const ProjectDetail = () => {
             i_invoice_occams_share: feesData.i_invoice_occams_share || '',
             i_invoice_aff_ref_share: feesData.i_invoice_aff_ref_share || '',
             // Success Fee Invoice Details - II Invoice
-            ii_invoice_no: feesData.ii_invoice_no || '',
+            ii_invoice_no: feesData.ii_invoice_number || '',
             ii_invoice_amount: feesData.ii_invoice_amount || '',
             ii_invoiced_qtrs: feesData.ii_invoiced_qtrs || '',
             ii_invoice_sent_date: feesData.ii_invoice_sent_date || '',
@@ -2694,7 +2691,7 @@ const ProjectDetail = () => {
             ii_invoice_occams_share: feesData.ii_invoice_occams_share || '',
             ii_invoice_aff_ref_share: feesData.ii_invoice_aff_ref_share || '',
             // Success Fee Invoice Details - III Invoice
-            iii_invoice_no: feesData.iii_invoice_no || '',
+            iii_invoice_no: feesData.iii_invoice_number || '',
             iii_invoice_amount: feesData.iii_invoice_amount || '',
             iii_invoiced_qtrs: feesData.iii_invoiced_qtrs || '',
             iii_invoice_sent_date: feesData.iii_invoice_sent_date || '',
@@ -2706,7 +2703,7 @@ const ProjectDetail = () => {
             iii_invoice_occams_share: feesData.iii_invoice_occams_share || '',
             iii_invoice_aff_ref_share: feesData.iii_invoice_aff_ref_share || '',
             // Success Fee Invoice Details - IV Invoice
-            iv_invoice_no: feesData.iv_invoice_no || '',
+            iv_invoice_no: feesData.iv_invoice_number || '',
             iv_invoice_amount: feesData.iv_invoice_amount || '',
             iv_invoiced_qtrs: feesData.iv_invoiced_qtrs || '',
             iv_invoice_sent_date: feesData.iv_invoice_sent_date || '',
@@ -3009,7 +3006,7 @@ const ProjectDetail = () => {
             bank_name: apiData.bank_name || '',
             account_holder_name: apiData.account_holder_name || '',
             account_number: apiData.account_number || '',
-            routing_number: apiData.aba_routing_no || '',
+            aba_routing_no: apiData.aba_routing_no || '',
             stc_amount_2020: apiData.stc_amount_2020 || '',
             stc_amount_2021: apiData.stc_amount_2021 || '',
             maximum_credit: apiData.maximum_credit || '',
@@ -3040,7 +3037,7 @@ const ProjectDetail = () => {
         bank_name: '',
         account_holder_name: '',
         account_number: '',
-        routing_number: '',
+        aba_routing_no: '',
         stc_amount_2020: '',
         stc_amount_2021: '',
         maximum_credit: '',
@@ -4002,7 +3999,6 @@ const ProjectDetail = () => {
       project_id: project?.project_id,
       tab: activeTab,
     };
-
     // Add data based on active tab
     if (activeTab === 'project') {
       // Get all input values from the project tab
@@ -4055,7 +4051,7 @@ const ProjectDetail = () => {
       data.bank_city = bankInfo.city;
       data.bank_state = bankInfo.state;
       data.bank_zip = bankInfo.zip;
-      data.bank_country = bankInfo.country;
+      data.country = bankInfo.country;
       data.bank_phone = bankInfo.bank_phone;
       data.account_holder_name = bankInfo.account_holder_name;
       data.account_type = bankInfo.account_type;
@@ -4134,13 +4130,13 @@ const ProjectDetail = () => {
         bank_city: bankInfo.city,
         bank_state: bankInfo.state,
         bank_zip: bankInfo.zip,
-        bank_country: bankInfo.country,
+        country: bankInfo.country,
         bank_phone: bankInfo.bank_phone,
         account_holder_name: combinedData.tab === "fulfilment" ? fulfilmentData.account_holder_name : bankInfo.account_holder_name,
         account_type: bankInfo.account_type,
         other: bankInfo.other,
         aba_routing_no: combinedData.tab === "fulfilment" ? fulfilmentData.aba_routing_no : bankInfo.aba_routing_no,
-        aba_routing_no: combinedData.tab === "fulfilment" ? fulfilmentData.aba_routing_no : bankInfo.aba_routing_no,
+        account_number: combinedData.tab === "fulfilment" ? fulfilmentData.account_number : bankInfo.account_number,
         swift: bankInfo.swift,
         iban: bankInfo.iban,
 
@@ -4382,6 +4378,7 @@ const ProjectDetail = () => {
           income_2019: fulfilmentData.income_2019 || '',
           income_2020: fulfilmentData.income_2020 || '',
           income_2021: fulfilmentData.income_2021 || '',
+          
           // Output section
           stc_amount_2020: fulfilmentData.stc_amount_2020 || '',
           stc_amount_2021: fulfilmentData.stc_amount_2021 || '',
@@ -5329,8 +5326,8 @@ const ProjectDetail = () => {
                                 <input
                                   type="text"
                                   className="form-control"
-                                  value={fulfilmentData.routing_number}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, routing_number: e.target.value})}
+                                  value={fulfilmentData.aba_routing_no}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, aba_routing_no: e.target.value})}
                                 />
                               </div>
                             </div>
