@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -5,6 +6,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Notes from './common/Notes';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 // import './common/CommonStyles.css';
 import { hasRoleAccess, hasSpecificRole, isAdministrator, isEcheckClient } from '../utils/accessControl';
 import './common/ReportStyle.css';
@@ -13,53 +16,66 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 
-// Standardized date formatting function for MM/DD/YYYY format
-const formatDateToMMDDYYYY = (dateString) => {
-  if (!dateString) return '';
+// Date utility functions
+const formatDateToMMDDYYYY = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
 
-  try {
-    const date = new Date(dateString);
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const day = d.getDate().toString().padStart(2, '0');
+  const year = d.getFullYear();
 
-    // Check if date is valid
-    if (isNaN(date.getTime())) return dateString;
-
-    // Format as MM/DD/YYYY
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const year = date.getFullYear();
-
-    return `${month}/${day}/${year}`;
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return dateString;
-  }
+  return `${month}/${day}/${year}`;
 };
 
-// Function to convert MM/DD/YYYY to YYYY-MM-DD for date input
-const formatDateForInput = (dateString) => {
-  if (!dateString) return '';
+const parseDateFromMMDDYYYY = (dateString) => {
+  if (!dateString) return null;
 
-  try {
-    // If it's already in YYYY-MM-DD format, return as is
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-      return dateString;
+  // Handle MM/DD/YYYY format
+  const parts = dateString.split('/');
+  if (parts.length === 3) {
+    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
+    const day = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+
+    const date = new Date(year, month, day);
+    if (!isNaN(date.getTime())) {
+      return date;
     }
-
-    const date = new Date(dateString);
-
-    // Check if date is valid
-    if (isNaN(date.getTime())) return '';
-
-    // Format as YYYY-MM-DD for date input
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
-  } catch (error) {
-    console.error('Error formatting date for input:', error);
-    return '';
   }
+
+  // Try parsing as regular date
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date;
+};
+
+// Custom DateInput component
+const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "form-control", ...props }) => {
+  const [selectedDate, setSelectedDate] = useState(parseDateFromMMDDYYYY(value));
+
+  useEffect(() => {
+    setSelectedDate(parseDateFromMMDDYYYY(value));
+  }, [value]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    const formattedDate = date ? formatDateToMMDDYYYY(date) : '';
+    onChange(formattedDate);
+  };
+  return (
+      <DatePicker
+        selected={selectedDate}
+        onChange={handleDateChange}
+        dateFormat="MM/dd/yyyy"
+        placeholderText={placeholder}
+        className={className}
+        autoComplete="off"
+        showPopperArrow={false}
+        popperClassName="custom-datepicker-popper"
+        {...props}
+      />
+    );
 };
 
 
@@ -242,7 +258,29 @@ const LeadDetail = () => {
   const [masterCommissionType, setMasterCommissionType] = useState({ value: '', label: 'Select Commission Type' });
   const [masterCommissionValue, setMasterCommissionValue] = useState('');
 
-
+  // First, let's create a ref to store the contact data that won't be affected by re-renders
+  const contactDataRef = useRef({
+    primary: {
+      name: '',
+      middleName: '',
+      title: '',
+      email: '',
+      phone: '',
+      ext: '',
+      phoneType: '',
+      initials: ''
+    },
+    secondary: {
+      name: '',
+      middleName: '',
+      title: '',
+      email: '',
+      phone: '',
+      ext: '',
+      phoneType: '',
+      initials: ''
+    }
+  });
 
 
   // validation
@@ -259,14 +297,28 @@ const LeadDetail = () => {
     reValidateMode: 'onChange',
   });
 
-  // Modify your useEffect that sets form values to properly register them
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
         setValue(key, lead[key]);
       });
+
+      // Also set primary contact form values if they exist
+      if (primaryContact.email) {
+        setValue('primary_contact_email', primaryContact.email);
+      }
+      if (primaryContact.phone) {
+        setValue('primary_contact_phone', primaryContact.phone);
+      }
+      if (primaryContact.ext) {
+        setValue('primary_contact_ext', primaryContact.ext);
+      }
+      if (primaryContact.phoneType) {
+        setValue('contact_phone_type', primaryContact.phoneType);
+      }
     }
   }, [lead, setValue]);
+
 
   const {
     register: registerProject,
@@ -743,6 +795,22 @@ const LeadDetail = () => {
     };
   }, []);
 
+  // Ensure form values are synchronized with primaryContact state
+  useEffect(() => {
+    if (primaryContact.email) {
+      setValue('primary_contact_email', primaryContact.email);
+    }
+    if (primaryContact.phone) {
+      setValue('primary_contact_phone', primaryContact.phone);
+    }
+    if (primaryContact.ext) {
+      setValue('primary_contact_ext', primaryContact.ext);
+    }
+    if (primaryContact.phoneType) {
+      setValue('contact_phone_type', primaryContact.phoneType);
+    }
+  }, [primaryContact, setValue]);
+
   // We no longer need to fetch milestones when component loads
   // They are now fetched when the edit modals are opened
 
@@ -750,6 +818,19 @@ const LeadDetail = () => {
   useEffect(() => {
     setTaxNowOnboardingStatus('');
   }, [taxNowSignupStatus]);
+
+  // Ensure primary contact state is preserved during tab changes
+  useEffect(() => {
+    if (lead && lead.primary_contact_email && !primaryContact.email) {
+      setPrimaryContact(prev => ({
+        ...prev,
+        email: lead.primary_contact_email || '',
+        phone: lead.primary_contact_phone || '',
+        ext: lead.primary_contact_ext || '',
+        phoneType: lead.contact_phone_type || ''
+      }));
+    }
+  }, [lead, primaryContact.email]);
 
   // Fetch notes when component loads
   useEffect(() => {
@@ -1245,20 +1326,18 @@ const LeadDetail = () => {
 
           console.log('Filtered unique contacts:', uniqueContacts);
 
-          // Update the contacts state with the unique contacts (preserving original order)
+          // Update the contacts state with the unique contacts
           setContacts(uniqueContacts);
 
           // Find primary contact
           const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
-          // Find secondary contact
-          const secondaryContactData = uniqueContacts.find(contact =>
-            contact.contact_type === 'secondary');
+          console.log('Found primary contact data:', primaryContactData);
 
           // Update primary contact state if found
           if (primaryContactData) {
-            setPrimaryContact({
+            const updatedPrimaryContact = {
               name: primaryContactData.name || '',
               middleName: primaryContactData.middle_name || '',
               title: primaryContactData.title || '',
@@ -1267,12 +1346,23 @@ const LeadDetail = () => {
               ext: primaryContactData.ph_extension || '',
               phoneType: primaryContactData.phone_type || '',
               initials: primaryContactData.name ? primaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            });
+            };
+            
+            console.log('Updating primary contact to:', updatedPrimaryContact);
+            setPrimaryContact(updatedPrimaryContact);
+            
+            // Also update the ref
+            contactDataRef.current.primary = updatedPrimaryContact;
+            console.log('Updated primary contact ref:', contactDataRef.current.primary);
           }
+
+          // Find secondary contact
+          const secondaryContactData = uniqueContacts.find(contact =>
+            contact.contact_type === 'secondary');
 
           // Update secondary contact state if found
           if (secondaryContactData) {
-            setSecondaryContact({
+            const updatedSecondaryContact = {
               name: secondaryContactData.name || '',
               middleName: secondaryContactData.middle_name || '',
               title: secondaryContactData.title || '',
@@ -1281,27 +1371,26 @@ const LeadDetail = () => {
               ext: secondaryContactData.ph_extension || '',
               phoneType: secondaryContactData.phone_type || '',
               initials: secondaryContactData.name ? secondaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            });
+            };
+            
+            setSecondaryContact(updatedSecondaryContact);
+            
+            // Also update the ref
+            contactDataRef.current.secondary = updatedSecondaryContact;
           }
-
-          console.log('Contact state updated with data');
-          setContactsLoading(false);
-          return true; // Return success
-        } else {
-          // If no contacts array or empty array
-          setContacts([]);
-          setContactsLoading(false);
-          return true;
         }
+        
+        setContactsLoading(false);
+        return true;
       } else {
         console.warn('Failed to fetch contact data:', response.data);
         setContactsLoading(false);
-        return false; // Return failure
+        return false;
       }
     } catch (err) {
       console.error('Error fetching contact data:', err);
       setContactsLoading(false);
-      return false; // Return failure
+      return false;
     }
   };
 
@@ -1385,6 +1474,9 @@ const LeadDetail = () => {
   // We've removed the duplicate functions for fetching dropdown options
   // These options are now fetched using fetchGroups, fetchCampaigns, and fetchSources functions
 
+  // Add state for product_id
+  const [leadProductId, setLeadProductId] = useState('');
+
   const fetchLeadDetails = async () => {
     setLoading(true);
     setError(null);
@@ -1457,6 +1549,12 @@ const LeadDetail = () => {
             };
 
             setLead(apiLead);
+
+            // Extract product_id from the response
+            if (leadData.product_id) {
+              console.log('Found product_id in lead data:', leadData.product_id);
+              setLeadProductId(leadData.product_id);
+            }
 
             // DIRECT APPROACH: Get lead_group key value from API and set to dropdown
             console.log('Setting lead_group value directly from API response');
@@ -1719,7 +1817,18 @@ const LeadDetail = () => {
   };
 
   const handleTabChange = (tab) => {
+    // Store current primary contact state before tab change
+    const currentPrimaryContact = { ...primaryContact };
+
     setActiveTab(tab);
+
+    // Ensure primary contact state is preserved after tab change
+    setTimeout(() => {
+      // If primary contact state was lost, restore it
+      if (currentPrimaryContact.email && !primaryContact.email) {
+        setPrimaryContact(currentPrimaryContact);
+      }
+    }, 100);
   };
 
   // Function to fetch notes with pagination
@@ -2816,64 +2925,18 @@ const LeadDetail = () => {
     try {
       console.log('Fetching opportunities for lead ID:', leadId);
 
-      // Mock data for now - replace with actual API call
-      const mockOpportunities = [
-        {
-          id: '1',
-          opportunity_name: 'STC Live Sp - STC',
-          lead_name: 'Test New Lead',
-          product: 'STC',
-          milestone: 'STC Onboarding',
-          milestone_id: '2', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '04/18/2024',
-          created_by: 'Master Ops',
-          stage: 'Opportunity Identified',
-          currency: '$',
-          opportunity_amount: '0.00',
-          probability: '30',
-          expected_close_date: '06/26/2024',
-          next_step: '',
-          description: 'Initial opportunity for STC'
-        },
-        {
-          id: '2',
-          opportunity_name: 'STC Live Sp - ERC',
-          lead_name: 'Test New Lead',
-          product: 'ERC',
-          milestone: 'ERC Onboarding',
-          milestone_id: '1', // Added milestone_id - make sure this matches an actual milestone_id from the API
-          created_date: '08/26/2024',
-          created_by: 'Demomoter ops',
-          stage: 'Won-Agreement Signed',
-          currency: '$',
-          opportunity_amount: '1.00',
-          probability: '100',
-          expected_close_date: '09/30/2024',
-          next_step: '',
-          description: 'ERC opportunity'
-        }
-      ];
-
-      // Log the mock opportunities for debugging
-      console.log('Mock opportunities:', mockOpportunities);
-
-      setOpportunities(mockOpportunities);
-      console.log('Opportunities set:', mockOpportunities);
-
-      // Uncomment and modify when API is available
-      /*
-      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0`);
 
       console.log('Opportunities API response:', response);
 
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+      if (response.data && response.data.status == 'success' && Array.isArray(response.data.data)) {
+
         setOpportunities(response.data.data);
         console.log('Opportunities set:', response.data.data);
       } else {
         console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
       }
-      */
     } catch (err) {
       console.error('Error fetching opportunities:', err);
       setOpportunities([]);
@@ -2892,8 +2955,9 @@ const LeadDetail = () => {
         { id: '3', name: 'R&D Onboarding' }
       ];
 
-      // Build the API URL with the product_id parameter if provided
-      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
+
+      // Build the API URL with the lead_id and product_id parameters
+      let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0'}`;
       if (product_id) {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
@@ -3096,35 +3160,6 @@ const LeadDetail = () => {
 
       console.log('Updating opportunity with data:', opportunityFormData);
 
-      // Mock API call for now - replace with actual API call
-      // Simulate a successful update
-      setTimeout(() => {
-        // Update the opportunity in the opportunities array
-        const updatedOpportunities = opportunities.map(opp => {
-          if (opp.id === opportunityFormData.id) {
-            return {
-              ...opp,
-              ...opportunityFormData,
-              // Use the milestone name directly
-              milestone: opportunityFormData.milestone
-            };
-          }
-          return opp;
-        });
-
-        setOpportunities(updatedOpportunities);
-        setOpportunityUpdateSuccess(true);
-
-        // Close the modal after a delay
-        setTimeout(() => {
-          handleCloseEditOpportunityModal();
-        }, 2000);
-
-        setOpportunityUpdateLoading(false);
-      }, 1000);
-
-      // Uncomment and modify when API is available
-      /*
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
         opportunityFormData
@@ -3154,7 +3189,8 @@ const LeadDetail = () => {
       } else {
         setOpportunityUpdateError(response.data?.message || 'Failed to update opportunity');
       }
-      */
+
+      setOpportunityUpdateLoading(false);
     } catch (error) {
       console.error('Error updating opportunity:', error);
       setOpportunityUpdateError(error.message || 'An error occurred while updating the opportunity');
@@ -3962,11 +3998,9 @@ const LeadDetail = () => {
                             <input
                               type="email"
                               className={`form-control ${errors.primary_contact_email ? 'is-invalid' : ''}`}
-                              {...register('primary_contact_email')}
                               name="primary_contact_email"
                               value={primaryContact.email || ''}
                               onChange={handleInputChange}
-
                               disabled
                             />
                               {errors.primary_contact_email && (
@@ -3980,11 +4014,9 @@ const LeadDetail = () => {
                             <input
                               type="text"
                               className={`form-control ${errors.primary_contact_phone ? 'is-invalid' : ''}`}
-                              {...register('primary_contact_phone')}
                               name="primary_contact_phone"
                               value={primaryContact.phone || ''}
                               onChange={handleInputChange}
-
                               disabled
                             />
                             {errors.primary_contact_phone && (
@@ -3998,11 +4030,9 @@ const LeadDetail = () => {
                             <input
                               type="text"
                               className={`form-control ${errors.primary_contact_ext ? 'is-invalid' : ''}`}
-                              {...register('primary_contact_ext')}
                               name="primary_contact_ext"
                               value={primaryContact.ext || ''}
                               onChange={handleInputChange}
-
                               disabled
                             />
                             {errors.primary_contact_ext && (
@@ -4019,11 +4049,9 @@ const LeadDetail = () => {
                             <input
                               type="text"
                               className={`form-control ${errors.contact_phone_type ? 'is-invalid' : ''}`}
-                              {...register('contact_phone_type')}
                               name="contact_phone_type"
                               value={primaryContact.phoneType || ''}
                               onChange={handleInputChange}
-
                               disabled
                             />
                             {errors.contact_phone_type && (
@@ -4178,7 +4206,13 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Registration Date*</label>
                             <div className="input-group">
-                              <input
+                              <DateInput
+                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
+                                onChange={handleInputChange}
+                                placeholder="MM/DD/YYYY"
+
+                              />
+                              {/* <input
                                 type="text"
                                 className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
                                 {...register('registration_date')}
@@ -4201,7 +4235,7 @@ const LeadDetail = () => {
                               />
                               <span className="input-group-text">
                                 <i className="fas fa-calendar-alt"></i>
-                              </span>
+                              </span> */}
                             </div>
                             {errors.registration_date && (
                               <div className="invalid-feedback">{errors.registration_date.message}</div>
@@ -5378,7 +5412,7 @@ const LeadDetail = () => {
                           <div key={opportunity.id} className="row custom_opp_tab">
                             <div className="col-sm-12">
                               <div className="custom_opp_tab_header">
-                                <h5><a href="javascript:void(0)">{opportunity.opportunity_name}</a></h5>
+                                <h5>{opportunity.OpportunityName}</h5>
                                 <div className="opp_edit_dlt_btn projects-iris">
                                   <a
                                     className="edit_project"
@@ -5401,16 +5435,16 @@ const LeadDetail = () => {
                             </div>
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
-                                <p><b>Created Date:</b> {formatDateToMMDDYYYY(opportunity.created_date)}</p>
-                                <p><b>Current Stage:</b> {opportunity.stage}</p>
-                                <p><b>Next Step:</b> {opportunity.next_step || '-'}</p>
+                                <p><b>Created Date:</b> {opportunity.CreatedAt}</p>
+                                <p><b>Current Stage:</b> {opportunity.Stage}</p>
+                                <p><b>Next Step:</b> {opportunity.NextStep || '-'}</p>
                               </div>
                             </div>
                             <div className="col-md-5">
                               <div className="lead_des">
-                                <p><b>Opportunity Owner:</b> {opportunity.created_by}</p>
-                                <p><b>Opportunity Amount:</b> {opportunity.currency} {opportunity.opportunity_amount}</p>
-                                <p><b>Expected Close date:</b> {formatDateToMMDDYYYY(opportunity.expected_close_date)}</p>
+                                <p><b>Opportunity Owner:</b> {opportunity.CreatedBy}</p>
+                                <p><b>Opportunity Amount:</b> {opportunity.currencyName} {opportunity.OpportunityAmount}</p>
+                                <p><b>Expected Close date:</b> {opportunity.ExpectedCloseDate}</p>
                               </div>
                             </div>
                           </div>
@@ -6093,8 +6127,29 @@ const LeadDetail = () => {
                 </div>
               </div>
 
-
-
+                {/* Debug Panel */}
+                <div style={{
+                  position: 'fixed',
+                  bottom: '10px',
+                  right: '10px',
+                  background: 'rgba(0,0,0,0.7)',
+                  color: 'white',
+                  padding: '10px',
+                  borderRadius: '5px',
+                  fontSize: '12px',
+                  maxWidth: '300px',
+                  maxHeight: '200px',
+                  overflow: 'auto',
+                  zIndex: 9999,
+                  display: 'none' // Set to 'block' to show
+                }}>
+                  <h6>Debug Info</h6>
+                  <p>Active Tab: {activeTab}</p>
+                  <p>Primary Contact Email: {primaryContact.email}</p>
+                  <p>Primary Contact Phone: {primaryContact.phone}</p>
+                  <p>Ref Primary Email: {contactDataRef.current.primary.email}</p>
+                  <p>Ref Primary Phone: {contactDataRef.current.primary.phone}</p>
+                </div>
             </div>
           </div>
         </div>
@@ -6199,3 +6254,87 @@ const LeadDetail = () => {
 };
 
 export default LeadDetail;
+
+// Add custom CSS for DatePicker styling
+const style = document.createElement('style');
+style.textContent = `
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+
+  .react-datepicker__input-container input {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .react-datepicker__input-container input:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  .react-datepicker__input-container input::placeholder {
+    color: #6c757d;
+    opacity: 1;
+  }
+
+  .custom-datepicker-popper {
+    z-index: 9999;
+  }
+
+  .react-datepicker {
+    font-family: inherit;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  .react-datepicker__header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .react-datepicker__current-month {
+    color: #495057;
+    font-weight: 600;
+  }
+
+  .react-datepicker__day-name {
+    color: #6c757d;
+    font-weight: 600;
+  }
+
+  .react-datepicker__day:hover {
+    background-color: #e9ecef;
+  }
+
+  .react-datepicker__day--selected {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .react-datepicker__day--selected:hover {
+    background-color: #0b5ed7;
+  }
+
+  .react-datepicker__day--today {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+`;
+
+if (!document.head.querySelector('style[data-datepicker-styles]')) {
+  style.setAttribute('data-datepicker-styles', 'true');
+  document.head.appendChild(style);
+}

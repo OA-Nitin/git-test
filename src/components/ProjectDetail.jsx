@@ -3,6 +3,8 @@ import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import './common/ReportStyle.css';
 import './LeadDetail.css'; // Reusing the same CSS
 import './DocumentTable.css'; // Document table styling
@@ -11,6 +13,68 @@ import { getAssetPath } from '../utils/assetUtils';
 import Swal from 'sweetalert2';
 import Modal from './common/Modal';
 
+// Date utility functions
+const formatDateToMMDDYYYY = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const day = d.getDate().toString().padStart(2, '0');
+  const year = d.getFullYear();
+
+  return `${month}/${day}/${year}`;
+};
+
+const parseDateFromMMDDYYYY = (dateString) => {
+  if (!dateString) return null;
+
+  // Handle MM/DD/YYYY format
+  const parts = dateString.split('/');
+  if (parts.length === 3) {
+    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
+    const day = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+
+    const date = new Date(year, month, day);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+  }
+
+  // Try parsing as regular date
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date;
+};
+
+// Custom DateInput component
+const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "form-control", ...props }) => {
+  const [selectedDate, setSelectedDate] = useState(parseDateFromMMDDYYYY(value));
+
+  useEffect(() => {
+    setSelectedDate(parseDateFromMMDDYYYY(value));
+  }, [value]);
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    const formattedDate = date ? formatDateToMMDDYYYY(date) : '';
+    onChange(formattedDate);
+  };
+
+  return (
+    <DatePicker
+      selected={selectedDate}
+      onChange={handleDateChange}
+      dateFormat="MM/dd/yyyy"
+      placeholderText={placeholder}
+      className={className}
+      autoComplete="off"
+      showPopperArrow={false}
+      popperClassName="custom-datepicker-popper"
+      {...props}
+    />
+  );
+};
 
 // validations
 import { useForm } from 'react-hook-form';
@@ -83,60 +147,61 @@ const ProjectDetail = () => {
     total_estimated_fees: '',
     affiliate_referral_fees: '',
     sdgr: 'No',
-    average_employee_count_2019: '',
+    avg_emp_count_2019: '',
     fee_type: '',
     custom_fee: '',
     eligible_quarters: '',
     welcome_email: '',
-    invoice_initial_retainer: '',
+    retainer_invoice_no: '',
     retainer_payment_date: '',
-    retainer_payment_channel: '',
+    retainer_payment_cleared: '',
     retainer_payment_returned: '',
-    ret_payment_return_reason: '',
+    retpayment_return_reason: '',
     retainer_refund_date: '',
     retainer_refund_amount: '',
     retainer_payment_amount: '',
     retainer_payment_type: '',
-    ret_retainer_invoiced: '',
-    ret_retainer_sent_date: '',
-    ret_retainer_pay_date: '',
-    ret_retainer_clear_date: '',
-    ret_retainer_return_date: '',
-    ret_retainer_return_reason: '',
+    bal_retainer_invoice_no: '',
+    bal_retainer_sent_date: '',
+    bal_retainer_pay_date: '',
+    bal_retainer_clear_date: '',
+    bal_retainer_return_date: '',
+    bal_retainer_return_reaso: '',
     interest_percentage: '',
     net_no: '',
     coi_aoi: '',
     voided_check: '',
-    tax_return_2019: '',
-    tax_return_2020: '',
-    financials_2021: '',
-    q1_2020: '',
-    q2_2020: '',
-    q3_2020: '',
-    q4_2020: '',
-    q1_2021: '',
-    q2_2021: '',
-    q3_2021: '',
-    payroll_register_2020_q1: '',
-    payroll_register_2020_q2: '',
-    payroll_register_2020_q3: '',
-    payroll_register_2020_q4: '',
-    payroll_register_2021_q1: '',
-    payroll_register_2021_q2: '',
-    payroll_register_2021_q3: '',
-    f911_status: '',
-    ppp_2020_applied: '',
-    ppp_2020_start_date: '',
-    ppp_2020_forgiveness_applied: '',
-    ppp_2020_end_date: '',
-    ppp_2020_amount: '',
-    ppp_2020_wages_allocated: '',
-    ppp_2021_applied: '',
-    ppp_2021_start_date: '',
-    ppp_2021_forgiveness_applied: '',
-    ppp_2021_end_date: '',
-    ppp_2021_amount: '',
-    ppp_2021_wages_allocated: '',
+    '2019_tax_return': '',
+    '2020_tax_return': '',
+    '2021_financials': '',
+    '2020_q1_941': '',
+    '2020_q2_941': '',
+    '2020_q3_941': '',
+    '2020_q4_941': '',
+    '2021_q1_941': '',
+    '2021_q2_941': '',
+    '2021_q3_941': '',
+    '2020_q1_payroll': '',
+    '2020_q2_payroll': '',
+    '2020_q3_payroll': '',
+    '2020_q4_payroll': '',
+    '2021_q1_payroll': '',
+    '2021_q2_payroll': '',
+    '2021_q3_payroll': '',
+    '2021_q4_payroll': '',
+    'f911_status':'',
+    'ppp_1_applied': '',
+    'ppp_1_date': '',
+    'ppp_1_forgiveness_applied': '',
+    'ppp_1_forgive_app_date': '',
+    'ppp_1_amount': '',
+    'ppp_1_wages_allocated': '',
+    'ppp_2_applied': '',
+    'ppp_2_date': '',
+    'ppp_2_forgiveness_applied': '',
+    'ppp_2_forgive_app_date': '',
+    ppp_2_amount: '',
+    ppp_2_wages_allocated: '',
     additional_comments: '',
     attorney_name: '',
     call_date: '',
@@ -163,7 +228,7 @@ const ProjectDetail = () => {
     affiliate_percentage: '',
     erc_claim_filed: '',
     erc_amount_received: '',
-    total_erc_fee: '',
+    total_erc_fees: '',
     legal_fees: '',
     total_erc_fees_paid: '',
     total_erc_fees_pending: '',
@@ -172,10 +237,11 @@ const ProjectDetail = () => {
     retain_occams_share: '',
     retain_aff_ref_share: '',
     bal_retain_occams_share: '',
+    bal_retain_aff_ref_share: '',
     total_occams_share_paid: '',
     total_aff_ref_share_paid: '',
-    total_occams_share_pending: '',
-    total_aff_ref_share_pending: '',
+    total_occams_share_pendin: '',
+    total_aff_ref_share_pend: '',
     q1_2020_max_erc_amount: '',
     q2_2020_max_erc_amount: '',
     q3_2020_max_erc_amount: '',
@@ -185,83 +251,83 @@ const ProjectDetail = () => {
     q3_2021_max_erc_amount: '',
     q4_2021_max_erc_amount: '',
     // ERC Filed Quarter wise 2020 fields
-    q1_2020_filed_status: false,
-    q1_2020_filing_date: '',
+    q1_2020_filed_status: '',
+    q1_2020_filed_date: '',
     q1_2020_amount_filed: '',
     q1_2020_benefits: '',
     q1_2020_eligibility_basis: 'N/A',
-    q2_2020_filed_status: false,
-    q2_2020_filing_date: '',
+    q2_2020_filed_status: '',
+    q2_2020_filed_date: '',
     q2_2020_amount_filed: '',
     q2_2020_benefits: '',
     q2_2020_eligibility_basis: 'N/A',
-    q3_2020_filed_status: false,
-    q3_2020_filing_date: '',
+    q3_2020_filed_status: '',
+    q3_2020_filed_date: '',
     q3_2020_amount_filed: '',
     q3_2020_benefits: '',
     q3_2020_eligibility_basis: 'N/A',
-    q4_2020_filed_status: false,
-    q4_2020_filing_date: '',
+    q4_2020_filed_status: '',
+    q4_2020_filed_date: '',
     q4_2020_amount_filed: '',
     q4_2020_benefits: '',
     q4_2020_eligibility_basis: 'N/A',
     // ERC Filed Quarter wise 2021 fields
-    q1_2021_filed_status: false,
-    q1_2021_filing_date: '',
+    q1_2021_filed_status: '',
+    q1_2021_filed_date: '',
     q1_2021_amount_filed: '',
     q1_2021_benefits: '',
     q1_2021_eligibility_basis: 'N/A',
-    q2_2021_filed_status: false,
-    q2_2021_filing_date: '',
+    q2_2021_filed_status: '',
+    q2_2021_filed_date: '',
     q2_2021_amount_filed: '',
     q2_2021_benefits: '',
     q2_2021_eligibility_basis: 'N/A',
-    q3_2021_filed_status: false,
-    q3_2021_filing_date: '',
+    q3_2021_filed_status: '',
+    q3_2021_filed_date: '',
     q3_2021_amount_filed: '',
     q3_2021_benefits: '',
     q3_2021_eligibility_basis: 'N/A',
-    q4_2021_filed_status: false,
-    q4_2021_filing_date: '',
+    q4_2021_filed_status: '',
+    q4_2021_filed_date: '',
     q4_2021_amount_filed: '',
     q4_2021_benefits: '',
     q4_2021_eligibility_basis: 'N/A',
     // ERC Letter, Check & Amount 2020 fields
     q1_2020_loop: '',
-    q1_2020_letter: false,
-    q1_2020_check: false,
+    q1_2020_letter: '',
+    q1_2020_check: '',
     q1_2020_chq_amt: '',
     q2_2020_loop: '',
-    q2_2020_letter: false,
-    q2_2020_check: false,
+    q2_2020_letter: '',
+    q2_2020_check: '',
     q2_2020_chq_amt: '',
     q3_2020_loop: '',
-    q3_2020_letter: false,
-    q3_2020_check: false,
+    q3_2020_letter: '',
+    q3_2020_check: '',
     q3_2020_chq_amt: '',
     q4_2020_loop: '',
-    q4_2020_letter: false,
-    q4_2020_check: false,
+    q4_2020_letter: '',
+    q4_2020_check: '',
     q4_2020_chq_amt: '',
     // ERC Letter, Check & Amount 2021 fields
     q1_2021_loop: '',
-    q1_2021_letter: false,
-    q1_2021_check: false,
+    q1_2021_letter: '',
+    q1_2021_check: '',
     q1_2021_chq_amt: '',
     q2_2021_loop: '',
-    q2_2021_letter: false,
-    q2_2021_check: false,
+    q2_2021_letter: '',
+    q2_2021_check: '',
     q2_2021_chq_amt: '',
     q3_2021_loop: '',
-    q3_2021_letter: false,
-    q3_2021_check: false,
+    q3_2021_letter: '',
+    q3_2021_check: '',
     q3_2021_chq_amt: '',
     q4_2021_loop: '',
     q4_2021_letter: '',
-    q4_2021_check: false,
+    q4_2021_check: '',
     q4_2021_chq_amt: '',
     // Success Fee Invoice Details - I Invoice
-    i_invoice_number: '',
+    i_invoice_no: '',
     i_invoice_amount: '',
     i_invoiced_qtrs: '',
     i_invoice_sent_date: '',
@@ -271,9 +337,9 @@ const ProjectDetail = () => {
     i_invoice_pay_returned: '',
     i_invoice_return_reason: '',
     i_invoice_occams_share: '',
-    i_invoice_affref_share: '',
+    i_invoice_aff_ref_share: '',
     // Success Fee Invoice Details - II Invoice
-    ii_invoice_number: '',
+    ii_invoice_no: '',
     ii_invoice_amount: '',
     ii_invoiced_qtrs: '',
     ii_invoice_sent_date: '',
@@ -283,9 +349,9 @@ const ProjectDetail = () => {
     ii_invoice_pay_returned: '',
     ii_invoice_return_reason: '',
     ii_invoice_occams_share: '',
-    ii_invoice_affref_share: '',
+    ii_invoice_aff_ref_share: '',
     // Success Fee Invoice Details - III Invoice
-    iii_invoice_number: '',
+    iii_invoice_no: '',
     iii_invoice_amount: '',
     iii_invoiced_qtrs: '',
     iii_invoice_sent_date: '',
@@ -295,9 +361,9 @@ const ProjectDetail = () => {
     iii_invoice_pay_returned: '',
     iii_invoice_return_reason: '',
     iii_invoice_occams_share: '',
-    iii_invoice_affref_share: '',
+    iii_invoice_aff_ref_share: '',
     // Success Fee Invoice Details - IV Invoice
-    iv_invoice_number: '',
+    iv_invoice_no: '',
     iv_invoice_amount: '',
     iv_invoiced_qtrs: '',
     iv_invoice_sent_date: '',
@@ -607,8 +673,6 @@ const ProjectDetail = () => {
 
   // State for update process
   const [isUpdating, setIsUpdating] = useState(false);
-  const [updateError, setUpdateError] = useState(null);
-  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   // Audit Logs state
   const [auditLogsData, setAuditLogsData] = useState({
@@ -646,10 +710,7 @@ const ProjectDetail = () => {
     income_2020: '',
     income_2021: '',
     // Bank Information
-    bank_name: '',
-    account_holder_name: '',
-    account_number: '',
-    routing_number: '',
+    
     // Output section
     stc_amount_2020: '',
     stc_amount_2021: '',
@@ -2068,7 +2129,12 @@ const ProjectDetail = () => {
               product_id: projectData.product_id || "",
               project_name: projectData.project_name || "",
               product_name: projectData.product_name || "",
-              project_fee: projectData.project_fee || "",
+              
+              // Conditionally set project_fee based on product_id
+              project_fee: projectData.product_id === "935" 
+                ? (projectData.fee_type || "") 
+                : (projectData.project_fee || ""),
+              
               milestone: projectData.milestone || "",
               stage_name: projectData.stage_name || "",
               created_at: projectData.created_at || "",
@@ -2112,6 +2178,7 @@ const ProjectDetail = () => {
             console.log('Mapped project data:', mappedProject);
             console.log('Website URL:', mappedProject.website_url);
             console.log('Product ID:', mappedProject.product_id);
+            console.log('Project Fee:', mappedProject.project_fee); // Log the project fee for debugging
             setProject(mappedProject);
           } else {
             throw new Error('Invalid data received from API');
@@ -2141,7 +2208,7 @@ const ProjectDetail = () => {
             product_name: "",
             milestone: "",
             stage_name: "",
-            project_fee: "",
+            project_fee: projectId === "1700" ? "Retainer Fee @$90 Per EE + Success Fee @15%" : "",
             created_at: "",
             collaborators: "",
             taxnow_signup_status: "",
@@ -2211,7 +2278,7 @@ const ProjectDetail = () => {
             account_holder_name: bankData.account_holder_name || '',
             account_type: bankData.account_type || '1', // Default to "1" (N/A) if not provided
             other: bankData.other || '',
-            aba_routing_no: bankData.aba_routing_no || '',
+            aba_routing_no: bankData.aba_routing_number || '',
             account_number: bankData.account_number || '',
             swift: bankData.swift || '',
             iban: bankData.iban || ''
@@ -2293,60 +2360,61 @@ const ProjectDetail = () => {
             total_estimated_fees: intakeData.total_estimated_fees || '',
             affiliate_referral_fees: intakeData.affiliate_referral_fees || '',
             sdgr: intakeData.sdgr === 'Yes' || intakeData.sdgr === 'yes' || intakeData.sdgr === '1' || intakeData.sdgr === 'true' || intakeData.sdgr === true ? 'Yes' : 'No',
-            average_employee_count_2019: intakeData.avg_emp_count_2019 || intakeData.average_employee_count_2019 || '',
+            avg_emp_count_2019: intakeData.avg_emp_count_2019 || '',
             fee_type: intakeData.fee_type || '',
             custom_fee: intakeData.custom_fee || '',
             eligible_quarters: intakeData.eligible_quarters || '',
             welcome_email: intakeData.welcome_email || '',
-            invoice_initial_retainer: intakeData.welcome_email || '',
+            retainer_invoice_no: intakeData.retainer_invoice_no || '',
             retainer_payment_date: intakeData.retainer_payment_date || '',
-            retainer_payment_channel: intakeData.retainer_payment_cleared || '',
+            retainer_payment_cleared: intakeData.retainer_payment_cleared || '',
             retainer_payment_returned: intakeData.retainer_payment_returned || '',
-            ret_payment_return_reason: intakeData.ret_payment_return_reason || '',
+            retpayment_return_reason: intakeData.retpayment_return_reason || '',
             retainer_refund_date: intakeData.retainer_refund_date || '',
             retainer_refund_amount: intakeData.retainer_refund_amount || '',
             retainer_payment_amount: intakeData.retainer_payment_amount || '',
             retainer_payment_type: intakeData.retainer_payment_type || '',
-            ret_retainer_invoiced: intakeData.bal_retainer_invoice_no || intakeData.bal_retainer_invoice || intakeData.ret_retainer_invoiced || '',
-            ret_retainer_sent_date: intakeData.bal_retainer_sent_date || intakeData.ret_retainer_sent_date || '',
-            ret_retainer_pay_date: intakeData.bal_retainer_pay_date || intakeData.ret_retainer_pay_date || '',
-            ret_retainer_clear_date: intakeData.bal_retainer_clear_date || intakeData.ret_retainer_clear_date || '',
-            ret_retainer_return_date: intakeData.bal_retainer_return_date || intakeData.ret_retainer_return_date || '',
-            ret_retainer_return_reason: intakeData.bal_retainer_return_reaso || intakeData.bal_retainer_return_reason || intakeData.ret_retainer_return_reason || '',
+            bal_retainer_invoice_no: intakeData.bal_retainer_invoice_no || '',
+            bal_retainer_sent_date: intakeData.bal_retainer_sent_date || intakeData.bal_retainer_sent_date || '',
+            bal_retainer_pay_date: intakeData.bal_retainer_pay_date || intakeData.bal_retainer_pay_date || '',
+            bal_retainer_clear_date: intakeData.bal_retainer_clear_date || intakeData.bal_retainer_clear_date || '',
+            bal_retainer_return_date: intakeData.bal_retainer_return_date || intakeData.bal_retainer_return_date || '',
+            bal_retainer_return_reaso: intakeData.bal_retainer_return_reaso || '',
             interest_percentage: intakeData.interest_percentage || '',
             net_no: intakeData.net_no || '',
             coi_aoi: intakeData.coi_aoi || '',
             voided_check: intakeData.voided_check || '',
-            tax_return_2019: intakeData['2019_tax_return'] || intakeData.tax_return_2019 || '',
-            tax_return_2020: intakeData['2020_tax_return'] || intakeData.tax_return_2020 || '',
-            financials_2021: intakeData['2021_financials'] || intakeData.financials_2021 || '',
-            q1_2020: intakeData['941_2020_q1'] || intakeData.q1_2020 || '',
-            q2_2020: intakeData['941_2020_q2'] || intakeData.q2_2020 || '',
-            q3_2020: intakeData['941_2020_q3'] || intakeData.q3_2020 || '',
-            q4_2020: intakeData['941_2020_q4'] || intakeData.q4_2020 || '',
-            q1_2021: intakeData['941_2021_q1'] || intakeData.q1_2021 || '',
-            q2_2021: intakeData['941_2021_q2'] || intakeData.q2_2021 || '',
-            q3_2021: intakeData['941_2021_q3'] || intakeData.q3_2021 || '',
-            payroll_register_2020_q1: intakeData.payroll_register_2020_q1 || '',
-            payroll_register_2020_q2: intakeData.payroll_register_2020_q2 || '',
-            payroll_register_2020_q3: intakeData.payroll_register_2020_q3 || '',
-            payroll_register_2020_q4: intakeData.payroll_register_2020_q4 || '',
-            payroll_register_2021_q1: intakeData.payroll_register_2021_q1 || '',
-            payroll_register_2021_q2: intakeData.payroll_register_2021_q2 || '',
-            payroll_register_2021_q3: intakeData.payroll_register_2021_q3 || '',
+            '2019_tax_return': intakeData['2019_tax_return'] || '',
+            '2020_tax_return': intakeData['2020_tax_return'] || '',
+            '2021_financials': intakeData['2021_financials'] || '',
+            '2020_q1_941': intakeData['2020_q1_941'] || '',
+            '2020_q2_941': intakeData['2020_q2_941'] || '',
+            '2020_q3_941': intakeData['2020_q3_941'] || '',
+            '2020_q4_941': intakeData['2020_q4_941'] || '',
+            '2021_q1_941': intakeData['2021_q1_941'] || '',
+            '2021_q2_941': intakeData['2021_q2_941'] || '',
+            '2021_q3_941': intakeData['2021_q3_941'] || '',
+            '2020_q1_payroll': intakeData['2020_q1_payroll'] || '',
+            '2020_q2_payroll': intakeData['2020_q2_payroll'] || '',
+            '2020_q3_payroll': intakeData['2020_q3_payroll'] || '',
+            '2020_q4_payroll': intakeData['2020_q4_payroll'] || '',
+            '2021_q1_payroll': intakeData['2021_q1_payroll'] || '',
+            '2021_q2_payroll': intakeData['2021_q2_payroll'] || '',
+            '2021_q3_payroll': intakeData['2021_q3_payroll'] || '',
+            '2021_q4_payroll': intakeData['2021_q4_payroll'] || '',
             f911_status: intakeData.f911_status || '',
-            ppp_2020_applied: intakeData.ppp_2020_applied || '',
-            ppp_2020_start_date: intakeData.ppp_2020_start_date || '',
-            ppp_2020_forgiveness_applied: intakeData.ppp_2020_forgiveness_applied || '',
-            ppp_2020_end_date: intakeData.ppp_2020_end_date || '',
-            ppp_2020_amount: intakeData.ppp_2020_amount || '',
-            ppp_2020_wages_allocated: intakeData.ppp_2020_wages_allocated || '',
-            ppp_2021_applied: intakeData.ppp_2021_applied || '',
-            ppp_2021_start_date: intakeData.ppp_2021_start_date || '',
-            ppp_2021_forgiveness_applied: intakeData.ppp_2021_forgiveness_applied || '',
-            ppp_2021_end_date: intakeData.ppp_2021_end_date || '',
-            ppp_2021_amount: intakeData.ppp_2021_amount || '',
-            ppp_2021_wages_allocated: intakeData.ppp_2021_wages_allocated || '',
+            ppp_1_applied: intakeData.ppp_1_applied || '',
+            ppp_1_date: intakeData.ppp_1_date || '',
+            ppp_1_forgiveness_applied: intakeData.ppp_1_forgiveness_applied || '',
+            ppp_1_forgive_app_date: intakeData.ppp_1_forgive_app_date || '',
+            ppp_1_amount: intakeData.ppp_1_amount || '',
+            ppp_1_wages_allocated: intakeData.ppp_1_wages_allocated || '',
+            ppp_2_applied: intakeData.ppp_2_applied || '',
+            ppp_2_date: intakeData.ppp_2_date || '',
+            ppp_2_forgiveness_applied: intakeData.ppp_2_forgiveness_applied || '',
+            ppp_2_forgive_app_date: intakeData.ppp_2_forgive_app_date || '',
+            ppp_2_amount: intakeData.ppp_2_amount || '',
+            ppp_2_wages_allocated: intakeData.ppp_2_wages_allocated || '',
             additional_comments: intakeData.additional_comment || intakeData.additional_comments || '',
             attorney_name: intakeData.attorney_name || '',
             call_date: intakeData.call_date || '',
@@ -2374,60 +2442,61 @@ const ProjectDetail = () => {
         total_estimated_fees: '',
         affiliate_referral_fees: '',
         sdgr: 'No',
-        average_employee_count_2019: '',
+        avg_emp_count_2019: '',
         fee_type: '',
         custom_fee: '',
         eligible_quarters: '',
         welcome_email: '',
-        invoice_initial_retainer: '',
+        retainer_invoice_no: '',
         retainer_payment_date: '',
-        retainer_payment_channel: '',
+        retainer_payment_cleared: '',
         retainer_payment_returned: '',
-        ret_payment_return_reason: '',
+        retpayment_return_reason: '',
         retainer_refund_date: '',
         retainer_refund_amount: '',
         retainer_payment_amount: '',
         retainer_payment_type: '',
-        ret_retainer_invoiced: '',
-        ret_retainer_sent_date: '',
-        ret_retainer_pay_date: '',
-        ret_retainer_clear_date: '',
-        ret_retainer_return_date: '',
-        ret_retainer_return_reason: '',
+        bal_retainer_invoice_no: '',
+        bal_retainer_sent_date: '',
+        bal_retainer_pay_date: '',
+        bal_retainer_clear_date: '',
+        bal_retainer_return_date: '',
+        bal_retainer_return_reaso: '',
         interest_percentage: '',
         net_no: '',
         coi_aoi: '',
         voided_check: '',
-        tax_return_2019: '',
-        tax_return_2020: '',
-        financials_2021: '',
-        q1_2020: '',
-        q2_2020: '',
-        q3_2020: '',
-        q4_2020: '',
-        q1_2021: '',
-        q2_2021: '',
-        q3_2021: '',
-        payroll_register_2020_q1: '',
-        payroll_register_2020_q2: '',
-        payroll_register_2020_q3: '',
-        payroll_register_2020_q4: '',
-        payroll_register_2021_q1: '',
-        payroll_register_2021_q2: '',
-        payroll_register_2021_q3: '',
+        '2019_tax_return': '',
+        '2020_tax_return': '',
+        '2021_financials': '',
+        '2020_q1_941': '',
+        '2020_q2_941': '',
+        '2020_q3_941': '',
+        '2020_q4_941': '',
+        '2021_q1_941': '',
+        '2021_q2_941': '',
+        '2021_q3_941': '',
+        '2020_q1_payroll': '',
+        '2020_q2_payroll': '',
+        '2020_q3_payroll': '',
+        '2020_q4_payroll': '',
+        '2021_q1_payroll': '',
+        '2021_q2_payroll': '',
+        '2021_q3_payroll': '',
+        '2021_q4_payroll': '',
         f911_status: '',
-        ppp_2020_applied: '',
-        ppp_2020_start_date: '',
-        ppp_2020_forgiveness_applied: '',
-        ppp_2020_end_date: '',
-        ppp_2020_amount: '',
-        ppp_2020_wages_allocated: '',
-        ppp_2021_applied: '',
-        ppp_2021_start_date: '',
-        ppp_2021_forgiveness_applied: '',
-        ppp_2021_end_date: '',
-        ppp_2021_amount: '',
-        ppp_2021_wages_allocated: '',
+        ppp_1_applied: '',
+        ppp_1_date: '',
+        ppp_1_forgiveness_applied: '',
+        ppp_1_forgive_app_date: '',
+        ppp_1_amount: '',
+        ppp_1_wages_allocated: '',
+        ppp_2_applied: '',
+        ppp_2_date: '',
+        ppp_2_forgiveness_applied: '',
+        ppp_2_forgive_app_date: '',
+        ppp_2_amount: '',
+        ppp_2_wages_allocated: '',
         additional_comments: '',
         attorney_name: '',
         call_date: '',
@@ -2499,7 +2568,7 @@ const ProjectDetail = () => {
             affiliate_percentage: feesData.affiliate_percentage || '',
             erc_claim_filed: feesData.erc_claim_filed || '',
             erc_amount_received: feesData.erc_amount_received || '',
-            total_erc_fee: feesData.total_erc_fees || '',
+            total_erc_fees: feesData.total_erc_fees || '',
             legal_fees: feesData.legal_fees || '',
             total_erc_fees_paid: feesData.total_erc_fees_paid || '',
             total_erc_fees_pending: feesData.total_erc_fees_pending || '',
@@ -2508,10 +2577,11 @@ const ProjectDetail = () => {
             retain_occams_share: feesData.retain_occams_share || '',
             retain_aff_ref_share: feesData.retain_aff_ref_share || '',
             bal_retain_occams_share: feesData.bal_retain_occams_share || '',
+            bal_retain_aff_ref_share: feesData.bal_retain_aff_ref_share || '',
             total_occams_share_paid: feesData.total_occams_share_paid || '',
             total_aff_ref_share_paid: feesData.total_aff_ref_share_paid || '',
-            total_occams_share_pending: feesData.total_occams_share_pendin || '',
-            total_aff_ref_share_pending: feesData.total_aff_ref_share_pend || '',
+            total_occams_share_pendin: feesData.total_occams_share_pendin || '',
+            total_aff_ref_share_pend: feesData.total_aff_ref_share_pend || '',
             q1_2020_max_erc_amount: feesData.q1_2020_max_erc_amount || '',
             q2_2020_max_erc_amount: feesData.q2_2020_max_erc_amount || '',
             q3_2020_max_erc_amount: feesData.q3_2020_max_erc_amount || '',
@@ -2522,43 +2592,43 @@ const ProjectDetail = () => {
             q4_2021_max_erc_amount: feesData.q4_2021_max_erc_amount || '',
             // ERC Filed Quarter wise 2020 fields
             q1_2020_filed_status: feesData.q1_2020_filed_status === 'Yes' || feesData.q1_2020_filed_status === 'true' || feesData.q1_2020_filed_status === true || feesData.q1_2020_filed_status === 1,
-            q1_2020_filing_date: feesData.q1_2020_filing_date || '',
+            q1_2020_filed_date: feesData.q1_2020_filed_date || '',
             q1_2020_amount_filed: feesData.q1_2020_amount_filed || '',
             q1_2020_benefits: feesData.q1_2020_benefits || '',
             q1_2020_eligibility_basis: feesData.q1_2020_eligibility_basis || 'N/A',
             q2_2020_filed_status: feesData.q2_2020_filed_status === 'Yes' || feesData.q2_2020_filed_status === 'true' || feesData.q2_2020_filed_status === true || feesData.q2_2020_filed_status === 1,
-            q2_2020_filing_date: feesData.q2_2020_filing_date || '',
+            q2_2020_filed_date: feesData.q2_2020_filed_date || '',
             q2_2020_amount_filed: feesData.q2_2020_amount_filed || '',
             q2_2020_benefits: feesData.q2_2020_benefits || '',
             q2_2020_eligibility_basis: feesData.q2_2020_eligibility_basis || 'N/A',
             q3_2020_filed_status: feesData.q3_2020_filed_status === 'Yes' || feesData.q3_2020_filed_status === 'true' || feesData.q3_2020_filed_status === true || feesData.q3_2020_filed_status === 1,
-            q3_2020_filing_date: feesData.q3_2020_filing_date || '',
+            q3_2020_filed_date: feesData.q3_2020_filed_date || '',
             q3_2020_amount_filed: feesData.q3_2020_amount_filed || '',
             q3_2020_benefits: feesData.q3_2020_benefits || '',
             q3_2020_eligibility_basis: feesData.q3_2020_eligibility_basis || 'N/A',
             q4_2020_filed_status: feesData.q4_2020_filed_status === 'Yes' || feesData.q4_2020_filed_status === 'true' || feesData.q4_2020_filed_status === true || feesData.q4_2020_filed_status === 1,
-            q4_2020_filing_date: feesData.q4_2020_filing_date || '',
+            q4_2020_filed_date: feesData.q4_2020_filed_date || '',
             q4_2020_amount_filed: feesData.q4_2020_amount_filed || '',
             q4_2020_benefits: feesData.q4_2020_benefits || '',
             q4_2020_eligibility_basis: feesData.q4_2020_eligibility_basis || 'N/A',
             // ERC Filed Quarter wise 2021 fields
             q1_2021_filed_status: feesData.q1_2021_filed_status === 'Yes' || feesData.q1_2021_filed_status === 'true' || feesData.q1_2021_filed_status === true || feesData.q1_2021_filed_status === 1,
-            q1_2021_filing_date: feesData.q1_2021_filing_date || '',
+            q1_2021_filed_date: feesData.q1_2021_filed_date || '',
             q1_2021_amount_filed: feesData.q1_2021_amount_filed || '',
             q1_2021_benefits: feesData.q1_2021_benefits || '',
             q1_2021_eligibility_basis: feesData.q1_2021_eligibility_basis || 'N/A',
             q2_2021_filed_status: feesData.q2_2021_filed_status === 'Yes' || feesData.q2_2021_filed_status === 'true' || feesData.q2_2021_filed_status === true || feesData.q2_2021_filed_status === 1,
-            q2_2021_filing_date: feesData.q2_2021_filing_date || '',
+            q2_2021_filed_date: feesData.q2_2021_filed_date || '',
             q2_2021_amount_filed: feesData.q2_2021_amount_filed || '',
             q2_2021_benefits: feesData.q2_2021_benefits || '',
             q2_2021_eligibility_basis: feesData.q2_2021_eligibility_basis || 'N/A',
             q3_2021_filed_status: feesData.q3_2021_filed_status === 'Yes' || feesData.q3_2021_filed_status === 'true' || feesData.q3_2021_filed_status === true || feesData.q3_2021_filed_status === 1,
-            q3_2021_filing_date: feesData.q3_2021_filing_date || '',
+            q3_2021_filed_date: feesData.q3_2021_filed_date || '',
             q3_2021_amount_filed: feesData.q3_2021_amount_filed || '',
             q3_2021_benefits: feesData.q3_2021_benefits || '',
             q3_2021_eligibility_basis: feesData.q3_2021_eligibility_basis || 'N/A',
             q4_2021_filed_status: feesData.q4_2021_filed_status === 'Yes' || feesData.q4_2021_filed_status === 'true' || feesData.q4_2021_filed_status === true || feesData.q4_2021_filed_status === 1,
-            q4_2021_filing_date: feesData.q4_2021_filing_date || '',
+            q4_2021_filed_date: feesData.q4_2021_filed_date || '',
             q4_2021_amount_filed: feesData.q4_2021_amount_filed || '',
             q4_2021_benefits: feesData.q4_2021_benefits || '',
             q4_2021_eligibility_basis: feesData.q4_2021_eligibility_basis || 'N/A',
@@ -2597,7 +2667,7 @@ const ProjectDetail = () => {
             q4_2021_check: feesData.q4_2021_check === 'Yes' || feesData.q4_2021_check === 'true' || feesData.q4_2021_check === true || feesData.q4_2021_check === 1,
             q4_2021_chq_amt: feesData.q4_2021_chq_amt || '',
             // Success Fee Invoice Details - I Invoice
-            i_invoice_number: feesData.i_invoice_number || '',
+            i_invoice_no: feesData.i_invoice_number || '',
             i_invoice_amount: feesData.i_invoice_amount || '',
             i_invoiced_qtrs: feesData.i_invoiced_qtrs || '',
             i_invoice_sent_date: feesData.i_invoice_sent_date || '',
@@ -2607,9 +2677,9 @@ const ProjectDetail = () => {
             i_invoice_pay_returned: feesData.i_invoice_pay_returned || '',
             i_invoice_return_reason: feesData.i_invoice_return_reason || '',
             i_invoice_occams_share: feesData.i_invoice_occams_share || '',
-            i_invoice_affref_share: feesData.i_invoice_aff_ref_share || '',
+            i_invoice_aff_ref_share: feesData.i_invoice_aff_ref_share || '',
             // Success Fee Invoice Details - II Invoice
-            ii_invoice_number: feesData.ii_invoice_number || '',
+            ii_invoice_no: feesData.ii_invoice_number || '',
             ii_invoice_amount: feesData.ii_invoice_amount || '',
             ii_invoiced_qtrs: feesData.ii_invoiced_qtrs || '',
             ii_invoice_sent_date: feesData.ii_invoice_sent_date || '',
@@ -2619,9 +2689,9 @@ const ProjectDetail = () => {
             ii_invoice_pay_returned: feesData.ii_invoice_pay_returned || '',
             ii_invoice_return_reason: feesData.ii_invoice_return_reason || '',
             ii_invoice_occams_share: feesData.ii_invoice_occams_share || '',
-            ii_invoice_affref_share: feesData.ii_invoice_aff_ref_share || '',
+            ii_invoice_aff_ref_share: feesData.ii_invoice_aff_ref_share || '',
             // Success Fee Invoice Details - III Invoice
-            iii_invoice_number: feesData.iii_invoice_number || '',
+            iii_invoice_no: feesData.iii_invoice_number || '',
             iii_invoice_amount: feesData.iii_invoice_amount || '',
             iii_invoiced_qtrs: feesData.iii_invoiced_qtrs || '',
             iii_invoice_sent_date: feesData.iii_invoice_sent_date || '',
@@ -2631,9 +2701,9 @@ const ProjectDetail = () => {
             iii_invoice_pay_returned: feesData.iii_invoice_pay_returned || '',
             iii_invoice_return_reason: feesData.iii_invoice_return_reason || '',
             iii_invoice_occams_share: feesData.iii_invoice_occams_share || '',
-            iii_invoice_affref_share: feesData.iii_invoice_aff_ref_share || '',
+            iii_invoice_aff_ref_share: feesData.iii_invoice_aff_ref_share || '',
             // Success Fee Invoice Details - IV Invoice
-            iv_invoice_number: feesData.iv_invoice_number || '',
+            iv_invoice_no: feesData.iv_invoice_number || '',
             iv_invoice_amount: feesData.iv_invoice_amount || '',
             iv_invoiced_qtrs: feesData.iv_invoiced_qtrs || '',
             iv_invoice_sent_date: feesData.iv_invoice_sent_date || '',
@@ -2676,7 +2746,7 @@ const ProjectDetail = () => {
         affiliate_percentage: '',
         erc_claim_filed: '',
         erc_amount_received: '',
-        total_erc_fee: '',
+        total_erc_fees: '',
         legal_fees: '',
         total_erc_fees_paid: '',
         total_erc_fees_pending: '',
@@ -2685,10 +2755,11 @@ const ProjectDetail = () => {
         retain_occams_share: '',
         retain_aff_ref_share: '',
         bal_retain_occams_share: '',
+        bal_retain_aff_ref_share: '',
         total_occams_share_paid: '',
         total_aff_ref_share_paid: '',
-        total_occams_share_pending: '',
-        total_aff_ref_share_pending: '',
+        total_occams_share_pendin: '',
+        total_aff_ref_share_pend: '',
         q1_2020_max_erc_amount: '',
         q2_2020_max_erc_amount: '',
         q3_2020_max_erc_amount: '',
@@ -2699,43 +2770,43 @@ const ProjectDetail = () => {
         q4_2021_max_erc_amount: '',
         // ERC Filed Quarter wise 2020 fields
         q1_2020_filed_status: false,
-        q1_2020_filing_date: '',
+        q1_2020_filed_date: '',
         q1_2020_amount_filed: '',
         q1_2020_benefits: '',
         q1_2020_eligibility_basis: 'N/A',
         q2_2020_filed_status: false,
-        q2_2020_filing_date: '',
+        q2_2020_filed_date: '',
         q2_2020_amount_filed: '',
         q2_2020_benefits: '',
         q2_2020_eligibility_basis: 'N/A',
         q3_2020_filed_status: false,
-        q3_2020_filing_date: '',
+        q3_2020_filed_date: '',
         q3_2020_amount_filed: '',
         q3_2020_benefits: '',
         q3_2020_eligibility_basis: 'N/A',
         q4_2020_filed_status: false,
-        q4_2020_filing_date: '',
+        q4_2020_filed_date: '',
         q4_2020_amount_filed: '',
         q4_2020_benefits: '',
         q4_2020_eligibility_basis: 'N/A',
         // ERC Filed Quarter wise 2021 fields
         q1_2021_filed_status: false,
-        q1_2021_filing_date: '',
+        q1_2021_filed_date: '',
         q1_2021_amount_filed: '',
         q1_2021_benefits: '',
         q1_2021_eligibility_basis: 'N/A',
         q2_2021_filed_status: false,
-        q2_2021_filing_date: '',
+        q2_2021_filed_date: '',
         q2_2021_amount_filed: '',
         q2_2021_benefits: '',
         q2_2021_eligibility_basis: 'N/A',
         q3_2021_filed_status: false,
-        q3_2021_filing_date: '',
+        q3_2021_filed_date: '',
         q3_2021_amount_filed: '',
         q3_2021_benefits: '',
         q3_2021_eligibility_basis: 'N/A',
         q4_2021_filed_status: false,
-        q4_2021_filing_date: '',
+        q4_2021_filed_date: '',
         q4_2021_amount_filed: '',
         q4_2021_benefits: '',
         q4_2021_eligibility_basis: 'N/A',
@@ -2774,7 +2845,7 @@ const ProjectDetail = () => {
         q4_2021_check: false,
         q4_2021_chq_amt: '',
         // Success Fee Invoice Details - I Invoice
-        i_invoice_number: '',
+        i_invoice_no: '',
         i_invoice_amount: '',
         i_invoiced_qtrs: '',
         i_invoice_sent_date: '',
@@ -2784,9 +2855,9 @@ const ProjectDetail = () => {
         i_invoice_pay_returned: '',
         i_invoice_return_reason: '',
         i_invoice_occams_share: '',
-        i_invoice_affref_share: '',
+        i_invoice_aff_ref_share: '',
         // Success Fee Invoice Details - II Invoice
-        ii_invoice_number: '',
+        ii_invoice_no: '',
         ii_invoice_amount: '',
         ii_invoiced_qtrs: '',
         ii_invoice_sent_date: '',
@@ -2796,9 +2867,9 @@ const ProjectDetail = () => {
         ii_invoice_pay_returned: '',
         ii_invoice_return_reason: '',
         ii_invoice_occams_share: '',
-        ii_invoice_affref_share: '',
+        ii_invoice_aff_ref_share: '',
         // Success Fee Invoice Details - III Invoice
-        iii_invoice_number: '',
+        iii_invoice_no: '',
         iii_invoice_amount: '',
         iii_invoiced_qtrs: '',
         iii_invoice_sent_date: '',
@@ -2808,9 +2879,9 @@ const ProjectDetail = () => {
         iii_invoice_pay_returned: '',
         iii_invoice_return_reason: '',
         iii_invoice_occams_share: '',
-        iii_invoice_affref_share: '',
+        iii_invoice_aff_ref_share: '',
         // Success Fee Invoice Details - IV Invoice
-        iv_invoice_number: '',
+        iv_invoice_no: '',
         iv_invoice_amount: '',
         iv_invoiced_qtrs: '',
         iv_invoice_sent_date: '',
@@ -2935,7 +3006,7 @@ const ProjectDetail = () => {
             bank_name: apiData.bank_name || '',
             account_holder_name: apiData.account_holder_name || '',
             account_number: apiData.account_number || '',
-            routing_number: apiData.aba_routing_no || '',
+            aba_routing_no: apiData.aba_routing_no || '',
             stc_amount_2020: apiData.stc_amount_2020 || '',
             stc_amount_2021: apiData.stc_amount_2021 || '',
             maximum_credit: apiData.maximum_credit || '',
@@ -2966,7 +3037,7 @@ const ProjectDetail = () => {
         bank_name: '',
         account_holder_name: '',
         account_number: '',
-        routing_number: '',
+        aba_routing_no: '',
         stc_amount_2020: '',
         stc_amount_2021: '',
         maximum_credit: '',
@@ -3928,7 +3999,6 @@ const ProjectDetail = () => {
       project_id: project?.project_id,
       tab: activeTab,
     };
-
     // Add data based on active tab
     if (activeTab === 'project') {
       // Get all input values from the project tab
@@ -3981,7 +4051,7 @@ const ProjectDetail = () => {
       data.bank_city = bankInfo.city;
       data.bank_state = bankInfo.state;
       data.bank_zip = bankInfo.zip;
-      data.bank_country = bankInfo.country;
+      data.country = bankInfo.country;
       data.bank_phone = bankInfo.bank_phone;
       data.account_holder_name = bankInfo.account_holder_name;
       data.account_type = bankInfo.account_type;
@@ -3993,6 +4063,9 @@ const ProjectDetail = () => {
     } else if (activeTab === 'intake') {
       // Add intake info data
       Object.assign(data, intakeInfo);
+    } else if (activeTab === 'fees') {
+      // Add fees info data
+      Object.assign(data, feesInfo);
     }
 
     return data;
@@ -4003,8 +4076,6 @@ const ProjectDetail = () => {
     try {
       // Set loading state
       setIsUpdating(true);
-      setUpdateError(null);
-      setUpdateSuccess(false);
 
       console.log('Updating project with data:', data);
 
@@ -4054,18 +4125,18 @@ const ProjectDetail = () => {
         // agreement_folder: combinedData.agreement_folder,
 
         // Bank Info - Always include bank info regardless of active tab
-        bank_name: bankInfo.bank_name,
+        bank_name: combinedData.tab === "fulfilment" ? fulfilmentData.bank_name : bankInfo.bank_name,
         bank_mailing_address: bankInfo.bank_mailing_address,
         bank_city: bankInfo.city,
         bank_state: bankInfo.state,
         bank_zip: bankInfo.zip,
-        bank_country: bankInfo.country,
+        country: bankInfo.country,
         bank_phone: bankInfo.bank_phone,
-        account_holder_name: bankInfo.account_holder_name,
+        account_holder_name: combinedData.tab === "fulfilment" ? fulfilmentData.account_holder_name : bankInfo.account_holder_name,
         account_type: bankInfo.account_type,
         other: bankInfo.other,
-        aba_routing_no: bankInfo.aba_routing_no,
-        account_number: bankInfo.account_number,
+        aba_routing_no: combinedData.tab === "fulfilment" ? fulfilmentData.aba_routing_no : bankInfo.aba_routing_no,
+        account_number: combinedData.tab === "fulfilment" ? fulfilmentData.account_number : bankInfo.account_number,
         swift: bankInfo.swift,
         iban: bankInfo.iban,
 
@@ -4078,10 +4149,67 @@ const ProjectDetail = () => {
         total_estimated_fees: intakeInfo.total_estimated_fees,
         affiliate_referral_fees: intakeInfo.affiliate_referral_fees,
         sdgr: intakeInfo.sdgr,
-        average_employee_count_2019: intakeInfo.average_employee_count_2019,
+        avg_emp_count_2019: intakeInfo.avg_emp_count_2019 || '',
         fee_type: intakeInfo.fee_type,
         custom_fee: intakeInfo.custom_fee,
         eligible_quarters: intakeInfo.eligible_quarters,
+        welcome_email: intakeInfo.welcome_email,
+        retainer_invoice_no: intakeInfo.retainer_invoice_no,
+        retainer_payment_date: intakeInfo.retainer_payment_date,
+        retainer_payment_cleared: intakeInfo.retainer_payment_cleared,
+        retainer_payment_returned: intakeInfo.retainer_payment_returned,
+        retpayment_return_reason: intakeInfo.retpayment_return_reason,
+        retainer_refund_date: intakeInfo.retainer_refund_date,
+        retainer_refund_amount: intakeInfo.retainer_refund_amount,
+        retainer_payment_amount: intakeInfo.retainer_payment_amount,
+        retainer_payment_type: intakeInfo.retainer_payment_type,
+        bal_retainer_invoice_no: intakeInfo.bal_retainer_invoice_no,
+        bal_retainer_sent_date: intakeInfo.bal_retainer_sent_date,
+        bal_retainer_pay_date: intakeInfo.bal_retainer_pay_date,
+        bal_retainer_clear_date: intakeInfo.bal_retainer_clear_date,
+        bal_retainer_return_date: intakeInfo.bal_retainer_return_date,
+        bal_retainer_return_reaso: intakeInfo.bal_retainer_return_reaso,
+        interest_percentage: intakeInfo.interest_percentage,
+        net_no: intakeInfo.net_no,
+        coi_aoi: intakeInfo.coi_aoi,
+        voided_check: intakeInfo.voided_check,
+        '2019_tax_return': intakeInfo['2019_tax_return'],
+        '2020_tax_return': intakeInfo['2020_tax_return'],
+        '2021_financials': intakeInfo['2021_financials'],
+        '2020_q1_941': intakeInfo['2020_q1_941'],
+        '2020_q2_941': intakeInfo['2020_q2_941'],
+        '2020_q3_941': intakeInfo['2020_q3_941'],
+        '2020_q4_941': intakeInfo['2020_q4_941'],
+        '2021_q1_941': intakeInfo['2021_q1_941'],
+        '2021_q2_941': intakeInfo['2021_q2_941'],
+        '2021_q3_941': intakeInfo['2021_q3_941'],
+        '2020_q1_payroll': intakeInfo['2020_q1_payroll'],
+        '2020_q2_payroll': intakeInfo['2020_q2_payroll'],
+        '2020_q3_payroll': intakeInfo['2020_q3_payroll'],
+        '2020_q4_payroll': intakeInfo['2020_q4_payroll'],
+        '2021_q1_payroll': intakeInfo['2021_q1_payroll'],
+        '2021_q2_payroll': intakeInfo['2021_q2_payroll'],
+        '2021_q3_payroll': intakeInfo['2021_q3_payroll'],
+        '2021_q4_payroll': intakeInfo['2021_q4_payroll'],
+        f911_status: intakeInfo.f911_status,
+        ppp_1_applied: intakeInfo.ppp_1_applied,
+        ppp_1_date: intakeInfo.ppp_1_date,
+        ppp_1_forgiveness_applied: intakeInfo.ppp_1_forgiveness_applied,
+        ppp_1_forgive_app_date: intakeInfo.ppp_1_forgive_app_date,
+        ppp_1_amount: intakeInfo.ppp_1_amount,
+        ppp_1_wages_allocated: intakeInfo.ppp_1_wages_allocated,
+        ppp_2_applied: intakeInfo.ppp_2_applied,
+        ppp_2_date: intakeInfo.ppp_2_date,
+        ppp_2_forgiveness_applied: intakeInfo.ppp_2_forgiveness_applied,
+        ppp_2_forgive_app_date: intakeInfo.ppp_2_forgive_app_date,
+        ppp_2_amount: intakeInfo.ppp_2_amount,
+        ppp_2_wages_allocated: intakeInfo.ppp_2_wages_allocated,
+        additional_comments: intakeInfo.additional_comments,
+        attorney_name: intakeInfo.attorney_name,
+        call_date: intakeInfo.call_date,
+        call_time: intakeInfo.call_time,
+        memo_received_date: intakeInfo.memo_received_date,
+        memo_cut_off_date: intakeInfo.memo_cut_off_date,
 
         // Fees Info
         error_discovered_date: feesInfo.error_discovered_date,
@@ -4098,7 +4226,7 @@ const ProjectDetail = () => {
         affiliate_percentage: feesInfo.affiliate_percentage,
         erc_claim_filed: feesInfo.erc_claim_filed,
         erc_amount_received: feesInfo.erc_amount_received,
-        total_erc_fee: feesInfo.total_erc_fee,
+        total_erc_fees: feesInfo.total_erc_fees,
         legal_fees: feesInfo.legal_fees,
         total_erc_fees_paid: feesInfo.total_erc_fees_paid,
         total_erc_fees_pending: feesInfo.total_erc_fees_pending,
@@ -4107,10 +4235,11 @@ const ProjectDetail = () => {
         retain_occams_share: feesInfo.retain_occams_share,
         retain_aff_ref_share: feesInfo.retain_aff_ref_share,
         bal_retain_occams_share: feesInfo.bal_retain_occams_share,
+        bal_retain_aff_ref_share: feesInfo.bal_retain_aff_ref_share,
         total_occams_share_paid: feesInfo.total_occams_share_paid,
         total_aff_ref_share_paid: feesInfo.total_aff_ref_share_paid,
-        total_occams_share_pending: feesInfo.total_occams_share_pending,
-        total_aff_ref_share_pending: feesInfo.total_aff_ref_share_pending,
+        total_occams_share_pendin: feesInfo.total_occams_share_pendin,
+        total_aff_ref_share_pend: feesInfo.total_aff_ref_share_pend,
         q1_2020_max_erc_amount: feesInfo.q1_2020_max_erc_amount,
         q2_2020_max_erc_amount: feesInfo.q2_2020_max_erc_amount,
         q3_2020_max_erc_amount: feesInfo.q3_2020_max_erc_amount,
@@ -4119,83 +4248,83 @@ const ProjectDetail = () => {
         q2_2021_max_erc_amount: feesInfo.q2_2021_max_erc_amount,
         q3_2021_max_erc_amount: feesInfo.q3_2021_max_erc_amount,
         q4_2021_max_erc_amount: feesInfo.q4_2021_max_erc_amount,
-        q1_2020_filed_status: feesInfo.q1_2020_filed_status,
-        q1_2020_filing_date: feesInfo.q1_2020_filing_date,
+        q1_2020_filed_status: feesInfo.q1_2020_filed_status ? 'Yes' : 'No',
+        q1_2020_filed_date: feesInfo.q1_2020_filed_date,
         q1_2020_amount_filed: feesInfo.q1_2020_amount_filed,
         q1_2020_benefits: feesInfo.q1_2020_benefits,
         q1_2020_eligibility_basis: feesInfo.q1_2020_eligibility_basis,
-        q2_2020_filed_status: feesInfo.q2_2020_filed_status,
-        q2_2020_filing_date: feesInfo.q2_2020_filing_date,
+        q2_2020_filed_status: feesInfo.q2_2020_filed_status ? 'Yes' : 'No',
+        q2_2020_filed_date: feesInfo.q2_2020_filed_date,
         q2_2020_amount_filed: feesInfo.q2_2020_amount_filed,
         q2_2020_benefits: feesInfo.q2_2020_benefits,
         q2_2020_eligibility_basis: feesInfo.q2_2020_eligibility_basis,
-        q3_2020_filed_status: feesInfo.q3_2020_filed_status,
-        q3_2020_filing_date: feesInfo.q3_2020_filing_date,
+        q3_2020_filed_status: feesInfo.q3_2020_filed_status ? 'Yes' : 'No',
+        q3_2020_filed_date: feesInfo.q3_2020_filed_date,
         q3_2020_amount_filed: feesInfo.q3_2020_amount_filed,
         q3_2020_benefits: feesInfo.q3_2020_benefits,
         q3_2020_eligibility_basis: feesInfo.q3_2020_eligibility_basis,
-        q4_2020_filed_status: feesInfo.q4_2020_filed_status,
-        q4_2020_filing_date: feesInfo.q4_2020_filing_date,
+        q4_2020_filed_status: feesInfo.q4_2020_filed_status ? 'Yes' : 'No',
+        q4_2020_filed_date: feesInfo.q4_2020_filed_date,
         q4_2020_amount_filed: feesInfo.q4_2020_amount_filed,
         q4_2020_benefits: feesInfo.q4_2020_benefits,
         q4_2020_eligibility_basis: feesInfo.q4_2020_eligibility_basis,
         // ERC Filed Quarter wise 2021 fields
-        q1_2021_filed_status: feesInfo.q1_2021_filed_status,
-        q1_2021_filing_date: feesInfo.q1_2021_filing_date,
+        q1_2021_filed_status: feesInfo.q1_2021_filed_status ? 'Yes' : 'No',
+        q1_2021_filed_date: feesInfo.q1_2021_filed_date,
         q1_2021_amount_filed: feesInfo.q1_2021_amount_filed,
         q1_2021_benefits: feesInfo.q1_2021_benefits,
         q1_2021_eligibility_basis: feesInfo.q1_2021_eligibility_basis,
-        q2_2021_filed_status: feesInfo.q2_2021_filed_status,
-        q2_2021_filing_date: feesInfo.q2_2021_filing_date,
+        q2_2021_filed_status: feesInfo.q2_2021_filed_status ? 'Yes' : 'No',
+        q2_2021_filed_date: feesInfo.q2_2021_filed_date,
         q2_2021_amount_filed: feesInfo.q2_2021_amount_filed,
         q2_2021_benefits: feesInfo.q2_2021_benefits,
         q2_2021_eligibility_basis: feesInfo.q2_2021_eligibility_basis,
-        q3_2021_filed_status: feesInfo.q3_2021_filed_status,
-        q3_2021_filing_date: feesInfo.q3_2021_filing_date,
+        q3_2021_filed_status: feesInfo.q3_2021_filed_status ? 'Yes' : 'No',
+        q3_2021_filed_date: feesInfo.q3_2021_filed_date,
         q3_2021_amount_filed: feesInfo.q3_2021_amount_filed,
         q3_2021_benefits: feesInfo.q3_2021_benefits,
         q3_2021_eligibility_basis: feesInfo.q3_2021_eligibility_basis,
-        q4_2021_filed_status: feesInfo.q4_2021_filed_status,
-        q4_2021_filing_date: feesInfo.q4_2021_filing_date,
+        q4_2021_filed_status: feesInfo.q4_2021_filed_status ? 'Yes' : 'No',
+        q4_2021_filed_date: feesInfo.q4_2021_filed_date,
         q4_2021_amount_filed: feesInfo.q4_2021_amount_filed,
         q4_2021_benefits: feesInfo.q4_2021_benefits,
         q4_2021_eligibility_basis: feesInfo.q4_2021_eligibility_basis,
         // ERC Letter, Check & Amount 2020 fields
         q1_2020_loop: feesInfo.q1_2020_loop,
-        q1_2020_letter: feesInfo.q1_2020_letter,
-        q1_2020_check: feesInfo.q1_2020_check,
+        q1_2020_letter: feesInfo.q1_2020_letter ? 'Yes' : 'No',
+        q1_2020_check: feesInfo.q1_2020_check ? 'Yes' : 'No',
         q1_2020_chq_amt: feesInfo.q1_2020_chq_amt,
         q2_2020_loop: feesInfo.q2_2020_loop,
-        q2_2020_letter: feesInfo.q2_2020_letter,
-        q2_2020_check: feesInfo.q2_2020_check,
+        q2_2020_letter: feesInfo.q2_2020_letter ? 'Yes' : 'No',
+        q2_2020_check: feesInfo.q2_2020_check ? 'Yes' : 'No',
         q2_2020_chq_amt: feesInfo.q2_2020_chq_amt,
         q3_2020_loop: feesInfo.q3_2020_loop,
-        q3_2020_letter: feesInfo.q3_2020_letter,
-        q3_2020_check: feesInfo.q3_2020_check,
+        q3_2020_letter: feesInfo.q3_2020_letter ? 'Yes' : 'No',
+        q3_2020_check: feesInfo.q3_2020_check ? 'Yes' : 'No',
         q3_2020_chq_amt: feesInfo.q3_2020_chq_amt,
         q4_2020_loop: feesInfo.q4_2020_loop,
-        q4_2020_letter: feesInfo.q4_2020_letter,
-        q4_2020_check: feesInfo.q4_2020_check,
+        q4_2020_letter: feesInfo.q4_2020_letter ? 'Yes' : 'No',
+        q4_2020_check: feesInfo.q4_2020_check ? 'Yes' : 'No',
         q4_2020_chq_amt: feesInfo.q4_2020_chq_amt,
         // ERC Letter, Check & Amount 2021 fields
         q1_2021_loop: feesInfo.q1_2021_loop,
-        q1_2021_letter: feesInfo.q1_2021_letter,
-        q1_2021_check: feesInfo.q1_2021_check,
+        q1_2021_letter: feesInfo.q1_2021_letter ? 'Yes' : 'No',
+        q1_2021_check: feesInfo.q1_2021_check ? 'Yes' : 'No',
         q1_2021_chq_amt: feesInfo.q1_2021_chq_amt,
         q2_2021_loop: feesInfo.q2_2021_loop,
-        q2_2021_letter: feesInfo.q2_2021_letter,
-        q2_2021_check: feesInfo.q2_2021_check,
+        q2_2021_letter: feesInfo.q2_2021_letter ? 'Yes' : 'No',
+        q2_2021_check: feesInfo.q2_2021_check ? 'Yes' : 'No',
         q2_2021_chq_amt: feesInfo.q2_2021_chq_amt,
         q3_2021_loop: feesInfo.q3_2021_loop,
-        q3_2021_letter: feesInfo.q3_2021_letter,
-        q3_2021_check: feesInfo.q3_2021_check,
+        q3_2021_letter: feesInfo.q3_2021_letter ? 'Yes' : 'No',
+        q3_2021_check: feesInfo.q3_2021_check ? 'Yes' : 'No',
         q3_2021_chq_amt: feesInfo.q3_2021_chq_amt,
         q4_2021_loop: feesInfo.q4_2021_loop,
-        q4_2021_letter: feesInfo.q4_2021_letter,
-        q4_2021_check: feesInfo.q4_2021_check,
+        q4_2021_letter: feesInfo.q4_2021_letter ? 'Yes' : 'No',
+        q4_2021_check: feesInfo.q4_2021_check ? 'Yes' : 'No',
         q4_2021_chq_amt: feesInfo.q4_2021_chq_amt,
         // Success Fee Invoice Details - I Invoice
-        i_invoice_number: feesInfo.i_invoice_number,
+        i_invoice_no: feesInfo.i_invoice_no,
         i_invoice_amount: feesInfo.i_invoice_amount,
         i_invoiced_qtrs: feesInfo.i_invoiced_qtrs,
         i_invoice_sent_date: feesInfo.i_invoice_sent_date,
@@ -4206,9 +4335,9 @@ const ProjectDetail = () => {
         i_invoice_pay_returned: feesInfo.i_invoice_pay_returned,
         i_invoice_return_reason: feesInfo.i_invoice_return_reason,
         i_invoice_occams_share: feesInfo.i_invoice_occams_share,
-        i_invoice_affref_share: feesInfo.i_invoice_affref_share,
+        i_invoice_aff_ref_share: feesInfo.i_invoice_aff_ref_share,
         // Success Fee Invoice Details - II Invoice
-        ii_invoice_number: feesInfo.ii_invoice_number,
+        ii_invoice_no: feesInfo.ii_invoice_no,
         ii_invoice_amount: feesInfo.ii_invoice_amount,
         ii_invoiced_qtrs: feesInfo.ii_invoiced_qtrs,
         ii_invoice_sent_date: feesInfo.ii_invoice_sent_date,
@@ -4218,9 +4347,9 @@ const ProjectDetail = () => {
         ii_invoice_pay_returned: feesInfo.ii_invoice_pay_returned,
         ii_invoice_return_reason: feesInfo.ii_invoice_return_reason,
         ii_invoice_occams_share: feesInfo.ii_invoice_occams_share,
-        ii_invoice_affref_share: feesInfo.ii_invoice_affref_share,
+        ii_invoice_aff_ref_share: feesInfo.ii_invoice_aff_ref_share,
         // Success Fee Invoice Details - III Invoice
-        iii_invoice_number: feesInfo.iii_invoice_number,
+        iii_invoice_no: feesInfo.iii_invoice_no,
         iii_invoice_amount: feesInfo.iii_invoice_amount,
         iii_invoiced_qtrs: feesInfo.iii_invoiced_qtrs,
         iii_invoice_sent_date: feesInfo.iii_invoice_sent_date,
@@ -4230,9 +4359,9 @@ const ProjectDetail = () => {
         iii_invoice_pay_returned: feesInfo.iii_invoice_pay_returned,
         iii_invoice_return_reason: feesInfo.iii_invoice_return_reason,
         iii_invoice_occams_share: feesInfo.iii_invoice_occams_share,
-        iii_invoice_affref_share: feesInfo.iii_invoice_affref_share,
+        iii_invoice_aff_ref_share: feesInfo.iii_invoice_aff_ref_share,
         // Success Fee Invoice Details - IV Invoice
-        iv_invoice_number: feesInfo.iv_invoice_number,
+        iv_invoice_no: feesInfo.iv_invoice_no,
         iv_invoice_amount: feesInfo.iv_invoice_amount,
         iv_invoiced_qtrs: feesInfo.iv_invoiced_qtrs,
         iv_invoice_sent_date: feesInfo.iv_invoice_sent_date,
@@ -4243,6 +4372,22 @@ const ProjectDetail = () => {
         iv_invoice_return_reason: feesInfo.iv_invoice_return_reason,
         iv_invoice_occams_share: feesInfo.iv_invoice_occams_share,
         iv_invoice_aff_ref_share: feesInfo.iv_invoice_aff_ref_share,
+
+        // fulfilment
+          // Input section
+          income_2019: fulfilmentData.income_2019 || '',
+          income_2020: fulfilmentData.income_2020 || '',
+          income_2021: fulfilmentData.income_2021 || '',
+          
+          // Output section
+          stc_amount_2020: fulfilmentData.stc_amount_2020 || '',
+          stc_amount_2021: fulfilmentData.stc_amount_2021 || '',
+          // Credit Amount & Fee
+          maximum_credit: fulfilmentData.maximum_credit || '',
+          actual_credit: fulfilmentData.actual_credit || '',
+          estimated_fee: fulfilmentData.estimated_fee || '',
+          actual_fee: fulfilmentData.actual_fee || '',
+          years: fulfilmentData.years || '',
 
 
         // Other Info
@@ -4269,21 +4414,19 @@ const ProjectDetail = () => {
 
       // Check if the response indicates success
       if (response.ok && (responseData.success || responseData.status === 1)) {
-        // Set success state
-        setUpdateSuccess(true);
-
         // Exit edit mode if we're in edit mode
         if (isEditMode) {
           setIsEditMode(false);
         }
 
-        // Scroll to the success message
-        setTimeout(() => {
-          const successElement = document.querySelector('.alert-success');
-          if (successElement) {
-            successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 100);
+        // Show SweetAlert success message
+        Swal.fire({
+          title: 'Success!',
+          text: 'Project updated successfully! Your changes have been submitted.',
+          icon: 'success',
+          confirmButtonColor: '#28a745',
+          confirmButtonText: 'OK'
+        });
       } else {
         // Handle API error
         const errorMessage = responseData.message || 'Server returned an error';
@@ -4292,15 +4435,15 @@ const ProjectDetail = () => {
     } catch (error) {
       // Handle any errors that occurred during the process
       console.error('Error updating project:', error);
-      setUpdateError(error.message || 'An unknown error occurred');
 
-      // Scroll to the error message
-      setTimeout(() => {
-        const errorElement = document.querySelector('.alert-danger');
-        if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
+      // Show SweetAlert error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error updating project: ' + (error.message || 'An unknown error occurred'),
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
     } finally {
       // Reset loading state
       setIsUpdating(false);
@@ -4311,8 +4454,6 @@ const ProjectDetail = () => {
     try {
       // Set loading state
       setIsUpdating(true);
-      setUpdateError(null);
-      setUpdateSuccess(false);
 
       console.log('Updating project with data:', data);
 
@@ -4373,21 +4514,19 @@ const ProjectDetail = () => {
 
       // Check if the response indicates success
       if (response.ok && (responseData.success || responseData.status === 1)) {
-        // Set success state
-        setUpdateSuccess(true);
-
         // Exit edit mode if we're in edit mode
         if (isEditMode) {
           setIsEditMode(false);
         }
 
-        // Scroll to the success message
-        setTimeout(() => {
-          const successElement = document.querySelector('.alert-success');
-          if (successElement) {
-            successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 100);
+        // Show SweetAlert success message
+        Swal.fire({
+          title: 'Success!',
+          text: 'Project updated successfully! Your changes have been submitted.',
+          icon: 'success',
+          confirmButtonColor: '#28a745',
+          confirmButtonText: 'OK'
+        });
       } else {
         // Handle API error
         const errorMessage = responseData.message || 'Server returned an error';
@@ -4396,15 +4535,15 @@ const ProjectDetail = () => {
     } catch (error) {
       // Handle any errors that occurred during the process
       console.error('Error updating project:', error);
-      setUpdateError(error.message || 'An unknown error occurred');
 
-      // Scroll to the error message
-      setTimeout(() => {
-        const errorElement = document.querySelector('.alert-danger');
-        if (errorElement) {
-          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
+      // Show SweetAlert error message
+      Swal.fire({
+        title: 'Error!',
+        text: 'Error updating project: ' + (error.message || 'An unknown error occurred'),
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+      });
     } finally {
       // Reset loading state
       setIsUpdating(false);
@@ -4822,6 +4961,7 @@ const ProjectDetail = () => {
 
                               value={project.identity_document_type || ""}
                               onChange={(e) => setProject({...project, identity_document_type: e.target.value})}
+                              disabled={!isEditMode}
                             >
                               <option value="N/A">N/A</option>
                               <option value="SSN">SSN</option>
@@ -4943,6 +5083,7 @@ const ProjectDetail = () => {
 
                               value={project.business_entity_type || ""}
                               onChange={(e) => setProject({...project, business_entity_type: e.target.value})}
+                              disabled={!isEditMode}
                             >
                               <option value="1">N/A</option>
                               <option value="4">Sole Proprietorship</option>
@@ -4972,17 +5113,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Registration Date</label>
-                            <input
-                              type="date"
-                              className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
-                              {...register('registration_date')}
-                              value={project.registration_date}
-                              onChange={(e) => setProject({...project, registration_date: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.registration_date && (
-                                <div className="invalid-feedback">{errors.registration_date.message}</div>
-                              )}
+                            {isEditMode ? (
+                              <DateInput
+                                value={project.registration_date}
+                                onChange={(value) => setProject({...project, registration_date: value})}
+                                placeholder="MM/DD/YYYY"
+                              />
+                            ) : (
+                              <input
+                                type="text"
+                                className="form-control"
+                                value={project.registration_date}
+                                readOnly
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
@@ -5029,6 +5173,7 @@ const ProjectDetail = () => {
                               {...register('company_folder_link')}
                               value={companyFolderLink}
                               onChange={(e) => setCompanyFolderLink(e.target.value)}
+                              readOnly={!isEditMode}
                             />
                             {errors.company_folder_link && (
                                 <div className="invalid-feedback">{errors.company_folder_link.message}</div>
@@ -5057,6 +5202,7 @@ const ProjectDetail = () => {
                               {...register('document_folder_link')}
                               value={documentFolderLink}
                               onChange={(e) => setDocumentFolderLink(e.target.value)}
+                              readOnly={!isEditMode}
                             />
                             {errors.document_folder_link && (
                                 <div className="invalid-feedback">{errors.document_folder_link.message}</div>
@@ -5180,8 +5326,8 @@ const ProjectDetail = () => {
                                 <input
                                   type="text"
                                   className="form-control"
-                                  value={fulfilmentData.routing_number}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, routing_number: e.target.value})}
+                                  value={fulfilmentData.aba_routing_no}
+                                  onChange={(e) => setFulfilmentData({...fulfilmentData, aba_routing_no: e.target.value})}
                                 />
                               </div>
                             </div>
@@ -5635,8 +5781,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Average Employee Count in 2019</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.average_employee_count_2019}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, average_employee_count_2019: e.target.value})}
+                              value={intakeInfo.avg_emp_count_2019}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, avg_emp_count_2019: e.target.value})}
 
                             >
                               <option value="0">N/A</option>
@@ -5783,8 +5929,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Invoice# Initial Retainer"
-                              value={intakeInfo.invoice_initial_retainer}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, invoice_initial_retainer: e.target.value})}
+                              value={intakeInfo.retainer_invoice_no}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_invoice_no: e.target.value})}
 
                             />
                           </div>
@@ -5792,13 +5938,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Retainer Payment Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={intakeInfo.retainer_payment_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_date: e.target.value})}
-
+                              onChange={(value) => setIntakeInfo({...intakeInfo, retainer_payment_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -5809,8 +5952,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Retainer Payment Cleared"
-                              value={intakeInfo.retainer_payment_channel}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_channel: e.target.value})}
+                              value={intakeInfo.retainer_payment_cleared}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_cleared: e.target.value})}
 
                             />
                           </div>
@@ -5821,13 +5964,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Retainer Payment Returned</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={intakeInfo.retainer_payment_returned}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_returned: e.target.value})}
-
+                              onChange={(value) => setIntakeInfo({...intakeInfo, retainer_payment_returned: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -5838,8 +5978,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Ret Payment Return Reason"
-                              value={intakeInfo.ret_payment_return_reason}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_payment_return_reason: e.target.value})}
+                              value={intakeInfo.retpayment_return_reason}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, retpayment_return_reason: e.target.value})}
 
                             />
                           </div>
@@ -5847,13 +5987,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Retainer Refund Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={intakeInfo.retainer_refund_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_refund_date: e.target.value})}
-
+                              onChange={(value) => setIntakeInfo({...intakeInfo, retainer_refund_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -5911,8 +6048,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Bal Retainer Invoice#"
-                              value={intakeInfo.ret_retainer_invoiced}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_invoiced: e.target.value})}
+                              value={intakeInfo.bal_retainer_invoice_no}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, bal_retainer_invoice_no: e.target.value})}
 
                             />
                           </div>
@@ -5920,26 +6057,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Bal Retainer Sent Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.bal_retainer_sent_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_sent_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ret_retainer_sent_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_sent_date: e.target.value})}
-
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Bal Retainer Pay Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.bal_retainer_pay_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_pay_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ret_retainer_pay_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_pay_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -5949,26 +6080,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Bal Retainer Clear Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.bal_retainer_clear_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_clear_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ret_retainer_clear_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_clear_date: e.target.value})}
-
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Bal Retainer Return Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.bal_retainer_return_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_return_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ret_retainer_return_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_return_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -5979,8 +6104,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Bal Retainer Return Reason"
-                              value={intakeInfo.ret_retainer_return_reason}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ret_retainer_return_reason: e.target.value})}
+                              value={intakeInfo.bal_retainer_return_reaso}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, bal_retainer_return_reaso: e.target.value})}
 
                             />
                           </div>
@@ -6061,8 +6186,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2019 Tax Return</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.tax_return_2019}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, tax_return_2019: e.target.value})}
+                              value={intakeInfo['2019_tax_return']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2019_tax_return': e.target.value})}
 
                             >
                               <option value="3">N/A</option>
@@ -6076,8 +6201,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2020 Tax Return</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.tax_return_2020}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, tax_return_2020: e.target.value})}
+                              value={intakeInfo['2020_tax_return']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_tax_return': e.target.value})}
 
                             >
                               <option value="3">N/A</option>
@@ -6091,8 +6216,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2021 Financials</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.financials_2021}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, financials_2021: e.target.value})}
+                              value={intakeInfo['2021_financials']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_financials': e.target.value})}
 
                             >
                               <option value="3">N/A</option>
@@ -6110,8 +6235,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2020 Q1</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q1_2020}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q1_2020: e.target.value})}
+                              value={intakeInfo['2020_q1_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q1_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6125,8 +6250,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2020 Q2</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q2_2020}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q2_2020: e.target.value})}
+                              value={intakeInfo['2020_q2_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q2_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6140,8 +6265,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2020 Q3</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q3_2020}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q3_2020: e.target.value})}
+                              value={intakeInfo['2020_q3_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q3_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6158,8 +6283,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2020 Q4</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q4_2020}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q4_2020: e.target.value})}
+                              value={intakeInfo['2020_q4_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q4_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6177,8 +6302,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2021 Q1</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q1_2021}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q1_2021: e.target.value})}
+                              value={intakeInfo['2021_q1_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q1_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6192,8 +6317,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2021 Q2</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q2_2021}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q2_2021: e.target.value})}
+                              value={intakeInfo['2021_q2_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q2_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6207,8 +6332,8 @@ const ProjectDetail = () => {
                             <label className="form-label">2021 Q3</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.q3_2021}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, q3_2021: e.target.value})}
+                              value={intakeInfo['2021_q3_941']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q3_941': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6226,8 +6351,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2020 Q1</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2020_q1}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2020_q1: e.target.value})}
+                              value={intakeInfo['2020_q1_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q1_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6241,8 +6366,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2020 Q2</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2020_q2}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2020_q2: e.target.value})}
+                              value={intakeInfo['2020_q2_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q2_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6256,8 +6381,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2020 Q3</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2020_q3}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2020_q3: e.target.value})}
+                              value={intakeInfo['2020_q3_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q3_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6274,8 +6399,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2020 Q4</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2020_q4}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2020_q4: e.target.value})}
+                              value={intakeInfo['2020_q4_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q4_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6293,8 +6418,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2021 Q1</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2021_q1}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2021_q1: e.target.value})}
+                              value={intakeInfo['2021_q1_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q1_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6308,8 +6433,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2021 Q2</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2021_q2}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2021_q2: e.target.value})}
+                              value={intakeInfo['2021_q2_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q2_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6323,8 +6448,8 @@ const ProjectDetail = () => {
                             <label className="form-label">Payroll Register 2021 Q3</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.payroll_register_2021_q3}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, payroll_register_2021_q3: e.target.value})}
+                              value={intakeInfo['2021_q3_payroll']}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q3_payroll': e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6333,6 +6458,7 @@ const ProjectDetail = () => {
                             </select>
                           </div>
                         </div>
+                        
                       </div>
 
                       <div className="row mb-3">
@@ -6366,8 +6492,8 @@ const ProjectDetail = () => {
                             <label className="form-label">PPP 2020 Applied</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.ppp_2020_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_applied: e.target.value})}
+                              value={intakeInfo.ppp_1_applied}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_applied: e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6379,13 +6505,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">PPP 2020 Start Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.ppp_1_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_1_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ppp_2020_start_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_start_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -6394,8 +6517,8 @@ const ProjectDetail = () => {
                             <label className="form-label">PPP 2020 Forgiveness Applied</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.ppp_2020_forgiveness_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_forgiveness_applied: e.target.value})}
+                              value={intakeInfo.ppp_1_forgiveness_applied}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_forgiveness_applied: e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6410,13 +6533,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">PPP 2020 End Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.ppp_1_forgive_app_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_1_forgive_app_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ppp_2020_end_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_end_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -6427,8 +6547,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="PPP 2020 Amount"
-                              value={intakeInfo.ppp_2020_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_amount: e.target.value})}
+                              value={intakeInfo.ppp_1_amount}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_amount: e.target.value})}
 
                             />
                           </div>
@@ -6440,8 +6560,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="PPP 2020 Wages Allocated"
-                              value={intakeInfo.ppp_2020_wages_allocated}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2020_wages_allocated: e.target.value})}
+                              value={intakeInfo.ppp_1_wages_allocated}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_wages_allocated: e.target.value})}
 
                             />
                           </div>
@@ -6455,8 +6575,8 @@ const ProjectDetail = () => {
                             <label className="form-label">PPP 2021 Applied</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.ppp_2021_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_applied: e.target.value})}
+                              value={intakeInfo.ppp_2_applied}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_applied: e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6468,13 +6588,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">PPP 2021 Start Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.ppp_2_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_2_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ppp_2021_start_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_start_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -6483,8 +6600,8 @@ const ProjectDetail = () => {
                             <label className="form-label">PPP 2021 Forgiveness Applied</label>
                             <select
                               className="form-select"
-                              value={intakeInfo.ppp_2021_forgiveness_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_forgiveness_applied: e.target.value})}
+                              value={intakeInfo.ppp_2_forgiveness_applied}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_forgiveness_applied: e.target.value})}
 
                             >
                               <option value="1">N/A</option>
@@ -6499,13 +6616,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">PPP 2021 End Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={intakeInfo.ppp_2_forgive_app_date}
+                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_2_forgive_app_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={intakeInfo.ppp_2021_end_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_end_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -6516,8 +6630,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="PPP 2021 Amount"
-                              value={intakeInfo.ppp_2021_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_amount: e.target.value})}
+                              value={intakeInfo.ppp_2_amount}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_amount: e.target.value})}
 
                             />
                           </div>
@@ -6529,8 +6643,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="PPP 2021 Wages Allocated"
-                              value={intakeInfo.ppp_2021_wages_allocated}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2021_wages_allocated: e.target.value})}
+                              value={intakeInfo.ppp_2_wages_allocated}
+                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_wages_allocated: e.target.value})}
 
                             />
                           </div>
@@ -6571,13 +6685,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Call Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={intakeInfo.call_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, call_date: e.target.value})}
-
+                              onChange={(value) => setIntakeInfo({...intakeInfo, call_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -6600,26 +6711,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Memo Received Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={intakeInfo.memo_received_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, memo_received_date: e.target.value})}
-
+                              onChange={(value) => setIntakeInfo({...intakeInfo, memo_received_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Memo Cut Off Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={intakeInfo.memo_cut_off_date}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, memo_cut_off_date: e.target.value})}
-
+                              onChange={(value) => setIntakeInfo({...intakeInfo, memo_cut_off_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -6655,13 +6760,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Error Discovered Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.error_discovered_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, error_discovered_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, error_discovered_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -6857,8 +6959,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Total ERC Fee"
-                              value={feesInfo.total_erc_fee}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_erc_fee: e.target.value})}
+                              value={feesInfo.total_erc_fees}
+                              onChange={(e) => setFeesInfo({...feesInfo, total_erc_fees: e.target.value})}
 
                             />
                           </div>
@@ -6977,6 +7079,19 @@ const ProjectDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <div className="form-group">
+                            <label className="form-label">BAL Retain Aff_Ref Share</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="BAL Retain Aff_Ref Share"
+                              value={feesInfo.bal_retain_aff_ref_share}
+                              onChange={(e) => setFeesInfo({...feesInfo, bal_retain_aff_ref_share: e.target.value})}
+
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-4">
+                          <div className="form-group">
                             <label className="form-label">Total Occams Share Paid</label>
                             <input
                               type="text"
@@ -7010,8 +7125,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Total Occams Share Pending"
-                              value={feesInfo.total_occams_share_pending}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_occams_share_pending: e.target.value})}
+                              value={feesInfo.total_occams_share_pendin}
+                              onChange={(e) => setFeesInfo({...feesInfo, total_occams_share_pendin: e.target.value})}
 
                             />
                           </div>
@@ -7023,8 +7138,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Total Aff/Ref Share Pending"
-                              value={feesInfo.total_aff_ref_share_pending}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share_pending: e.target.value})}
+                              value={feesInfo.total_aff_ref_share_pend}
+                              onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share_pend: e.target.value})}
 
                             />
                           </div>
@@ -7175,13 +7290,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q1_2020_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q1_2020_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q1_2020_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7252,13 +7364,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q2_2020_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q2_2020_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q2_2020_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7329,13 +7438,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q3_2020_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q3_2020_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q3_2020_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7406,13 +7512,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q4_2020_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q4_2020_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q4_2020_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7485,13 +7588,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q1_2021_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q1_2021_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q1_2021_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7562,13 +7662,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q2_2021_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q2_2021_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q2_2021_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7639,13 +7736,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q3_2021_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q3_2021_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q3_2021_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7716,13 +7810,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Filing Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
+                            <DateInput
+                              value={feesInfo.q4_2021_filed_date}
+                              onChange={(value) => setFeesInfo({...feesInfo, q4_2021_filed_date: value})}
                               placeholder="MM/DD/YYYY"
-                              value={feesInfo.q4_2021_filing_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_filing_date: e.target.value})}
-
                             />
                           </div>
                         </div>
@@ -7779,13 +7870,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q1 2020 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q1_2020_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q1_2020_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -7838,13 +7926,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q2 2020 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q2_2020_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q2_2020_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -7897,13 +7982,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q3 2020 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q3_2020_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q3_2020_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -7956,13 +8038,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q4 2020 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q4_2020_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q4_2020_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8017,13 +8096,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q1 2021 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q1_2021_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q1_2021_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8076,13 +8152,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q2 2021 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q2_2021_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q2_2021_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8135,13 +8208,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q3 2021 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q3_2021_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q3_2021_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8194,13 +8264,10 @@ const ProjectDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Q4 2021 Loop</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.q4_2021_loop}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_loop: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, q4_2021_loop: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8260,8 +8327,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Invoice number"
-                              value={feesInfo.i_invoice_number}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_number: e.target.value})}
+                              value={feesInfo.i_invoice_no}
+                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_no: e.target.value})}
 
                             />
                           </div>
@@ -8298,13 +8365,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">I Invoice Sent Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.i_invoice_sent_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_sent_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_sent_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8330,13 +8394,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">I Invoice Payment Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.i_invoice_payment_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_payment_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_payment_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8346,26 +8407,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">I Invoice Pay Cleared</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.i_invoice_pay_cleared}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_pay_cleared: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_pay_cleared: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">I Invoice Pay Returned</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.i_invoice_pay_returned}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_pay_returned: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_pay_returned: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8405,8 +8460,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Aff/Ref Share"
-                              value={feesInfo.i_invoice_affref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_affref_share: e.target.value})}
+                              value={feesInfo.i_invoice_aff_ref_share}
+                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_aff_ref_share: e.target.value})}
 
                             />
                           </div>
@@ -8422,8 +8477,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Invoice number"
-                              value={feesInfo.ii_invoice_number}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_number: e.target.value})}
+                              value={feesInfo.ii_invoice_no}
+                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_no: e.target.value})}
 
                             />
                           </div>
@@ -8460,13 +8515,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">II Invoice Sent Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.ii_invoice_sent_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_sent_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_sent_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8492,13 +8544,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">II Invoice Payment Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.ii_invoice_payment_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_payment_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_payment_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8508,26 +8557,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">II Invoice Pay Cleared</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.ii_invoice_pay_cleared}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_pay_cleared: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_pay_cleared: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">II Invoice Pay Returned</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.ii_invoice_pay_returned}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_pay_returned: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_pay_returned: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8567,8 +8610,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Aff/Ref Share"
-                              value={feesInfo.ii_invoice_affref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_affref_share: e.target.value})}
+                              value={feesInfo.ii_invoice_aff_ref_share}
+                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_aff_ref_share: e.target.value})}
 
                             />
                           </div>
@@ -8584,8 +8627,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Invoice number"
-                              value={feesInfo.iii_invoice_number}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_number: e.target.value})}
+                              value={feesInfo.iii_invoice_no}
+                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_no: e.target.value})}
 
                             />
                           </div>
@@ -8622,13 +8665,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">III Invoice Sent Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iii_invoice_sent_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_sent_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_sent_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8654,13 +8694,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">III Invoice Payment Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iii_invoice_payment_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_payment_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_payment_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8670,26 +8707,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">III Invoice Pay Cleared</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iii_invoice_pay_cleared}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_pay_cleared: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_pay_cleared: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">III Invoice Pay Returned</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iii_invoice_pay_returned}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_pay_returned: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_pay_returned: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8729,8 +8760,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Aff/Ref Share"
-                              value={feesInfo.iii_invoice_affref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_affref_share: e.target.value})}
+                              value={feesInfo.iii_invoice_aff_ref_share}
+                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_aff_ref_share: e.target.value})}
 
                             />
                           </div>
@@ -8746,8 +8777,8 @@ const ProjectDetail = () => {
                               type="text"
                               className="form-control"
                               placeholder="Invoice number"
-                              value={feesInfo.iv_invoice_number}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_number: e.target.value})}
+                              value={feesInfo.iv_invoice_no}
+                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_no: e.target.value})}
 
                             />
                           </div>
@@ -8784,13 +8815,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">IV Invoice Sent Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iv_invoice_sent_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_sent_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_sent_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8816,13 +8844,10 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">IV Invoice Payment Date</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iv_invoice_payment_date}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_payment_date: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_payment_date: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -8832,26 +8857,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">IV Invoice Pay Cleared</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iv_invoice_pay_cleared}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_pay_cleared: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_pay_cleared: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">IV Invoice Pay Returned</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="MM/DD/YYYY"
+                            <DateInput
                               value={feesInfo.iv_invoice_pay_returned}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_pay_returned: e.target.value})}
-
+                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_pay_returned: value})}
+                              placeholder="MM/DD/YYYY"
                             />
                           </div>
                         </div>
@@ -9577,18 +9596,7 @@ const ProjectDetail = () => {
                             ) : 'Update'}
                           </button>
                         </div>
-                        {updateSuccess && (
-                          <div className="alert alert-success mt-3" role="alert">
-                            <strong><i className="fas fa-check-circle me-2"></i>Project updated successfully!</strong>
-                            <p className="mb-0 mt-1">Your changes have been submitted.</p>
-                          </div>
-                        )}
-                        {updateError && (
-                          <div className="alert alert-danger mt-3" role="alert">
-                            <strong><i className="fas fa-exclamation-circle me-2"></i>Error updating project!</strong>
-                            <p className="mb-0 mt-1">{updateError}</p>
-                          </div>
-                        )}
+
                       </div>
                   ) : null}
 
@@ -10070,3 +10078,87 @@ const ProjectDetail = () => {
 };
 
 export default ProjectDetail;
+
+// Add custom CSS for DatePicker styling
+const style = document.createElement('style');
+style.textContent = `
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+
+  .react-datepicker__input-container input {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .react-datepicker__input-container input:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  .react-datepicker__input-container input::placeholder {
+    color: #6c757d;
+    opacity: 1;
+  }
+
+  .custom-datepicker-popper {
+    z-index: 9999;
+  }
+
+  .react-datepicker {
+    font-family: inherit;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  .react-datepicker__header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .react-datepicker__current-month {
+    color: #495057;
+    font-weight: 600;
+  }
+
+  .react-datepicker__day-name {
+    color: #6c757d;
+    font-weight: 600;
+  }
+
+  .react-datepicker__day:hover {
+    background-color: #e9ecef;
+  }
+
+  .react-datepicker__day--selected {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .react-datepicker__day--selected:hover {
+    background-color: #0b5ed7;
+  }
+
+  .react-datepicker__day--today {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+`;
+
+if (!document.head.querySelector('style[data-datepicker-styles]')) {
+  style.setAttribute('data-datepicker-styles', 'true');
+  document.head.appendChild(style);
+}
