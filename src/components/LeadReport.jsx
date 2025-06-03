@@ -42,7 +42,7 @@ const productIdMap = {
  erc: 935,
   stc: 937,
   rdc: 932,
-  partnership: 104,
+  partnership: 938,
   'tax-amendment': 936,
   'audit-advisory': 934,
   all: null, // to fetch all leads without filtering
