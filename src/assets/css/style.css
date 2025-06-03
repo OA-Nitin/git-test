@@ -3003,7 +3003,7 @@ table.dataTable {
   top: 0;
   padding-bottom: 50px;
   position: fixed;
-  z-index: 999;
+  z-index: 1;
   overflow: hidden;
   overflow-y: auto;
   background: #ffffff;
