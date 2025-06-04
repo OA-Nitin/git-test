@@ -9,7 +9,7 @@ import Notes from './common/Notes';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 // import './common/CommonStyles.css';
-
+import { hasRoleAccess, hasSpecificRole, isAdministrator, isEcheckClient } from '../utils/accessControl';
 import './common/ReportStyle.css';
 import './LeadDetail.css';
 import { getAssetPath, getUserId } from '../utils/assetUtils';
@@ -25,7 +25,6 @@ const formatDateToMMDDYYYY = (date) => {
   const month = (d.getMonth() + 1).toString().padStart(2, '0');
   const day = d.getDate().toString().padStart(2, '0');
   const year = d.getFullYear();
-
   return `${month}/${day}/${year}`;
 };
 
@@ -38,7 +37,6 @@ const parseDateFromMMDDYYYY = (dateString) => {
     const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
     const day = parseInt(parts[1], 10);
     const year = parseInt(parts[2], 10);
-
     const date = new Date(year, month, day);
     if (!isNaN(date.getTime())) {
       return date;
@@ -283,8 +281,6 @@ const LeadDetail = () => {
     }
   });
 
-
-
   // validation
   const {
     register,
@@ -320,6 +316,7 @@ const LeadDetail = () => {
       }
     }
   }, [lead, setValue, primaryContact]);
+
 
 
   const {
@@ -2956,6 +2953,7 @@ const LeadDetail = () => {
         { id: '3', name: 'R&D Onboarding' }
       ];
 
+
       // Build the API URL with the lead_id and product_id parameters
       let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0`;
 
@@ -3600,6 +3598,8 @@ const LeadDetail = () => {
     setLinkContactError(null);
   };
 
+  const shouldShowAffiliateTab = hasRoleAccess(['administrator', 'echeck_client']);
+
   if (loading) {
     return (
       <div className="container-fluid">
@@ -3683,6 +3683,7 @@ const LeadDetail = () => {
                     Business Info
                   </a>
                 </li>
+                {shouldShowAffiliateTab && (
                 <li className={`nav-item ${activeTab === 'affiliateCommission' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -3699,6 +3700,8 @@ const LeadDetail = () => {
                     Affiliate Commission
                   </a>
                 </li>
+                )}
+
                 <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -4210,7 +4213,7 @@ const LeadDetail = () => {
 
                               />
                               {/* <input
-                                type="date"
+                                type="text"
                                 className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
                                 {...register('registration_date')}
                                 name="registration_date"
@@ -4406,7 +4409,7 @@ const LeadDetail = () => {
 
 
                   {/* Affiliate Commission Tab Content */}
-                  {activeTab === 'affiliateCommission' && (
+{shouldShowAffiliateTab && activeTab === 'affiliateCommission' ? (
                     <div className="mb-4 left-section-container">
                       <h5 className="section-title">Tier 1 Affiliate Commission</h5>
                       <div className="row mb-3">
@@ -4865,8 +4868,8 @@ const LeadDetail = () => {
                         </div>
                       </div>
                     </div>
-                  )}
-
+                  
+) : null}
                   {/* Contacts Tab Content */}
                   {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
@@ -5442,7 +5445,6 @@ const LeadDetail = () => {
                                 <p><b>Opportunity Owner:</b> {opportunity.CreatedBy}</p>
                                 <p><b>Opportunity Amount:</b> {opportunity.currencyName} {opportunity.OpportunityAmount}</p>
                                 <p><b>Expected Close date:</b> {opportunity.ExpectedCloseDate}</p>
-
                               </div>
                             </div>
                           </div>
@@ -6252,6 +6254,7 @@ const LeadDetail = () => {
 };
 
 export default LeadDetail;
+
 // Add custom CSS for DatePicker styling
 const style = document.createElement('style');
 style.textContent = `

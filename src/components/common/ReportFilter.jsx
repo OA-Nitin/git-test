@@ -78,9 +78,12 @@ const ReportFilter = ({
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by Lead ID, Business Name, Email, Phone, etc."
+                placeholder="Search by Report ID, Business Name, Email, Phone, etc."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     handleSearch();

@@ -2229,6 +2229,9 @@ const ProjectDetail = () => {
       setError(`Failed to fetch project details: ${err.message}`);
       setLoading(false);
     }
+    finally {
+      setLoading(false);  // ✅ API complete hone ke baad loading false
+    }
   };
 
   // Function to fetch bank information from the API
@@ -4526,92 +4529,18 @@ const ProjectDetail = () => {
     try {
       // Set loading state
       setIsUpdating(true);
-
-      console.log('Updating project with data:', data);
-
-      // Always include project ID
-      const baseData = {
-        project_id: project?.project_id,
-        tab: activeTab,
-      };
-
-      // Combine the base data with the tab-specific data
-      const combinedData = { ...baseData, ...data };
-      console.log('Combined data:', data);
-
-      // Map the data to the correct database column names
-      const mappedData = {
-        project_id: combinedData.project_id,
-        tab: combinedData.tab,
-
-        // Personal Info - Map to the database column names
-        authorized_signatory_name: project.authorized_signatory_name,
-        business_phone: project.business_phone,
-        business_email: project.business_email,
-        business_title: project.business_title,
-        zip: project.zip,
-        street_address: project.street_address,
-        city: project.city,
-        state: project.state,
-        identity_document_type: project.identity_document_type,
-        identity_document_number: project.identity_document_number,
-
-        // Business Info
-        business_legal_name: project.business_legal_name,
-        doing_business_as: project.doing_business_as,
-        business_category: project.business_category,
-        website_url: project.website_url,
-
-        // Business Legal Info
-        business_entity_type: project.business_entity_type,
-        registration_number: project.registration_number,
-        registration_date: project.registration_date,
-        state_of_registration: project.state_of_registration,
-      };
-
-      console.log('Mapped data for API:', mappedData);
-
-      // Make a direct API call instead of form submission
-      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(mappedData),
-      });
-
-      // Parse the response
-      const responseData = await response.json();
-      console.log('API response:', responseData);
-
-      // Check if the response indicates success
-      if (response.ok && (responseData.success || responseData.status === 1)) {
-        // Exit edit mode if we're in edit mode
-        if (isEditMode) {
-          setIsEditMode(false);
-        }
-
-        // Show SweetAlert success message
-        Swal.fire({
-          title: 'Success!',
-          text: 'Project updated successfully! Your changes have been submitted.',
-          icon: 'success',
-          confirmButtonColor: '#28a745',
-          confirmButtonText: 'OK'
-        });
-      } else {
-        // Handle API error
-        const errorMessage = responseData.message || 'Server returned an error';
-        throw new Error(errorMessage);
+      // Exit edit mode if we're in edit mode
+      if (isEditMode) {
+        setIsEditMode(false);
       }
     } catch (error) {
       // Handle any errors that occurred during the process
-      console.error('Error updating project:', error);
+      console.error('Error project:', error);
 
       // Show SweetAlert error message
       Swal.fire({
         title: 'Error!',
-        text: 'Error updating project: ' + (error.message || 'An unknown error occurred'),
+        text: 'Error project: ' + (error.message || 'An unknown error occurred'),
         icon: 'error',
         confirmButtonColor: '#d33',
         confirmButtonText: 'OK'
@@ -9655,18 +9584,20 @@ const ProjectDetail = () => {
                   {activeTab !== 'documents' ? (
                       <div className="mt-4">
                         <div className="action-buttons d-flex align-items-center justify-content-center">
-                          <button
-                            className="btn save-btn"
-                            onClick={handleSubmit(handleUpdateProject)}
-                            disabled={isUpdating}
-                          >
-                            {isUpdating ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                Updating...
-                              </>
-                            ) : 'Update'}
-                          </button>
+                          {(!loading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
+                            <button
+                              className="btn save-btn"
+                              onClick={handleSubmit(handleUpdateProject)}
+                              disabled={isUpdating}
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                  Updating...
+                                </>
+                              ) : 'Update'}
+                            </button>
+                          )}
                         </div>
 
                       </div>

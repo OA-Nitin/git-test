@@ -655,7 +655,6 @@ const EditContactModal = ({
                             
                             // disabled={true} // Disable the field
                             style={{
-                              height: "100px",
                               backgroundColor: '#e9ecef',
                               pointerEvents: 'none',   // make it readonly-like
                               color: '#6c757d',         // match disabled look
