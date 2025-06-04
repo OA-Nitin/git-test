@@ -9,7 +9,7 @@ import '../assets/css/datePick.css';
 // date js js impot
 //import { setupDateInput, formatDateToMMDDYYYY } from "../utils/datePick";
 
-axios.defaults.baseURL = "https://play.occamsadvisory.com/portal/wp-json";
+axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 //axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
