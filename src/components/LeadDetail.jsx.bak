@@ -1,92 +1,14 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
-import Notes from './common/Notes';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-// import './common/CommonStyles.css';
-import { hasRoleAccess, hasSpecificRole, isAdministrator, isEcheckClient } from '../utils/accessControl';
-import './common/ReportStyle.css';
+import './common/CommonStyles.css';
 import './LeadDetail.css';
-import { getAssetPath, getUserId } from '../utils/assetUtils';
+import { getAssetPath } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
-import AuditLogsMultiSection from './AuditLogsMultiSection';
-
-// Date utility functions
-const formatDateToMMDDYYYY = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
-
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const day = d.getDate().toString().padStart(2, '0');
-  const year = d.getFullYear();
-  return `${month}/${day}/${year}`;
-};
-
-const parseDateFromMMDDYYYY = (dateString) => {
-  if (!dateString) return null;
-
-  // Handle MM/DD/YYYY format
-  const parts = dateString.split('/');
-  if (parts.length === 3) {
-    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
-    const day = parseInt(parts[1], 10);
-    const year = parseInt(parts[2], 10);
-    const date = new Date(year, month, day);
-    if (!isNaN(date.getTime())) {
-      return date;
-    }
-  }
-
-  // Try parsing as regular date
-  const date = new Date(dateString);
-  return isNaN(date.getTime()) ? null : date;
-};
-
-// Custom DateInput component
-const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "form-control", ...props }) => {
-  const [selectedDate, setSelectedDate] = useState(parseDateFromMMDDYYYY(value));
-
-  useEffect(() => {
-    setSelectedDate(parseDateFromMMDDYYYY(value));
-  }, [value]);
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    const formattedDate = date ? formatDateToMMDDYYYY(date) : '';
-    onChange(formattedDate);
-  };
-  return (
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleDateChange}
-        dateFormat="MM/dd/yyyy"
-        placeholderText={placeholder}
-        className={className}
-        autoComplete="off"
-        showPopperArrow={false}
-        popperClassName="custom-datepicker-popper"
-        {...props}
-      />
-    );
-};
-
-
-
-
-// validations
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { leadDetailSchema } from './validationSchemas/leadSchema';
-import { projectSchema } from './validationSchemas/leadSchema';
-
-
-
+import AuditLogTab from './AuditLogTab';
 
 const LeadDetail = () => {
   const { leadId } = useParams();
@@ -104,11 +26,6 @@ const LeadDetail = () => {
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  const [showLinkContactModal, setShowLinkContactModal] = useState(false);
-  const [selectedContact, setSelectedContact] = useState(null);
-  const [contactOptions, setContactOptions] = useState([]);
-  const [linkContactError, setLinkContactError] = useState(null);
-  const [linkContactLoading, setLinkContactLoading] = useState(false);
   // Notes related state
   const [notes, setNotes] = useState([]);
   const [hasMoreNotes, setHasMoreNotes] = useState(true);
@@ -121,7 +38,6 @@ const LeadDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
   const [unassignLoading, setUnassignLoading] = useState(false);
-
 
   // Contacts related state
   const [primaryContact, setPrimaryContact] = useState({
@@ -147,7 +63,6 @@ const LeadDetail = () => {
 
   // State for all contacts
   const [contacts, setContacts] = useState([]);
-  const [contactsLoading, setContactsLoading] = useState(true);
 
   // State for edit contact modal
   const [showEditContactModal, setShowEditContactModal] = useState(false);
@@ -201,7 +116,11 @@ const LeadDetail = () => {
   const [milestones, setMilestones] = useState([]);
 
   // Delete opportunity related state
+  const [showDeleteOpportunityModal, setShowDeleteOpportunityModal] = useState(false);
+  const [opportunityToDelete, setOpportunityToDelete] = useState(null);
   const [deleteOpportunityLoading, setDeleteOpportunityLoading] = useState(false);
+  const [deleteOpportunityError, setDeleteOpportunityError] = useState(null);
+  const [deleteOpportunitySuccess, setDeleteOpportunitySuccess] = useState(false);
 
   // Notes related state (already defined above)
   const [notesLoading, setNotesLoading] = useState(false);
@@ -216,7 +135,6 @@ const LeadDetail = () => {
   const [groupOptions, setGroupOptions] = useState([]);
   const [campaignOptions, setCampaignOptions] = useState([]);
   const [sourceOptions, setSourceOptions] = useState([]);
-  const [billingProfileOptions, setBillingProfileOptions] = useState([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
 
   // Affiliate Commission state
@@ -256,104 +174,6 @@ const LeadDetail = () => {
   // Master Affiliate Commission state
   const [masterCommissionType, setMasterCommissionType] = useState({ value: '', label: 'Select Commission Type' });
   const [masterCommissionValue, setMasterCommissionValue] = useState('');
-
-  // First, let's create a ref to store the contact data that won't be affected by re-renders
-  const contactDataRef = useRef({
-    primary: {
-      name: '',
-      middleName: '',
-      title: '',
-      email: '',
-      phone: '',
-      ext: '',
-      phoneType: '',
-      initials: ''
-    },
-    secondary: {
-      name: '',
-      middleName: '',
-      title: '',
-      email: '',
-      phone: '',
-      ext: '',
-      phoneType: '',
-      initials: ''
-    }
-  });
-
-  // validation
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-    getValues,
-    trigger,
-  } = useForm({
-    resolver: yupResolver(leadDetailSchema),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
-  });
-
-  useEffect(() => {
-    if (lead) {
-      Object.keys(lead).forEach((key) => {
-        setValue(key, lead[key]);
-      });
-
-      // Also set primary contact form values if they exist
-      if (primaryContact.email) {
-        setValue('primary_contact_email', primaryContact.email);
-      }
-      if (primaryContact.phone) {
-        setValue('primary_contact_phone', primaryContact.phone);
-      }
-      if (primaryContact.ext) {
-        setValue('primary_contact_ext', primaryContact.ext);
-      }
-      if (primaryContact.phoneType) {
-        setValue('contact_phone_type', primaryContact.phoneType);
-      }
-    }
-  }, [lead, setValue, primaryContact]);
-
-
-
-  const {
-    register: registerProject,
-    handleSubmit: handleSubmitProject,
-    formState: { errors: projectErrors },
-    setValue: setProjectValue,
-    reset: resetProjectForm,
-    watch: watchProject
-  } = useForm({
-    resolver: yupResolver(projectSchema),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
-  });
-
-    // Modify your useEffect to set form values based on the currently opened project edit form
-    useEffect(() => {
-      if (currentProject) {
-      Object.keys(currentProject).forEach((key) => {
-        // Map the field names if they are different
-        const mappedKey = {
-        id: 'projectID',
-        projectName: 'project_name',
-        fee: 'project_fee',
-        maxCredit: 'maximum_credit',
-        estFee: 'estimated_fee',
-        milestone: 'Milestone',
-        stage: 'MilestoneStage',
-        contactId: 'ContactList',
-        collaborator: 'collaborators'
-        }[key] || key; // Use the mapped key or fallback to the original key
-
-        setProjectValue(mappedKey, currentProject[key]);
-      });
-      }
-    }, [currentProject, setProjectValue]);
-
 
   // Fetch lead data when leadId changes
   // Function to fetch groups from API
@@ -406,136 +226,6 @@ const LeadDetail = () => {
       console.error('Error fetching groups:', err);
     } finally {
       setIsLoadingOptions(false);
-    }
-  };
-
-  // function to fectch link contact list
-  const fetchAvailableContacts = async () => {
-    try {
-      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contacts');
-
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        const contactOptions = response.data.data.map(contact => ({
-          value: contact.contact_id,
-          label: `${contact.name} (${contact.contact_id})`
-        }));
-        return contactOptions;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching contacts:', error);
-      return [];
-    }
-  };
-
-  // State to track newly added contact ID
-  const [newContactId, setNewContactId] = useState(null);
-
-  // function to create link contact to lead
-  const handleLinkContact = async () => {
-    if (!selectedContact) {
-      setLinkContactError('Please select a contact to link');
-      return;
-    }
-
-    try {
-      setLinkContactLoading(true);
-      setLinkContactError(null);
-
-      const requestData = {
-        lead_id: leadId,
-        contact_id: selectedContact.value
-      };
-
-      console.log('Linking contact with data:', requestData);
-
-      const response = await axios.post(
-        'https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
-        requestData,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Link contact response:', response.data);
-
-      // Store the newly added contact ID to highlight it
-      setNewContactId(selectedContact.value);
-
-      // Parse the response if it's a string (JSON)
-      let responseData = response.data;
-      if (typeof responseData === 'string') {
-        try {
-          responseData = JSON.parse(responseData);
-        } catch (e) {
-          console.error('Error parsing response:', e);
-        }
-      }
-
-      if (responseData && responseData.code === 'success') {
-        // Close the modal first
-        setShowLinkContactModal(false);
-
-        // Show success message immediately
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: responseData.message || 'Contact linked successfully'
-        });
-
-        // Highlight the contacts tab if not already active
-        if (activeTab !== 'contacts') {
-          setActiveTab('contacts');
-        }
-
-        // Refresh contacts list in the background
-        // Store the contact ID to highlight after refresh
-        const contactIdToHighlight = selectedContact.value;
-
-        setTimeout(async () => {
-          await fetchContactData(); // Refresh contacts list
-
-          // Set the newContactId after the refresh to ensure it's highlighted
-          setNewContactId(contactIdToHighlight);
-        }, 500);
-      } else if (response.data && response.data.success) {
-        // Alternative success check
-        // Close the modal first
-        setShowLinkContactModal(false);
-
-        // Show success message immediately
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Contact linked successfully'
-        });
-
-        // Highlight the contacts tab if not already active
-        if (activeTab !== 'contacts') {
-          setActiveTab('contacts');
-        }
-
-        // Refresh contacts list in the background
-        // Store the contact ID to highlight after refresh
-        const contactIdToHighlight = selectedContact.value;
-
-        setTimeout(async () => {
-          await fetchContactData(); // Refresh contacts list
-
-          // Set the newContactId after the refresh to ensure it's highlighted
-          setNewContactId(contactIdToHighlight);
-        }, 500);
-      } else {
-        // Show error message
-        setLinkContactError(responseData?.message || 'Failed to link contact');
-      }
-    } catch (error) {
-      console.error('Error linking contact:', error);
-      setLinkContactError(error.response?.data?.message || error.message || 'Failed to link contact. Please try again.');
-    } finally {
-      setLinkContactLoading(false);
     }
   };
 
@@ -645,40 +335,6 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to fetch billing profiles from API
-  const fetchBillingProfiles = async () => {
-    try {
-      setIsLoadingOptions(true);
-      console.log('Fetching billing profiles...');
-      const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
-
-      console.log('Billing Profiles API response:', response);
-
-      if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
-        const profilesData = response.data.data;
-
-        if (profilesData.length > 0) {
-          // Map the data using id as value and profile_name as label
-          const profiles = profilesData.map(profile => ({
-            value: profile.id.toString(),
-            label: profile.profile_name
-          }));
-
-          console.log('Setting billing profile options:', profiles);
-          setBillingProfileOptions(profiles);
-        } else {
-          console.warn('No billing profiles found in response');
-        }
-      } else {
-        console.warn('Failed to fetch billing profiles:', response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching billing profiles:', err);
-    } finally {
-      setIsLoadingOptions(false);
-    }
-  };
-
 
 
   useEffect(() => {
@@ -697,9 +353,6 @@ const LeadDetail = () => {
         console.log('Campaigns fetched, now fetching sources...');
 
         await fetchSources();
-        console.log('Sources fetched, now fetching billing profiles...');
-
-        await fetchBillingProfiles();
         console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
@@ -709,7 +362,6 @@ const LeadDetail = () => {
         console.log('Group options:', groupOptions);
         console.log('Campaign options:', campaignOptions);
         console.log('Source options:', sourceOptions);
-        console.log('Billing profile options:', billingProfileOptions);
 
         // Then fetch lead details after dropdown options are loaded
         console.log('Starting data fetch sequence for lead ID:', leadId);
@@ -794,22 +446,6 @@ const LeadDetail = () => {
     };
   }, []);
 
-  // Ensure form values are synchronized with primaryContact state
-  useEffect(() => {
-    if (primaryContact.email) {
-      setValue('primary_contact_email', primaryContact.email);
-    }
-    if (primaryContact.phone) {
-      setValue('primary_contact_phone', primaryContact.phone);
-    }
-    if (primaryContact.ext) {
-      setValue('primary_contact_ext', primaryContact.ext);
-    }
-    if (primaryContact.phoneType) {
-      setValue('contact_phone_type', primaryContact.phoneType);
-    }
-  }, [primaryContact, setValue]);
-
   // We no longer need to fetch milestones when component loads
   // They are now fetched when the edit modals are opened
 
@@ -817,19 +453,6 @@ const LeadDetail = () => {
   useEffect(() => {
     setTaxNowOnboardingStatus('');
   }, [taxNowSignupStatus]);
-
-  // Ensure primary contact state is preserved during tab changes
-  useEffect(() => {
-    if (lead && lead.primary_contact_email && !primaryContact.email) {
-      setPrimaryContact(prev => ({
-        ...prev,
-        email: lead.primary_contact_email || '',
-        phone: lead.primary_contact_phone || '',
-        ext: lead.primary_contact_ext || '',
-        phoneType: lead.contact_phone_type || ''
-      }));
-    }
-  }, [lead, primaryContact.email]);
 
   // Fetch notes when component loads
   useEffect(() => {
@@ -994,8 +617,6 @@ const LeadDetail = () => {
             billing_profile: businessData.billing_profile || '',
             taxnow_signup_status: businessData.taxnow_signup_status || '',
             taxnow_onboarding_status: businessData.taxnow_onboarding_status || '',
-            company_folder_link: businessData.company_folder_link || '',
-            document_folder_link: businessData.document_folder_link || '',
             lead_id: leadId
           };
 
@@ -1012,8 +633,13 @@ const LeadDetail = () => {
           setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
-          setCompanyFolderLink(businessData.company_folder_link || '');
-          setDocumentFolderLink(businessData.document_folder_link || '');
+          if (businessData.company_folder_link) {
+            setCompanyFolderLink(businessData.company_folder_link);
+          }
+
+          if (businessData.document_folder_link) {
+            setDocumentFolderLink(businessData.document_folder_link);
+          }
 
           // Update primary contact info if available
           if (businessData.primary_contact) {
@@ -1202,13 +828,8 @@ const LeadDetail = () => {
 
   // Function to handle edit contact
   const handleEditContact = (contactId) => {
-    // Set the contact ID
     setCurrentContactId(contactId);
-
-    // Show the modal
     setShowEditContactModal(true);
-
-    // The loading overlay is handled within the EditContactModal component
   };
 
   // Function to close the edit contact modal
@@ -1219,124 +840,29 @@ const LeadDetail = () => {
     fetchContactData();
   };
 
-  // Function to handle disable contact
-  const handleDisableContact = (contactId, contactName) => {
-    // Show confirmation dialog
-    Swal.fire({
-      title: 'Are you sure?',
-      html: `You want to disable the contact '${contactName}'?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#FF6B00',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, disable it!',
-      cancelButtonText: 'Cancel',
-      buttonsStyling: true,
-      customClass: {
-        actions: 'swal2-actions-custom',
-        confirmButton: 'swal2-styled swal2-confirm',
-        cancelButton: 'swal2-styled swal2-cancel'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call API to disable contact
-        disableContact(contactId);
-      }
-    });
-  };
-
-  // Function to disable contact via API
-  const disableContact = async (contactId) => {
-    try {
-      // Show loading state
-      Swal.fire({
-        title: 'Disabling contact...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
-
-      // Call the API to disable the contact
-      const response = await axios.delete(`https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
-
-      console.log('Disable contact API response:', response);
-
-      // Check if the API call was successful
-      if (response.data && JSON.parse(response.data).code=="success") {
-        // Show success message
-        Swal.fire({
-          title: 'Success!',
-          text: 'Contact has been disabled successfully.',
-          icon: 'success',
-          confirmButtonColor: '#4CAF50'
-        });
-
-        // Refresh contact data
-        fetchContactData();
-      } else {
-        // Show error message
-        Swal.fire({
-          title: 'Error!',
-          text: response.data?.message || 'Failed to disable contact.',
-          icon: 'error',
-          confirmButtonColor: '#d33'
-        });
-      }
-    } catch (error) {
-      console.error('Error disabling contact:', error);
-
-      // Show error message
-      Swal.fire({
-        title: 'Error!',
-        text: error.message || 'An error occurred while disabling the contact.',
-        icon: 'error',
-        confirmButtonColor: '#d33'
-      });
-    }
-  };
-
   const fetchContactData = async () => {
     try {
       console.log('Fetching contact data for lead ID:', leadId);
-      setContactsLoading(true);
-
-      // Make the API call with a cache-busting parameter to ensure fresh data
-      const timestamp = new Date().getTime();
-      const response = await axios.get(
-        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}?_=${timestamp}`
-      );
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-contact-data/${leadId}`);
 
       if (response.data && response.data.status === 'success') {
         console.log('Contact data fetched successfully:', response.data);
 
         // Store all contacts in state
         if (response.data.contacts && Array.isArray(response.data.contacts)) {
-          // Filter out duplicate contacts based on contact_id
-          const uniqueContacts = response.data.contacts.reduce((acc, current) => {
-            const x = acc.find(item => item.contact_id === current.contact_id);
-            if (!x) {
-              return acc.concat([current]);
-            } else {
-              return acc;
-            }
-          }, []);
-
-          console.log('Filtered unique contacts:', uniqueContacts);
-
-          // Update the contacts state with the unique contacts
-          setContacts(uniqueContacts);
+          setContacts(response.data.contacts);
 
           // Find primary contact
-          const primaryContactData = uniqueContacts.find(contact =>
+          const primaryContactData = response.data.contacts.find(contact =>
             contact.contact_type === 'primary');
 
-          console.log('Found primary contact data:', primaryContactData);
+          // Find secondary contact
+          const secondaryContactData = response.data.contacts.find(contact =>
+            contact.contact_type === 'secondary');
 
           // Update primary contact state if found
           if (primaryContactData) {
-            const updatedPrimaryContact = {
+            setPrimaryContact({
               name: primaryContactData.name || '',
               middleName: primaryContactData.middle_name || '',
               title: primaryContactData.title || '',
@@ -1345,23 +871,12 @@ const LeadDetail = () => {
               ext: primaryContactData.ph_extension || '',
               phoneType: primaryContactData.phone_type || '',
               initials: primaryContactData.name ? primaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            };
-            
-            console.log('Updating primary contact to:', updatedPrimaryContact);
-            setPrimaryContact(updatedPrimaryContact);
-            
-            // Also update the ref
-            contactDataRef.current.primary = updatedPrimaryContact;
-            console.log('Updated primary contact ref:', contactDataRef.current.primary);
+            });
           }
-
-          // Find secondary contact
-          const secondaryContactData = uniqueContacts.find(contact =>
-            contact.contact_type === 'secondary');
 
           // Update secondary contact state if found
           if (secondaryContactData) {
-            const updatedSecondaryContact = {
+            setSecondaryContact({
               name: secondaryContactData.name || '',
               middleName: secondaryContactData.middle_name || '',
               title: secondaryContactData.title || '',
@@ -1370,26 +885,16 @@ const LeadDetail = () => {
               ext: secondaryContactData.ph_extension || '',
               phoneType: secondaryContactData.phone_type || '',
               initials: secondaryContactData.name ? secondaryContactData.name.split(' ').map(n => n[0]).join('') : ''
-            };
-            
-            setSecondaryContact(updatedSecondaryContact);
-            
-            // Also update the ref
-            contactDataRef.current.secondary = updatedSecondaryContact;
+            });
           }
+
+          console.log('Contact state updated with data');
         }
-        
-        setContactsLoading(false);
-        return true;
       } else {
         console.warn('Failed to fetch contact data:', response.data);
-        setContactsLoading(false);
-        return false;
       }
     } catch (err) {
       console.error('Error fetching contact data:', err);
-      setContactsLoading(false);
-      return false;
     }
   };
 
@@ -1419,17 +924,8 @@ const LeadDetail = () => {
           // Log the first project to understand its structure
           console.log('First project raw data:', JSON.stringify(projectsData[0], null, 2));
 
-          // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
-          const filteredProjectsData = projectsData.filter(project => {
-            const productId = project.product_id || project.productId;
-            // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
-            return productId !== '936' && productId !== '938' && productId !== '934';
-          });
-
-          console.log('Filtered projects (excluding 936, 938, 934):', filteredProjectsData.length);
-
           // Map API response to our projects state format with careful field mapping
-          const mappedProjects = filteredProjectsData.map(project => {
+          const mappedProjects = projectsData.map(project => {
             // Create a mapped project object with all possible field names
             const mappedProject = {
               id: project.project_id || project.id || '',
@@ -1472,9 +968,6 @@ const LeadDetail = () => {
 
   // We've removed the duplicate functions for fetching dropdown options
   // These options are now fetched using fetchGroups, fetchCampaigns, and fetchSources functions
-
-  // Add state for product_id
-  const [leadProductId, setLeadProductId] = useState('');
 
   const fetchLeadDetails = async () => {
     setLoading(true);
@@ -1548,12 +1041,6 @@ const LeadDetail = () => {
             };
 
             setLead(apiLead);
-
-            // Extract product_id from the response
-            if (leadData.product_id) {
-              console.log('Found product_id in lead data:', leadData.product_id);
-              setLeadProductId(leadData.product_id);
-            }
 
             // DIRECT APPROACH: Get lead_group key value from API and set to dropdown
             console.log('Setting lead_group value directly from API response');
@@ -1816,18 +1303,7 @@ const LeadDetail = () => {
   };
 
   const handleTabChange = (tab) => {
-    // Store current primary contact state before tab change
-    const currentPrimaryContact = { ...primaryContact };
-
     setActiveTab(tab);
-
-    // Ensure primary contact state is preserved after tab change
-    setTimeout(() => {
-      // If primary contact state was lost, restore it
-      if (currentPrimaryContact.email && !primaryContact.email) {
-        setPrimaryContact(currentPrimaryContact);
-      }
-    }, 100);
   };
 
   // Function to fetch notes with pagination
@@ -1855,13 +1331,14 @@ const LeadDetail = () => {
 
       console.log('Processed notes data:', notesData);
 
-      // Format dates in MM/DD/YYYY format (no time)
+      // Format dates and times
       const formattedNotes = notesData.map(note => ({
         id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
         text: note.note || note.text || note.content || '',
         author: note.user_name || note.author || 'User',
         date: note.created_at || note.date || new Date().toISOString(),
-        formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
+        formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
       }));
 
       console.log('Formatted notes:', formattedNotes);
@@ -1952,17 +1429,13 @@ const LeadDetail = () => {
         confirmButton: 'btn btn-primary',
         cancelButton: 'btn btn-secondary'
       },
-      preConfirm: async () => {
-        const content = document.getElementById('note-content').value.trim();
-        console.log('content' + content);
-        try {
-          const validated = await noteFormSchema.validate({ note: content });
-          console.log('validated' + validated);
-          return validated; // returns { note: "..." }
-        } catch (err) {
-          Swal.showValidationMessage(err.message);
+      preConfirm: () => {
+        const content = document.getElementById('note-content').value;
+        if (!content.trim()) {
+          Swal.showValidationMessage('Please enter a note');
           return false;
         }
+        return { content };
       },
       willClose: () => {
         // Reset the flag when the modal is closed
@@ -2107,13 +1580,14 @@ const LeadDetail = () => {
           notesData = [response.data];
         }
 
-        // Format the notes for display in MM/DD/YYYY format (no time)
+        // Format the notes for display
         const formattedNotes = notesData.map(note => ({
           id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
           text: note.note || note.text || note.content || '',
           author: note.user_name || note.author || 'User',
           date: note.created_at || note.date || new Date().toISOString(),
-          formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
+          formattedDate: new Date(note.created_at || note.date || new Date()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+          formattedTime: new Date(note.created_at || note.date || new Date()).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
         }));
 
         // Generate HTML for the notes
@@ -2135,6 +1609,7 @@ const LeadDetail = () => {
             <div class="note-item mb-3 p-3 bg-white rounded shadow-sm">
               <div class="d-flex justify-content-between">
                 <div class="note-date fw-bold">${note.formattedDate}</div>
+                <div class="note-time text-muted">${note.formattedTime}</div>
               </div>
               <div class="note-content mt-2">
                 <div class="d-flex align-items-center mb-1">
@@ -2782,12 +2257,6 @@ const LeadDetail = () => {
   const handleEditProject = async (project) => {
     console.log('Opening edit project modal for project:', project);
 
-    // Set loading state immediately when edit icon is clicked
-    setProjectUpdateLoading(true);
-
-    // Show the modal first so the loading overlay is visible
-    setShowEditProjectModal(true);
-
     // Log the project object to see its structure
     console.log('Project object structure:', JSON.stringify(project, null, 2));
 
@@ -2849,8 +2318,8 @@ const LeadDetail = () => {
       collaborators: project.collaborator ? [project.collaborator] : []
     });
 
-    // Data is loaded, set loading state to false
-    setProjectUpdateLoading(false);
+    // Show the modal
+    setShowEditProjectModal(true);
   };
 
   // Function to close the edit project modal
@@ -2880,7 +2349,7 @@ const LeadDetail = () => {
 
       console.log('Project update API response:', response);
 
-      if (response.data && response.data.status) {
+      if (response.data && response.data.success) {
         // Update the project in the projects array
         const updatedProjects = projects.map(project => {
           if (project.id === projectFormData.projectID) {
@@ -2924,17 +2393,64 @@ const LeadDetail = () => {
     try {
       console.log('Fetching opportunities for lead ID:', leadId);
 
-      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0`);
+      // Mock data for now - replace with actual API call
+      const mockOpportunities = [
+        {
+          id: '1',
+          opportunity_name: 'STC Live Sp - STC',
+          lead_name: 'Test New Lead',
+          product: 'STC',
+          milestone: 'STC Onboarding',
+          milestone_id: '2', // Added milestone_id - make sure this matches an actual milestone_id from the API
+          created_date: '04/18/2024',
+          created_by: 'Master Ops',
+          stage: 'Opportunity Identified',
+          currency: '$',
+          opportunity_amount: '0.00',
+          probability: '30',
+          expected_close_date: '06/26/2024',
+          next_step: '',
+          description: 'Initial opportunity for STC'
+        },
+        {
+          id: '2',
+          opportunity_name: 'STC Live Sp - ERC',
+          lead_name: 'Test New Lead',
+          product: 'ERC',
+          milestone: 'ERC Onboarding',
+          milestone_id: '1', // Added milestone_id - make sure this matches an actual milestone_id from the API
+          created_date: '08/26/2024',
+          created_by: 'Demomoter ops',
+          stage: 'Won-Agreement Signed',
+          currency: '$',
+          opportunity_amount: '1.00',
+          probability: '100',
+          expected_close_date: '09/30/2024',
+          next_step: '',
+          description: 'ERC opportunity'
+        }
+      ];
+
+      // Log the mock opportunities for debugging
+      console.log('Mock opportunities:', mockOpportunities);
+
+      setOpportunities(mockOpportunities);
+      console.log('Opportunities set:', mockOpportunities);
+
+      // Uncomment and modify when API is available
+      /*
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunities/${leadId}`);
 
       console.log('Opportunities API response:', response);
 
-      if (response.data && response.data.status == 'success' && Array.isArray(response.data.data)) {
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
         setOpportunities(response.data.data);
         console.log('Opportunities set:', response.data.data);
       } else {
         console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
       }
+      */
     } catch (err) {
       console.error('Error fetching opportunities:', err);
       setOpportunities([]);
@@ -2953,14 +2469,11 @@ const LeadDetail = () => {
         { id: '3', name: 'R&D Onboarding' }
       ];
 
-
-      // Build the API URL with the lead_id and product_id parameters
-      let apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0`;
-
+      // Build the API URL with the product_id parameter if provided
+      let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=opportunity';
       if (product_id) {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
-
 
       console.log('Calling opportunity milestones API with URL:', apiUrl);
 
@@ -3061,12 +2574,6 @@ const LeadDetail = () => {
   const handleEditOpportunity = async (opportunity) => {
     console.log('Opening edit opportunity modal for opportunity:', opportunity);
 
-    // Set loading state immediately when edit icon is clicked
-    setOpportunityUpdateLoading(true);
-
-    // Show the modal first so the loading overlay is visible
-    setShowEditOpportunityModal(true);
-
     // Log the opportunity object to see its structure
     console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
 
@@ -3139,8 +2646,8 @@ const LeadDetail = () => {
       description: opportunity.description || ''
     });
 
-    // Data is loaded, set loading state to false
-    setOpportunityUpdateLoading(false);
+    // Show the modal
+    setShowEditOpportunityModal(true);
   };
 
   // Function to close the edit opportunity modal
@@ -3160,6 +2667,35 @@ const LeadDetail = () => {
 
       console.log('Updating opportunity with data:', opportunityFormData);
 
+      // Mock API call for now - replace with actual API call
+      // Simulate a successful update
+      setTimeout(() => {
+        // Update the opportunity in the opportunities array
+        const updatedOpportunities = opportunities.map(opp => {
+          if (opp.id === opportunityFormData.id) {
+            return {
+              ...opp,
+              ...opportunityFormData,
+              // Use the milestone name directly
+              milestone: opportunityFormData.milestone
+            };
+          }
+          return opp;
+        });
+
+        setOpportunities(updatedOpportunities);
+        setOpportunityUpdateSuccess(true);
+
+        // Close the modal after a delay
+        setTimeout(() => {
+          handleCloseEditOpportunityModal();
+        }, 2000);
+
+        setOpportunityUpdateLoading(false);
+      }, 1000);
+
+      // Uncomment and modify when API is available
+      /*
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
         opportunityFormData
@@ -3189,8 +2725,7 @@ const LeadDetail = () => {
       } else {
         setOpportunityUpdateError(response.data?.message || 'Failed to update opportunity');
       }
-
-      setOpportunityUpdateLoading(false);
+      */
     } catch (error) {
       console.error('Error updating opportunity:', error);
       setOpportunityUpdateError(error.message || 'An error occurred while updating the opportunity');
@@ -3198,28 +2733,11 @@ const LeadDetail = () => {
     }
   };
 
-  // Function to show delete confirmation dialog using SweetAlert
+  // Function to show delete confirmation dialog
   const showDeleteConfirmation = (opportunity) => {
-    Swal.fire({
-      title: 'Are you sure?',
-      html: `You want to delete the opportunity <strong>"${opportunity.opportunity_name}"</strong>?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#FF6B00',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-      buttonsStyling: true,
-      customClass: {
-        actions: 'swal2-actions-custom',
-        confirmButton: 'swal2-styled swal2-confirm',
-        cancelButton: 'swal2-styled swal2-cancel'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteOpportunity(opportunity.id);
-      }
-    });
+    if (window.confirm(`Are you sure you want to delete the opportunity "${opportunity.opportunity_name}"?`)) {
+      deleteOpportunity(opportunity.id);
+    }
   };
 
   // Function to handle deleting an opportunity
@@ -3227,16 +2745,8 @@ const LeadDetail = () => {
     try {
       console.log('Deleting opportunity with ID:', opportunityId);
       setDeleteOpportunityLoading(true);
-
-      // Show loading indicator with SweetAlert
-      Swal.fire({
-        title: 'Deleting...',
-        html: 'Please wait while we delete the opportunity.',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
+      setDeleteOpportunityError(null);
+      setDeleteOpportunitySuccess(false);
 
       // Make the DELETE request to the API
       const response = await axios.delete('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunities', {
@@ -3253,39 +2763,20 @@ const LeadDetail = () => {
         const updatedOpportunities = opportunities.filter(opp => opp.id !== opportunityId);
         setOpportunities(updatedOpportunities);
 
-        // Show success message with SweetAlert
-        Swal.fire({
-          title: 'Deleted!',
-          text: 'The opportunity has been deleted successfully.',
-          icon: 'success',
-          confirmButtonColor: '#4CAF50',
-          confirmButtonText: 'OK'
-        });
+        setDeleteOpportunitySuccess(true);
+
+        // Reset the delete state after a delay
+        setTimeout(() => {
+          setDeleteOpportunitySuccess(false);
+        }, 3000);
       } else {
         console.error('Failed to delete opportunity:', response.data);
-
-        // Show error message with SweetAlert
-        Swal.fire({
-          title: 'Error!',
-          text: 'Failed to delete opportunity. Please try again.',
-          icon: 'error',
-          confirmButtonColor: '#dc3545',
-          confirmButtonText: 'OK'
-        });
+        setDeleteOpportunityError('Failed to delete opportunity. Please try again.');
       }
     } catch (err) {
       console.error('Error deleting opportunity:', err);
-
-      // Show error message with SweetAlert
-      Swal.fire({
-        title: 'Error!',
-        text: err.message || 'An error occurred while deleting the opportunity.',
-        icon: 'error',
-        confirmButtonColor: '#dc3545',
-        confirmButtonText: 'OK'
-      });
+      setDeleteOpportunityError(err.message || 'An error occurred while deleting the opportunity.');
     } finally {
-      // Close any loading indicators
       setDeleteOpportunityLoading(false);
     }
   };
@@ -3454,6 +2945,7 @@ const LeadDetail = () => {
 
         // Tier 3 Commission data
         tier3_affiliate_commision_basis: tier3CommissionBasis?.value || '',
+        tier3_affiliate_commision_basis: tier3CommissionBasis?.value || '',
         tier3_affiliate_commision_type: tier3CommissionType?.value || '',
         tier3_commission_type: tier3CommissionType?.value || '',
         tier3_referrer_fixed: tier3ReferrerFixed || '',
@@ -3466,20 +2958,28 @@ const LeadDetail = () => {
         // Slab Commission data
         slab1_applied_on: slab1AppliedOn || '',
         slab1_commision_type: slab1CommissionType?.value || '',
+        slab1_commision_type: slab1CommissionType?.value || '',
+        slab1_commision_value: slab1CommissionValue || '',
         slab1_commision_value: slab1CommissionValue || '',
 
         slab2_applied_on: slab2AppliedOn || '',
         slab2_commision_type: slab2CommissionType?.value || '',
+        slab2_commision_type: slab2CommissionType?.value || '',
+        slab2_commision_value: slab2CommissionValue || '',
         slab2_commision_value: slab2CommissionValue || '',
 
         slab3_applied_on: slab3AppliedOn || '',
         slab3_commision_type: slab3CommissionType?.value || '',
+        slab3_commision_type: slab3CommissionType?.value || '',
+        slab3_commision_value: slab3CommissionValue || '',
         slab3_commision_value: slab3CommissionValue || '',
 
         // Master Affiliate Commission data
         master_commision_type: masterCommissionType?.value || '',
+        master_commision_type: masterCommissionType?.value || '',
         master_referrer_fixed: masterCommissionValue || '',
         master_referrer_percentage: masterCommissionValue || '',
+        master_commision_value: masterCommissionValue || '',
         master_commision_value: masterCommissionValue || ''
       };
 
@@ -3506,15 +3006,11 @@ const LeadDetail = () => {
         ...allTabsData,
         ...formData,
         lead_id: leadId,
-        user_id: getUserId(), // Add user_id to the form data
         // Include all tables to update
         tables: ['business_info', 'contacts', 'projects', 'fees', 'bank_info', 'opportunity'],
         // Also include the table parameter for backward compatibility
         table: 'all'
       };
-
-      // Log user_id for debugging
-      console.log('Current user_id being sent:', getUserId());
 
       // Make API call to update the lead
       console.log('Sending data to API:', mergedData);
@@ -3571,34 +3067,6 @@ const LeadDetail = () => {
       setLoading(false);
     }
   };
-
-  // Add these functions after fetchAvailableContacts
-  const handleOpenLinkContactModal = async () => {
-    try {
-      setShowLinkContactModal(true);
-      setLinkContactError(null);
-      setSelectedContact(null);
-      const contacts = await fetchAvailableContacts();
-      setContactOptions(contacts);
-    } catch (error) {
-      console.error('Error opening link contact modal:', error);
-      setLinkContactError('Failed to load contacts. Please try again.');
-    }
-  };
-
-  const handleCloseLinkContactModal = () => {
-    setShowLinkContactModal(false);
-    setSelectedContact(null);
-    setLinkContactError(null);
-    setLinkContactLoading(false);
-  };
-
-  const handleContactSelection = (selectedOption) => {
-    setSelectedContact(selectedOption);
-    setLinkContactError(null);
-  };
-
-  const shouldShowAffiliateTab = hasRoleAccess(['administrator', 'echeck_client']);
 
   if (loading) {
     return (
@@ -3683,7 +3151,6 @@ const LeadDetail = () => {
                     Business Info
                   </a>
                 </li>
-                {shouldShowAffiliateTab && (
                 <li className={`nav-item ${activeTab === 'affiliateCommission' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -3700,8 +3167,6 @@ const LeadDetail = () => {
                     Affiliate Commission
                   </a>
                 </li>
-                )}
-
                 <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
                   <a
                     className="nav-link"
@@ -3784,19 +3249,10 @@ const LeadDetail = () => {
                             <label className="form-label">Business Legal Name*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
-                              {...register('business_legal_name')}
+                              className="form-control"
                               name="business_legal_name"
                               value={lead.business_legal_name || ''}
                               onChange={handleInputChange}
-                            />
-                             {errors.business_legal_name && (
-                                <div className="invalid-feedback">{errors.business_legal_name.message}</div>
-                              )}
-                            <input
-                              type="hidden"
-                              name="user_id"
-                              value={getUserId()}
                             />
                           </div>
                         </div>
@@ -3805,15 +3261,11 @@ const LeadDetail = () => {
                             <label className="form-label">Doing Business As</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.doing_business_as ? 'is-invalid' : ''}`}
-                              {...register('doing_business_as')}
+                              className="form-control"
                               name="doing_business_as"
                               value={lead.doing_business_as || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.doing_business_as && (
-                                <div className="invalid-feedback">{errors.doing_business_as.message}</div>
-                              )}
                           </div>
                         </div>
                       </div>
@@ -3823,15 +3275,11 @@ const LeadDetail = () => {
                             <label className="form-label">Business Category*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.category ? 'is-invalid' : ''}`}
-                              {...register('category')}
+                              className="form-control"
                               name="category"
                               value={lead.category || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.category && (
-                                <div className="invalid-feedback">{errors.category.message}</div>
-                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3839,15 +3287,11 @@ const LeadDetail = () => {
                             <label className="form-label">Website URL*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.website ? 'is-invalid' : ''}`}
-                              {...register('website')}
+                              className="form-control"
                               name="website"
                               value={lead.website || ''}
                               onChange={handleInputChange}
                             />
-                              {errors.website && (
-                                <div className="invalid-feedback">{errors.website.message}</div>
-                              )}
                           </div>
                         </div>
                       </div>
@@ -3859,15 +3303,11 @@ const LeadDetail = () => {
                             <label className="form-label">Authorized Signatory Name</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.authorized_signatory_name ? 'is-invalid' : ''}`}
-                              {...register('authorized_signatory_name')}
+                              className="form-control"
                               name="authorized_signatory_name"
                               value={lead.authorized_signatory_name || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.authorized_signatory_name && (
-                                <div className="invalid-feedback">{errors.authorized_signatory_name.message}</div>
-                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3875,15 +3315,11 @@ const LeadDetail = () => {
                             <label className="form-label">Business Phone*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.business_phone ? 'is-invalid' : ''}`}
-                              {...register('business_phone')}
+                              className="form-control"
                               name="business_phone"
                               value={lead.business_phone || ''}
                               onChange={handleInputChange}
                             />
-                             {errors.business_phone && (
-                                <div className="invalid-feedback">{errors.business_phone.message}</div>
-                              )}
                           </div>
                         </div>
                       </div>
@@ -3893,15 +3329,11 @@ const LeadDetail = () => {
                             <label className="form-label">Business Email*</label>
                             <input
                               type="email"
-                              className={`form-control ${errors.business_email ? 'is-invalid' : ''}`}
-                              {...register('business_email')}
+                              className="form-control"
                               name="business_email"
                               value={lead.business_email || ''}
                               onChange={handleInputChange}
                             />
-                              {errors.business_email && (
-                                <div className="invalid-feedback">{errors.business_email.message}</div>
-                              )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3909,15 +3341,11 @@ const LeadDetail = () => {
                             <label className="form-label">Business Title*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.business_title ? 'is-invalid' : ''}`}
-                              {...register('business_title')}
+                              className="form-control"
                               name="business_title"
                               value={lead.business_title || ''}
                               onChange={handleInputChange}
                             />
-                              {errors.business_title && (
-                                <div className="invalid-feedback">{errors.business_title.message}</div>
-                              )}
                           </div>
                         </div>
                       </div>
@@ -3927,15 +3355,11 @@ const LeadDetail = () => {
                             <label className="form-label">Street Address*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.business_address ? 'is-invalid' : ''}`}
-                              {...register('business_address')}
+                              className="form-control"
                               name="business_address"
                               value={lead.business_address || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.business_address && (
-                              <div className="invalid-feedback">{errors.business_address.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3943,15 +3367,11 @@ const LeadDetail = () => {
                             <label className="form-label">City*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.city ? 'is-invalid' : ''}`}
-                               {...register('city')}
+                              className="form-control"
                               name="city"
                               value={lead.city || ''}
                               onChange={handleInputChange}
                             />
-                              {errors.city && (
-                                <div className="invalid-feedback">{errors.city.message}</div>
-                              )}
                           </div>
                         </div>
                       </div>
@@ -3961,15 +3381,11 @@ const LeadDetail = () => {
                             <label className="form-label">State*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.state ? 'is-invalid' : ''}`}
-                              {...register('state')}
+                              className="form-control"
                               name="state"
                               value={lead.state || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.state && (
-                              <div className="invalid-feedback">{errors.state.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -3977,15 +3393,11 @@ const LeadDetail = () => {
                             <label className="form-label">ZIP*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.zip ? 'is-invalid' : ''}`}
-                              {...register('zip')}
+                              className="form-control"
                               name="zip"
                               value={lead.zip || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.zip && (
-                              <div className="invalid-feedback">{errors.zip.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -3997,15 +3409,11 @@ const LeadDetail = () => {
                             <label className="form-label">Email</label>
                             <input
                               type="email"
-                              className={`form-control ${errors.primary_contact_email ? 'is-invalid' : ''}`}
+                              className="form-control"
                               name="primary_contact_email"
                               value={primaryContact.email || ''}
                               onChange={handleInputChange}
-                              disabled
                             />
-                              {errors.primary_contact_email && (
-                                <div className="invalid-feedback">{errors.primary_contact_email.message}</div>
-                              )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4013,15 +3421,11 @@ const LeadDetail = () => {
                             <label className="form-label">Phone</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.primary_contact_phone ? 'is-invalid' : ''}`}
+                              className="form-control"
                               name="primary_contact_phone"
                               value={primaryContact.phone || ''}
                               onChange={handleInputChange}
-                              disabled
                             />
-                            {errors.primary_contact_phone && (
-                              <div className="invalid-feedback">{errors.primary_contact_phone.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-2">
@@ -4029,16 +3433,11 @@ const LeadDetail = () => {
                             <label className="form-label">Contact Ext</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.primary_contact_ext ? 'is-invalid' : ''}`}
+                              className="form-control"
                               name="primary_contact_ext"
                               value={primaryContact.ext || ''}
                               onChange={handleInputChange}
-                              disabled
                             />
-                            {errors.primary_contact_ext && (
-                              <div className="invalid-feedback">{errors.primary_contact_ext.message}</div>
-                            )}
-
                           </div>
                         </div>
                       </div>
@@ -4048,16 +3447,11 @@ const LeadDetail = () => {
                             <label className="form-label">Contact Phone Type</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.contact_phone_type ? 'is-invalid' : ''}`}
+                              className="form-control"
                               name="contact_phone_type"
                               value={primaryContact.phoneType || ''}
                               onChange={handleInputChange}
-                              disabled
                             />
-                            {errors.contact_phone_type && (
-                              <div className="invalid-feedback">{errors.contact_phone_type.message}</div>
-                            )}
-
                           </div>
                         </div>
                       </div>
@@ -4068,22 +3462,16 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Select Billing Profile</label>
                             <select
-                              className={`form-select ${errors.billing_profile ? 'is-invalid' : ''}`}
-                              {...register('billing_profile')}
+                              className="form-select"
                               name="billing_profile"
                               value={lead.billing_profile || ''}
                               onChange={handleInputChange}
                             >
                               <option value="">Select Billing Profile</option>
-                              {billingProfileOptions.map(profile => (
-                                <option key={profile.value} value={profile.value}>
-                                  {profile.label}
-                                </option>
-                              ))}
+                              <option value="Reporting Head - Production">Reporting Head - Production</option>
+                              <option value="Quickbook Play">Quickbook Play</option>
+                              <option value="Reporting Head">Reporting Head</option>
                             </select>
-                            {errors.billing_profile && (
-                              <div className="invalid-feedback">{errors.billing_profile.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -4094,8 +3482,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Select TaxNow Signup Status</label>
                             <select
-                              className={`form-select ${errors.taxnow_signup_status ? 'is-invalid' : ''}`}
-                              {...register('taxnow_signup_status')}
+                              className="form-select"
                               name="taxnow_signup_status"
                               value={taxNowSignupStatus}
                               onChange={handleInputChange}
@@ -4104,17 +3491,13 @@ const LeadDetail = () => {
                               <option value="Complete">Complete</option>
                               <option value="Incomplete">Incomplete</option>
                             </select>
-                            {errors.taxnow_signup_status && (
-                              <div className="invalid-feedback">{errors.taxnow_signup_status.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="form-group">
                             <label className="form-label">Select TaxNow Onboarding Status</label>
                             <select
-                              className={`form-select ${errors.taxnow_onboarding_status ? 'is-invalid' : ''}`}
-                              {...register('taxnow_onboarding_status')}
+                              className="form-select"
                               name="taxnow_onboarding_status"
                               value={taxNowOnboardingStatus}
                               onChange={handleInputChange}
@@ -4135,9 +3518,6 @@ const LeadDetail = () => {
                                 </>
                               ) : null}
                             </select>
-                            {errors.taxnow_onboarding_status && (
-                              <div className="invalid-feedback">{errors.taxnow_onboarding_status.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -4148,8 +3528,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Business Entity Type*</label>
                             <select
-                              className={`form-select ${errors.business_type ? 'is-invalid' : ''}`}
-                              {...register('business_type')}
+                              className="form-select"
                               name="business_type"
                               value={lead.business_type || 'N/A'}
                               onChange={handleInputChange}
@@ -4162,9 +3541,6 @@ const LeadDetail = () => {
                               <option value="Trust">Trust</option>
                               <option value="Other">Other</option>
                             </select>
-                            {errors.business_type && (
-                              <div className="invalid-feedback">{errors.business_type.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4172,16 +3548,12 @@ const LeadDetail = () => {
                             <label className="form-label">If Other*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.business_type_other ? 'is-invalid' : ''}`}
-                              {...register('business_type_other')}
+                              className="form-control"
                               name="business_type_other"
                               value={lead.business_type_other || ''}
                               onChange={handleInputChange}
                               placeholder="If other, specify type"
                             />
-                            {errors.business_type_other && (
-                              <div className="invalid-feedback">{errors.business_type_other.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -4189,15 +3561,11 @@ const LeadDetail = () => {
                             <label className="form-label">Registration Number*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.registration_number ? 'is-invalid' : ''}`}
-                              {...register('registration_number')}
+                              className="form-control"
                               name="registration_number"
                               value={lead.registration_number || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.registration_number && (
-                              <div className="invalid-feedback">{errors.registration_number.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -4205,41 +3573,13 @@ const LeadDetail = () => {
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Registration Date*</label>
-                            <div className="input-group">
-                              <DateInput
-                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
-                                onChange={handleInputChange}
-                                placeholder="MM/DD/YYYY"
-
-                              />
-                              {/* <input
-                                type="text"
-                                className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
-                                {...register('registration_date')}
-                                name="registration_date"
-                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
-                                onChange={handleInputChange}
-                                placeholder="MM/DD/YYYY"
-                                maxLength="10"
-                                onInput={(e) => {
-                                  // Auto-format as user types MM/DD/YYYY
-                                  let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                                  if (value.length >= 2) {
-                                    value = value.substring(0, 2) + '/' + value.substring(2);
-                                  }
-                                  if (value.length >= 5) {
-                                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
-                                  }
-                                  e.target.value = value;
-                                }}
-                              /> */}
-                              {/* <span className="input-group-text">
-                                <i className="fas fa-calendar-alt"></i>
-                              </span> */}
-                            </div>
-                            {errors.registration_date && (
-                              <div className="invalid-feedback">{errors.registration_date.message}</div>
-                            )}
+                            <input
+                              type="date"
+                              className="form-control"
+                              name="registration_date"
+                              value={lead.registration_date || ''}
+                              onChange={handleInputChange}
+                            />
                           </div>
                         </div>
                         <div className="col-md-3">
@@ -4247,15 +3587,11 @@ const LeadDetail = () => {
                             <label className="form-label">State of Registration*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.state_of_registration ? 'is-invalid' : ''}`}
-                              {...register('state_of_registration')}
+                              className="form-control"
                               name="state_of_registration"
                               value={lead.state_of_registration || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.state_of_registration && (
-                              <div className="invalid-feedback">{errors.state_of_registration.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-3">
@@ -4263,23 +3599,18 @@ const LeadDetail = () => {
                             <label className="form-label">EIN*</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.ein ? 'is-invalid' : ''}`}
-                              {...register('ein')}
+                              className="form-control"
                               name="ein"
                               value={lead.ein || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.ein && (
-                              <div className="invalid-feedback">{errors.ein.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-3">
                           <div className="form-group">
                             <label className="form-label">Tax ID Type*</label>
                             <select
-                              className={`form-select ${errors.tax_id_type ? 'is-invalid' : ''}`}
-                              {...register('tax_id_type')}
+                              className="form-select"
                               name="tax_id_type"
                               value={lead.tax_id_type || 'N/A'}
                               onChange={handleInputChange}
@@ -4289,9 +3620,6 @@ const LeadDetail = () => {
                               <option value="TIN">TIN</option>
                               <option value="SSN">SSN</option>
                             </select>
-                            {errors.tax_id_type && (
-                              <div className="invalid-feedback">{errors.tax_id_type.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -4304,15 +3632,11 @@ const LeadDetail = () => {
                             <label className="form-label">Internal Sales Agent</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.internal_sales_agent ? 'is-invalid' : ''}`}
-                              {...register('internal_sales_agent')}
+                              className="form-control"
                               name="internal_sales_agent"
                               value={lead.internal_sales_agent || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.internal_sales_agent && (
-                              <div className="invalid-feedback">{errors.internal_sales_agent.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -4320,15 +3644,11 @@ const LeadDetail = () => {
                             <label className="form-label">Internal Sales Support</label>
                             <input
                               type="text"
-                              className={`form-control ${errors.internal_sales_support ? 'is-invalid' : ''}`}
-                              {...register('internal_sales_support')}
+                              className="form-control"
                               name="internal_sales_support"
                               value={lead.internal_sales_support || ''}
                               onChange={handleInputChange}
                             />
-                            {errors.internal_sales_support && (
-                              <div className="invalid-feedback">{errors.internal_sales_support.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -4353,14 +3673,11 @@ const LeadDetail = () => {
                             </label>
                             <input
                               type="text"
-                              className={`form-control ${errors.company_folder_link ? 'is-invalid' : ''}`}
+                              className="form-control"
                               name="company_folder_link"
                               value={companyFolderLink}
                               onChange={handleInputChange}
                             />
-                            {errors.company_folder_link && (
-                              <div className="invalid-feedback">{errors.company_folder_link.message}</div>
-                            )}
                           </div>
                         </div>
                         <div className="col-md-6">
@@ -4381,35 +3698,144 @@ const LeadDetail = () => {
                             </label>
                             <input
                               type="text"
-                              className={`form-control ${errors.document_folder_link ? 'is-invalid' : ''}`}
+                              className="form-control"
                               name="document_folder_link"
                               value={documentFolderLink}
                               onChange={handleInputChange}
                             />
-                            {errors.document_folder_link && (
-                              <div className="invalid-feedback">{errors.document_folder_link.message}</div>
-                            )}
                           </div>
                         </div>
                       </div>
 
                       {/* Notes Section */}
                       <h5 className="section-title mt-4">Notes</h5>
-                      <Notes
-                        entityType="lead"
-                        entityId={leadId}
-                        entityName={lead?.business_legal_name || ''}
-                        showButtons={false}
-                        showNotes={true}
-                        maxHeight={300}
-                      />
+                      <div className="notes-container p-0">
+                        <div className="d-flex justify-content-between align-items-center mb-4 notes-header">
+                          <h6 className="notes-title mb-0">Lead notes and activity history</h6>
+                          <button
+                            className="add-note-btn"
+                            onClick={toggleAddNoteModal}
+                          >
+                            <span className="d-flex align-items-center">
+                              <i className="fas fa-plus me-2"></i>Add Note
+                            </span>
+                          </button>
+                        </div>
+
+                        {notes.length === 0 ? (
+                          <div className="text-center py-4 bg-light rounded">
+                            <div className="mb-3">
+                              <i className="fas fa-sticky-note fa-3x text-muted"></i>
+                            </div>
+                            <p className="text-muted">No notes available for this lead</p>
+                            <button
+                              className="btn add-note-btn mt-3"
+                              onClick={toggleAddNoteModal}
+                            >
+                              <span className="d-flex align-items-center">
+                                <i className="fas fa-plus me-2"></i>Add First Note
+                              </span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            id="scrollableNotesDiv"
+                            style={{
+                              height: '300px',
+                              overflow: 'auto',
+                              border: '1px solid #e9ecef',
+                              borderRadius: '8px',
+                              padding: '20px',
+                              backgroundColor: '#f8f9fa'
+                            }}
+                          >
+                            <InfiniteScroll
+                              dataLength={notes.length}
+                              next={loadMoreNotes}
+                              hasMore={hasMoreNotes}
+                              loader={
+                                <div className="text-center py-3">
+                                  <div className="spinner-border spinner-border-sm text-primary" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                  </div>
+                                  <p className="text-muted small mt-2">Loading more notes...</p>
+                                </div>
+                              }
+                              endMessage={
+                                <div className="text-center py-3">
+                                  <p className="text-muted small">No more notes to load</p>
+                                </div>
+                              }
+                              scrollableTarget="scrollableNotesDiv"
+                            >
+                              {notes.map((note) => (
+                                <div
+                                  key={note.id}
+                                  className="note-item mb-3 p-3 bg-white rounded shadow-sm"
+                                >
+                                  <div className="d-flex justify-content-between">
+                                    <div className="note-date fw-bold">{note.formattedDate}</div>
+                                    <div className="note-time text-muted">{note.formattedTime}</div>
+                                  </div>
+                                  <div className="note-content mt-2">
+                                    <span className="d-flex align-items-center">
+                                      <span className="fw-bold text-dark">{note.author}</span>
+                                      <span className="ms-1">added a : {note.text}</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </InfiniteScroll>
+                          </div>
+                        )}
+
+                        {/* Add Note Modal */}
+                        {showAddNoteModal && (
+                          <>
+                            <div className="modal-backdrop show" style={{ display: 'block' }}></div>
+                            <div className={`modal ${showAddNoteModal ? 'show' : ''}`} style={{ display: 'block' }}>
+                              <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '650px' }}>
+                                <div className="modal-content" style={{ borderRadius: '8px' }}>
+                                  <div className="modal-header pb-2">
+                                    <h5 className="modal-title">Add Note</h5>
+                                    <button type="button" className="btn-close" onClick={toggleAddNoteModal}></button>
+                                  </div>
+                                  <div className="modal-body">
+                                    <form onSubmit={handleAddNote}>
+
+                                      <div className="mb-3">
+                                        <textarea
+                                          className="form-control"
+                                          rows="5"
+                                          placeholder="Enter your note here..."
+                                          value={newNote}
+                                          onChange={(e) => setNewNote(e.target.value)}
+                                          style={{ resize: 'vertical', minHeight: '100px' }}
+                                        ></textarea>
+                                      </div>
+                                      <div className="text-muted small">
+                                        <i className="fas fa-info-circle me-1"></i>
+                                        Your note will be saved with the current date and time.
+                                      </div>
+                                      <div className="d-flex justify-content-center gap-3 mt-4">
+                                        <button type="submit" className="btn modal-save-btn">Save Note</button>
+                                        <button type="button" className="btn modal-cancel-btn" onClick={toggleAddNoteModal}>Cancel</button>
+                                      </div>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   )}
 
 
 
                   {/* Affiliate Commission Tab Content */}
-{shouldShowAffiliateTab && activeTab === 'affiliateCommission' ? (
+                  {activeTab === 'affiliateCommission' && (
                     <div className="mb-4 left-section-container">
                       <h5 className="section-title">Tier 1 Affiliate Commission</h5>
                       <div className="row mb-3">
@@ -4868,63 +4294,29 @@ const LeadDetail = () => {
                         </div>
                       </div>
                     </div>
-                  
-) : null}
+                  )}
+
                   {/* Contacts Tab Content */}
                   {activeTab === 'contacts' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            window.open(`/reporting/create-contact?lead_id=${leadId}`, '_blank');
-                          }}
-                        >
+                        <a href="javascript:void(0)">
                             <i className="fa-solid fa-plus"></i> New Contact
                         </a>
-                        <a
-                          className="link_contact"
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleOpenLinkContactModal();
-                          }}
-                          title="Link a contact"
-                        >
+                        <a className="link_contact" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#link-contact" title="Link a contact">
                           <i className="fa-solid fa-plus"></i> Link a Contact
                         </a>
                       </div>
 
                       <div className="row contact_tab_data mt-4">
-                        {contactsLoading ? (
-                          <div className="col-12 text-center">
-                            <div className="spinner-border text-primary" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </div>
-                            <p className="mt-2">Loading contacts...</p>
-                          </div>
-                        ) : contacts.length === 0 ? (
+                        {contacts.length === 0 ? (
                           <div className="col-12 text-center">
                             <p>No contacts found for this lead.</p>
                           </div>
                         ) : (
-                          contacts.map((contact, index) => (
-                            <div
-                              key={`contact-${contact.contact_id}-${index}`}
-                              className={`col-md-6 col-sm-12 mb-4 contact-card ${contact.contact_id === newContactId ? 'new-contact' : ''}`}
-                              ref={el => {
-                                // Auto-scroll to the newly added contact
-                                if (contact.contact_id === newContactId && el) {
-                                  setTimeout(() => {
-                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                    // Clear the newContactId after scrolling to prevent highlighting on future renders
-                                    setTimeout(() => setNewContactId(null), 2000);
-                                  }, 500);
-                                }
-                              }}
-                            >
-                              <div className={`card-exam shadow ${contact.trash == 0 ?'':'card_trashed'}`}>
+                          contacts.map((contact) => (
+                            <div key={contact.contact_id} className="col-md-6 col-sm-12 mb-4 contact-card">
+                              <div className="card-exam shadow">
                                 <div className="custom_opp_tab_header">
                                   <h5>
                                     <i className="fas fa-star"></i> {contact.contact_type === 'primary' ? 'Primary' : 'Secondary'}
@@ -4938,17 +4330,9 @@ const LeadDetail = () => {
                                     >
                                       <i className="fas fa-pen"></i>
                                     </a>
-
-                                    {contact.trash == 0 && (
-                                      <a
-                                        className="delete_contact"
-                                        href="javascript:void(0)"
-                                        title="Disable"
-                                        onClick={() => handleDisableContact(contact.contact_id, contact.name)}
-                                      >
-                                        <i className="fas fa-ban"></i>
-                                      </a>
-                                    )}
+                                    <a className="delete_contact" href="javascript:void(0)" data-contact-id={contact.contact_id} title="Disable">
+                                      <i className="fas fa-ban"></i>
+                                    </a>
                                   </div>
                                 </div>
                                 <div className="d-flex w-100 mt-3 align-items-center">
@@ -4974,73 +4358,85 @@ const LeadDetail = () => {
                   {/* Projects Tab Content */}
                   {activeTab === 'projects' && (
                     <div className="mb-4 left-section-container">
+                      <div className="row custom_opp_create_btn">
+                        <a href="javascript:void(0)">
+                            <i className="fa-solid fa-plus"></i> New Project
+                        </a>
+                      </div>
+
+
+
                       {projects.length === 0 ? (
                         <div className="text-center mt-4">
                           <p>No projects found for this lead.</p>
                         </div>
                       ) : (
-                        projects.map(project => (
-                          <div key={project.id} className="row custom_opp_tab">
-                            <div className="col-sm-12">
-                              <div className="custom_opp_tab_header">
-                                <h5><a href={`/reporting/project-detail/${project.id}`}>{project.projectName}</a></h5>
-                                <div className="opp_edit_dlt_btn projects-iris">
-                                  <a
-                                    className="edit_project"
-                                    data-projid={project.id}
-                                    data-projname={project.projectName}
-                                    data-businessname={project.businessName}
-                                    data-productname={project.productName}
-                                    data-productid={project.productId}
-                                    data-milestone={project.milestone}
-                                    data-milestoneid={project.milestoneId}
-                                    data-stage={project.stage}
-                                    data-stageid={project.stageId}
-                                    data-fee={project.fee}
-                                    data-max_credit={project.maxCredit}
-                                    data-est_fee={project.estFee}
-                                    data-collab={project.collaboratorId}
-                                    data-contact={project.contactId}
-                                    href="javascript:void(0)"
-                                    title="Edit"
-                                    onClick={() => handleEditProject(project)}
-                                  >
-                                    <i className="fas fa-pen"></i>
-                                  </a>
+                        <div className="projects-container mt-4">
+                          {projects.map(project => (
+                            <div key={project.id} className="card mb-3 project-card w-100">
+                              <div className="card-body">
+                                <div className="d-flex justify-content-between align-items-start mb-3 w-100">
+                                  <div className="col-md-6">
+                                    <p className="mb-2">
+                                      <span className="project-label">Business Name:</span> {project.businessName}
+                                    </p>
+                                    <p className="mb-2">
+                                      <span className="project-label">Project Name:</span> {project.projectName || 'N/A'}
+                                    </p>
+                                    <p className="mb-2">
+                                      <span className="project-label">Product Name:</span> {project.productName || 'N/A'}
+                                    </p>
+                                  </div>
+                                  <div className="col-md-5">
+                                    <p className="mb-2">
+                                      <span className="project-label">Milestone:</span> {project.milestone || 'N/A'}
+                                    </p>
+                                    <p className="mb-2">
+                                      <span className="project-label">Stage:</span> {project.stage || 'N/A'}
+                                    </p>
+                                    <p className="mb-2">
+                                      <span className="project-label">Collaborator:</span> {project.collaborator || 'N/A'}
+                                    </p>
+                                  </div>
+                                  <div className="col-md-1 text-right">
+                                    <a
+                                      href="javascript:void(0)"
+                                      className="edit-icon"
+                                      title="Edit Project"
+                                      onClick={() => handleEditProject(project)}
+                                    >
+                                      <i className="fas fa-pen"></i>
+                                    </a>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                            <div className="col-md-7 text-left">
-                              <div className="lead_des">
-                                <p><b>Business Name:</b> {project.businessName}</p>
-                                <p><b>Project Name:</b> {project.projectName}</p>
-                                <p><b>Product Name:</b> {project.productName || 'N/A'}</p>
-                              </div>
-                            </div>
-                            <div className="col-md-5">
-                              <div className="lead_des">
-                                <p><b>Milestone:</b> {project.milestone || 'N/A'}</p>
-                                <p><b>Stage:</b> {project.stage || 'N/A'}</p>
-                                <p><b>Collaborator:</b> {project.collaborator || 'N/A'}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
+                          ))}
+                        </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Audit Logs Tab Content */}
+                  {activeTab === 'auditLogs' && (
+                    <AuditLogTab leadId={leadId} isActive={activeTab === 'auditLogs'} />
+                  )}
+                </div>
+
+                {/* Right sidebar content - keep existing sidebar content */}
+                <div className="col-md-4">
+                  {/* Existing sidebar content will remain here */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Edit Project Modal */}
                       {showEditProjectModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                          {/* Loading overlay when fetching or updating */}
-                          {projectUpdateLoading && (
-                            <div className="loading-overlay">
-                              <div className="loading-spinner-container">
-                                <div className="loading-spinner"></div>
-                                <p className="loading-text">Updating project...</p>
-                              </div>
-                            </div>
-                          )}
                           <div className={`modal ${showEditProjectModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
                               <div className="modal-content" style={{ borderRadius: '8px' }}>
@@ -5049,16 +4445,14 @@ const LeadDetail = () => {
                                   <button type="button" className="btn-close" onClick={handleCloseEditProjectModal}></button>
                                 </div>
                                 <div className="modal-body">
-                                  {/* <form onSubmit={(e) => { e.preventDefault(); handleUpdateProject(); }}> */}
-                                  <form onSubmit={handleSubmitProject(handleUpdateProject)}>
+                                  <form onSubmit={(e) => { e.preventDefault(); handleUpdateProject(); }}>
                                     <div className="row mb-3">
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Project Name:*</label>
                                           <input
                                             type="text"
-                                            className={`form-control ${projectErrors.project_name ? 'is-invalid' : ''}`}
-                                            {...registerProject("project_name")}
+                                            className="form-control"
                                             name="project_name"
                                             value={projectFormData.project_name}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -5066,13 +4460,8 @@ const LeadDetail = () => {
                                               project_name: e.target.value
                                             }))}
                                             placeholder="Enter project name"
-
+                                            required
                                           />
-                                          {projectErrors.project_name && (
-                                            <div className="invalid-feedback">
-                                              {projectErrors.project_name.message}
-                                            </div>
-                                          )}
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5105,8 +4494,7 @@ const LeadDetail = () => {
                                           <label className="form-label">Fee:</label>
                                           <input
                                             type="text"
-                                            className={`form-control ${projectErrors.project_fee ? 'is-invalid' : ''}`}
-                                            {...registerProject("project_fee")}
+                                            className="form-control"
                                             name="project_fee"
                                             value={projectFormData.project_fee}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -5115,11 +4503,6 @@ const LeadDetail = () => {
                                             }))}
                                             placeholder="Enter fee"
                                           />
-                                            {projectErrors.project_fee && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.project_fee.message}
-                                              </div>
-                                            )}
                                         </div>
                                       </div>
                                     </div>
@@ -5130,8 +4513,7 @@ const LeadDetail = () => {
                                           <label className="form-label">Maximum Credit:</label>
                                           <input
                                             type="text"
-                                            className={`form-control ${projectErrors.maximum_credit ? 'is-invalid' : ''}`}
-                                            {...registerProject("maximum_credit")}
+                                            className="form-control"
                                             name="maximum_credit"
                                             value={projectFormData.maximum_credit}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -5140,11 +4522,6 @@ const LeadDetail = () => {
                                             }))}
                                             placeholder="Enter maximum credit"
                                           />
-                                            {projectErrors.maximum_credit && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.maximum_credit.message}
-                                              </div>
-                                            )}
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5152,8 +4529,7 @@ const LeadDetail = () => {
                                           <label className="form-label">Estimated Fee:</label>
                                           <input
                                             type="text"
-                                            className={`form-control ${projectErrors.estimated_fee ? 'is-invalid' : ''}`}
-                                            {...registerProject("estimated_fee")}
+                                            className="form-control"
                                             name="estimated_fee"
                                             value={projectFormData.estimated_fee}
                                             onChange={(e) => setProjectFormData(prev => ({
@@ -5162,11 +4538,6 @@ const LeadDetail = () => {
                                             }))}
                                             placeholder="Enter estimated fee"
                                           />
-                                          {projectErrors.estimated_fee && (
-                                            <div className="invalid-feedback">
-                                              {projectErrors.estimated_fee.message}
-                                            </div>
-                                          )}
                                         </div>
                                       </div>
                                     </div>
@@ -5179,8 +4550,7 @@ const LeadDetail = () => {
                                           {console.log('Project milestone dropdown - available milestones:', milestones)}
                                           <div className="milestone-select-wrapper">
                                             <select
-                                              className={`form-select ${projectErrors.Milestone ? 'is-invalid' : ''}`}
-                                              {...registerProject("Milestone")}
+                                              className="form-select"
                                               name="Milestone"
                                               value={projectFormData.Milestone}
                                               onChange={async (e) => {
@@ -5256,9 +4626,8 @@ const LeadDetail = () => {
                                                   setMilestoneStages([]);
                                                 }
                                               }}
-
+                                              required
                                             >
-
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
                                                 <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
@@ -5266,11 +4635,9 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            {projectErrors.Milestone && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.Milestone.message}
-                                              </div>
-                                            )}
+                                            <div className="select-arrow">
+                                              <i className="fas fa-chevron-down"></i>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5279,8 +4646,7 @@ const LeadDetail = () => {
                                           <label className="form-label">Stage:*</label>
                                           <div className="milestone-select-wrapper">
                                             <select
-                                              className={`form-select ${projectErrors.MilestoneStage ? 'is-invalid' : ''}`}
-                                              {...registerProject("MilestoneStage")}
+                                              className="form-select"
                                               name="MilestoneStage"
                                               value={projectFormData.MilestoneStage}
                                               onChange={(e) => {
@@ -5290,7 +4656,7 @@ const LeadDetail = () => {
                                                   MilestoneStage: e.target.value
                                                 }));
                                               }}
-
+                                              required
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
@@ -5299,11 +4665,9 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
-                                            {projectErrors.MilestoneStage && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.MilestoneStage.message}
-                                              </div>
-                                            )}
+                                            <div className="select-arrow">
+                                              <i className="fas fa-chevron-down"></i>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5339,8 +4703,8 @@ const LeadDetail = () => {
                                             }))}
                                           >
                                             <option value="">Select Contact</option>
-                                            {contacts.map((contact, index) => (
-                                              <option key={`project-contact-${contact.contact_id}-${index}`} value={contact.contact_id}>
+                                            {contacts.map(contact => (
+                                              <option key={contact.contact_id} value={contact.contact_id}>
                                                 {contact.name || 'Unnamed Contact'}
                                               </option>
                                             ))}
@@ -5365,7 +4729,7 @@ const LeadDetail = () => {
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
                                         type="submit"
-                                        className="btn save-btn"
+                                        className="btn modal-save-btn"
                                         disabled={projectUpdateLoading}
                                       >
                                         {projectUpdateLoading ? (
@@ -5377,7 +4741,7 @@ const LeadDetail = () => {
                                       </button>
                                       <button
                                         type="button"
-                                        className="btn cancel-btn"
+                                        className="btn modal-cancel-btn"
                                         onClick={handleCloseEditProjectModal}
                                         disabled={projectUpdateLoading}
                                       >
@@ -5397,85 +4761,138 @@ const LeadDetail = () => {
                   {/* Opportunities Tab Content */}
                   {activeTab === 'opportunities' && (
                     <div className="mb-4 left-section-container">
-                      <div className="row custom_opp_create_btn">
-                          <a href='javaascript:void(0)'>
+                      <div className="row mb-3">
+                        <div className="col-12">
+                          <button className="btn btn-new-opportunity">
                             <i className="fa-solid fa-plus"></i> New Opportunity
-                          </a>
+                          </button>
+                        </div>
                       </div>
 
-                      {opportunities.length === 0 ? (
-                        <div className="text-center mt-4">
-                          <p>No opportunities found for this lead.</p>
-                        </div>
-                      ) : (
-                        opportunities.map((opportunity) => (
-                          <div key={opportunity.id} className="row custom_opp_tab">
-                            <div className="col-sm-12">
-                              <div className="custom_opp_tab_header">
-                                <h5>{opportunity.OpportunityName}</h5>
-                                <div className="opp_edit_dlt_btn projects-iris">
-                                  <a
-                                    className="edit_project"
-                                    href="javascript:void(0)"
-                                    title="Edit"
-                                    onClick={() => handleEditOpportunity(opportunity)}
-                                  >
-                                    <i className="fas fa-pen"></i>
-                                  </a>
-                                  <a
-                                    className="delete_project"
-                                    href="javascript:void(0)"
-                                    title="Delete"
-                                    onClick={() => showDeleteConfirmation(opportunity)}
-                                  >
-                                    <i className="fas fa-trash"></i>
-                                  </a>
+                      <div className="row opportunity_tab_data mt-4">
+                        {opportunities.length === 0 ? (
+                          <div className="col-12 text-center">
+                            <p>No opportunities found for this lead.</p>
+                          </div>
+                        ) : (
+                          opportunities.map((opportunity) => (
+                            <div key={opportunity.id} className="col-md-12 mb-3">
+                              <div className="opportunity-card">
+                                <div className="opportunity-header">
+                                  <div className="opportunity-title">
+                                    {opportunity.opportunity_name}
+                                  </div>
+                                  <div className="opportunity-actions">
+                                    <button
+                                      className="btn btn-sm btn-icon edit-btn"
+                                      onClick={() => handleEditOpportunity(opportunity)}
+                                      title="Edit Opportunity"
+                                    >
+                                      <i className="fas fa-pen"></i>
+                                    </button>
+                                    <button
+                                      className="btn btn-sm btn-icon delete-btn"
+                                      onClick={() => showDeleteConfirmation(opportunity)}
+                                      title="Delete Opportunity"
+                                    >
+                                      <i className="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="opportunity-body">
+                                  <div className="row">
+                                    <div className="col-md-6">
+                                      <div className="opportunity-detail">
+                                        <span className="detail-label">Created Date:</span>
+                                        <span className="detail-value">{opportunity.created_date}</span>
+                                      </div>
+                                      <div className="opportunity-detail">
+                                        <span className="detail-label">Current Stage:</span>
+                                        <span className="detail-value stage-value">{opportunity.stage}</span>
+                                      </div>
+                                      <div className="opportunity-detail">
+                                        <span className="detail-label">Next Step:</span>
+                                        <span className="detail-value">{opportunity.next_step || '-'}</span>
+                                      </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                      <div className="opportunity-detail">
+                                        <span className="detail-label">Opportunity Owner:</span>
+                                        <span className="detail-value">{opportunity.created_by}</span>
+                                      </div>
+                                      <div className="opportunity-detail">
+                                        <span className="detail-label">Opportunity Amount:</span>
+                                        <span className="detail-value">{opportunity.currency} {opportunity.opportunity_amount}</span>
+                                      </div>
+                                      <div className="opportunity-detail">
+                                        <span className="detail-label">Expected Close date:</span>
+                                        <span className="detail-value">{opportunity.expected_close_date}</span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                            <div className="col-md-7 text-left">
-                              <div className="lead_des">
-                                <p><b>Created Date:</b> {opportunity.CreatedAt}</p>
-                                <p><b>Current Stage:</b> {opportunity.Stage}</p>
-                                <p><b>Next Step:</b> {opportunity.NextStep || '-'}</p>
-                              </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Delete Opportunity Confirmation */}
+                      {deleteOpportunityLoading && (
+                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
+                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
+                            <div className="spinner-border text-primary mb-3" role="status">
+                              <span className="visually-hidden">Loading...</span>
                             </div>
-                            <div className="col-md-5">
-                              <div className="lead_des">
-                                <p><b>Opportunity Owner:</b> {opportunity.CreatedBy}</p>
-                                <p><b>Opportunity Amount:</b> {opportunity.currencyName} {opportunity.OpportunityAmount}</p>
-                                <p><b>Expected Close date:</b> {opportunity.ExpectedCloseDate}</p>
-                              </div>
+                            <p className="mb-0">Deleting opportunity...</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {deleteOpportunitySuccess && (
+                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
+                          <div className="bg-white p-4 rounded shadow-lg text-center" style={{ maxWidth: '400px' }}>
+                            <div className="text-success mb-3">
+                              <i className="fas fa-check-circle fa-3x"></i>
+                            </div>
+                            <p className="mb-0">Opportunity deleted successfully!</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {deleteOpportunityError && (
+                        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
+                          <div className="bg-white p-4 rounded shadow-lg" style={{ maxWidth: '400px' }}>
+                            <div className="text-danger mb-3 text-center">
+                              <i className="fas fa-exclamation-circle fa-3x"></i>
+                            </div>
+                            <p className="mb-3 text-center">{deleteOpportunityError}</p>
+                            <div className="text-center">
+                              <button
+                                className="btn btn-secondary"
+                                onClick={() => setDeleteOpportunityError(null)}
+                              >
+                                Close
+                              </button>
                             </div>
                           </div>
-                        ))
+                        </div>
                       )}
 
                       {/* Edit Opportunity Modal */}
                       {showEditOpportunityModal && (
                         <>
                           <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                          {/* Loading overlay when fetching or updating */}
-                          {opportunityUpdateLoading && (
-                            <div className="loading-overlay">
-                              <div className="loading-spinner-container">
-                                <div className="loading-spinner"></div>
-                                <p className="loading-text">Updating opportunity...</p>
-                              </div>
-                            </div>
-                          )}
                           <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
                             <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div
-                                className="modal-content"
-                                style={{ borderRadius: '8px', marginTop: '6%' }}
-                              >
+                              <div className="modal-content" style={{ borderRadius: '8px' }}>
                                 <div className="modal-header pb-2">
                                   <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
                                   <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
                                 </div>
                                 <div className="modal-body">
-                                  {/* Form fields for Edit Opportunity */}
+                                  {console.log('Current milestone value in form:', opportunityFormData.milestone)}
+                                  {console.log('Available milestones:', milestones)}
                                   <form onSubmit={(e) => { e.preventDefault(); handleUpdateOpportunity(); }}>
                                     <div className="row mb-3">
                                       <div className="col-md-6">
@@ -5495,7 +4912,7 @@ const LeadDetail = () => {
                                       </div>
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
-                                          <label className="form-label">Lead Name:</label>
+                                          <label className="form-label">Lead Name:*</label>
                                           <input
                                             type="text"
                                             className="form-control"
@@ -5504,7 +4921,7 @@ const LeadDetail = () => {
                                               ...prev,
                                               lead_name: e.target.value
                                             }))}
-                                            disabled
+                                            required
                                           />
                                         </div>
                                       </div>
@@ -5514,27 +4931,16 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Products:*</label>
-                                          <select
-                                            className="form-select"
+                                          <input
+                                            type="text"
+                                            className="form-control"
                                             value={opportunityFormData.product}
-                                            onChange={(e) => {
-                                              const selectedProduct = e.target.value;
-                                              setOpportunityFormData(prev => ({
-                                                ...prev,
-                                                product: selectedProduct,
-                                                milestone: '' // Reset milestone when product changes
-                                              }));
-
-                                              // Update product selection
-                                              console.log('Product selected:', selectedProduct);
-                                            }}
+                                            onChange={(e) => setOpportunityFormData(prev => ({
+                                              ...prev,
+                                              product: e.target.value
+                                            }))}
                                             required
-                                          >
-                                            <option value="">Select Product</option>
-                                            <option value="ERC">ERC</option>
-                                            <option value="STC">STC</option>
-                                            <option value="R&D">R&D</option>
-                                          </select>
+                                          />
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5626,6 +5032,9 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
+                                            <div className="select-arrow">
+                                              <i className="fas fa-chevron-down"></i>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5635,34 +5044,16 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Created Date:*</label>
-                                          <div className="input-group">
-                                            <input
-                                              type="text"
-                                              className="form-control"
-                                              value={opportunityFormData.created_date ? formatDateToMMDDYYYY(opportunityFormData.created_date) : ''}
-                                              onChange={(e) => setOpportunityFormData(prev => ({
-                                                ...prev,
-                                                created_date: e.target.value
-                                              }))}
-                                              placeholder="MM/DD/YYYY"
-                                              maxLength="10"
-                                              onInput={(e) => {
-                                                // Auto-format as user types MM/DD/YYYY
-                                                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                                                if (value.length >= 2) {
-                                                  value = value.substring(0, 2) + '/' + value.substring(2);
-                                                }
-                                                if (value.length >= 5) {
-                                                  value = value.substring(0, 5) + '/' + value.substring(5, 9);
-                                                }
-                                                e.target.value = value;
-                                              }}
-                                              required
-                                            />
-                                            <span className="input-group-text">
-                                              <i className="fas fa-calendar-alt"></i>
-                                            </span>
-                                          </div>
+                                          <input
+                                            type="date"
+                                            className="form-control"
+                                            value={opportunityFormData.created_date}
+                                            onChange={(e) => setOpportunityFormData(prev => ({
+                                              ...prev,
+                                              created_date: e.target.value
+                                            }))}
+                                            required
+                                          />
                                         </div>
                                       </div>
                                       <div className="col-md-6">
@@ -5706,6 +5097,9 @@ const LeadDetail = () => {
                                                 </option>
                                               ))}
                                             </select>
+                                            <div className="select-arrow">
+                                              <i className="fas fa-chevron-down"></i>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
@@ -5824,7 +5218,7 @@ const LeadDetail = () => {
                                     <div className="d-flex justify-content-center gap-3 mt-4">
                                       <button
                                         type="submit"
-                                        className="btn save-btn"
+                                        className="btn modal-save-btn"
                                         disabled={opportunityUpdateLoading}
                                       >
                                         {opportunityUpdateLoading ? (
@@ -5836,7 +5230,7 @@ const LeadDetail = () => {
                                       </button>
                                       <button
                                         type="button"
-                                        className="btn cancel-btn"
+                                        className="btn modal-cancel-btn"
                                         onClick={handleCloseEditOpportunityModal}
                                         disabled={opportunityUpdateLoading}
                                       >
@@ -5856,7 +5250,8 @@ const LeadDetail = () => {
                   {/* Audit Logs Tab Content */}
                   {activeTab === 'auditLogs' && (
                     <div className="mb-4 left-section-container">
-                      <AuditLogsMultiSection leadId={leadId || '9020'} />
+                      <h4>Audit Logs</h4>
+                      <p>Audit logs will be displayed here.</p>
                     </div>
                   )}
                 </div>
@@ -5982,12 +5377,6 @@ const LeadDetail = () => {
                         .remove-tag-btn:hover {
                           color: #dc3545;
                         }
-                          .card_trashed{
-                            background:#efefef;
-                          }
-                            .modal-backdrop{
-                              opacity:1!important;
-                            }
                       `}</style>
                     </div>
                   </div>
@@ -6093,7 +5482,7 @@ const LeadDetail = () => {
                       <div className="action-buttons">
                         <button
                           className="btn save-btn"
-                          onClick={handleSubmit(handleSave)}
+                          onClick={handleSave}
                           disabled={loading}
                         >
                           {loading ? (
@@ -6127,29 +5516,8 @@ const LeadDetail = () => {
                 </div>
               </div>
 
-                {/* Debug Panel */}
-                <div style={{
-                  position: 'fixed',
-                  bottom: '10px',
-                  right: '10px',
-                  background: 'rgba(0,0,0,0.7)',
-                  color: 'white',
-                  padding: '10px',
-                  borderRadius: '5px',
-                  fontSize: '12px',
-                  maxWidth: '300px',
-                  maxHeight: '200px',
-                  overflow: 'auto',
-                  zIndex: 9999,
-                  display: 'none' // Set to 'block' to show
-                }}>
-                  <h6>Debug Info</h6>
-                  <p>Active Tab: {activeTab}</p>
-                  <p>Primary Contact Email: {primaryContact.email}</p>
-                  <p>Primary Contact Phone: {primaryContact.phone}</p>
-                  <p>Ref Primary Email: {contactDataRef.current.primary.email}</p>
-                  <p>Ref Primary Phone: {contactDataRef.current.primary.phone}</p>
-                </div>
+
+
             </div>
           </div>
         </div>
@@ -6162,179 +5530,8 @@ const LeadDetail = () => {
         contactId={currentContactId}
         leadId={leadId}
       />
-
-      {/* Link Contact Modal */}
-      {showLinkContactModal && (
-        <>
-          <div className="modal-backdrop show" style={{ display: 'block', zIndex: 1040 }}></div>
-          <div className="modal fade show" style={{ display: 'block', zIndex: 1050 }} tabIndex="-1" aria-modal="true" role="dialog">
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Link a Contact</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={handleCloseLinkContactModal}
-                    disabled={linkContactLoading}
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div className="modal-body">
-                  <div className="form-group mb-4">
-                    <label htmlFor="contact-select" className="form-label">Contact Name*:</label>
-                    <Select
-                      id="contact-select"
-                      value={selectedContact}
-                      onChange={handleContactSelection}
-                      options={contactOptions}
-                      className="contact-select-container"
-                      classNamePrefix="react-select"
-                      placeholder={contactOptions.length === 0 ? "Loading contacts..." : "Select Contact"}
-                      isClearable
-                      isSearchable
-                      isDisabled={linkContactLoading}
-                      isLoading={contactOptions.length === 0}
-                      noOptionsMessage={() => contactOptions.length === 0 ? "Loading contacts..." : "No matching contacts found"}
-                      formatOptionLabel={option => (
-                        <div className="contact-option">
-                          <span className="contact-name">{option.label.split('(')[0].trim()}</span>
-                          <span className="contact-id">({option.label.split('(')[1]}</span>
-                        </div>
-                      )}
-                      menuPortalTarget={document.body}
-                      menuPosition="fixed"
-                      menuPlacement="auto"
-                      styles={{
-                        menuPortal: (base) => ({ ...base, zIndex: 9999 })
-                      }}
-                      components={{
-                        DropdownIndicator: () => null,
-                        IndicatorSeparator: () => null
-                      }}
-                    />
-                    <small className="text-muted">Search or select a contact from the dropdown list</small>
-                  </div>
-
-                  {linkContactError && (
-                    <div className="alert alert-danger" role="alert">
-                      {linkContactError}
-                    </div>
-                  )}
-                </div>
-                <div className="modal-footer">
-
-                  <button
-                    className="btn save-btn"
-                    onClick={handleLinkContact}
-                    disabled={!selectedContact || linkContactLoading}
-                  >
-                    {linkContactLoading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Linking...
-                      </>
-                    ) : 'Link'}
-                  </button>
-                   <button
-                    className="btn cancel-btn"
-                    onClick={handleCloseLinkContactModal}
-                    disabled={linkContactLoading}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 };
 
 export default LeadDetail;
-
-// Add custom CSS for DatePicker styling
-const style = document.createElement('style');
-style.textContent = `
-  .react-datepicker-wrapper {
-    width: 100%;
-  }
-
-  .react-datepicker__input-container input {
-    width: 100%;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #212529;
-    background-color: #fff;
-    background-image: none;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  }
-
-  .react-datepicker__input-container input:focus {
-    color: #212529;
-    background-color: #fff;
-    border-color: #86b7fe;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-  }
-
-  .react-datepicker__input-container input::placeholder {
-    color: #6c757d;
-    opacity: 1;
-  }
-
-  .custom-datepicker-popper {
-    z-index: 9999;
-  }
-
-  .react-datepicker {
-    font-family: inherit;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  }
-
-  .react-datepicker__header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-  }
-
-  .react-datepicker__current-month {
-    color: #495057;
-    font-weight: 600;
-  }
-
-  .react-datepicker__day-name {
-    color: #6c757d;
-    font-weight: 600;
-  }
-
-  .react-datepicker__day:hover {
-    background-color: #e9ecef;
-  }
-
-  .react-datepicker__day--selected {
-    background-color: #0d6efd;
-    color: white;
-  }
-
-  .react-datepicker__day--selected:hover {
-    background-color: #0b5ed7;
-  }
-
-  .react-datepicker__day--today {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-`;
-
-if (!document.head.querySelector('style[data-datepicker-styles]')) {
-  style.setAttribute('data-datepicker-styles', 'true');
-  document.head.appendChild(style);
-}

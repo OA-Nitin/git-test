@@ -1857,7 +1857,7 @@ const ProjectDetail = () => {
             value: response.data.milestone_id,
             label: response.data.milestone_name
           };
-          setMilestone(milestoneData);
+          // setMilestone(milestoneData);
           console.log('Setting milestone:', milestoneData);
         }
 
@@ -1867,7 +1867,7 @@ const ProjectDetail = () => {
             value: response.data.milestone_stage_id,
             label: response.data.milestone_stage_name
           };
-          setProjectStage(stageData);
+          // setProjectStage(stageData);
           console.log('Setting stage:', stageData);
 
           // Also update the milestoneStages array with this stage
@@ -3509,6 +3509,78 @@ const ProjectDetail = () => {
   const handleProjectGroupChange = (selectedOption) => {
     // This function is kept for compatibility with other parts of the code
     console.log("Project group changed:", selectedOption);
+  };
+
+  // Add state variables to store original values
+  const [originalMilestone, setOriginalMilestone] = useState(null);
+  const [originalStage, setOriginalStage] = useState(null);
+
+  // Function to start editing milestone and stage
+  const startEditingMilestoneStage = () => {
+    // Save the current milestone and stage before editing
+    setOriginalMilestone(milestone);
+    setOriginalStage(projectStage);
+    setIsEditing(true); // Using the existing isEditing state
+  };
+
+  // Function to cancel milestone and stage editing
+  const cancelMilestoneStageEdit = () => {
+    console.log('Canceling milestone and stage edit');
+    console.log('Original milestone:', originalMilestone);
+    console.log('Original stage:', originalStage);
+    
+    // Restore the original milestone and stage
+    if (originalMilestone) {
+      setMilestone(originalMilestone);
+    }
+    
+    if (originalStage) {
+      setProjectStage(originalStage);
+    }
+    
+    // If we have the original milestone, also restore the original milestone stages
+    // if (originalMilestone && originalMilestone.value) {
+    //   // Fetch the stages for the original milestone without changing the selection
+    //   fetchMilestoneStages(originalMilestone.value, false);
+    // }
+    
+    setIsEditing(false);
+  };
+
+  // Add a state to keep track of the original owner before editing
+  const [originalOwner, setOriginalOwner] = useState(null);
+
+  // Modify the function that opens the editing mode
+  const startEditingOwner = () => {
+    // Save the current owner before editing
+    setOriginalOwner(owner);
+    setIsEditingOwner(true);
+  };
+
+  // Modify the cancel function to restore the original owner
+  const cancelOwnerEdit = () => {
+    // Restore the original owner
+    if (originalOwner) {
+      setOwner(originalOwner);
+    }
+    setIsEditingOwner(false);
+  };
+
+  const [originalContact, setOriginalContact] = useState(null);
+  const startEditingContact = () => {
+    // Save the current contact before editing
+    setOriginalContact(selectedContact);
+    setIsEditingContact(true);
+  };
+
+  // Modify the cancel function to restore the original contact
+  const cancelContactEdit = () => {
+    console.log('come here');
+    // Restore the original contact
+    if (originalContact) {
+      setSelectedContact(originalContact);
+    }
+    setIsEditingContact(false);
   };
 
   // Function to handle owner selection change (only updates state, doesn't call API)
@@ -9545,7 +9617,8 @@ const ProjectDetail = () => {
                         {!isEditing && (
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            onClick={() => setIsEditing(true)}
+                            // onClick={() => setIsEditing(true)}
+                            onClick={startEditingMilestoneStage}
                             style={{ fontSize: '16px' }}
                           >
                             <i className="fas fa-edit"></i>
@@ -9641,7 +9714,8 @@ const ProjectDetail = () => {
                           </button>
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            // onClick={() => setIsEditing(false)}
+                            onClick={cancelMilestoneStageEdit}
                             disabled={isLoadingMilestones || isLoadingStages}
                             style={{
                               backgroundColor: 'white',
@@ -9757,7 +9831,8 @@ const ProjectDetail = () => {
                         {!isEditingOwner && (
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            onClick={() => setIsEditingOwner(true)}
+                            onClick={startEditingOwner}
+                            // onClick={() => setIsEditingOwner(true)}
                             style={{ fontSize: '16px' }}
                           >
                             <i className="fas fa-edit"></i>
@@ -9767,7 +9842,9 @@ const ProjectDetail = () => {
 
                       {!isEditingOwner ? (
                         <div className="owner-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{owner.label}</span>
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>
+                            {owner && owner.label ? owner.label : 'No owner assigned'}
+                          </span>
                         </div>
                       ) : (
                         <div className="owner-edit mb-4">
@@ -9816,7 +9893,7 @@ const ProjectDetail = () => {
                             <button
                               className="btn btn-sm"
                               onClick={saveOwner}
-                              disabled={ownerLoading}
+                              disabled={ownerLoading || !owner}
                               style={{
                                 backgroundColor: '#4CAF50',
                                 color: 'white',
@@ -9829,7 +9906,8 @@ const ProjectDetail = () => {
                             </button>
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingOwner(false)}
+                              onClick={cancelOwnerEdit}
+                              // onClick={() => setIsEditingOwner(false)}
                               disabled={ownerLoading}
                               style={{
                                 backgroundColor: 'white',
@@ -9854,7 +9932,8 @@ const ProjectDetail = () => {
                         {!isEditingContact && (
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            onClick={() => setIsEditingContact(true)}
+                            onClick={startEditingContact}
+                            // onClick={() => setIsEditingContact(true)}
                             style={{ fontSize: '16px' }}
                           >
                             <i className="fas fa-edit"></i>
@@ -9926,7 +10005,8 @@ const ProjectDetail = () => {
                             </button>
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingContact(false)}
+                              // onClick={() => setIsEditingContact(false)}
+                              onClick={cancelContactEdit}
                               disabled={contactLoading}
                               style={{
                                 backgroundColor: 'white',
