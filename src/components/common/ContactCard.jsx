@@ -36,10 +36,11 @@ const ContactCard = ({
       case 'lead':
         return {
           id: 'lead_id',
-          name: 'business_name',
+          name: 'authorized_signatory_name',
           phone: 'business_phone',
           email: 'business_email',
           signatory: 'authorized_signatory_name',
+          projectName: 'business_legal_name',
           status: 'status',
           stage: 'stage'
         };
