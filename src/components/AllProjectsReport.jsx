@@ -529,7 +529,7 @@ const AllProjectsReport = () => {
           return `"${businessName.replace(/"/g, '""')}"`;
         }
         if (column.id === 'contactCard') {
-          const contactName = project.business_legal_name || '';
+          const contactName = project.authorized_signatory_name || '';
           const phone = project.business_phone || '';
           const email = project.business_email || '';
           return `${contactName} | ${phone} | ${email}`;
@@ -617,7 +617,7 @@ const AllProjectsReport = () => {
           if (column.id === 'date') return formatDate(project.created_at) || '';
           if (column.id === 'businessName') return project.business_legal_name || '';
           if (column.id === 'contactCard') {
-            const contactName = project.business_legal_name || '';
+            const contactName = project.authorized_signatory_name || '';
             const phone = project.business_phone || '';
             const email = project.business_email || '';
             return `${contactName} | ${phone} | ${email}`;
@@ -689,7 +689,7 @@ const AllProjectsReport = () => {
           if (column.id === 'date') rowData[column.label] = formatDate(project.created_at) || '';
           else if (column.id === 'businessName') rowData[column.label] = project.business_legal_name || '';
           else if (column.id === 'contactCard') {
-            const contactName = project.business_legal_name || '';
+            const contactName = project.authorized_signatory_name || '';
             const phone = project.business_phone || '';
             const email = project.business_email || '';
             rowData[column.label] = `${contactName} | ${phone} | ${email}`;

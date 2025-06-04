@@ -47,7 +47,7 @@ const ContactCard = ({
       default:
         return {
           id: entity.project_id ? 'project_id' : 'id',
-          name: entity.business_legal_name ? 'business_legal_name' : 'business_name',
+          name: entity.authorized_signatory_name ? 'authorized_signatory_name' : 'business_name',
           phone: 'business_phone',
           email: 'business_email',
           projectName: entity.project_name ? 'project_name' : 'project',
@@ -96,10 +96,10 @@ const ContactCard = ({
             <div class="circle"><i class="fa-solid fa-id-badge" style={{fontSize:'26px'}}></i></div>
             <div class="card-exam-title">
               {projectName && entityType !== 'lead' && (
-                <p>{projectName}</p>
+                <p>{businessName}</p>
                 )}
                 {entity[fields.signatory] && (
-                <p>{entity[fields.signatory]}</p>
+                <p>{businessName}</p>
                 )}
                 <p>{businessPhone}</p>
                 <p>{businessEmail}</p>
@@ -128,7 +128,7 @@ const ContactCard = ({
       <Modal
         show={showModal}
         onClose={toggleModal}
-        title="Contact Card"
+        title={projectName}
         showFooter={false}
         size="md"
       >
