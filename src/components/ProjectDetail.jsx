@@ -9,7 +9,7 @@ import './common/ReportStyle.css';
 import './LeadDetail.css'; // Reusing the same CSS
 import './DocumentTable.css'; // Document table styling
 import Notes from './common/Notes';
-import { getAssetPath } from '../utils/assetUtils';
+import { getAssetPath, getUserId } from '../utils/assetUtils';
 import Swal from 'sweetalert2';
 import Modal from './common/Modal';
 
@@ -665,7 +665,7 @@ const ProjectDetail = () => {
   const [milestoneStages, setMilestoneStages] = useState([]);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
   const [isLoadingStages, setIsLoadingStages] = useState(false);
-  const [selectedProductId] = useState('935'); // Default to ERC
+  // const [selectedProductId] = useState('935'); // Default to ERC
 
 
   // State for edit mode
@@ -730,7 +730,7 @@ const ProjectDetail = () => {
     fetchProjectDetails();
 
     console.log('Initial useEffect - Fetching milestones for product ID 936');
-    fetchMilestones();
+    // fetchMilestones();
   }, [projectId]);
 
   // Reset onboarding status when signup status changes
@@ -1540,16 +1540,11 @@ const ProjectDetail = () => {
   // Fetch project milestone and stage when component loads
   useEffect(() => {
     if (projectId) {
-      // Then fetch all available milestones for the dropdown
-      // We'll do this with a slight delay to ensure the specific milestone is set first
-      setTimeout(() => {
-        fetchAllMilestones();
-      }, 400);
-
+      
       // First fetch the specific milestone and stage for this project
-      setTimeout(() => {
+      // setTimeout(() => {
         fetchProjectMilestoneAndStage();
-      }, 3000);
+      // }, 3000);
     }
   }, [projectId]);
 
@@ -1587,6 +1582,17 @@ const ProjectDetail = () => {
   useEffect(() => {
     if (project) {
       const productId = project.product_id;
+      // const [selectedProductId] = useState(productId);
+      
+      const selectedProductId = productId;
+
+      // Then fetch all available milestones for the dropdown
+      // We'll do this with a slight delay to ensure the specific milestone is set first
+      setTimeout(() => {
+        fetchAllMilestones(selectedProductId);
+      }, 400);
+
+      fetchMilestones(selectedProductId);
       console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
 
       // Check if current active tab should be hidden for this product
@@ -1900,7 +1906,7 @@ const ProjectDetail = () => {
   };
 
   // Function to fetch all available milestones for the dropdown
-  const fetchAllMilestones = async () => {
+  const fetchAllMilestones = async (selectedProductId) => {
     try {
       console.log('Fetching all available milestones');
 
@@ -1931,20 +1937,20 @@ const ProjectDetail = () => {
           }));
         }
         // If we have a valid list of milestones
-        if (formattedMilestones.length > 0) {
-          console.log('Setting all available milestones:', formattedMilestones);
+        // if (formattedMilestones.length > 0) {
+        //   console.log('Setting all available milestones:', formattedMilestones);
 
-          // Preserve the currently selected milestone
-          const currentMilestone = milestone;
+        //   // Preserve the currently selected milestone
+        //   const currentMilestone = milestone;
 
-          // Update the milestones array with all available options
-          setMilestones(formattedMilestones);
+        //   // Update the milestones array with all available options
+        //   setMilestones(formattedMilestones);
 
-          // Make sure the current milestone is still selected
-          if (currentMilestone) {
-            setMilestone(currentMilestone);
-          }
-        }
+        //   // Make sure the current milestone is still selected
+        //   if (currentMilestone) {
+        //     setMilestone(currentMilestone);
+        //   }
+        // }
       }
     } catch (err) {
       console.error('Error fetching all milestones:', err);
@@ -3374,7 +3380,7 @@ const ProjectDetail = () => {
 
           console.log('API response:', response);
 
-          if (response.data && response.data.status === 1) {
+          if (response.data && response.data.status === 200) {
             // Add the collaborator to the current collaborators list
             const newCollaborator = {
               collaborators_name_id: selectedCollaborator.collaborator.id,
@@ -3717,7 +3723,7 @@ const ProjectDetail = () => {
   };
 
   // Function to fetch milestones from API
-  const fetchMilestones = async () => {
+  const fetchMilestones = async (selectedProductId) => {
     try {
       setIsLoadingMilestones(true);
       console.log('Fetching milestones for product ID:', selectedProductId);
@@ -3762,8 +3768,8 @@ const ProjectDetail = () => {
           // If we have milestones, fetch stages for the first milestone
           if (formattedMilestones.length > 0) {
             const firstMilestone = formattedMilestones[0];
-            setMilestone(firstMilestone);
-            fetchMilestoneStages(firstMilestone.value);
+            // setMilestone(firstMilestone);
+            // fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
             console.log('No milestones found in array');
@@ -3788,8 +3794,8 @@ const ProjectDetail = () => {
           // If we have milestones, fetch stages for the first milestone
           if (formattedMilestones.length > 0) {
             const firstMilestone = formattedMilestones[0];
-            setMilestone(firstMilestone);
-            fetchMilestoneStages(firstMilestone.value);
+            // setMilestone(firstMilestone);
+            // fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
             console.log('No milestones found in nested structure');
@@ -4168,7 +4174,7 @@ const ProjectDetail = () => {
       const mappedData = {
         project_id: combinedData.project_id,
         tab: combinedData.tab,
-
+        user_id: getUserId(),
         // Personal Info - Map to the database column names
         authorized_signatory_name: project.authorized_signatory_name,
         business_phone: project.business_phone,
@@ -4758,6 +4764,7 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Name</label>
                             <input type="text" className="form-control" defaultValue={project?.project_name || ""} readOnly />
+                            <input type="hidden" name="user_id" value={getUserId()} />
                           </div>
                         </div>
                         <div className="col-md-4">

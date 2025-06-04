@@ -4,7 +4,7 @@ import axios from 'axios';
 import './createContact.css';
 import Select from 'react-select';
 
-const API_BASE_URL = 'https://play.occamsadvisory.com/portal/wp-json';
+const API_BASE_URL = 'https://portal.occamsadvisory.com/portal/wp-json';
 
 // Dynamic config generator
 const getApiConfig = (needsAuth = true) => {
