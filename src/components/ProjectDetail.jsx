@@ -1863,7 +1863,7 @@ const ProjectDetail = () => {
             value: response.data.milestone_id,
             label: response.data.milestone_name
           };
-          // setMilestone(milestoneData);
+           setMilestone(milestoneData);
           console.log('Setting milestone:', milestoneData);
         }
 
@@ -1873,7 +1873,7 @@ const ProjectDetail = () => {
             value: response.data.milestone_stage_id,
             label: response.data.milestone_stage_name
           };
-          // setProjectStage(stageData);
+           setProjectStage(stageData);
           console.log('Setting stage:', stageData);
 
           // Also update the milestoneStages array with this stage
