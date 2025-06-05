@@ -13918,7 +13918,7 @@ a:hover {
 #adminmenuback,
 #adminmenuwrap {
   background: #ffffff;
-  box-shadow: 0 12px 30px rgb(80 143 244 / 10%);
+  /* box-shadow: 0 12px 30px rgb(80 143 244 / 10%); */
   width: auto;
 }
 
