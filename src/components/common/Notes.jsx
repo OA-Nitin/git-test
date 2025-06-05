@@ -12,8 +12,20 @@ import { noteFormSchema } from '../../components/validationSchemas/leadSchema.js
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+// date formate
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+// Extend dayjs with plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
+
+
 // Standardized date formatting function for MM/DD/YYYY format
-const formatDateToMMDDYYYY = (dateString) => {
+const formatDateToMMDDYYYYss = (dateString) => {
   if (!dateString) return '';
 
   try {
@@ -33,6 +45,66 @@ const formatDateToMMDDYYYY = (dateString) => {
     return dateString;
   }
 };
+
+export function formatDateToMMDDYYYY(dateString) {
+    if (!dateString) return "Invalid Date";
+
+    // List of possible formats your dateString may come in
+    const possibleFormats = [
+        "YYYY-MM-DD HH:mm:ss",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssA",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD HH:mm:ssA",
+        "YYYY-MM-DD HH:mm:ss a"
+    ];
+
+    let parsedDate = null;
+
+    // Try parsing the string with all formats
+    for (let format of possibleFormats) {
+        const attempt = dayjs.tz(dateString, format, "UTC");
+        if (attempt.isValid()) {
+            parsedDate = attempt;
+            break;
+        }
+    }
+
+    // If none matched, fallback
+    if (!parsedDate) {
+        parsedDate = dayjs.tz(dateString, "UTC");
+        if (!parsedDate.isValid()) {
+            return "Invalid Date";
+        }
+    }
+
+    // Convert to EST timezone (America/New_York)
+    const estDate = parsedDate.tz("America/New_York");
+
+    // Format output like: (08:15am on Wed Jun 04th, 2025)
+    const hour12 = estDate.format("hh:mmA").toLowerCase();
+    const weekDay = estDate.format("ddd");
+    const month = estDate.format("MMM");
+    const day = estDate.format("DD");
+    const year = estDate.format("YYYY");
+
+    // Add ordinal suffix
+    const ordinalSuffix = (n) => {
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return s[(v - 20) % 10] || s[v] || s[0];
+    };
+
+    return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+}
 
 
 /**

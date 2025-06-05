@@ -9324,7 +9324,7 @@ const ProjectDetail = () => {
                           {/* Milestone & Stage Table */}
                           <div className="mb-4">
                             <div className="d-flex justify-content-between align-items-center mb-3">
-                              <h6 className="section-subtitle mb-0">Milestone & Stage</h6>
+                              <h6 className="section-subtitle mb-0">Milestone:</h6>
                               <div className="search-box" style={{ width: '300px' }}>
                                 <input
                                   type="text"
@@ -9616,7 +9616,7 @@ const ProjectDetail = () => {
 
 
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="card-title mb-0">Milestone & Stage:</h5>
+                        <h5 className="card-title mb-0">Milestone:</h5>
                         {!isEditing && (
                           <button
                             className="btn btn-sm btn-outline-primary"
@@ -9706,9 +9706,9 @@ const ProjectDetail = () => {
                             onClick={saveMilestoneAndStage}
                             disabled={!milestone || !projectStage || isLoadingMilestones || isLoadingStages}
                             style={{
-                              backgroundColor: 'white',
-                              color: '#ff6a00',
-                              border: '1px solid #ff6a00',
+                              backgroundColor: 'rgb(76, 175, 80)',
+                              color: 'white',
+                              border: 'none',
                               borderRadius: '20px',
                               padding: '5px 25px'
                             }}
