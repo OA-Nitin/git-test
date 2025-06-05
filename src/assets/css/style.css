@@ -16049,9 +16049,9 @@ html {
   padding: 5px 0;
 }
 
-#adminmenumain #adminmenu .wp-has-current-submenu div.wp-menu-image:before {
+/* #adminmenumain #adminmenu .wp-has-current-submenu div.wp-menu-image:before {
   color: #fff;
-}
+} */
 
 #adminmenumain #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu {
   color: #fff !important;
