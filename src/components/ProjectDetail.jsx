@@ -1861,6 +1861,7 @@ const ProjectDetail = () => {
           };
            setMilestone(milestoneData);
           console.log('Setting milestone:', milestoneData);
+          fetchMilestoneStages(response.data.milestone_id, true);
         }
 
         // Set stage
@@ -3919,7 +3920,7 @@ const ProjectDetail = () => {
           // Otherwise, preserve the current stage if it exists
           if (isUserSelection) {
             if (formattedStages.length > 0) {
-              setProjectStage(formattedStages[0]);
+              // setProjectStage(formattedStages[0]);
             } else {
               setProjectStage(null);
             }
