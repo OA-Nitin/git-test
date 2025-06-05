@@ -1694,11 +1694,7 @@ const ProjectDetail = () => {
         // Format options for react-select
         const options = collaboratorsData.map(collaborator => ({
           value: collaborator.user_id,
-          label: (
-            <div className="d-flex align-items-center">
-              <span>{collaborator.display_name}</span>
-            </div>
-          ),
+          label: collaborator.display_name,
           collaborator: {
             id: collaborator.user_id,
             name: collaborator.display_name
@@ -9765,7 +9761,6 @@ const ProjectDetail = () => {
                           </div>
                         )}
                       </div>
-
                       {/* Select dropdown for collaborator assignment */}
                       <div className="form-group mb-3">
                         <label htmlFor="collaboratorSelect" className="form-label">Add Collaborator:</label>
