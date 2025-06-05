@@ -9,7 +9,7 @@ import './common/ReportStyle.css';
 import './LeadDetail.css'; // Reusing the same CSS
 import './DocumentTable.css'; // Document table styling
 import Notes from './common/Notes';
-import { getAssetPath } from '../utils/assetUtils';
+import { getAssetPath, getUserId } from '../utils/assetUtils';
 import Swal from 'sweetalert2';
 import Modal from './common/Modal';
 
@@ -665,7 +665,7 @@ const ProjectDetail = () => {
   const [milestoneStages, setMilestoneStages] = useState([]);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
   const [isLoadingStages, setIsLoadingStages] = useState(false);
-  const [selectedProductId] = useState('935'); // Default to ERC
+  // const [selectedProductId] = useState('935'); // Default to ERC
 
 
   // State for edit mode
@@ -730,7 +730,7 @@ const ProjectDetail = () => {
     fetchProjectDetails();
 
     console.log('Initial useEffect - Fetching milestones for product ID 936');
-    fetchMilestones();
+    // fetchMilestones();
   }, [projectId]);
 
   // Reset onboarding status when signup status changes
@@ -1540,16 +1540,11 @@ const ProjectDetail = () => {
   // Fetch project milestone and stage when component loads
   useEffect(() => {
     if (projectId) {
-      // Then fetch all available milestones for the dropdown
-      // We'll do this with a slight delay to ensure the specific milestone is set first
-      setTimeout(() => {
-        fetchAllMilestones();
-      }, 400);
-
+      
       // First fetch the specific milestone and stage for this project
-      setTimeout(() => {
+      // setTimeout(() => {
         fetchProjectMilestoneAndStage();
-      }, 3000);
+      // }, 3000);
     }
   }, [projectId]);
 
@@ -1587,6 +1582,17 @@ const ProjectDetail = () => {
   useEffect(() => {
     if (project) {
       const productId = project.product_id;
+      // const [selectedProductId] = useState(productId);
+      
+      const selectedProductId = productId;
+
+      // Then fetch all available milestones for the dropdown
+      // We'll do this with a slight delay to ensure the specific milestone is set first
+      setTimeout(() => {
+        fetchAllMilestones(selectedProductId);
+      }, 400);
+
+      fetchMilestones(selectedProductId);
       console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
 
       // Check if current active tab should be hidden for this product
@@ -1688,11 +1694,7 @@ const ProjectDetail = () => {
         // Format options for react-select
         const options = collaboratorsData.map(collaborator => ({
           value: collaborator.user_id,
-          label: (
-            <div className="d-flex align-items-center">
-              <span>{collaborator.display_name}</span>
-            </div>
-          ),
+          label: collaborator.display_name,
           collaborator: {
             id: collaborator.user_id,
             name: collaborator.display_name
@@ -1857,7 +1859,7 @@ const ProjectDetail = () => {
             value: response.data.milestone_id,
             label: response.data.milestone_name
           };
-          setMilestone(milestoneData);
+           setMilestone(milestoneData);
           console.log('Setting milestone:', milestoneData);
         }
 
@@ -1867,7 +1869,7 @@ const ProjectDetail = () => {
             value: response.data.milestone_stage_id,
             label: response.data.milestone_stage_name
           };
-          setProjectStage(stageData);
+           setProjectStage(stageData);
           console.log('Setting stage:', stageData);
 
           // Also update the milestoneStages array with this stage
@@ -1900,7 +1902,7 @@ const ProjectDetail = () => {
   };
 
   // Function to fetch all available milestones for the dropdown
-  const fetchAllMilestones = async () => {
+  const fetchAllMilestones = async (selectedProductId) => {
     try {
       console.log('Fetching all available milestones');
 
@@ -1931,20 +1933,20 @@ const ProjectDetail = () => {
           }));
         }
         // If we have a valid list of milestones
-        if (formattedMilestones.length > 0) {
-          console.log('Setting all available milestones:', formattedMilestones);
+        // if (formattedMilestones.length > 0) {
+        //   console.log('Setting all available milestones:', formattedMilestones);
 
-          // Preserve the currently selected milestone
-          const currentMilestone = milestone;
+        //   // Preserve the currently selected milestone
+        //   const currentMilestone = milestone;
 
-          // Update the milestones array with all available options
-          setMilestones(formattedMilestones);
+        //   // Update the milestones array with all available options
+        //   setMilestones(formattedMilestones);
 
-          // Make sure the current milestone is still selected
-          if (currentMilestone) {
-            setMilestone(currentMilestone);
-          }
-        }
+        //   // Make sure the current milestone is still selected
+        //   if (currentMilestone) {
+        //     setMilestone(currentMilestone);
+        //   }
+        // }
       }
     } catch (err) {
       console.error('Error fetching all milestones:', err);
@@ -2228,6 +2230,9 @@ const ProjectDetail = () => {
       console.error('Error fetching project details:', err);
       setError(`Failed to fetch project details: ${err.message}`);
       setLoading(false);
+    }
+    finally {
+      setLoading(false);  // ✅ API complete hone ke baad loading false
     }
   };
 
@@ -3371,7 +3376,7 @@ const ProjectDetail = () => {
 
           console.log('API response:', response);
 
-          if (response.data && response.data.status === 1) {
+          if (response.data && response.data.status === 200) {
             // Add the collaborator to the current collaborators list
             const newCollaborator = {
               collaborators_name_id: selectedCollaborator.collaborator.id,
@@ -3508,6 +3513,78 @@ const ProjectDetail = () => {
     console.log("Project group changed:", selectedOption);
   };
 
+  // Add state variables to store original values
+  const [originalMilestone, setOriginalMilestone] = useState(null);
+  const [originalStage, setOriginalStage] = useState(null);
+
+  // Function to start editing milestone and stage
+  const startEditingMilestoneStage = () => {
+    // Save the current milestone and stage before editing
+    setOriginalMilestone(milestone);
+    setOriginalStage(projectStage);
+    setIsEditing(true); // Using the existing isEditing state
+  };
+
+  // Function to cancel milestone and stage editing
+  const cancelMilestoneStageEdit = () => {
+    console.log('Canceling milestone and stage edit');
+    console.log('Original milestone:', originalMilestone);
+    console.log('Original stage:', originalStage);
+    
+    // Restore the original milestone and stage
+    if (originalMilestone) {
+      setMilestone(originalMilestone);
+    }
+    
+    if (originalStage) {
+      setProjectStage(originalStage);
+    }
+    
+    // If we have the original milestone, also restore the original milestone stages
+    // if (originalMilestone && originalMilestone.value) {
+    //   // Fetch the stages for the original milestone without changing the selection
+    //   fetchMilestoneStages(originalMilestone.value, false);
+    // }
+    
+    setIsEditing(false);
+  };
+
+  // Add a state to keep track of the original owner before editing
+  const [originalOwner, setOriginalOwner] = useState(null);
+
+  // Modify the function that opens the editing mode
+  const startEditingOwner = () => {
+    // Save the current owner before editing
+    setOriginalOwner(owner);
+    setIsEditingOwner(true);
+  };
+
+  // Modify the cancel function to restore the original owner
+  const cancelOwnerEdit = () => {
+    // Restore the original owner
+    if (originalOwner) {
+      setOwner(originalOwner);
+    }
+    setIsEditingOwner(false);
+  };
+
+  const [originalContact, setOriginalContact] = useState(null);
+  const startEditingContact = () => {
+    // Save the current contact before editing
+    setOriginalContact(selectedContact);
+    setIsEditingContact(true);
+  };
+
+  // Modify the cancel function to restore the original contact
+  const cancelContactEdit = () => {
+    console.log('come here');
+    // Restore the original contact
+    if (originalContact) {
+      setSelectedContact(originalContact);
+    }
+    setIsEditingContact(false);
+  };
+
   // Function to handle owner selection change (only updates state, doesn't call API)
   const handleOwnerChange = (selectedOption) => {
     console.log('Owner selection changed to:', selectedOption);
@@ -3642,7 +3719,7 @@ const ProjectDetail = () => {
   };
 
   // Function to fetch milestones from API
-  const fetchMilestones = async () => {
+  const fetchMilestones = async (selectedProductId) => {
     try {
       setIsLoadingMilestones(true);
       console.log('Fetching milestones for product ID:', selectedProductId);
@@ -3687,8 +3764,8 @@ const ProjectDetail = () => {
           // If we have milestones, fetch stages for the first milestone
           if (formattedMilestones.length > 0) {
             const firstMilestone = formattedMilestones[0];
-            setMilestone(firstMilestone);
-            fetchMilestoneStages(firstMilestone.value);
+            // setMilestone(firstMilestone);
+            // fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
             console.log('No milestones found in array');
@@ -3713,8 +3790,8 @@ const ProjectDetail = () => {
           // If we have milestones, fetch stages for the first milestone
           if (formattedMilestones.length > 0) {
             const firstMilestone = formattedMilestones[0];
-            setMilestone(firstMilestone);
-            fetchMilestoneStages(firstMilestone.value);
+            // setMilestone(firstMilestone);
+            // fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
             console.log('No milestones found in nested structure');
@@ -4093,7 +4170,7 @@ const ProjectDetail = () => {
       const mappedData = {
         project_id: combinedData.project_id,
         tab: combinedData.tab,
-
+        user_id: getUserId(),
         // Personal Info - Map to the database column names
         authorized_signatory_name: project.authorized_signatory_name,
         business_phone: project.business_phone,
@@ -4454,92 +4531,18 @@ const ProjectDetail = () => {
     try {
       // Set loading state
       setIsUpdating(true);
-
-      console.log('Updating project with data:', data);
-
-      // Always include project ID
-      const baseData = {
-        project_id: project?.project_id,
-        tab: activeTab,
-      };
-
-      // Combine the base data with the tab-specific data
-      const combinedData = { ...baseData, ...data };
-      console.log('Combined data:', data);
-
-      // Map the data to the correct database column names
-      const mappedData = {
-        project_id: combinedData.project_id,
-        tab: combinedData.tab,
-
-        // Personal Info - Map to the database column names
-        authorized_signatory_name: project.authorized_signatory_name,
-        business_phone: project.business_phone,
-        business_email: project.business_email,
-        business_title: project.business_title,
-        zip: project.zip,
-        street_address: project.street_address,
-        city: project.city,
-        state: project.state,
-        identity_document_type: project.identity_document_type,
-        identity_document_number: project.identity_document_number,
-
-        // Business Info
-        business_legal_name: project.business_legal_name,
-        doing_business_as: project.doing_business_as,
-        business_category: project.business_category,
-        website_url: project.website_url,
-
-        // Business Legal Info
-        business_entity_type: project.business_entity_type,
-        registration_number: project.registration_number,
-        registration_date: project.registration_date,
-        state_of_registration: project.state_of_registration,
-      };
-
-      console.log('Mapped data for API:', mappedData);
-
-      // Make a direct API call instead of form submission
-      const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(mappedData),
-      });
-
-      // Parse the response
-      const responseData = await response.json();
-      console.log('API response:', responseData);
-
-      // Check if the response indicates success
-      if (response.ok && (responseData.success || responseData.status === 1)) {
-        // Exit edit mode if we're in edit mode
-        if (isEditMode) {
-          setIsEditMode(false);
-        }
-
-        // Show SweetAlert success message
-        Swal.fire({
-          title: 'Success!',
-          text: 'Project updated successfully! Your changes have been submitted.',
-          icon: 'success',
-          confirmButtonColor: '#28a745',
-          confirmButtonText: 'OK'
-        });
-      } else {
-        // Handle API error
-        const errorMessage = responseData.message || 'Server returned an error';
-        throw new Error(errorMessage);
+      // Exit edit mode if we're in edit mode
+      if (isEditMode) {
+        setIsEditMode(false);
       }
     } catch (error) {
       // Handle any errors that occurred during the process
-      console.error('Error updating project:', error);
+      console.error('Error project:', error);
 
       // Show SweetAlert error message
       Swal.fire({
         title: 'Error!',
-        text: 'Error updating project: ' + (error.message || 'An unknown error occurred'),
+        text: 'Error project: ' + (error.message || 'An unknown error occurred'),
         icon: 'error',
         confirmButtonColor: '#d33',
         confirmButtonText: 'OK'
@@ -4757,6 +4760,7 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Name</label>
                             <input type="text" className="form-control" defaultValue={project?.project_name || ""} readOnly />
+                            <input type="hidden" name="user_id" value={getUserId()} />
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -9583,18 +9587,20 @@ const ProjectDetail = () => {
                   {activeTab !== 'documents' ? (
                       <div className="mt-4">
                         <div className="action-buttons d-flex align-items-center justify-content-center">
-                          <button
-                            className="btn save-btn"
-                            onClick={handleSubmit(handleUpdateProject)}
-                            disabled={isUpdating}
-                          >
-                            {isUpdating ? (
-                              <>
-                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                Updating...
-                              </>
-                            ) : 'Update'}
-                          </button>
+                          {(!loading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
+                            <button
+                              className="btn save-btn"
+                              onClick={handleSubmit(handleUpdateProject)}
+                              disabled={isUpdating}
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                  Updating...
+                                </>
+                              ) : 'Update'}
+                            </button>
+                          )}
                         </div>
 
                       </div>
@@ -9614,7 +9620,8 @@ const ProjectDetail = () => {
                         {!isEditing && (
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            onClick={() => setIsEditing(true)}
+                            // onClick={() => setIsEditing(true)}
+                            onClick={startEditingMilestoneStage}
                             style={{ fontSize: '16px' }}
                           >
                             <i className="fas fa-edit"></i>
@@ -9710,7 +9717,8 @@ const ProjectDetail = () => {
                           </button>
                           <button
                             className="btn btn-sm"
-                            onClick={() => setIsEditing(false)}
+                            // onClick={() => setIsEditing(false)}
+                            onClick={cancelMilestoneStageEdit}
                             disabled={isLoadingMilestones || isLoadingStages}
                             style={{
                               backgroundColor: 'white',
@@ -9753,7 +9761,6 @@ const ProjectDetail = () => {
                           </div>
                         )}
                       </div>
-
                       {/* Select dropdown for collaborator assignment */}
                       <div className="form-group mb-3">
                         <label htmlFor="collaboratorSelect" className="form-label">Add Collaborator:</label>
@@ -9826,7 +9833,8 @@ const ProjectDetail = () => {
                         {!isEditingOwner && (
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            onClick={() => setIsEditingOwner(true)}
+                            onClick={startEditingOwner}
+                            // onClick={() => setIsEditingOwner(true)}
                             style={{ fontSize: '16px' }}
                           >
                             <i className="fas fa-edit"></i>
@@ -9836,7 +9844,9 @@ const ProjectDetail = () => {
 
                       {!isEditingOwner ? (
                         <div className="owner-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{owner.label}</span>
+                          <span className="fw-medium" style={{ color: '#0000cc' }}>
+                            {owner && owner.label ? owner.label : 'No owner assigned'}
+                          </span>
                         </div>
                       ) : (
                         <div className="owner-edit mb-4">
@@ -9885,7 +9895,7 @@ const ProjectDetail = () => {
                             <button
                               className="btn btn-sm"
                               onClick={saveOwner}
-                              disabled={ownerLoading}
+                              disabled={ownerLoading || !owner}
                               style={{
                                 backgroundColor: '#4CAF50',
                                 color: 'white',
@@ -9898,7 +9908,8 @@ const ProjectDetail = () => {
                             </button>
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingOwner(false)}
+                              onClick={cancelOwnerEdit}
+                              // onClick={() => setIsEditingOwner(false)}
                               disabled={ownerLoading}
                               style={{
                                 backgroundColor: 'white',
@@ -9923,7 +9934,8 @@ const ProjectDetail = () => {
                         {!isEditingContact && (
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            onClick={() => setIsEditingContact(true)}
+                            onClick={startEditingContact}
+                            // onClick={() => setIsEditingContact(true)}
                             style={{ fontSize: '16px' }}
                           >
                             <i className="fas fa-edit"></i>
@@ -9995,7 +10007,8 @@ const ProjectDetail = () => {
                             </button>
                             <button
                               className="btn btn-sm"
-                              onClick={() => setIsEditingContact(false)}
+                              // onClick={() => setIsEditingContact(false)}
+                              onClick={cancelContactEdit}
                               disabled={contactLoading}
                               style={{
                                 backgroundColor: 'white',

@@ -15,6 +15,7 @@ import ReportFilter from './common/ReportFilter';
 import ReportPagination from './common/ReportPagination';
 import PageContainer from './common/PageContainer';
 
+
 // Map product names to their respective IDs
 // Note: Tax Amendment (936) and Partnership (938) are hidden from reports
 const productIdMap = {
@@ -67,6 +68,9 @@ const AllProjectsReport = () => {
     const displayType = product || 'All';
     const reportTitle = `${displayType.toUpperCase()} Projects Report - Occams Portal`;
     document.title = reportTitle;
+
+    setSearchTerm('');
+    setCurrentPage(1);
 
     // Fetch projects from API
     fetchProjects();
@@ -524,6 +528,12 @@ const AllProjectsReport = () => {
           // Escape quotes in CSV
           return `"${businessName.replace(/"/g, '""')}"`;
         }
+        if (column.id === 'contactCard') {
+          const contactName = project.authorized_signatory_name || '';
+          const phone = project.business_phone || '';
+          const email = project.business_email || '';
+          return `${contactName} | ${phone} | ${email}`;
+        }
         if (column.id === 'productName') return project.product_name || '';
         if (column.id === 'projectName') return project.project_name || '';
         if (column.id === 'collaborators') return project.collaborators || '';
@@ -606,6 +616,12 @@ const AllProjectsReport = () => {
           // Handle special columns with custom rendering
           if (column.id === 'date') return formatDate(project.created_at) || '';
           if (column.id === 'businessName') return project.business_legal_name || '';
+          if (column.id === 'contactCard') {
+            const contactName = project.authorized_signatory_name || '';
+            const phone = project.business_phone || '';
+            const email = project.business_email || '';
+            return `${contactName} | ${phone} | ${email}`;
+          }
           if (column.id === 'productName') return project.product_name || '';
           if (column.id === 'projectName') return project.project_name || '';
           if (column.id === 'collaborators') return project.collaborators || '';
@@ -672,6 +688,12 @@ const AllProjectsReport = () => {
           // Handle special columns with custom rendering
           if (column.id === 'date') rowData[column.label] = formatDate(project.created_at) || '';
           else if (column.id === 'businessName') rowData[column.label] = project.business_legal_name || '';
+          else if (column.id === 'contactCard') {
+            const contactName = project.authorized_signatory_name || '';
+            const phone = project.business_phone || '';
+            const email = project.business_email || '';
+            rowData[column.label] = `${contactName} | ${phone} | ${email}`;
+          }
           else if (column.id === 'productName') rowData[column.label] = project.product_name || '';
           else if (column.id === 'projectName') rowData[column.label] = project.project_name || '';
           else if (column.id === 'collaborators') rowData[column.label] = project.collaborators || '';
