@@ -105,7 +105,7 @@ const OpportunityReport = ({ projectType }) => {
         opportunity_name: opp.OpportunityName || '',
         product: opp.productName || '',
         product_id: opp.product_ID || '',
-        probability: opp.Probability ? `${Math.round(parseFloat(opp.Probability) * 100)}%` : '0%',
+        probability: opp.Probability ? `${opp.Probability}%` : '0%',
         stage: opp.milestoneName || opp.Stage || '',
         stage_status: opp.milestoneStatus || '',
         amount: opp.currencyName && opp.OpportunityAmount ?
@@ -204,7 +204,7 @@ const OpportunityReport = ({ projectType }) => {
         business_name: company.name,
         product: assignedProductType,
         product_id: productIdMap[assignedProductType.toLowerCase().replace(' ', '-')] || '',
-        probability: `${Math.round(probabilities[probabilityIndex] * 100)}%`,
+        probability: `${probabilities[probabilityIndex]}%`,
         stage: stages[stageIndex],
         stage_status: stages[stageIndex],
         amount: `${currencies[currencyIndex]}${(Math.floor(Math.random() * 100000) + 10000).toLocaleString()}`,
