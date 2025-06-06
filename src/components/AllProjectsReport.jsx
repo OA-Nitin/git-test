@@ -424,6 +424,8 @@ const AllProjectsReport = () => {
     return phone.replace(/\D/g, '');  // remove all non-digit characters
   };
 
+  const normalizedSearchPhone = searchTerm.replace(/\D/g, '');
+
   // Filter projects based on search term, status, and date range
   const filteredProjects = projects.filter(project => {
     // Skip filtering if no filters are applied
@@ -441,6 +443,8 @@ const AllProjectsReport = () => {
     const status = String(project.taxnow_signup_status || '').toLowerCase();
     const projectFee = String(project.project_fee || '').toLowerCase();
     const createdAt = String(project.created_at || '').toLowerCase();
+    const businessEmail = String(project.business_email || '').toLowerCase();
+    const businessPhone = String(project.business_phone || '').toLowerCase();
 
     // Check if search term matches any field
     const searchTermLower = searchTerm.toLowerCase().trim();
@@ -455,12 +459,12 @@ const AllProjectsReport = () => {
       stageName.includes(searchTermLower) ||
       status.includes(searchTermLower) ||
       projectFee.includes(searchTermLower) ||
-      (project.business_email && project.business_email.toLowerCase().includes(searchTermLower)) ||
-      (project.business_phone && (
-        project.business_phone.toLowerCase().includes(searchTermLower) ||
-        normalizePhone(project.business_phone).includes(normalizedSearchPhone)
-      )) ||
-      createdAt.includes(searchTermLower);
+      businessEmail.includes(searchTermLower) ||
+      businessPhone.includes(searchTermLower) ||
+      (
+        normalizedSearchPhone.length >= 4 &&  // 👉 Apply phone match only if search looks like a phone
+        normalizePhone(businessPhone).includes(normalizedSearchPhone)
+      ) || createdAt.includes(searchTermLower);
 
     // Check if status matches
     const matchesStatus = filterStatus === '' || status === filterStatus;
