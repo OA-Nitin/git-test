@@ -396,15 +396,19 @@ const AllProjectsReport = () => {
     return `${month}-${day}-${year}`; // MM-DD-YYYY
   };
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
   const getProjectType = () => {
-    let type = projects.length > 0 ? projects[0].product_name : 'All';
-    type = type || 'All';
+    // let type = projects.length > 0 ? projects[0].product_name : 'All';
+    // type = type || 'All';
 
-    // Remove existing "Projects" word if already included
-    type = type.replace(/Projects$/i, '').trim(); 
-    type = type.replace(/\s+/g, '');  // remove spaces
+    // // Remove existing "Projects" word if already included
+    // type = type.replace(/Projects$/i, '').trim(); 
+    // type = type.replace(/\s+/g, '');  // remove spaces
 
-    return `${type}Projects`;
+    // return `${type}Projects`;
+    const safeProduct = product?.toLowerCase() || 'all';
+    return `${capitalize(safeProduct)}Projects`;
   };
 
   const userName = user?.display_name || user?.username || 'User';
