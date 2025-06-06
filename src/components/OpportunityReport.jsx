@@ -468,15 +468,19 @@ const OpportunityReport = ({ projectType }) => {
     return `${month}-${day}-${year}`; // MM-DD-YYYY
   };
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
   const getProjectType = () => {
-    let type = opportunities.length > 0 ? opportunities[0].product : 'All';
-    type = type || 'All';
+    // let type = opportunities.length > 0 ? opportunities[0].product : 'All';
+    // type = type || 'All';
 
-    // Remove existing "Opportunities" word if already included
-    type = type.replace(/Opportunities$/i, '').trim();
-    type = type.replace(/\s+/g, '');  // remove spaces
+    // // Remove existing "Opportunities" word if already included
+    // type = type.replace(/Opportunities$/i, '').trim();
+    // type = type.replace(/\s+/g, '');  // remove spaces
 
-    return `${type}Opportunities`;
+    // return `${type}Opportunities`;
+    const safeProduct = product?.toLowerCase() || 'all';
+    return `${capitalize(safeProduct)}Opportunities`;
   };
 
   const userName = user?.display_name || user?.username || 'User';
