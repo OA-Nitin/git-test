@@ -3,13 +3,14 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Select from "react-select";
 import "./createContact.css";
+import { forwardRef } from "react";
 //Date picker custom
-import { createDatepicker } from '../utils/datePick';
-import '../assets/css/datePick.css';
-// date js js impot
-//import { setupDateInput, formatDateToMMDDYYYY } from "../utils/datePick";
+//import { createDatepicker } from '../utils/datePick';
+//import '../assets/css/datePick.css';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
+axios.defaults.baseURL = "https://play.occamsadvisory.com/portal/wp-json";
 //axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -64,8 +65,17 @@ const validateField = (name, value) => {
     case "secondary_email": return value && !emailRegex.test(value) ? "Invalid email" : "";
     case "phone": return !value ? "Phone is required" : !phoneRegex.test(value) ? "Invalid phone" : "";
     case "secondary_phone": return value && !phoneRegex.test(value) ? "Invalid phone" : "";
-    case "birthdate": return !value ? "Birthdate is required" : "";
-    case "primary_address_postalcode": return !value ? "Postal code is required" : "";
+   // case "birthdate": return !value ? "Birthdate is required" : "";
+
+    case "birthdate": 
+      if (!value) return "Birth date is required";
+      const date = new Date(value);
+      if (isNaN(date.getTime())) return "Invalid date format";
+      if (date > new Date()) return "Birth date cannot be in the future";
+      if (date < new Date('1900-01-01')) return "Birth date cannot be before 1900";
+      return "";
+
+    case "primary_address_postalcode": return !value ? "Zip code is required" : "";
     case "primary_address_city": return !value ? "City is required" : "";
     case "primary_address_state": return !value ? "State is required" : "";
     case "primary_address_street": return !value ? "Street is required" : "";
@@ -183,23 +193,23 @@ const validateField = (name, value) => {
     //   maxDate: new Date().toISOString().split("T")[0] // disables future dates
     // });
     
-    setTimeout(() => {
-      const input = document.getElementById("birthdate");
-      if (input) {
-        createDatepicker(
-          input,
-          (value) => {
-            setFormData((prev) => ({
-              ...prev,
-              birthdate: value
-            }));
-          },
-          "birthdate",
-          new Date("1900-01-01"),
-          new Date()
-        );
-      }
-    }, 100);
+    // setTimeout(() => {
+    //   const input = document.getElementById("birthdate");
+    //   if (input) {
+    //     createDatepicker(
+    //       input,
+    //       (value) => {
+    //         setFormData((prev) => ({
+    //           ...prev,
+    //           birthdate: value
+    //         }));
+    //       },
+    //       "birthdate",
+    //       new Date("1900-01-01"),
+    //       new Date()
+    //     );
+    //   }
+    // }, 100);
 
   }, [id]);
 
@@ -245,6 +255,19 @@ const handleSelectChange = (option, { name }) => {
   setErrors((prev) => ({ ...prev, [name]: error }));
   setTouched((prev) => ({ ...prev, [name]: true }));
 };
+
+const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
+  <input
+    className="form-control"
+    onClick={onClick}         // Calendar opens
+    value={value}             // Show selected date
+    onBlur={onBlur}
+    readOnly                 // Prevent typing
+    ref={ref}
+    placeholder="MM/DD/YYYY"
+    style={{ cursor: "pointer", backgroundColor: "#fff" }}
+  />
+));
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -336,6 +359,12 @@ const handleSubmit = async (e) => {
         // Reset validation state
         setErrors({});
         setTouched({});
+        //Redirect after 2 seconds if lead_id is present
+        if (leadIdParam) {
+          setTimeout(() => {
+            navigate(`/lead-detail/${leadIdParam}`); 
+          }, 2000);
+        }        
       }
     } else {
       setFeedback({
@@ -580,6 +609,7 @@ const handleSubmit = async (e) => {
                             isDisabled={userData?.disabled}
                             classNamePrefix="select"
                             className={touched.report_to_id && errors.report_to_id ? 'select-error' : ''}
+                            placeholder="Select Business Lead"
                           />
                           {touched.report_to_id && errors.report_to_id && (
                             <div className="errorMsz">{errors.report_to_id}</div>
@@ -604,6 +634,7 @@ const handleSubmit = async (e) => {
                     </div>
 
                     {/* === PERSONAL INFO === */}
+                    {/*
                     <div className="form-section">
                       <h4 className="section-title">Personal Info</h4>
                       <div className="row">
@@ -623,6 +654,40 @@ const handleSubmit = async (e) => {
                         </div>
                       </div>
                     </div>
+*/}
+<div className="form-section">
+  <h4 className="section-title">Personal Info</h4>
+  <div className="row">
+    <div className="floating col-sm-4">
+      <label>Birth Date*</label>
+<DatePicker
+  selected={formData.birthdate ? new Date(formData.birthdate) : null}
+  onChange={(date) => {
+    const formatted = date ? date.toISOString().split('T')[0] : '';
+    setFormData(prev => ({ ...prev, birthdate: formatted }));
+    const error = validateField('birthdate', formatted);
+    setErrors(prev => ({ ...prev, birthdate: error }));
+  }}
+  onBlur={() => {
+    setTouched(prev => ({ ...prev, birthdate: true }));
+  }}
+  dateFormat="MM/dd/yyyy"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="scroll" 
+  scrollableYearDropdown     
+  yearDropdownItemNumber={120}   
+  minDate={new Date('1900-01-01')}
+  maxDate={new Date()}
+  customInput={<ReadOnlyDateInput />}
+/>
+
+      {touched.birthdate && errors.birthdate && (
+        <div className="errorMsz">{errors.birthdate}</div>
+      )}
+    </div>
+  </div>
+</div>
 
                     {/* === CONTACT INFO === */}
                     <div className="form-section">
@@ -686,6 +751,7 @@ const handleSubmit = async (e) => {
                             className={touched.phone_type && errors.phone_type ? 'select-error' : ''}
                             isSearchable={false}
                             isDisabled={userData?.disabled}
+                            placeholder="Select Phone Type"
                           />
                           {touched.phone_type && errors.phone_type && (
                             <div className="errorMsz">{errors.phone_type}</div>
@@ -734,6 +800,7 @@ const handleSubmit = async (e) => {
                             className={touched.secondary_phone_type && errors.secondary_phone_type ? 'select-error' : ''}
                             isSearchable={false}
                             isDisabled={userData?.disabled}
+                            placeholder="Select Secondary Phone Type"
                           />
                           {touched.secondary_phone_type && errors.secondary_phone_type && (
                             <div className="errorMsz">{errors.secondary_phone_type}</div>
@@ -849,6 +916,8 @@ const handleSubmit = async (e) => {
                             className={touched.dnd && errors.dnd ? 'select-error' : ''}
                             isSearchable={false}
                             isDisabled={userData?.disabled}
+                            placeholder="Select DND"
+
                           />
                           {touched.dnd && errors.dnd && (
                             <div className="errorMsz">{errors.dnd}</div>
@@ -872,6 +941,7 @@ const handleSubmit = async (e) => {
                             className={touched.referral_type && errors.referral_type ? 'select-error' : ''}
                             isSearchable={false}
                             isDisabled={userData?.disabled}
+                            placeholder="Select Referral Type"
                           />
                           {touched.referral_type && errors.referral_type && (
                             <div className="errorMsz">{errors.referral_type}</div>
