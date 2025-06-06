@@ -105,3 +105,55 @@
 .select2-container--default .select2-selection--multiple .select2-selection__clear:hover {
   color: #dc3545;
 }
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.react-datepicker__header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.react-datepicker__day--selected {
+  background-color: #007bff;
+  border-radius: 4px;
+}
+
+.react-datepicker__day:hover {
+  background-color: #e9ecef;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: #007bff;
+  color: white;
+}
+.react-datepicker__input-container input {
+  cursor: pointer;
+}
+
+.react-datepicker__month-dropdown,
+.react-datepicker__year-dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
+  scrollbar-width: thin;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar,
+.react-datepicker__month-dropdown::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb,
+.react-datepicker__month-dropdown::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 6px;
+}
