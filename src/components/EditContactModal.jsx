@@ -7,68 +7,23 @@ import LoadingOverlay from "./common/LoadingOverlay";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { contactSchema } from "./validationSchemas/leadSchema.jsx";
+
+import { forwardRef } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-// Date utility functions
-const formatDateToMMDDYYYY = (date) => {
-  if (!date) return '';
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return '';
-
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const day = d.getDate().toString().padStart(2, '0');
-  const year = d.getFullYear();
-  return `${month}/${day}/${year}`;
-};
-
-const parseDateFromMMDDYYYY = (dateString) => {
-  if (!dateString) return null;
-
-  // Handle MM/DD/YYYY format
-  const parts = dateString.split('/');
-  if (parts.length === 3) {
-    const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
-    const day = parseInt(parts[1], 10);
-    const year = parseInt(parts[2], 10);
-    const date = new Date(year, month, day);
-    if (!isNaN(date.getTime())) {
-      return date;
-    }
-  }
-
-  // Try parsing as regular date
-  const date = new Date(dateString);
-  return isNaN(date.getTime()) ? null : date;
-};
-
-// Custom DateInput component
-const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "form-control", ...props }) => {
-  const [selectedDate, setSelectedDate] = useState(parseDateFromMMDDYYYY(value));
-
-  useEffect(() => {
-    setSelectedDate(parseDateFromMMDDYYYY(value));
-  }, [value]);
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    const formattedDate = date ? formatDateToMMDDYYYY(date) : '';
-    onChange(formattedDate);
-  };
-  return (
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleDateChange}
-        dateFormat="MM/dd/yyyy"
-        placeholderText={placeholder}
-        className={className}
-        autoComplete="off"
-        showPopperArrow={false}
-        popperClassName="custom-datepicker-popper"
-        {...props}
-      />
-    );
-};
+const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
+  <input
+    className="form-control"
+    onClick={onClick}         // Calendar opens
+    value={value}             // Show selected date
+    onBlur={onBlur}
+    readOnly                 // Prevent typing
+    ref={ref}
+    placeholder="MM/DD/YYYY"
+    style={{ cursor: "pointer", backgroundColor: "#fff" }}
+  />
+));
 
 const EditContactModal = ({
   isOpen,
@@ -296,7 +251,7 @@ const EditContactModal = ({
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
           birthdate: contactData.birthdate || "",
-          department: contactData.department || "",
+          job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
           contact_type: contactData.contact_type || "primary",
@@ -773,15 +728,29 @@ const EditContactModal = ({
                             value={formData.birthdate}
                             onChange={handleInputChange}
                           /> */}
-                          <DateInput
-                                value={formData.birthdate ? formatDateToMMDDYYYY(formData.birthdate) : ''}
-                                onChange={handleInputChange}
-                                placeholder="MM/DD/YYYY"
-                                id="birthdate"
+                          <DatePicker
+                            selected={formData.birthdate ? new Date(formData.birthdate) : null}
                             name="birthdate"
-                            className={`form-control ${errors.birthdate ? 'is-invalid' : ''}`}
-                            {...register("birthdate")}
-                              />
+                            id="birthdate"
+                            onChange={(date) => {
+                              const formatted = date ? date.toISOString().split('T')[0] : '';
+                              setFormData(prev => ({ ...prev, birthdate: formatted }));
+                              const error = validateField('birthdate', formatted);
+                              setErrors(prev => ({ ...prev, birthdate: error }));
+                            }}
+                            onBlur={() => {
+                              setTouched(prev => ({ ...prev, birthdate: true }));
+                            }}
+                            dateFormat="MM/dd/yyyy"
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="scroll"
+                            scrollableYearDropdown    
+                            yearDropdownItemNumber={120}  
+                            minDate={new Date('1900-01-01')}
+                            maxDate={new Date()}
+                            customInput={<ReadOnlyDateInput />}
+                          />
                           {errors.birthdate && (
                             <div className="invalid-feedback">
                               {errors.birthdate.message}
