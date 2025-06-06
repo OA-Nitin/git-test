@@ -755,15 +755,16 @@ const LeadReport = ({ projectType }) => {
         const leadId = String(lead.lead_id || lead.id || '').toLowerCase();
         const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
         const email = String(lead.email || lead.business_email || '').toLowerCase();
+        const phone = String(lead.business_phone || '').toLowerCase();
         
         matchesSearch = 
           leadId.includes(searchTermLower) || 
           name.includes(searchTermLower) || 
-          (lead.business_phone && (
-            lead.business_phone.toLowerCase().includes(searchTermLower) ||
-            normalizePhone(lead.business_phone).includes(normalizedSearchPhone)
-          )) ||
-          email.includes(searchTermLower);
+          phone.includes(searchTermLower) ||
+          (
+            normalizedSearchPhone.length >= 4 &&  // 👉 Apply phone match only if search looks like a phone
+            normalizePhone(phone).includes(normalizedSearchPhone)
+          ) || email.includes(searchTermLower);
       }
       
       // Status filtering
