@@ -9051,7 +9051,7 @@ const ProjectDetail = () => {
                                 <div className="col-sm-12">
                                   <div className="custom_opp_tab_header">
                                     <h5>
-                                      <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
+                                      <a href={invoice.invoice_url} target="_blank" data-invoiceid={invoice.id}>
                                         Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
                                       <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}>
                                         {invoice.invoice_status}
