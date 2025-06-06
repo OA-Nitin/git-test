@@ -1427,7 +1427,7 @@ const LeadDetail = () => {
             return productId;
           });
 
-          console.log('Filtered projects (excluding 936, 938, 934):', filteredProjectsData.length);
+          console.log('Filtered projects (excluding 936, 934):', filteredProjectsData.length);
 
           // Map API response to our projects state format with careful field mapping
           const mappedProjects = filteredProjectsData.map(project => {
@@ -2803,10 +2803,12 @@ const LeadDetail = () => {
 
       // Map product names to product IDs
       const productIdMap = {
-        'ERC': '936',
-        'STC': '937',
-        'R&D': '938'
-      };
+                                                      'ERC': '935',
+                                                      'STC': '937',
+                                                      'RDC': '932',
+                                                      'TAX': '936',
+                                                      'AA':'934'
+                                                    };
       
       // Get the product_id from the project if available, or map from the product name, or use a fallback
       let product_id = project.product_id || project.productId;
@@ -3076,10 +3078,12 @@ const LeadDetail = () => {
 
       // Map product names to product IDs
       const productIdMap = {
-        'ERC': '936',
-        'STC': '937',
-        'R&D': '938'
-      };
+                                                      'ERC': '935',
+                                                      'STC': '937',
+                                                      'RDC': '932',
+                                                      'TAX': '936',
+                                                      'AA':'934'
+                                                    };
 
       // Get the product_id from the opportunity if available, or map from the product name, or use a fallback
       let product_id = opportunity.product_id || opportunity.productId;
@@ -5182,6 +5186,7 @@ const LeadDetail = () => {
                                               className={`form-select ${projectErrors.Milestone ? 'is-invalid' : ''}`}
                                               {...registerProject("Milestone")}
                                               name="Milestone"
+                                              data-label="1"
                                               value={projectFormData.Milestone}
                                               onChange={async (e) => {
                                                 console.log('Project milestone selected:', e.target.value);
@@ -5203,9 +5208,11 @@ const LeadDetail = () => {
                                                   try {
                                                     // Map product names to product IDs
                                                     const productIdMap = {
-                                                      'ERC': '936',
+                                                      'ERC': '935',
                                                       'STC': '937',
-                                                      'R&D': '938'
+                                                      'RDC': '932',
+                                                      'TAX': '936',
+                                                      'AA':'934'
                                                     };
 
                                                     // Get the product_id from the current project
@@ -5262,7 +5269,7 @@ const LeadDetail = () => {
 
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
-                                                <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.id}>
+                                                <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
                                                   {milestone.name}
                                                 </option>
                                               ))}
@@ -5295,7 +5302,7 @@ const LeadDetail = () => {
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
-                                                <option key={`project-stage-${index}-${stage.id}`} value={stage.id}>
+                                                <option key={`project-stage-${index}-${stage.id}`} value={stage.name}>
                                                   {stage.name}
                                                 </option>
                                               ))}
@@ -5545,6 +5552,7 @@ const LeadDetail = () => {
                                             <select
                                               className="form-select milestone-select"
                                               value={opportunityFormData.milestone}
+                                              data-label="2"
                                               onChange={async (e) => {
                                                 console.log('Opportunity milestone selected:', e.target.value);
 
@@ -5565,9 +5573,11 @@ const LeadDetail = () => {
                                                   try {
                                                     // Map product names to product IDs
                                                     const productIdMap = {
-                                                      'ERC': '936',
+                                                      'ERC': '935',
                                                       'STC': '937',
-                                                      'R&D': '938'
+                                                      'RDC': '932',
+                                                      'TAX': '936',
+                                                      'AA':'934'
                                                     };
 
                                                     // Get the product_id from the current opportunity
@@ -5622,7 +5632,7 @@ const LeadDetail = () => {
                                             >
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
-                                                <option key={`opportunity-milestone-${index}-${milestone.id}`} value={milestone.id}>
+                                                <option key={`opportunity-milestone-${index}-${milestone.id}`} value={milestone.name}>
                                                   {milestone.name}
                                                 </option>
                                               ))}
@@ -5702,7 +5712,7 @@ const LeadDetail = () => {
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
-                                                <option key={`opportunity-stage-${index}-${stage.id}`} value={stage.id}>
+                                                <option key={`opportunity-stage-${index}-${stage.id}`} value={stage.name}>
                                                   {stage.name}
                                                 </option>
                                               ))}
