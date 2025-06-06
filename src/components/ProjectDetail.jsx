@@ -4814,7 +4814,7 @@ const ProjectDetail = () => {
                         <button
                           className="btn btn-sm btn-outline-primary"
                           onClick={toggleEditMode}
-                          title={isEditMode ? "Save changes" : "Edit information"}
+                          title={isEditMode ? "" : "Edit information"}
                         >
                           <i className="fas fa-edit"></i>
                         </button>
