@@ -10,7 +10,7 @@ import { forwardRef } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-axios.defaults.baseURL = "https://play.occamsadvisory.com/portal/wp-json";
+axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 //axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
