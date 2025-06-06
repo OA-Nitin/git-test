@@ -467,7 +467,7 @@ const LeadReport = ({ projectType }) => {
         { id: 'leadCampaign', label: 'Campaign', field: 'campaign', sortable: false },
         { id: 'leadGroup', label: 'Lead Group', field: 'lead_group', sortable: false },
         { id: 'notes', label: 'Notes', field: 'notes', sortable: false },
-        { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
+        // { id: 'bookACall', label: 'Book A Call', field: 'bookACall', sortable: false }
       ]
     }
   ];
@@ -1276,30 +1276,30 @@ const LeadReport = ({ projectType }) => {
                                         />
                                       </td>
                                     );
-                                  case 'bookACall':
-                                    // Get lead data for Calendly URL parameters
-                                    const businessName = encodeURIComponent(lead.business_legal_name || '');
-                                    const email = encodeURIComponent(lead.business_email || '');
-                                    const phone = encodeURIComponent(lead.business_phone || '');
+                                  // case 'bookACall':
+                                  //   // Get lead data for Calendly URL parameters
+                                  //   const businessName = encodeURIComponent(lead.business_legal_name || '');
+                                  //   const email = encodeURIComponent(lead.business_email || '');
+                                  //   const phone = encodeURIComponent(lead.business_phone || '');
 
-                                    // Construct Calendly URL with parameters
-                                    const calendlyUrl = `https://calendly.com/occams-erc-experts/rmj?name=${businessName}&email=${email}&a1=${phone}`;
+                                  //   // Construct Calendly URL with parameters
+                                  //   const calendlyUrl = `https://calendly.com/occams-erc-experts/rmj?name=${businessName}&email=${email}&a1=${phone}`;
 
-                                    return (
-                                      <td key={column.id}>
-                                        <div className="d-flex justify-content-center">
-                                          <a
-                                            href={calendlyUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-sm btn-outline-primary"
-                                            title="Book a Call"
-                                          >
-                                            <i className="fas fa-calendar-alt"></i>
-                                          </a>
-                                        </div>
-                                      </td>
-                                    );
+                                  //   return (
+                                  //     <td key={column.id}>
+                                  //       <div className="d-flex justify-content-center">
+                                  //         <a
+                                  //           href={calendlyUrl}
+                                  //           target="_blank"
+                                  //           rel="noopener noreferrer"
+                                  //           className="btn btn-sm btn-outline-primary"
+                                  //           title="Book a Call"
+                                  //         >
+                                  //           <i className="fas fa-calendar-alt"></i>
+                                  //         </a>
+                                  //       </div>
+                                  //     </td>
+                                  //   );
                                   default:
                                     return <td key={column.id}></td>;
                                 }
