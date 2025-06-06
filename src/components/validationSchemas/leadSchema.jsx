@@ -206,11 +206,14 @@ export const contactSchema = yup.object().shape({
 //     .string()
 //     .max(20, 'Maximum 20 characters allowed'),
     
-  job_title: yup
+  department: yup
     .string()
     .notRequired()
     .max(60, 'Maximum 60 characters allowed'),
-    
+  department:  yup
+    .string()
+    .notRequired()
+    .max(60, 'Maximum 60 characters allowed'),
   // Personal Info
   birthdate: yup
     .date()
@@ -236,7 +239,7 @@ export const contactSchema = yup.object().shape({
     .required('Phone number is required')
     .matches(phoneRegex, 'Please enter a valid phone number (e.g., 1234567890 or 123-456-7890)'),
     
-  phone_ext: yup
+  ph_extension: yup
     .string()
     .notRequired()
     .max(10, 'Maximum 10 characters allowed'),
