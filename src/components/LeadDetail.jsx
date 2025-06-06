@@ -1422,8 +1422,9 @@ const LeadDetail = () => {
           // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
           const filteredProjectsData = projectsData.filter(project => {
             const productId = project.product_id || project.productId;
+            console.log(productId);
             // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
-            return productId !== '936' && productId !== '938' && productId !== '934';
+            return productId;
           });
 
           console.log('Filtered projects (excluding 936, 938, 934):', filteredProjectsData.length);
@@ -2570,7 +2571,7 @@ const LeadDetail = () => {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
 
-      console.log('Calling milestone stages API with URL:', apiUrl);
+      console.log('Calling milestone stages API with URL1:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
@@ -2587,9 +2588,11 @@ const LeadDetail = () => {
         console.log('Response has the expected format with data.data.data');
 
         const stagesData = response.data.data.data;
+        console.log('stagesData=');
+        console.log(stagesData);
         if (Array.isArray(stagesData)) {
           formattedStages = stagesData.map(stage => ({
-            id: stage.stage_id || stage.id || '',
+            id: stage.milestone_stage_id || stage.id || '',
             name: stage.stage_name || stage.name || ''
           })).filter(s => s.id && s.name);
 
@@ -2677,6 +2680,8 @@ const LeadDetail = () => {
         { id: '3', name: 'R&D Onboarding' }
       ];
 
+      console.log('product_id====='+product_id);
+      
       // Build the API URL with the product_id parameter if provided
       let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
       if (product_id) {
@@ -2802,18 +2807,12 @@ const LeadDetail = () => {
         'STC': '937',
         'R&D': '938'
       };
-
+      
       // Get the product_id from the project if available, or map from the product name, or use a fallback
       let product_id = project.product_id || project.productId;
-
+      
       // If no product_id is available, try to map from the product name
-      if (!product_id && project.productName) {
-        product_id = productIdMap[project.productName] || '936'; // Use 936 (ERC) as a fallback
-        console.log('Mapped product name', project.productName, 'to product_id:', product_id);
-      } else {
-        product_id = '936'; // Default fallback to ERC product ID
-      }
-
+      
       console.log('Fetching fresh milestones for project modal with product_id:', product_id);
 
       // Pass the product_id to the fetchProjectMilestones function
@@ -5066,7 +5065,7 @@ const LeadDetail = () => {
                                               project_name: e.target.value
                                             }))}
                                             placeholder="Enter project name"
-
+                                            readonly="true"
                                           />
                                           {projectErrors.project_name && (
                                             <div className="invalid-feedback">
@@ -5082,7 +5081,8 @@ const LeadDetail = () => {
                                             type="text"
                                             className="form-control"
                                             value={currentProject?.businessName || ''}
-                                            disabled
+                                            readonly="true"
+                                            name="business_legal_name"
                                           />
                                         </div>
                                       </div>
@@ -5223,15 +5223,16 @@ const LeadDetail = () => {
 
                                                     // Fetch milestone stages using the API endpoint with milestone_id
                                                     const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL:', apiUrl);
+                                                    console.log('Calling milestone stages API with URL2:', apiUrl);
 
                                                     const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response:', response);
+                                                    console.log('Milestone stages API response11:', response.data);
 
                                                     // Process the response
                                                     let stages = [];
-                                                    if (response.data && response.data.success && response.data.data && response.data.data.data) {
+                                                    if (response.data && response.data.success) {
                                                       const stagesData = response.data.data.data;
+                                                      console.log('sdsdsd');
                                                       if (Array.isArray(stagesData)) {
                                                         stages = stagesData.map(stage => ({
                                                           id: stage.milestone_stage_id || stage.id || '',
@@ -5261,7 +5262,7 @@ const LeadDetail = () => {
 
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
-                                                <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
+                                                <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.id}>
                                                   {milestone.name}
                                                 </option>
                                               ))}
@@ -5294,7 +5295,7 @@ const LeadDetail = () => {
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
-                                                <option key={`project-stage-${index}-${stage.id}`} value={stage.name}>
+                                                <option key={`project-stage-${index}-${stage.id}`} value={stage.id}>
                                                   {stage.name}
                                                 </option>
                                               ))}
@@ -5310,7 +5311,7 @@ const LeadDetail = () => {
                                     </div>
 
                                     <div className="row mb-3">
-                                      <div className="col-md-6">
+                                      <div className="col-md-6" style={{display:'none'}}>
                                         <div className="form-group mb-3">
                                           <label className="form-label">Collaborator:</label>
                                           <input
@@ -5419,7 +5420,7 @@ const LeadDetail = () => {
                                     href="javascript:void(0)"
                                     title="Edit"
                                     onClick={() => handleEditOpportunity(opportunity)}
-                                  >
+                                    style={{display:'none'}} >
                                     <i className="fas fa-pen"></i>
                                   </a>
                                   <a
@@ -5584,7 +5585,7 @@ const LeadDetail = () => {
 
                                                     // Fetch milestone stages using the API endpoint with milestone_id
                                                     const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL:', apiUrl);
+                                                    console.log('Calling milestone stages API with URL3:', apiUrl);
 
                                                     const response = await axios.get(apiUrl);
                                                     console.log('Milestone stages API response:', response);
@@ -5621,7 +5622,7 @@ const LeadDetail = () => {
                                             >
                                               <option value="">Select Milestone</option>
                                               {milestones.map((milestone, index) => (
-                                                <option key={`opportunity-milestone-${index}-${milestone.id}`} value={milestone.name}>
+                                                <option key={`opportunity-milestone-${index}-${milestone.id}`} value={milestone.id}>
                                                   {milestone.name}
                                                 </option>
                                               ))}
@@ -5701,7 +5702,7 @@ const LeadDetail = () => {
                                             >
                                               <option value="">Select Stage</option>
                                               {milestoneStages.map((stage, index) => (
-                                                <option key={`opportunity-stage-${index}-${stage.id}`} value={stage.name}>
+                                                <option key={`opportunity-stage-${index}-${stage.id}`} value={stage.id}>
                                                   {stage.name}
                                                 </option>
                                               ))}
@@ -5951,7 +5952,7 @@ const LeadDetail = () => {
                       </button>
 
                       {/* Add custom CSS for the assigned user tags */}
-                      <style jsx>{`
+                      <style>{`
                         .assigned-users-tags {
                           display: flex;
                           flex-wrap: wrap;
@@ -6103,13 +6104,13 @@ const LeadDetail = () => {
                             </>
                           ) : 'Save'}
                         </button>
-                        <button
+                        <a
                           className="btn cancel-btn"
-                          onClick={() => window.history.back()}
+                          href="../reports/leads/all"
                           disabled={loading}
                         >
                           Cancel
-                        </button>
+                        </a>
                       </div>
                       {updateSuccess && (
                         <div className="alert alert-success mt-3" role="alert">
