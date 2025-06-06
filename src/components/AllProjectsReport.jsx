@@ -14,6 +14,7 @@ import ContactCard from './common/ContactCard';
 import ReportFilter from './common/ReportFilter';
 import ReportPagination from './common/ReportPagination';
 import PageContainer from './common/PageContainer';
+import { getFormattedUserData } from '../utils/userUtils';
 
 
 // Map product names to their respective IDs
@@ -28,6 +29,7 @@ const productIdMap = {
   all: null // to fetch all projects without filtering
 };
 
+const user = getFormattedUserData();
 
 // Function to format date as MM/DD/YYYY
 const formatDate = (dateString) => {
@@ -70,8 +72,10 @@ const AllProjectsReport = () => {
     document.title = reportTitle;
 
     setSearchTerm('');
+    setEndDate('');
+    setStartDate('');
     setCurrentPage(1);
-
+    setDatePickerKey(prev => prev + 1);
     // Fetch projects from API
     fetchProjects();
   }, [product, productId]);
@@ -268,6 +272,7 @@ const AllProjectsReport = () => {
   const [sortField, setSortField] = useState('project_id');
   const [sortDirection, setSortDirection] = useState('desc'); // Changed to desc for latest projects first
   const [isSearching, setIsSearching] = useState(false);
+  const [datePickerKey, setDatePickerKey] = useState(0);
 
   // Define all available columns with groups based on API response
   const columnGroups = [
@@ -383,6 +388,42 @@ const AllProjectsReport = () => {
     }
   };
 
+  const getFormattedDate = () => {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    return `${month}-${day}-${year}`; // MM-DD-YYYY
+  };
+
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+  const getProjectType = () => {
+    // let type = projects.length > 0 ? projects[0].product_name : 'All';
+    // type = type || 'All';
+
+    // // Remove existing "Projects" word if already included
+    // type = type.replace(/Projects$/i, '').trim(); 
+    // type = type.replace(/\s+/g, '');  // remove spaces
+
+    // return `${type}Projects`;
+    const safeProduct = product?.toLowerCase() || 'all';
+    return `${capitalize(safeProduct)}Projects`;
+  };
+
+  const userName = user?.display_name || user?.username || 'User';
+
+  const getExportFileName = () => {
+    const typeName = getProjectType();
+    const dateStr = getFormattedDate();
+    const safeUserName = userName.replace(/\s+/g, '_');
+    return `${typeName}_${safeUserName}_${dateStr}`;
+  };
+
+  const normalizePhone = (phone) => {
+    return phone.replace(/\D/g, '');  // remove all non-digit characters
+  };
+
   // Filter projects based on search term, status, and date range
   const filteredProjects = projects.filter(project => {
     // Skip filtering if no filters are applied
@@ -403,6 +444,7 @@ const AllProjectsReport = () => {
 
     // Check if search term matches any field
     const searchTermLower = searchTerm.toLowerCase().trim();
+    const normalizedSearchPhone = searchTerm.replace(/\D/g, '');
 
     const matchesSearch = searchTerm === '' ||
       id.includes(searchTermLower) ||
@@ -413,6 +455,11 @@ const AllProjectsReport = () => {
       stageName.includes(searchTermLower) ||
       status.includes(searchTermLower) ||
       projectFee.includes(searchTermLower) ||
+      (project.business_email && project.business_email.toLowerCase().includes(searchTermLower)) ||
+      (project.business_phone && (
+        project.business_phone.toLowerCase().includes(searchTermLower) ||
+        normalizePhone(project.business_phone).includes(normalizedSearchPhone)
+      )) ||
       createdAt.includes(searchTermLower);
 
     // Check if status matches
@@ -557,7 +604,7 @@ const AllProjectsReport = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `all_projects_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `${getExportFileName()}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -656,7 +703,7 @@ const AllProjectsReport = () => {
       });
 
       // Save the PDF with date in filename
-      doc.save(`all_projects_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(`${getExportFileName()}.pdf`);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Error generating PDF: ' + error.message);
@@ -716,7 +763,7 @@ const AllProjectsReport = () => {
       XLSX.utils.book_append_sheet(workbook, worksheet, 'All Projects');
 
       // Generate Excel file
-      XLSX.writeFile(workbook, `all_projects_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(workbook, `${getExportFileName()}.xlsx`);
     } catch (error) {
       console.error('Excel generation error:', error);
       alert('Error generating Excel file: ' + error.message);
@@ -748,6 +795,7 @@ const AllProjectsReport = () => {
         exportToExcel={exportToExcel}
         exportToPDF={exportToPDF}
         exportToCSV={exportToCSV}
+        datePickerKey={datePickerKey}
       />
 
       {/* Loading indicator */}
