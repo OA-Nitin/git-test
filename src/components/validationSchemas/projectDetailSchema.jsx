@@ -96,9 +96,14 @@ export const projectDetailSchema = yup.object().shape({
       website_url: yup
         .string()
         .notRequired()
-        .matches(
-            /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            'Please enter a valid domain (example.com)'
+        .test(
+            'is-valid-domain',
+            'Please enter a valid domain (example.com)',
+            value => {
+            if (!value) return true;  // blank allowed
+            const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return domainRegex.test(value);
+            }
         ),
 
       business_entity_type: yup

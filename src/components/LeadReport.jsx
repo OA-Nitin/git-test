@@ -756,6 +756,16 @@ const LeadReport = ({ projectType }) => {
         const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
         const email = String(lead.email || lead.business_email || '').toLowerCase();
         const phone = String(lead.business_phone || '').toLowerCase();
+        const createdDate = String(lead.created_at || lead.date_created || lead.created || '').toLowerCase();
+        const milestone = String(lead.current_milestone || '').toLowerCase();
+        const stage = String(lead.current_stage || '').toLowerCase();
+        const employee = String(lead.employee_id || '').toLowerCase();
+        const salesAgent = String(lead.InternalSalesAgent || '').toLowerCase();
+        const salesSupport = String(lead.InternalSalesSupport || '').toLowerCase();
+        const affiliateSource = String(lead.source || '').toLowerCase();
+        const leadCampaign = String(lead.campaign || '').toLowerCase();
+        const leadGroup = String(lead.lead_group || '').toLowerCase();
+
         
         matchesSearch = 
           leadId.includes(searchTermLower) || 
@@ -764,9 +774,18 @@ const LeadReport = ({ projectType }) => {
           (
             normalizedSearchPhone.length >= 4 &&  // 👉 Apply phone match only if search looks like a phone
             normalizePhone(phone).includes(normalizedSearchPhone)
-          ) || email.includes(searchTermLower);
+          ) || email.includes(searchTermLower)
+          || createdDate.includes(searchTermLower) ||
+          milestone.includes(searchTermLower) ||
+          stage.includes(searchTermLower) ||
+          employee.includes(searchTermLower) ||
+          salesAgent.includes(searchTermLower) ||
+          salesSupport.includes(searchTermLower) ||
+          affiliateSource.includes(searchTermLower) ||
+          leadCampaign.includes(searchTermLower) ||
+          leadGroup.includes(searchTermLower);
       }
-      
+
       // Status filtering
       let matchesStatus = true;
       if (filterStatus) {
