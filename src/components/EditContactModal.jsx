@@ -517,6 +517,26 @@ const EditContactModal = ({
         }
       />
 
+<style>{`
+ .react-datepicker__month-dropdown,
+ .react-datepicker__year-dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
+  scrollbar-width: thin;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar,
+.react-datepicker__month-dropdown::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb,
+.react-datepicker__month-dropdown::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 6px;
+`}
+</style>
+ 
       <div className="modal-backdrop show" onClick={onClose}>
         <div className="modal show" style={{ display: "block" }}>
           <div
