@@ -15,7 +15,9 @@ import ReportFilter from './common/ReportFilter';
 import ReportPagination from './common/ReportPagination';
 import { sortArrayByKey } from '../utils/sortUtils';
 import PageContainer from './common/PageContainer';
+import { getFormattedUserData } from '../utils/userUtils';
 
+const user = getFormattedUserData();
 // Function to format date as MM/DD/YYYY
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -66,6 +68,11 @@ const LeadReport = ({ projectType }) => {
 
     document.title = reportTitle;
 
+    setSearchTerm('');
+    setEndDate('');
+    setStartDate('');
+    setCurrentPage(1);
+    setDatePickerKey(prev => prev + 1);
     // Fetch leads from API
     fetchLeads();
 
@@ -330,6 +337,7 @@ const LeadReport = ({ projectType }) => {
   const [sortField, setSortField] = useState('lead_id');
   const [sortDirection, setSortDirection] = useState('desc'); // Changed to desc for latest leads first
   const [isSearching, setIsSearching] = useState(false);
+  const [datePickerKey, setDatePickerKey] = useState(0);
 
   // Add a useEffect hook to reset search term when product/report type changes
   useEffect(() => {
@@ -683,6 +691,34 @@ const LeadReport = ({ projectType }) => {
     return null;
   };
 
+  const getFormattedDate = () => {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    return `${month}-${day}-${year}`; // MM-DD-YYYY
+  };
+
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  
+  const getProjectType = () => {
+    const safeProduct = product?.toLowerCase() || 'all';
+    return `${capitalize(safeProduct)}Leads`;
+  };
+
+  const userName = user?.display_name || user?.username || 'User';
+
+  const getExportFileName = () => {
+    const typeName = getProjectType();
+    const dateStr = getFormattedDate();
+    const safeUserName = userName.replace(/\s+/g, '_');
+    return `${typeName}_${safeUserName}_${dateStr}`;
+  };
+
+  const normalizePhone = (phone) => {
+    return phone.replace(/\D/g, '');  // remove all non-digit characters
+  };
+
   // Update the filteredLeads function to use our new date parsing helper
   const filteredLeads = useMemo(() => {
     console.log('Filtering leads with:', {
@@ -715,6 +751,7 @@ const LeadReport = ({ projectType }) => {
       let matchesSearch = true;
       if (searchTerm) {
         const searchTermLower = searchTerm.toLowerCase().trim();
+        const normalizedSearchPhone = searchTerm.replace(/\D/g, '');
         const leadId = String(lead.lead_id || lead.id || '').toLowerCase();
         const name = String(lead.name || lead.business_name || lead.business_legal_name || '').toLowerCase();
         const email = String(lead.email || lead.business_email || '').toLowerCase();
@@ -722,6 +759,10 @@ const LeadReport = ({ projectType }) => {
         matchesSearch = 
           leadId.includes(searchTermLower) || 
           name.includes(searchTermLower) || 
+          (lead.business_phone && (
+            lead.business_phone.toLowerCase().includes(searchTermLower) ||
+            normalizePhone(lead.business_phone).includes(normalizedSearchPhone)
+          )) ||
           email.includes(searchTermLower);
       }
       
@@ -848,7 +889,7 @@ const LeadReport = ({ projectType }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `lead_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `${getExportFileName()}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -970,7 +1011,7 @@ const LeadReport = ({ projectType }) => {
       });
 
       // Save the PDF with date in filename
-      doc.save(`lead_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(`${getExportFileName()}.pdf`);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Error generating PDF: ' + error.message);
@@ -1074,7 +1115,7 @@ const LeadReport = ({ projectType }) => {
       };
 
       // Generate Excel file and trigger download with date in filename
-      XLSX.writeFile(workbook, `lead_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(workbook, `${getExportFileName()}.xlsx`);
     } catch (error) {
       console.error('Excel generation error:', error);
       alert('Error generating Excel file: ' + error.message);
@@ -1110,6 +1151,7 @@ const LeadReport = ({ projectType }) => {
                   exportToExcel={exportToExcel}
                   exportToPDF={exportToPDF}
                   exportToCSV={exportToCSV}
+                  datePickerKey={datePickerKey}
                 />
 
                 {/* Loading indicator */}
