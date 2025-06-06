@@ -43,7 +43,8 @@ const ReportFilter = ({
   selectAllColumns,
   exportToExcel,
   exportToPDF,
-  exportToCSV
+  exportToCSV,
+  datePickerKey
 }) => {
   // Handle search
   const handleSearch = () => {
@@ -125,6 +126,7 @@ const ReportFilter = ({
         {/* Date Range Filter */}
         <div className="col-md-3 mb-2 mb-md-0">
           <DateRangePicker
+            key={datePickerKey}
             onApplyFilter={handleApplyDateFilter}
             startDate={startDate}
             endDate={endDate}
