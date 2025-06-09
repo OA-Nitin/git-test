@@ -7,10 +7,10 @@ import { forwardRef } from "react";
 //Date picker custom
 //import { createDatepicker } from '../utils/datePick';
 //import '../assets/css/datePick.css';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-axios.defaults.baseURL = "https://play.occamsadvisory.com/portal/wp-json";
+axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 //axios.defaults.baseURL = "https://portal.occamsadvisory.com/portal/wp-json";
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";
@@ -51,44 +51,70 @@ const CreateContact = () => {
   const [touched, setTouched] = useState({});
 
   // Validation rules
-// Regex patterns
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^\+?[\d\s-]{10,}$/;
+  // Regex patterns
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\+?[\d\s-]{10,}$/;
 
-// Validation rules
-const validateField = (name, value) => {
-  switch (name) {
-    case "title": return !value ? "Title is required" : "";
-    case "first_name": return !value.trim() ? "First name is required" : "";
-    case "last_name": return !value.trim() ? "Last name is required" : "";
-    case "email": return !value ? "Email is required" : !emailRegex.test(value) ? "Invalid email" : "";
-    case "secondary_email": return value && !emailRegex.test(value) ? "Invalid email" : "";
-    case "phone": return !value ? "Phone is required" : !phoneRegex.test(value) ? "Invalid phone" : "";
-    case "secondary_phone": return value && !phoneRegex.test(value) ? "Invalid phone" : "";
-   // case "birthdate": return !value ? "Birthdate is required" : "";
+  // Validation rules
+  const validateField = (name, value) => {
+    switch (name) {
+      case "title":
+        return !value || value === "" ? "Title is required" : "";
+      case "first_name":
+        return !value.trim() ? "First name is required" : "";
+      case "last_name":
+        return !value.trim() ? "Last name is required" : "";
+      case "email":
+        return !value
+          ? "Email is required"
+          : !emailRegex.test(value)
+          ? "Invalid email"
+          : "";
+      case "secondary_email":
+        return value && !emailRegex.test(value) ? "Invalid email" : "";
+      case "phone":
+        return !value
+          ? "Phone is required"
+          : !phoneRegex.test(value)
+          ? "Invalid phone"
+          : "";
+      case "secondary_phone":
+        return value && !phoneRegex.test(value) ? "Invalid phone" : "";
 
-    case "birthdate": 
-      if (!value) return "Birth date is required";
-      const date = new Date(value);
-      if (isNaN(date.getTime())) return "Invalid date format";
-      if (date > new Date()) return "Birth date cannot be in the future";
-      if (date < new Date('1900-01-01')) return "Birth date cannot be before 1900";
-      return "";
+      // Remove birthdate validation
+      case "birthdate":
+        return "";
 
-    case "primary_address_postalcode": return !value ? "Zip code is required" : "";
-    case "primary_address_city": return !value ? "City is required" : "";
-    case "primary_address_state": return !value ? "State is required" : "";
-    case "primary_address_street": return !value ? "Street is required" : "";
-    case "report_to_id": return !value || value.length === 0 ? "Business Lead is required" : "";
-    case "dnd": return !value ? "DND selection is required" : "";
-    case "referral_type": return !value ? "Referral Type is required" : "";
-    case "contact_referral": return !value ? "Contact Referral is required" : "";
-    default: return "";
-  }
-};
+      // Remove mailing info validation
+      case "primary_address_postalcode":
+        return "";
+      case "primary_address_city":
+        return "";
+      case "primary_address_state":
+        return "";
+      case "primary_address_street":
+        return "";
+      case "primary_address_country":
+        return "";
+      case "house_no":
+        return "";
+
+      // Keep other validations
+      case "report_to_id":
+        return !value || value.length === 0 ? "Business Lead is required" : "";
+      case "dnd":
+        return !value ? "DND selection is required" : "";
+      case "referral_type":
+        return !value ? "Referral Type is required" : "";
+      case "contact_referral":
+        return !value ? "Contact Referral is required" : "";
+      default:
+        return "";
+    }
+  };
 
   const [formData, setFormData] = useState({
-    title: "",
+    title: "Mr",
     first_name: "",
     middle_name: "",
     last_name: "",
@@ -157,11 +183,11 @@ const validateField = (name, value) => {
         await fetchContactData();
       } else if (leadIdParam) {
         // Preselect lead_id if provided in URL
-        const found = bl.data.data.find(lead => lead.lead_id == leadIdParam);
+        const found = bl.data.data.find((lead) => lead.lead_id == leadIdParam);
         if (found) {
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            report_to_id: [leadIdParam]
+            report_to_id: [leadIdParam],
           }));
         }
       }
@@ -192,7 +218,7 @@ const validateField = (name, value) => {
     //   minDate: "1900-01-01", // or leave null if not needed
     //   maxDate: new Date().toISOString().split("T")[0] // disables future dates
     // });
-    
+
     // setTimeout(() => {
     //   const input = document.getElementById("birthdate");
     //   if (input) {
@@ -210,177 +236,200 @@ const validateField = (name, value) => {
     //     );
     //   }
     // }, 100);
-
   }, [id]);
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-
-  // Validate field on change
-  const error = validateField(name, value);
-  setErrors(prev => ({
-    ...prev,
-    [name]: error
-  }));
-};
-
-const handleBlur = (e) => {
-  const { name, value } = e.target;
-  setTouched(prev => ({
-    ...prev,
-    [name]: true
-  }));
-
-  // Validate field on blur
-  const error = validateField(name, value);
-  setErrors(prev => ({
-    ...prev,
-    [name]: error
-  }));
-};
-
-const handleSelectChange = (option, { name }) => {
-  const value = Array.isArray(option)
-    ? option.map((opt) => opt.value)
-    : option?.value || "";
-
-  setFormData((prev) => ({ ...prev, [name]: value }));
-
-  // Set touched and validate
-  const error = validateField(name, value);
-  setErrors((prev) => ({ ...prev, [name]: error }));
-  setTouched((prev) => ({ ...prev, [name]: true }));
-};
-
-const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
-  <input
-    className="form-control"
-    onClick={onClick}         // Calendar opens
-    value={value}             // Show selected date
-    onBlur={onBlur}
-    readOnly                 // Prevent typing
-    ref={ref}
-    placeholder="MM/DD/YYYY"
-    style={{ cursor: "pointer", backgroundColor: "#fff" }}
-  />
-));
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (isLoading) return;
-
-  // Validate all fields
-  const newErrors = {};
-  Object.keys(formData).forEach(key => {
-    const error = validateField(key, formData[key]);
-    if (error) {
-      newErrors[key] = error;
-    }
-  });
-
-  // Mark all fields as touched
-  const newTouched = {};
-  Object.keys(formData).forEach(key => {
-    newTouched[key] = true;
-  });
-
-  setErrors(newErrors);
-  setTouched(newTouched);
-
-  // Check if there are any errors
-  if (Object.keys(newErrors).length > 0) {
-    setFeedback({
-      error: "Please fix the errors in the form before submitting.",
-      success: "",
-    });
-    return;
-  }
-
-  setFeedback({ error: "", success: "" });
-  setIsLoading(true);
-
-  try {
-    const payload = {
-      ...formData,
-      report_to_id: formData.report_to_id.join(","),
-    };
-    const method = id ? "put" : "post";
-    const url = id
-      ? `/eccom-op-contact/v1/contactinone/${id}`
-      : "/eccom-op-contact/v1/contactinone";
-
-    const response = await axios({
-      method,
-      url,
-      data: payload,
-    });
-
-    const res = typeof response.data === "string"
-      ? JSON.parse(response.data)
-      : response.data;
-
-    if (res.code === "success") {
-      setFeedback({
-        success: res.message || "Success",
-        error: "",
-      });
-
-      if (!id) {
-        setFormData({
-          title: "",
-          first_name: "",
-          middle_name: "",
-          last_name: "",
-          name_alias: "",
-          report_to_id: [],
-          department: "",
-          birthdate: "",
-          email: "",
-          phone: "",
-          ph_extension: "",
-          phone_type: "",
-          secondary_email: "",
-          secondary_phone: "",
-          secondary_phone_type: "",
-          primary_address_postalcode: "",
-          primary_address_city: "",
-          primary_address_state: "",
-          primary_address_country: "USA",
-          primary_address_street: "",
-          house_no: "",
-          dnd: "",
-          referral_type: "",
-          contact_referral: "",
-        });
-        // Reset validation state
-        setErrors({});
-        setTouched({});
-        //Redirect after 2 seconds if lead_id is present
-        if (leadIdParam) {
-          setTimeout(() => {
-            navigate(`/lead-detail/${leadIdParam}`); 
-          }, 2000);
-        }        
-      }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "title") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value || "Mr", // Ensure title is never empty
+      }));
     } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+
+    // Validate field on change
+    const error = validateField(name, value);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    // Validate field on blur
+    const error = validateField(name, value);
+    setErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+  };
+
+  const handleSelectChange = (option, { name }) => {
+    const value = Array.isArray(option)
+      ? option.map((opt) => opt.value)
+      : option?.value || "";
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Set touched and validate
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
+
+  const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
+    <input
+      className="form-control"
+      onClick={onClick} // Calendar opens
+      value={value} // Show selected date
+      onBlur={onBlur}
+      readOnly // Prevent typing
+      ref={ref}
+      placeholder="MM/DD/YYYY"
+      style={{ cursor: "pointer", backgroundColor: "#fff" }}
+    />
+  ));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isLoading) return;
+
+    // Define required fields
+    const requiredFields = [
+      "title",
+      "first_name",
+      "last_name",
+      "email",
+      "phone",
+      "report_to_id",
+      "dnd",
+      "referral_type",
+      "contact_referral",
+    ];
+
+    // Validate only required fields
+    const newErrors = {};
+    requiredFields.forEach((key) => {
+      const error = validateField(key, formData[key]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+
+    // Mark only required fields as touched
+    const newTouched = {};
+    requiredFields.forEach((key) => {
+      newTouched[key] = true;
+    });
+
+    setErrors(newErrors);
+    setTouched(newTouched);
+
+    // Check if there are any errors
+    if (Object.keys(newErrors).length > 0) {
       setFeedback({
-        error: res.message || "Error occurred",
+        error: "Please fill in all required fields correctly.",
         success: "",
       });
+      return;
     }
-  } catch (error) {
-    setFeedback({
-      error: error.response?.data?.message || "Error occurred",
-      success: "",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    setFeedback({ error: "", success: "" });
+    setIsLoading(true);
+
+    try {
+      const payload = {
+        ...formData,
+        report_to_id: formData.report_to_id.join(","),
+      };
+      const method = id ? "put" : "post";
+      const url = id
+        ? `/eccom-op-contact/v1/contactinone/${id}`
+        : "/eccom-op-contact/v1/contactinone";
+
+      const response = await axios({
+        method,
+        url,
+        data: payload,
+      });
+
+      const res =
+        typeof response.data === "string"
+          ? JSON.parse(response.data)
+          : response.data;
+
+      if (res.code === "success") {
+        setFeedback({
+          success: res.message || "Success",
+          error: "",
+        });
+
+        if (!id) {
+          // Reset form data
+          setFormData({
+            title: "",
+            first_name: "",
+            middle_name: "",
+            last_name: "",
+            name_alias: "",
+            report_to_id: [],
+            department: "",
+            birthdate: "",
+            email: "",
+            phone: "",
+            ph_extension: "",
+            phone_type: "",
+            secondary_email: "",
+            secondary_phone: "",
+            secondary_phone_type: "",
+            primary_address_postalcode: "",
+            primary_address_city: "",
+            primary_address_state: "",
+            primary_address_country: "USA",
+            primary_address_street: "",
+            house_no: "",
+            dnd: "",
+            referral_type: "",
+            contact_referral: "",
+          });
+
+          // Reset validation state
+          setErrors({});
+          setTouched({});
+
+          // Redirect if lead_id is present
+          if (leadIdParam) {
+            setTimeout(() => {
+              navigate(`/lead-detail/${leadIdParam}`);
+            }, 2000);
+          }
+        }
+      } else {
+        setFeedback({
+          error: res.message || "Error occurred",
+          success: "",
+        });
+      }
+    } catch (error) {
+      setFeedback({
+        error: error.response?.data?.message || "Error occurred",
+        success: "",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -478,9 +527,9 @@ const handleSubmit = async (e) => {
 
   // Add this CSS class to your createContact.css file
   const errorMessageStyle = {
-    color: 'red',
-    fontSize: '0.875rem',
-    marginTop: '0.25rem'
+    color: "red",
+    fontSize: "0.875rem",
+    marginTop: "0.25rem",
   };
 
   return (
@@ -506,7 +555,6 @@ const handleSubmit = async (e) => {
                 </div>
 
                 <div className="white_card_body">
-
                   <form onSubmit={handleSubmit} id="user-creation-form">
                     {/* === PROFESSIONAL INFO === */}
                     <div className="form-section">
@@ -515,29 +563,31 @@ const handleSubmit = async (e) => {
                         <div className="floating col-sm-4">
                           <label>First Name*</label>
                           <div className="input-group">
-                            <select
-                              name="title"
-                              className={`form-select title-select ${touched.title && errors.title ? 'is-invalid' : ''}`}
-                              value={formData.title}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              disabled={userData?.disabled}
-                            >
-                              <option value="">Select Title</option>
-                              {titleOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
+<select
+  name="title"
+  className={`form-select title-select ${
+    touched.title && errors.title ? "is-invalid" : ""
+  }`}
+  value={formData.title || "Mr"} // Set default value to "Mr"
+  onChange={handleChange}
+  onBlur={handleBlur}
+  disabled={userData?.disabled}
+>
+  <option value="Mr">Mr</option>
+  <option value="Mrs">Mrs</option>
+  <option value="Miss">Miss</option>
+</select>
                             <input
-                              className={`floating__input form-control ${touched.first_name && errors.first_name ? 'is-invalid' : ''}`}
+                              className={`floating__input form-control ${
+                                touched.first_name && errors.first_name
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
                               name="first_name"
                               type="text"
                               value={formData.first_name}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              
                               disabled={userData?.disabled}
                             />
                           </div>
@@ -548,7 +598,11 @@ const handleSubmit = async (e) => {
                         <div className="floating col-sm-4">
                           <label>Middle Name</label>
                           <input
-                            className={`form-control ${touched.middle_name && errors.middle_name ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.middle_name && errors.middle_name
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="middle_name"
                             value={formData.middle_name}
                             onChange={handleChange}
@@ -562,12 +616,15 @@ const handleSubmit = async (e) => {
                         <div className="floating col-sm-4">
                           <label>Last Name*</label>
                           <input
-                            className={`form-control ${touched.last_name && errors.last_name ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.last_name && errors.last_name
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="last_name"
                             value={formData.last_name}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            
                             disabled={userData?.disabled}
                           />
                           {touched.last_name && errors.last_name && (
@@ -577,7 +634,11 @@ const handleSubmit = async (e) => {
                         <div className="floating col-sm-4">
                           <label>Alias</label>
                           <input
-                            className={`form-control ${touched.name_alias && errors.name_alias ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.name_alias && errors.name_alias
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="name_alias"
                             value={formData.name_alias}
                             onChange={handleChange}
@@ -593,33 +654,46 @@ const handleSubmit = async (e) => {
                           <Select
                             isMulti
                             name="report_to_id"
-                            options={businessLeads.map(lead => ({
+                            options={businessLeads.map((lead) => ({
                               value: lead.lead_id,
                               label: lead.business_legal_name,
                             }))}
                             value={businessLeads
-                              .filter(lead => formData.report_to_id.includes(lead.lead_id))
-                              .map(lead => ({
+                              .filter((lead) =>
+                                formData.report_to_id.includes(lead.lead_id)
+                              )
+                              .map((lead) => ({
                                 value: lead.lead_id,
                                 label: lead.business_legal_name,
                               }))}
                             onChange={(selected) =>
-                              handleSelectChange(selected, { name: "report_to_id" })
+                              handleSelectChange(selected, {
+                                name: "report_to_id",
+                              })
                             }
                             isDisabled={userData?.disabled}
                             classNamePrefix="select"
-                            className={touched.report_to_id && errors.report_to_id ? 'select-error' : ''}
+                            className={
+                              touched.report_to_id && errors.report_to_id
+                                ? "select-error"
+                                : ""
+                            }
                             placeholder="Select Business Lead"
                           />
                           {touched.report_to_id && errors.report_to_id && (
-                            <div className="errorMsz">{errors.report_to_id}</div>
+                            <div className="errorMsz">
+                              {errors.report_to_id}
+                            </div>
                           )}
-
                         </div>
                         <div className="floating col-sm-4">
                           <label>Job Title</label>
                           <input
-                            className={`form-control ${touched.department && errors.department ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.department && errors.department
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="department"
                             value={formData.department}
                             onChange={handleChange}
@@ -655,39 +729,39 @@ const handleSubmit = async (e) => {
                       </div>
                     </div>
 */}
-<div className="form-section">
-  <h4 className="section-title">Personal Info</h4>
-  <div className="row">
-    <div className="floating col-sm-4">
-      <label>Birth Date*</label>
-<DatePicker
-  selected={formData.birthdate ? new Date(formData.birthdate) : null}
-  onChange={(date) => {
-    const formatted = date ? date.toISOString().split('T')[0] : '';
-    setFormData(prev => ({ ...prev, birthdate: formatted }));
-    const error = validateField('birthdate', formatted);
-    setErrors(prev => ({ ...prev, birthdate: error }));
-  }}
-  onBlur={() => {
-    setTouched(prev => ({ ...prev, birthdate: true }));
-  }}
-  dateFormat="MM/dd/yyyy"
-  showMonthDropdown
-  showYearDropdown
-  dropdownMode="scroll" 
-  scrollableYearDropdown     
-  yearDropdownItemNumber={120}   
-  minDate={new Date('1900-01-01')}
-  maxDate={new Date()}
-  customInput={<ReadOnlyDateInput />}
-/>
-
-      {touched.birthdate && errors.birthdate && (
-        <div className="errorMsz">{errors.birthdate}</div>
-      )}
-    </div>
-  </div>
-</div>
+                    <div className="form-section">
+                      <h4 className="section-title">Personal Info</h4>
+                      <div className="row">
+                        <div className="floating col-sm-4">
+                          <label>Birth Date</label>
+                          <DatePicker
+                            selected={
+                              formData.birthdate
+                                ? new Date(formData.birthdate)
+                                : null
+                            }
+                            onChange={(date) => {
+                              const formatted = date
+                                ? date.toISOString().split("T")[0]
+                                : "";
+                              setFormData((prev) => ({
+                                ...prev,
+                                birthdate: formatted,
+                              }));
+                            }}
+                            dateFormat="MM/dd/yyyy"
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="scroll"
+                            scrollableYearDropdown
+                            yearDropdownItemNumber={120}
+                            minDate={new Date("1900-01-01")}
+                            maxDate={new Date()}
+                            customInput={<ReadOnlyDateInput />}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
                     {/* === CONTACT INFO === */}
                     <div className="form-section">
@@ -697,12 +771,13 @@ const handleSubmit = async (e) => {
                           <label>Primary Email*</label>
                           <input
                             type="email"
-                            className={`form-control ${touched.email && errors.email ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.email && errors.email ? "is-invalid" : ""
+                            }`}
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            
                           />
                           {touched.email && errors.email && (
                             <div className="errorMsz">{errors.email}</div>
@@ -714,12 +789,15 @@ const handleSubmit = async (e) => {
                             <span className="input-group-text">+1</span>
                             <input
                               type="tel"
-                              className={`form-control ${touched.phone && errors.phone ? 'is-invalid' : ''}`}
+                              className={`form-control ${
+                                touched.phone && errors.phone
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
                               name="phone"
                               value={formData.phone}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              
                             />
                           </div>
                           {touched.phone && errors.phone && (
@@ -730,14 +808,20 @@ const handleSubmit = async (e) => {
                           <label>Ext.</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.ph_extension && errors.ph_extension ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.ph_extension && errors.ph_extension
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="ph_extension"
                             value={formData.ph_extension}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
                           {touched.ph_extension && errors.ph_extension && (
-                            <div className="errorMsz">{errors.ph_extension}</div>
+                            <div className="errorMsz">
+                              {errors.ph_extension}
+                            </div>
                           )}
                         </div>
                         <div className="floating col-sm-4">
@@ -745,10 +829,16 @@ const handleSubmit = async (e) => {
                           <Select
                             name="phone_type"
                             options={phoneTypeOptions}
-                            value={phoneTypeOptions.find(opt => opt.value === formData.phone_type)}
+                            value={phoneTypeOptions.find(
+                              (opt) => opt.value === formData.phone_type
+                            )}
                             onChange={handleSelectChange}
                             classNamePrefix="select"
-                            className={touched.phone_type && errors.phone_type ? 'select-error' : ''}
+                            className={
+                              touched.phone_type && errors.phone_type
+                                ? "select-error"
+                                : ""
+                            }
                             isSearchable={false}
                             isDisabled={userData?.disabled}
                             placeholder="Select Phone Type"
@@ -756,21 +846,27 @@ const handleSubmit = async (e) => {
                           {touched.phone_type && errors.phone_type && (
                             <div className="errorMsz">{errors.phone_type}</div>
                           )}
-
                         </div>
                         <div className="floating col-sm-4">
                           <label>Secondary Email</label>
                           <input
                             type="email"
-                            className={`form-control ${touched.secondary_email && errors.secondary_email ? 'is-invalid' : ''}`}
+                            className={`form-control ${
+                              touched.secondary_email && errors.secondary_email
+                                ? "is-invalid"
+                                : ""
+                            }`}
                             name="secondary_email"
                             value={formData.secondary_email}
                             onChange={handleChange}
                             onBlur={handleBlur}
                           />
-                          {touched.secondary_email && errors.secondary_email && (
-                            <div className="errorMsz">{errors.secondary_email}</div>
-                          )}
+                          {touched.secondary_email &&
+                            errors.secondary_email && (
+                              <div className="errorMsz">
+                                {errors.secondary_email}
+                              </div>
+                            )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>Secondary Phone</label>
@@ -778,34 +874,52 @@ const handleSubmit = async (e) => {
                             <span className="input-group-text">+1</span>
                             <input
                               type="tel"
-                              className={`form-control ${touched.secondary_phone && errors.secondary_phone ? 'is-invalid' : ''}`}
+                              className={`form-control ${
+                                touched.secondary_phone &&
+                                errors.secondary_phone
+                                  ? "is-invalid"
+                                  : ""
+                              }`}
                               name="secondary_phone"
                               value={formData.secondary_phone}
                               onChange={handleChange}
                               onBlur={handleBlur}
                             />
                           </div>
-                          {touched.secondary_phone && errors.secondary_phone && (
-                            <div className="errorMsz">{errors.secondary_phone}</div>
-                          )}
+                          {touched.secondary_phone &&
+                            errors.secondary_phone && (
+                              <div className="errorMsz">
+                                {errors.secondary_phone}
+                              </div>
+                            )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>Secondary Phone Type</label>
                           <Select
                             name="secondary_phone_type"
                             options={phoneTypeOptions}
-                            value={phoneTypeOptions.find(opt => opt.value === formData.secondary_phone_type)}
+                            value={phoneTypeOptions.find(
+                              (opt) =>
+                                opt.value === formData.secondary_phone_type
+                            )}
                             onChange={handleSelectChange}
                             classNamePrefix="select"
-                            className={touched.secondary_phone_type && errors.secondary_phone_type ? 'select-error' : ''}
+                            className={
+                              touched.secondary_phone_type &&
+                              errors.secondary_phone_type
+                                ? "select-error"
+                                : ""
+                            }
                             isSearchable={false}
                             isDisabled={userData?.disabled}
                             placeholder="Select Secondary Phone Type"
                           />
-                          {touched.secondary_phone_type && errors.secondary_phone_type && (
-                            <div className="errorMsz">{errors.secondary_phone_type}</div>
-                          )}
-
+                          {touched.secondary_phone_type &&
+                            errors.secondary_phone_type && (
+                              <div className="errorMsz">
+                                {errors.secondary_phone_type}
+                              </div>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -818,85 +932,61 @@ const handleSubmit = async (e) => {
                           <label>Zip Code</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.primary_address_postalcode && errors.primary_address_postalcode ? 'is-invalid' : ''}`}
+                            className="form-control"
                             name="primary_address_postalcode"
                             value={formData.primary_address_postalcode}
                             onChange={handleChange}
-                            onBlur={handleBlur}
                           />
-                          {touched.primary_address_postalcode && errors.primary_address_postalcode && (
-                            <div className="errorMsz">{errors.primary_address_postalcode}</div>
-                          )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>City</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.primary_address_city && errors.primary_address_city ? 'is-invalid' : ''}`}
+                            className="form-control"
                             name="primary_address_city"
                             value={formData.primary_address_city}
                             onChange={handleChange}
-                            onBlur={handleBlur}
                           />
-                          {touched.primary_address_city && errors.primary_address_city && (
-                            <div className="errorMsz">{errors.primary_address_city}</div>
-                          )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>State</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.primary_address_state && errors.primary_address_state ? 'is-invalid' : ''}`}
+                            className="form-control"
                             name="primary_address_state"
                             value={formData.primary_address_state}
                             onChange={handleChange}
-                            onBlur={handleBlur}
                           />
-                          {touched.primary_address_state && errors.primary_address_state && (
-                            <div className="errorMsz">{errors.primary_address_state}</div>
-                          )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>Country</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.primary_address_country && errors.primary_address_country ? 'is-invalid' : ''}`}
+                            className="form-control"
                             name="primary_address_country"
                             value={formData.primary_address_country}
                             onChange={handleChange}
-                            onBlur={handleBlur}
                           />
-                          {touched.primary_address_country && errors.primary_address_country && (
-                            <div className="errorMsz">{errors.primary_address_country}</div>
-                          )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>Street Address</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.primary_address_street && errors.primary_address_street ? 'is-invalid' : ''}`}
+                            className="form-control"
                             name="primary_address_street"
                             value={formData.primary_address_street}
                             onChange={handleChange}
-                            onBlur={handleBlur}
                           />
-                          {touched.primary_address_street && errors.primary_address_street && (
-                            <div className="errorMsz">{errors.primary_address_street}</div>
-                          )}
                         </div>
                         <div className="floating col-sm-4">
                           <label>Apt/Suite/House</label>
                           <input
                             type="text"
-                            className={`form-control ${touched.house_no && errors.house_no ? 'is-invalid' : ''}`}
+                            className="form-control"
                             name="house_no"
                             value={formData.house_no}
                             onChange={handleChange}
-                            onBlur={handleBlur}
                           />
-                          {touched.house_no && errors.house_no && (
-                            <div className="errorMsz">{errors.house_no}</div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -910,14 +1000,17 @@ const handleSubmit = async (e) => {
                           <Select
                             name="dnd" // or any field name
                             options={dndOptions} // your options
-                            value={dndOptions.find(opt => opt.value === formData.dnd)}
+                            value={dndOptions.find(
+                              (opt) => opt.value === formData.dnd
+                            )}
                             onChange={handleSelectChange}
                             classNamePrefix="select"
-                            className={touched.dnd && errors.dnd ? 'select-error' : ''}
+                            className={
+                              touched.dnd && errors.dnd ? "select-error" : ""
+                            }
                             isSearchable={false}
                             isDisabled={userData?.disabled}
                             placeholder="Select DND"
-
                           />
                           {touched.dnd && errors.dnd && (
                             <div className="errorMsz">{errors.dnd}</div>
@@ -935,16 +1028,24 @@ const handleSubmit = async (e) => {
                           <Select
                             name="referral_type"
                             options={referralTypeOptions}
-                            value={referralTypeOptions.find(opt => opt.value === formData.referral_type)}
+                            value={referralTypeOptions.find(
+                              (opt) => opt.value === formData.referral_type
+                            )}
                             onChange={handleSelectChange}
                             classNamePrefix="select"
-                            className={touched.referral_type && errors.referral_type ? 'select-error' : ''}
+                            className={
+                              touched.referral_type && errors.referral_type
+                                ? "select-error"
+                                : ""
+                            }
                             isSearchable={false}
                             isDisabled={userData?.disabled}
                             placeholder="Select Referral Type"
                           />
                           {touched.referral_type && errors.referral_type && (
-                            <div className="errorMsz">{errors.referral_type}</div>
+                            <div className="errorMsz">
+                              {errors.referral_type}
+                            </div>
                           )}
                         </div>
 
@@ -952,31 +1053,49 @@ const handleSubmit = async (e) => {
                           <label>Contact Referral*</label>
                           <Select
                             name="contact_referral"
-                            options={(formData.referral_type === "1" ? salesUsers : affiliateUsers).map((user) => ({
+                            options={(formData.referral_type === "1"
+                              ? salesUsers
+                              : affiliateUsers
+                            ).map((user) => ({
                               value: user.userid || user.id,
                               label: user.name || user.display_name,
                             }))}
-                            value={(formData.referral_type === "1" ? salesUsers : affiliateUsers)
+                            value={(formData.referral_type === "1"
+                              ? salesUsers
+                              : affiliateUsers
+                            )
                               .map((user) => ({
                                 value: user.userid || user.id,
                                 label: user.name || user.display_name,
                               }))
-                              .find((option) => option.value === formData.contact_referral)}
+                              .find(
+                                (option) =>
+                                  option.value === formData.contact_referral
+                              )}
                             onChange={(selected) =>
-                              handleSelectChange(selected, { name: "contact_referral" })
+                              handleSelectChange(selected, {
+                                name: "contact_referral",
+                              })
                             }
                             classNamePrefix="select"
-                            className={touched.contact_referral && errors.contact_referral ? 'select-error' : ''}
+                            className={
+                              touched.contact_referral &&
+                              errors.contact_referral
+                                ? "select-error"
+                                : ""
+                            }
                             isSearchable={false}
                             placeholder="Select Contact Referral"
                             isDisabled={userData?.disabled}
                             isLoading={isLoadingUsers}
                           />
-                          {touched.contact_referral && errors.contact_referral && (
-                            <div className="errorMsz">{errors.contact_referral}</div>
-                          )}
+                          {touched.contact_referral &&
+                            errors.contact_referral && (
+                              <div className="errorMsz">
+                                {errors.contact_referral}
+                              </div>
+                            )}
                         </div>
-
                       </div>
                     </div>
 
@@ -1007,9 +1126,10 @@ const handleSubmit = async (e) => {
                     <div className="alert alert-danger">{feedback.error}</div>
                   )}
                   {feedback.success && (
-                    <div className="alert alert-success">{feedback.success}</div>
+                    <div className="alert alert-success">
+                      {feedback.success}
+                    </div>
                   )}
-
                 </div>
               </div>
             </div>

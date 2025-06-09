@@ -22,7 +22,7 @@ const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
     readOnly                 // Prevent typing
     ref={ref}
     placeholder="MM/DD/YYYY"
-    style={{ cursor: "pointer", backgroundColor: "#fff" }}
+    // style={{ cursor: "pointer", backgroundColor: "#fff" }}
   />
 ));
 

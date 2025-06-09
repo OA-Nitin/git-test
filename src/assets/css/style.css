@@ -13334,9 +13334,9 @@ table.lms_table_active3.dataTable thead .sorting_desc::after {
   border-radius: 10px !important;
 }
 
-.mm-active span {
+/* .mm-active span {
   color: #fff !important;
-}
+} */
 
 #adminmenumain #adminmenu>li ul li a {
   color: #fff !important;
