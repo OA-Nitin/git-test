@@ -5059,17 +5059,14 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Website URL</label>
-                            <div className="input-group">
-                              <span className="input-group-text">https://</span>
-                              <input
-                                type="text"
-                                className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
-                                {...register('website_url')}
-                                value={project.website_url}
-                                onChange={(e) => setProject({...project, website_url: e.target.value})}
-                                readOnly={!isEditMode}
-                              />
-                            </div>
+                            <input
+                              type="text"
+                              className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
+                              {...register('website_url')}
+                              value={project.website_url}
+                              onChange={(e) => setProject({...project, website_url: e.target.value})}
+                              readOnly={!isEditMode}
+                            />
                             {errors.website_url && (
                                 <div className="invalid-feedback">{errors.website_url.message}</div>
                               )}

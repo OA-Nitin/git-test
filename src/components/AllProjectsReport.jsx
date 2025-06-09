@@ -396,6 +396,15 @@ const AllProjectsReport = () => {
     return `${month}-${day}-${year}`; // MM-DD-YYYY
   };
 
+  const getFormattedDateTime = () => {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    const time = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${month}/${day}/${year} ${time}`; // MM/DD/YYYY HH:MM
+  };
+
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   const getProjectType = () => {
@@ -640,11 +649,11 @@ const AllProjectsReport = () => {
 
       // Add title
       doc.setFontSize(16);
-      doc.text('All Projects Report', 15, 15);
+      doc.text(`${capitalize(product?.toLowerCase() || 'all')} Projects`, 15, 15);
 
       // Add generation date and filter info
       doc.setFontSize(10);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 22);
+      doc.text(`Generated: ${getFormattedDateTime()}`, 15, 22);
 
       let yPos = 27;
 
@@ -764,7 +773,7 @@ const AllProjectsReport = () => {
 
       // Create a workbook
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'All Projects');
+      XLSX.utils.book_append_sheet(workbook, worksheet, `${getProjectType()}`);
 
       // Generate Excel file
       XLSX.writeFile(workbook, `${getExportFileName()}.xlsx`);
