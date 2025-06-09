@@ -126,19 +126,19 @@ export const leadDetailSchema = yup.object().shape({
     .required('Please enter a valid  other business type.')
     .max(60, 'Maximum 60 characters allowed'),
 
-  registration_number: yup
-    .string()
-    .required('Please enter a valid registration number.')
-    .max(30, 'Maximum 30 characters allowed'),
+  // registration_number: yup
+  //   .string()
+  //   .required('Please enter a valid registration number.')
+  //   .max(30, 'Maximum 30 characters allowed'),
 
-    registration_date: yup
-    .string()
-    .required('Please enter a valid registration date.')
-    .test(
-      'is-valid-date',
-      'Invalid date format. Use formats like mm/dd/yyyy, dd/mm/yyyy, or yyyy/mm/dd.',
-      value => !value || dateRegex.test(value)
-    ),  
+    // registration_date: yup
+    // .string()
+    // .required('Please enter a valid registration date.')
+    // .test(
+    //   'is-valid-date',
+    //   'Invalid date format. Use formats like mm/dd/yyyy, dd/mm/yyyy, or yyyy/mm/dd.',
+    //   value => !value || dateRegex.test(value)
+    // ),  
 
   state_of_registration: yup
     .string()

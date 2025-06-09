@@ -6,6 +6,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Notes from './common/Notes';
+import { forwardRef } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 // import './common/CommonStyles.css';
@@ -15,6 +16,7 @@ import './LeadDetail.css';
 import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
+
 
 // Date utility functions
 const formatDateToMMDDYYYY = (date) => {
@@ -48,33 +50,46 @@ const parseDateFromMMDDYYYY = (dateString) => {
   return isNaN(date.getTime()) ? null : date;
 };
 
+const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
+  <input
+    className="form-control"
+    onClick={onClick}         // Calendar opens
+    value={value}             // Show selected date
+    onBlur={onBlur}
+    readOnly                 // Prevent typing
+    ref={ref}
+    placeholder="MM/DD/YYYY"
+    // style={{ cursor: "pointer", backgroundColor: "#fff" }}
+  />
+));
+
 // Custom DateInput component
-const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "form-control", ...props }) => {
-  const [selectedDate, setSelectedDate] = useState(parseDateFromMMDDYYYY(value));
+// const DateInput = ({ value, onChange, placeholder = "MM/DD/YYYY", className = "form-control", ...props }) => {
+//   const [selectedDate, setSelectedDate] = useState(parseDateFromMMDDYYYY(value));
 
-  useEffect(() => {
-    setSelectedDate(parseDateFromMMDDYYYY(value));
-  }, [value]);
+//   useEffect(() => {
+//     setSelectedDate(parseDateFromMMDDYYYY(value));
+//   }, [value]);
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    const formattedDate = date ? formatDateToMMDDYYYY(date) : '';
-    onChange(formattedDate);
-  };
-  return (
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleDateChange}
-        dateFormat="MM/dd/yyyy"
-        placeholderText={placeholder}
-        className={className}
-        autoComplete="off"
-        showPopperArrow={false}
-        popperClassName="custom-datepicker-popper"
-        {...props}
-      />
-    );
-};
+//   const handleDateChange = (date) => {
+//     setSelectedDate(date);
+//     const formattedDate = date ? formatDateToMMDDYYYY(date) : '';
+//     onChange(formattedDate);
+//   };
+//   return (
+//       <DatePicker
+//         selected={selectedDate}
+//         onChange={handleDateChange}
+//         dateFormat="MM/dd/yyyy"
+//         placeholderText={placeholder}
+//         className={className}
+//         autoComplete="off"
+//         showPopperArrow={false}
+//         popperClassName="custom-datepicker-popper"
+//         {...props}
+//       />
+//     );
+// };
 
 
 
@@ -4209,12 +4224,39 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label">Registration Date*</label>
                             <div className="input-group">
-                              <DateInput
+                              {/* <DateInput
                                 value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
                                 onChange={handleInputChange}
                                 placeholder="MM/DD/YYYY"
-
+                              /> */}
+                              <DatePicker
+                                selected={lead.registration_date ? new Date(lead.registration_date) : null}
+                                name="registration_date"
+                                id="registration_date"
+                                onChange={(date) => {
+                                  const formatted = date ? date.toISOString().split('T')[0] : '';
+                                  setFormData(prev => ({ ...prev, registration_date: formatted }));
+                                  const error = validateField('registration_date', formatted);
+                                  setErrors(prev => ({ ...prev, registration_date: error }));
+                                }}
+                                onBlur={() => {
+                                  setTouched(prev => ({ ...prev, registration_date: true }));
+                                }}
+                                dateFormat="MM/dd/yyyy"
+                                showMonthDropdown
+                                showYearDropdown
+                                dropdownMode="scroll"
+                                scrollableYearDropdown    
+                                yearDropdownItemNumber={120}  
+                                minDate={new Date('1900-01-01')}
+                                maxDate={new Date()}
+                                customInput={<ReadOnlyDateInput />}
                               />
+                              {errors.registration_date && (
+                                <div className="invalid-feedback">
+                                  {errors.registration_date.message}
+                                </div>
+                              )}
                               {/* <input
                                 type="text"
                                 className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
@@ -4342,6 +4384,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               Company Folder Link
+                              {companyFolderLink && (
                               <a
                                 href={companyFolderLink}
                                 target="_blank"
@@ -4353,6 +4396,7 @@ const LeadDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
                                 </svg>
                               </a>
+                            )}
                             </label>
                             <input
                               type="text"
@@ -4370,6 +4414,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               Document Folder Link
+                              {documentFolderLink && (
                               <a
                                 href={documentFolderLink}
                                 target="_blank"
@@ -4381,6 +4426,7 @@ const LeadDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
                                 </svg>
                               </a>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -5040,7 +5086,7 @@ const LeadDetail = () => {
                             <div className="loading-overlay">
                               <div className="loading-spinner-container">
                                 <div className="loading-spinner"></div>
-                                <p className="loading-text">Updating project...</p>
+                                {/* <p className="loading-text">Updating project...</p> */}
                               </div>
                             </div>
                           )}
@@ -6125,7 +6171,6 @@ const LeadDetail = () => {
                       {updateSuccess && (
                         <div className="alert alert-success mt-3" role="alert">
                           <strong><i className="fas fa-check-circle me-2"></i>Lead updated successfully!</strong>
-                          <p className="mb-0 mt-1">Your changes have been saved to the database.</p>
                         </div>
                       )}
                       {error && (
