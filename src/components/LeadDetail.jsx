@@ -4230,7 +4230,7 @@ const LeadDetail = () => {
                                 placeholder="MM/DD/YYYY"
                               /> */}
                               <DatePicker
-                                selected={lead.registration_date ? new Date(lead.registration_date) : null}
+                                selected={formData.registration_date ? new Date(formData.registration_date) : null}
                                 name="registration_date"
                                 id="registration_date"
                                 onChange={(date) => {
@@ -4251,6 +4251,8 @@ const LeadDetail = () => {
                                 minDate={new Date('1900-01-01')}
                                 maxDate={new Date()}
                                 customInput={<ReadOnlyDateInput />}
+                                utcOffset={-300} // -300 minutes = -5 hours
+                                timeZone="America/New_York" // US Eastern Time
                               />
                               {errors.registration_date && (
                                 <div className="invalid-feedback">
