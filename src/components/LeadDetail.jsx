@@ -4251,8 +4251,6 @@ const LeadDetail = () => {
                                 minDate={new Date('1900-01-01')}
                                 maxDate={new Date()}
                                 customInput={<ReadOnlyDateInput />}
-                                utcOffset={-300} // -300 minutes = -5 hours
-                                timeZone="America/New_York" // US Eastern Time
                               />
                               {errors.registration_date && (
                                 <div className="invalid-feedback">
