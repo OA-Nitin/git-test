@@ -765,8 +765,9 @@ const CreateContact = () => {
                             maxDate={new Date()}
                             customInput={<ReadOnlyDateInput />}
                             // Add these props to fix timezone issues
-                            utcOffset={0}
-                            timeZone="UTC"
+                            // Set timezone to UTC-05:00
+                            utcOffset={-300} // -300 minutes = -5 hours
+                            timeZone="America/New_York" // US Eastern Time
                           />
                         </div>
                       </div>
