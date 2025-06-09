@@ -19,7 +19,7 @@
   text-decoration: none;
   transition: background-color 0.3s;
 }
-
+ 
 .metismenu a:hover {
   background-color: #32373c;
   color: #fff;
@@ -90,9 +90,9 @@
   color: #a7aaad;
 }
 
-.mm-active > a .menu-arrow,
+.wp-has-submenu.mm-active > a .menu-arrow,
 .wp-has-current-submenu .menu-arrow {
-  color: #fff;
+  color: #A1A4B9;
   transform: rotate(90deg);
 }
 
@@ -100,7 +100,36 @@
 .metismenu .mm-active > ul.mm-collapse {
   display: block !important;
 }
+.metismenu a .menu-arrow,
+.wp-has-current-submenu .menu-arrow {
+  color: #A1A4B9;
+  transform: rotate(0deg);
+}
+.metismenu ul.mm-collapse.mm-show {
+    height: auto !important;
+}
 
+li.wp-has-submenu ul.mm-collapse .wp-first-item.mm-active a.current{
+ display: none !important;
+ opacity: 0 !important;
+ visibility: hidden !important;
+ height: 0 !important;
+  overflow: hidden !important;
+}
+/* li.wp-has-submenu.mm-active ul.mm-collapse .wp-first-item.mm-active,
+li.wp-has-submenu.mm-active ul.mm-collapse .wp-first-item.mm-active a.current{
+ display: block !important;
+ opacity: 1 !important;
+ visibility: visible !important;
+ height: auto !important;
+  overflow: hidden !important;
+} */
+
+#wpwrap #adminmenumain #adminmenu>li.wp-has-submenu,
+.metismenu .mm-collapse,
+.metismenu .mm-collapse.mm-show{
+  transition: all 1s ease-in-out !important;
+}
 /* Additional MetisMenu styles */
 .metismenu a {
   position: relative;

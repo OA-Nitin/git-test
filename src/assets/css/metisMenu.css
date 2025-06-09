@@ -80,8 +80,9 @@
     position: relative;
     height: 0;
     overflow: hidden;
+    visibility: hidden;
     transition-timing-function: ease;
-    transition-duration: .35s;
+    transition-duration: 0.3s;
     transition-property: height, visibility;
   }
   
