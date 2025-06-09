@@ -98,10 +98,10 @@ export const projectDetailSchema = yup.object().shape({
         .notRequired()
         .test(
             'is-valid-domain',
-            'Please enter a valid domain (example.com)',
+            'Please enter a valid domain or URL (example.com or https://example.com)',
             value => {
-            if (!value) return true;  // blank allowed
-            const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!value) return true;
+            const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
             return domainRegex.test(value);
             }
         ),

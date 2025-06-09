@@ -31,9 +31,17 @@ export const leadDetailSchema = yup.object().shape({
     .matches(businessNameRegex, 'Please enter a valid business category.'),
 
   website: yup
-    .string()
-    .required('Please enter a valid website URL.')
-    .url('Please enter a valid website URL.'),
+  .string()
+  .notRequired()
+  .test(
+    'is-valid-domain',
+    'Please enter a valid domain or URL (example.com or https://example.com)',
+    value => {
+      if (!value) return true;
+      const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
+      return domainRegex.test(value);
+    }
+  ),
 
   authorized_signatory_name: yup
     .string()

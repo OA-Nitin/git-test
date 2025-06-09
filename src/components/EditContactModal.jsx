@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./EditContactModal.css";
 import LoadingOverlay from "./common/LoadingOverlay";
+import Swal from 'sweetalert2';
 
 
 import { useForm } from "react-hook-form";
@@ -459,50 +460,91 @@ const EditContactModal = ({
 
   // Handle form submission
   const onSubmit = async (data) => {
-    try {
-      setUpdateSuccess(false);
-      setUpdateError(null);
-      setLoading(true);
-
-      console.log("Form data before submission:", data);
-
-      const submitData = {
-        ...data,
-        dnd: data.dnd === "Yes" ? "1" : "0",
-        contact_id: contactId,
-        // Use the first selected business as the report_to_id if not already set
-        report_to_id:
-          data.report_to_id || 
-          (data.selected_businesses && data.selected_businesses.length > 0
-            ? data.selected_businesses[0]
-            : ""),
-      };
-
-      console.log("Submitting contact data:", submitData);
-
-      const response = await axios.put(
-        `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
-        submitData
-      );
-
-      console.log("Update response:", JSON.parse(response.data));
-
-      if (response.data && JSON.parse(response.data).code == "success") {
-        setUpdateSuccess(true);
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        setUpdateError("Failed to update contact. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error updating contact:", err);
-      setUpdateError(
-        "An error occurred while updating the contact. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    Swal.fire({
+    title: 'Are you sure?',
+    text: 'You are about to update this contact information.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, update it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+        updateContact(data);
     }
+  });
+      
+  };
+
+  const updateContact = async (data) => {
+    try {
+          setUpdateSuccess(false);
+          setUpdateError(null);
+          setLoading(true);
+
+          console.log("Form data before submission:", data);
+
+          const submitData = {
+            ...data,
+            dnd: data.dnd === "Yes" ? "1" : "0",
+            contact_id: contactId,
+            // Use the first selected business as the report_to_id if not already set
+            report_to_id:
+              data.report_to_id || 
+              (data.selected_businesses && data.selected_businesses.length > 0
+                ? data.selected_businesses[0]
+                : ""),
+          };
+
+          console.log("Submitting contact data:", submitData);
+
+          const response = await axios.put(
+            `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
+            submitData
+          );
+
+          console.log("Update response:", JSON.parse(response.data));
+
+          if (response.data && JSON.parse(response.data).code == "success") {
+            Swal.fire({
+              title: 'Success!',
+              text: 'Contact updated successfully!',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              setUpdateSuccess(false);
+              setUpdateError(null);
+              onClose();
+            });
+            // setUpdateSuccess(true);
+            // setTimeout(() => {
+            //   setUpdateSuccess(false);
+            //   setUpdateError(null);
+            //   onClose();
+            // }, 2000);
+          } else {
+              Swal.fire({
+              title: 'Error!',
+              text: 'Failed to update contact. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+            // setUpdateError("Failed to update contact. Please try again.");
+          }
+        } catch (err) {
+          console.error("Error updating contact:", err);
+          // setUpdateError(
+          //   "An error occurred while updating the contact. Please try again."
+          // );
+          Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while updating the contact. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        } finally {
+          setLoading(false);
+        }
   };
 
   if (!isOpen) return null;
@@ -1219,6 +1261,8 @@ const EditContactModal = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setUpdateError(null);
+                          setUpdateSuccess(false);
                           onClose();
                         }}>
                         Cancel
