@@ -4384,7 +4384,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               Company Folder Link
-                              {companyFolderLink && (
+                              {companyFolderLink  && (
                               <a
                                 href={companyFolderLink}
                                 target="_blank"

@@ -138,7 +138,7 @@ export const leadDetailSchema = yup.object().shape({
     //   'is-valid-date',
     //   'Invalid date format. Use formats like mm/dd/yyyy, dd/mm/yyyy, or yyyy/mm/dd.',
     //   value => !value || dateRegex.test(value)
-    // ),  
+    // ),   
 
   state_of_registration: yup
     .string()
