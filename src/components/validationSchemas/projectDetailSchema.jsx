@@ -20,16 +20,24 @@ export const projectDetailSchema = yup.object().shape({
       .max(60, 'Maximum 60 characters allowed')
       .test('is-valid', 'Please enter a valid name.', value => !value || nameRegex.test(value)),
 
-  business_phone: yup
-      .string()
-      .notRequired()
-      .matches(phoneRegex, 'Please enter a valid phone number.'),
+    business_phone: yup
+    .string()
+    .test(
+        'is-valid-phone',
+        'Please enter a valid phone number.',
+        value => !value || phoneRegex.test(value)
+    ),
   
-  business_email: yup
-      .string()
-      .notRequired()
-      .max(60, 'Maximum 60 characters allowed')
-      .matches(emailRegex, 'Please enter a valid email address.'),
+    business_email: yup
+    .string()
+    .nullable()
+    .notRequired()
+    .max(60, 'Maximum 60 characters allowed')
+    .test(
+        'is-valid-email',
+        'Please enter a valid email address.',
+        value => !value || emailRegex.test(value)
+    ),
   
   business_title: yup
       .string()
@@ -86,9 +94,17 @@ export const projectDetailSchema = yup.object().shape({
       .test('is-valid', 'Please enter a valid business category.', value => !value || businessNameRegex.test(value)),
 
       website_url: yup
-      .string()
-      .notRequired()
-      .url('Please enter a valid website URL.'),
+        .string()
+        .notRequired()
+        .test(
+            'is-valid-domain',
+            'Please enter a valid domain (example.com)',
+            value => {
+            if (!value) return true;  // blank allowed
+            const domainRegex = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return domainRegex.test(value);
+            }
+        ),
 
       business_entity_type: yup
       .string()

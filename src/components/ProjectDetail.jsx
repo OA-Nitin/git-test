@@ -3972,7 +3972,7 @@ const ProjectDetail = () => {
   const handleMilestoneChange = (selectedOption) => {
     console.log('Milestone changed to:', selectedOption);
     setMilestone(selectedOption);
-
+    setProjectStage(null);
     // Fetch stages for the selected milestone
     if (selectedOption && selectedOption.value) {
       fetchMilestoneStages(selectedOption.value, true); // true means this is from user selection
@@ -5059,14 +5059,17 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Website URL</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
-                              {...register('website_url')}
-                              value={project.website_url}
-                              onChange={(e) => setProject({...project, website_url: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
+                            <div className="input-group">
+                              <span className="input-group-text">https://</span>
+                              <input
+                                type="text"
+                                className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
+                                {...register('website_url')}
+                                value={project.website_url}
+                                onChange={(e) => setProject({...project, website_url: e.target.value})}
+                                readOnly={!isEditMode}
+                              />
+                            </div>
                             {errors.website_url && (
                                 <div className="invalid-feedback">{errors.website_url.message}</div>
                               )}
@@ -9051,7 +9054,7 @@ const ProjectDetail = () => {
                                 <div className="col-sm-12">
                                   <div className="custom_opp_tab_header">
                                     <h5>
-                                      <a href={invoice.invoice_url} target="_blank" data-invoiceid={invoice.id}>
+                                      <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
                                         Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
                                       <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}>
                                         {invoice.invoice_status}
@@ -9995,7 +9998,7 @@ const ProjectDetail = () => {
                             <button
                               className="btn btn-sm"
                               onClick={saveContact}
-                              disabled={contactLoading}
+                              disabled={!selectedContact || contactLoading}
                               style={{
                                 backgroundColor: '#4CAF50',
                                 color: 'white',
