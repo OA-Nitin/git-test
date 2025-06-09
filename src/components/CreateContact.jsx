@@ -735,19 +735,25 @@ const CreateContact = () => {
                         <div className="floating col-sm-4">
                           <label>Birth Date</label>
                           <DatePicker
-                            selected={
-                              formData.birthdate
-                                ? new Date(formData.birthdate)
-                                : null
-                            }
+                            selected={formData.birthdate ? new Date(formData.birthdate + 'T00:00:00') : null}
                             onChange={(date) => {
-                              const formatted = date
-                                ? date.toISOString().split("T")[0]
-                                : "";
-                              setFormData((prev) => ({
-                                ...prev,
-                                birthdate: formatted,
-                              }));
+                              if (date) {
+                                // Get the date in local timezone
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const formatted = `${year}-${month}-${day}`;
+                                
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: formatted,
+                                }));
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: '',
+                                }));
+                              }
                             }}
                             dateFormat="MM/dd/yyyy"
                             showMonthDropdown
@@ -758,6 +764,9 @@ const CreateContact = () => {
                             minDate={new Date("1900-01-01")}
                             maxDate={new Date()}
                             customInput={<ReadOnlyDateInput />}
+                            // Add these props to fix timezone issues
+                            utcOffset={0}
+                            timeZone="UTC"
                           />
                         </div>
                       </div>
