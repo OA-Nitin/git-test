@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AuditLogsMultiSection.css';
-import DataTable from './DataTable';
+import DataTable from './DataTable';     
  
 const AuditLogsMultiSection = ({ leadId }) => {
   // State for each API section
