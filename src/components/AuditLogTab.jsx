@@ -3,7 +3,7 @@ import axios from 'axios';
 import './AuditLogTab.css';
 
 const AuditLogTab = ({ leadId, isActive }) => {
-  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
