@@ -78,7 +78,7 @@ const parseToDateString = (rawDate) => {
     } catch (e) {
       console.error("Error parsing ISO date:", e);
     }
-  }
+  } 
 
   const dateParts = rawDate.split(/[-/]/).map((part) => part.trim());
 
