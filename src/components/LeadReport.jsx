@@ -768,7 +768,7 @@ const LeadReport = ({ projectType }) => {
         const createdDate = String(lead.created_at || lead.date_created || lead.created || '').toLowerCase();
         const milestone = String(lead.current_milestone || '').toLowerCase();
         const stage = String(lead.current_stage || '').toLowerCase();
-        const employee = String(lead.employee_id || '').toLowerCase();
+        const employee = String(lead.w2_employees_count || '').toLowerCase();
         const salesAgent = String(lead.InternalSalesAgent || '').toLowerCase();
         const salesSupport = String(lead.InternalSalesSupport || '').toLowerCase();
         const affiliateSource = String(lead.source || '').toLowerCase();
@@ -896,7 +896,7 @@ const LeadReport = ({ projectType }) => {
         if (column.id === 'currentStage') return lead.current_stage || '';
         if (column.id === 'businessEmail') return lead.business_email || '';
         if (column.id === 'businessPhone') return lead.business_phone || '';
-        if (column.id === 'employee') return lead.employee_id || '';
+        if (column.id === 'employee') return lead.w2_employees_count || '';
         if (column.id === 'salesAgent') return lead.InternalSalesAgent || '';
         if (column.id === 'salesSupport') return lead.InternalSalesSupport || '';
         if (column.id === 'affiliateSource') return lead.source || '';
@@ -996,7 +996,7 @@ const LeadReport = ({ projectType }) => {
           if (column.id === 'currentStage') return lead.current_stage || '';
           if (column.id === 'businessEmail') return lead.business_email || '';
           if (column.id === 'businessPhone') return lead.business_phone || '';
-          if (column.id === 'employee') return lead.employee_id || '';
+          if (column.id === 'employee') return lead.w2_employees_count || '';
           if (column.id === 'salesAgent') return lead.InternalSalesAgent || '';
           if (column.id === 'salesSupport') return lead.InternalSalesSupport || '';
           if (column.id === 'affiliateSource') return lead.source || '';
@@ -1080,7 +1080,7 @@ const LeadReport = ({ projectType }) => {
           else if (column.id === 'currentStage') rowData[column.label] = lead.current_stage || '';
           else if (column.id === 'businessEmail') rowData[column.label] = lead.business_email || '';
           else if (column.id === 'businessPhone') rowData[column.label] = lead.business_phone || '';
-          else if (column.id === 'employee') rowData[column.label] = lead.employee_id || '';
+          else if (column.id === 'employee') rowData[column.label] = lead.w2_employees_count || '';
           else if (column.id === 'salesAgent') rowData[column.label] = lead.InternalSalesAgent || '';
           else if (column.id === 'salesSupport') rowData[column.label] = lead.InternalSalesSupport || '';
           else if (column.id === 'affiliateSource') rowData[column.label] = lead.source || '';
@@ -1280,7 +1280,7 @@ const LeadReport = ({ projectType }) => {
                                   case 'affiliateSource':
                                     return <td key={column.id}>{lead.source || ''}</td>;
                                   case 'employee':
-                                    return <td key={column.id}>{lead.employee_id || ''}</td>;
+                                    return <td key={column.id}>{lead.w2_employees_count || ''}</td>;
                                   case 'salesAgent':
                                     return <td key={column.id}>{lead.InternalSalesAgent || ''}</td>;
                                   case 'salesSupport':
