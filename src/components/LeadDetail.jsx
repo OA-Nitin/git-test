@@ -329,6 +329,12 @@ const LeadDetail = () => {
       if (primaryContact.phoneType) {
         setValue('contact_phone_type', primaryContact.phoneType);
       }
+      if (lead) {
+        setFormData({
+          registration_date: lead.registration_date || '',
+        });
+      }
+
     }
   }, [lead, setValue, primaryContact]);
 
