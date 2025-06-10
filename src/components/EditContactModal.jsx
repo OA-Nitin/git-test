@@ -251,7 +251,12 @@ const EditContactModal = ({
           last_name: contactData.last_name || "",
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
-          birthdate: contactData.birthdate || "",
+          birthdate: contactData.birthdate
+            ? (() => {
+                const [month, day, year] = contactData.birthdate.split('/');
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+              })()
+            : "",
           job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
@@ -484,11 +489,31 @@ const EditContactModal = ({
 
           console.log("Form data before submission:", data);
 
+          // Ensure birthdate is in YYYY-MM-DD string format for submission
+          let formattedBirthdate = '';
+          if (data.birthdate) {
+            // data.birthdate should already be YYYY-MM-DD from DatePicker's setValue
+            // If it's somehow an ISO string (e.g., from initial load before edit), split it
+            // Otherwise, use it directly.
+            if (typeof data.birthdate === 'string' && data.birthdate.includes('T')) {
+              formattedBirthdate = data.birthdate.split('T')[0];
+            } else if (typeof data.birthdate === 'string') {
+              formattedBirthdate = data.birthdate; // Already YYYY-MM-DD
+            } 
+            // If it's a Date object (less likely with setValue, but for robustness)
+            else if (data.birthdate instanceof Date && !isNaN(data.birthdate.getTime())) {
+              const year = data.birthdate.getFullYear();
+              const month = String(data.birthdate.getMonth() + 1).padStart(2, '0');
+              const day = String(data.birthdate.getDate()).padStart(2, '0');
+              formattedBirthdate = `${year}-${month}-${day}`;
+            }
+          }
+
           const submitData = {
             ...data,
+            birthdate: formattedBirthdate, // Use the explicitly formatted string
             dnd: data.dnd === "Yes" ? "1" : "0",
             contact_id: contactId,
-            // Use the first selected business as the report_to_id if not already set
             report_to_id:
               data.report_to_id || 
               (data.selected_businesses && data.selected_businesses.length > 0
@@ -791,17 +816,37 @@ const EditContactModal = ({
                             onChange={handleInputChange}
                           /> */}
                           <DatePicker
-                            selected={formData.birthdate ? new Date(formData.birthdate) : null}
+                            selected={
+                              formData.birthdate
+                                ? (() => {
+                                    const [year, month, day] = formData.birthdate.split('-');
+                                    return new Date(Number(year), Number(month) - 1, Number(day));
+                                  })()
+                                : null
+                            }
                             name="birthdate"
                             id="birthdate"
                             onChange={(date) => {
-                              const formatted = date ? date.toISOString().split('T')[0] : '';
-                              setFormData(prev => ({ ...prev, birthdate: formatted }));
-                              const error = validateField('birthdate', formatted);
-                              setErrors(prev => ({ ...prev, birthdate: error }));
-                            }}
-                            onBlur={() => {
-                              setTouched(prev => ({ ...prev, birthdate: true }));
+                              if (date) {
+                                // Get the date components in local time
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const formatted = `${year}-${month}-${day}`;
+                                
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: formatted,
+                                }));
+                                // Explicitly set the value in react-hook-form
+                                setValue("birthdate", formatted);
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: '',
+                                }));
+                                setValue("birthdate", ''); // Also update react-hook-form when cleared
+                              }
                             }}
                             dateFormat="MM/dd/yyyy"
                             showMonthDropdown
@@ -813,11 +858,6 @@ const EditContactModal = ({
                             maxDate={new Date()}
                             customInput={<ReadOnlyDateInput />}
                           />
-                          {errors.birthdate && (
-                            <div className="invalid-feedback">
-                              {errors.birthdate.message}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
