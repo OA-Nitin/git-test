@@ -871,22 +871,12 @@ const parseToDateString = (rawDate) => {
                             onChange={handleInputChange}
                           /> */}
                           <DatePicker
-<<<<<<< HEAD
+
 selected={
   formData.birthdate
     ? new Date(`${formData.birthdate}T00:00:00Z`) // Ensures it's parsed in UTC
     : null
 }
-=======
-                            selected={
-                              formData.birthdate
-                                ? (() => {
-                                    const [year, month, day] = formData.birthdate.split('-');
-                                    return new Date(Number(year), Number(month) - 1, Number(day));
-                                  })()
-                                : null
-                            }
->>>>>>> 6d8ccd01d2ecd4c08c2853af0bfe68fc7153d1c6
                             name="birthdate"
                             id="birthdate"
                             onChange={(date) => {
