@@ -204,18 +204,6 @@ const DataTable = ({
   // Main render
   return (
     <>   
-    <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">{title}</h6>
-      <div className="search-box" style={{ width: '300px' }}>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-control form-control-sm"
-        />
-      </div>
-    </div>
 
       {loading ? (
         <div className="loading-spinner">
