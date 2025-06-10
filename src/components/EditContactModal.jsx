@@ -311,8 +311,17 @@ const parseToDateString = (rawDate) => {
           last_name: contactData.last_name || "",
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
+<<<<<<< HEAD
 birthdate: parseToDateString(contactData.birthdate),
 
+=======
+          birthdate: contactData.birthdate
+            ? (() => {
+                const [month, day, year] = contactData.birthdate.split('/');
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+              })()
+            : "",
+>>>>>>> 6d8ccd01d2ecd4c08c2853af0bfe68fc7153d1c6
           job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
@@ -872,11 +881,22 @@ birthdate: parseToDateString(contactData.birthdate),
                             onChange={handleInputChange}
                           /> */}
                           <DatePicker
+<<<<<<< HEAD
 selected={
   formData.birthdate
     ? new Date(`${formData.birthdate}T00:00:00Z`) // Ensures it's parsed in UTC
     : null
 }
+=======
+                            selected={
+                              formData.birthdate
+                                ? (() => {
+                                    const [year, month, day] = formData.birthdate.split('-');
+                                    return new Date(Number(year), Number(month) - 1, Number(day));
+                                  })()
+                                : null
+                            }
+>>>>>>> 6d8ccd01d2ecd4c08c2853af0bfe68fc7153d1c6
                             name="birthdate"
                             id="birthdate"
                             onChange={(date) => {
