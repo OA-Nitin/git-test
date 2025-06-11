@@ -16,6 +16,7 @@ import './LeadDetail.css';
 import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
+import { format } from 'date-fns';
 
 
 // Date utility functions
@@ -136,6 +137,7 @@ const LeadDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
   const [unassignLoading, setUnassignLoading] = useState(false);
+  const [isAssigningUser, setIsAssigningUser] = useState(false);
 
 
   // Contacts related state
@@ -2271,7 +2273,7 @@ const LeadDetail = () => {
   const handleAssignUser = async () => {
     if (selectedUser) {
       try {
-        setUnassignLoading(true);
+        setIsAssigningUser(true);
 
         // Check if user is already assigned
         const isAlreadyAssigned = assignedUsers.some(user => user.id === selectedUser.user.id);
@@ -2347,7 +2349,7 @@ const LeadDetail = () => {
         // Reset the selected user
         setSelectedUser(null);
       } finally {
-        setUnassignLoading(false);
+        setIsAssigningUser(false);
 
         // Refresh the assigned users list
         fetchAssignedUsers();
@@ -5458,9 +5460,9 @@ const LeadDetail = () => {
                   {activeTab === 'opportunities' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
-                          <a href='javaascript:void(0)'>
+                          {/* <a href='javaascript:void(0)'>
                             <i className="fa-solid fa-plus"></i> New Opportunity
-                          </a>
+                          </a> */}
                       </div>
 
                       {opportunities.length === 0 ? (
@@ -5482,20 +5484,23 @@ const LeadDetail = () => {
                                     style={{display:'none'}} >
                                     <i className="fas fa-pen"></i>
                                   </a>
-                                  <a
+                                  {/* <a
                                     className="delete_project"
                                     href="javascript:void(0)"
                                     title="Delete"
                                     onClick={() => showDeleteConfirmation(opportunity)}
                                   >
                                     <i className="fas fa-trash"></i>
-                                  </a>
+                                  </a> */}
                                 </div>
                               </div>
                             </div>
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
-                                <p><b>Created Date:</b> {opportunity.CreatedAt}</p>
+                                <p>
+                                  <b>Created Date:</b>
+                                  {opportunity.CreatedAt ? format(new Date(opportunity.CreatedAt), 'MM/dd/yyyy') : '-'}
+                                </p>
                                 <p><b>Current Stage:</b> {opportunity.milestoneStatus}</p>
                                 <p><b>Next Step:</b> {opportunity.NextStep || ''}</p>
                               </div>
@@ -6008,9 +6013,9 @@ const LeadDetail = () => {
                       <button
                         className="btn assign-user-btn w-100"
                         onClick={handleAssignUser}
-                        disabled={!selectedUser}
+                        disabled={!selectedUser || isAssigningUser}
                       >
-                        Assign User
+                        {isAssigningUser ? 'Assigning...' : 'Assign User'}
                       </button>
 
                       {/* Add custom CSS for the assigned user tags */}
