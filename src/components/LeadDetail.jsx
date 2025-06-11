@@ -308,14 +308,14 @@ const LeadDetail = () => {
     trigger,
   } = useForm({
     resolver: yupResolver(leadDetailSchema),
-    mode: 'onSubmit',
+    mode: 'onChange',
     reValidateMode: 'onChange',
   });
 
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
-        setValue(key, lead[key]);
+        setValue(key, lead[key], { shouldValidate: true });
       });
 
       // Also set primary contact form values if they exist
@@ -351,7 +351,7 @@ const LeadDetail = () => {
     watch: watchProject
   } = useForm({
     resolver: yupResolver(projectSchema),
-    mode: 'onSubmit',
+    mode: 'onChange',
     reValidateMode: 'onChange',
   });
 
@@ -5013,7 +5013,7 @@ const LeadDetail = () => {
                                     {contact.name ? contact.name.split(' ').map(n => n[0]).join('') : ''}
                                   </div>
                                   <div className="card-exam-title">
-                                    <p><a href="javascript:void(0)" target="_blank">{contact.name || ''}</a></p>
+                                    <p><a>{contact.name || ''}</a></p>
                                     <p>{contact.title ? `${contact.title}` : ''} {contact.middle_name ? `${contact.middle_name}` : ''}</p>
                                     <p>{contact.email || ''}</p>
                                     <p>{contact.phone || ''} {contact.ph_extension ? `Ext: ${contact.ph_extension}` : ''}</p>
