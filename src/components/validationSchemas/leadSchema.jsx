@@ -16,7 +16,9 @@ export const leadDetailSchema = yup.object().shape({
   business_legal_name: yup
     .string()
     .max(60, 'Maximum 60 characters allowed')
-    .matches(businessNameRegex, 'Please enter a valid business legal name.'),
+    .notRequired()
+    .test('is-valid', 'Please enter a valid business legal name.', value => !value || businessNameRegex.test(value)),
+
 
   doing_business_as: yup
     .string()
@@ -25,8 +27,13 @@ export const leadDetailSchema = yup.object().shape({
 
   category: yup
     .string()
+    .notRequired()
     .max(60, 'Maximum 60 characters allowed')
-    .matches(businessNameRegex, 'Please enter a valid business category.'),
+    .test(
+      'is-valid-category',
+      'Please enter a valid business category.',
+      value => !value || businessNameRegex.test(value)
+  ),
 
   website: yup
     .string()
@@ -41,11 +48,11 @@ export const leadDetailSchema = yup.object().shape({
       }
     ),
 
-  // authorized_signatory_name: yup
-  //   .string()
-  //   .notRequired()
-  //   .max(60, 'Maximum 60 characters allowed')
-  //   .test('is-valid', 'Please enter a valid name.', value => !value || nameRegex.test(value)),
+authorized_signatory_name: yup
+  .string()
+  .notRequired()
+  .max(60, 'Maximum 60 characters allowed')
+  .test('is-valid', 'Please enter a valid name.', value => !value || nameRegex.test(value)),
 
   business_phone: yup
     .string()
@@ -61,7 +68,9 @@ export const leadDetailSchema = yup.object().shape({
   business_title: yup
     .string()
     .max(60, 'Maximum 60 characters allowed')
+    .notRequired()
     .test('is-valid', 'Please enter a valid title.', value => !value || nameRegex.test(value)),
+
 
   business_address: yup
     .string()
@@ -133,9 +142,14 @@ export const leadDetailSchema = yup.object().shape({
     .max(60, 'Maximum 60 characters allowed'),
 
   registration_number: yup
-  .string()
-  .required('Please enter a valid registration number.')
-  .max(30, 'Maximum 30 characters allowed'),
+    .string()
+    .notRequired()
+    .max(30, 'Maximum 30 characters allowed')
+    .test(
+      'is-valid-registration-number',
+      'Please enter a valid registration number.',
+      value => !value || /^[A-Za-z0-9\-]+$/.test(value)
+    ),
   // registration_number: yup
   //   .string()
   //   .required('Please enter a valid registration number.')
