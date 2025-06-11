@@ -30,14 +30,13 @@ export const leadDetailSchema = yup.object().shape({
     .max(60, 'Maximum 60 characters allowed')
     .matches(businessNameRegex, 'Please enter a valid business category.'),
 
-  website: yup
+website: yup
   .string()
-  .notRequired()
+  .required('Website URL is required')
   .test(
     'is-valid-domain',
     'Please enter a valid domain or URL (example.com or https://example.com)',
     value => {
-      if (!value) return true;
       const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
       return domainRegex.test(value);
     }
@@ -134,6 +133,10 @@ export const leadDetailSchema = yup.object().shape({
     .required('Please enter a valid  other business type.')
     .max(60, 'Maximum 60 characters allowed'),
 
+  registration_number: yup
+  .string()
+  .required('Please enter a valid registration number.')
+  .max(30, 'Maximum 30 characters allowed'),
   // registration_number: yup
   //   .string()
   //   .required('Please enter a valid registration number.')
