@@ -3807,7 +3807,7 @@ const LeadDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Business Legal Name*</label>
+                            <label className="form-label">Business Legal Name</label>
                             <input
                               type="text"
                               className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
@@ -3816,9 +3816,9 @@ const LeadDetail = () => {
                               value={lead.business_legal_name || ''}
                               onChange={handleInputChange}
                             />
-                             {errors.business_legal_name && (
+                             {/* {errors.business_legal_name && (
                                 <div className="invalid-feedback">{errors.business_legal_name.message}</div>
-                              )}
+                              )} */}
                             <input
                               type="hidden"
                               name="user_id"
