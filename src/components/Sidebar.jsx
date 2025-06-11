@@ -160,7 +160,7 @@ const Sidebar = () => {
                       const isChildActive = currentPath === child.path;
                       return (
                         <li key={child.key} className={isChildActive ? 'current wp-first-item' : 'wp-first-item'}>
-                          <Link to={child.path} className={isChildActive ? 'current11' : ''}>
+                          <Link to={child.path} className={isChildActive ? 'current' : ''}>
                             {child.name}
                           </Link>
                         </li>
