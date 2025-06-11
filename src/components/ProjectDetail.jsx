@@ -728,7 +728,10 @@ const ProjectDetail = () => {
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
     console.log('Project ID type:', typeof projectId);
     fetchProjectDetails();
-
+    fetchBankInfo();
+    fetchIntakeInfo();
+    fetchFeesInfo();
+    fetchFulfilmentInfo();
     console.log('Initial useEffect - Fetching milestones for product ID 936');
     // fetchMilestones();
   }, [projectId]);
@@ -2239,13 +2242,14 @@ const ProjectDetail = () => {
 
   // Function to fetch bank information from the API
   const fetchBankInfo = async () => {
-    if (!project?.project_id) return;
+    console.log('Fetching bank information for project IDs:', projectId);
+    if (!projectId) return;
 
     setBankInfoLoading(true);
     setBankInfoError(null);
 
     try {
-      console.log('Fetching bank information for project ID:', project.project_id);
+      console.log('Fetching bank information for project ID:', projectId);
 
       // Make a POST request to the bank info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
@@ -2253,7 +2257,7 @@ const ProjectDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ project_id: project.project_id }),
+        body: JSON.stringify({ project_id: projectId }),
       });
 
       console.log('Bank info API response status:', response.status);
@@ -2323,13 +2327,13 @@ const ProjectDetail = () => {
 
   // Function to fetch intake information from the API
   const fetchIntakeInfo = async () => {
-    if (!project?.project_id) return;
+    if (!projectId) return;
 
     setIntakeInfoLoading(true);
     setIntakeInfoError(null);
 
     try {
-      console.log('Fetching intake information for project ID:', project.project_id);
+      console.log('Fetching intake information for project ID:', projectId);
 
       // Make a POST request to the intake info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
@@ -2337,7 +2341,7 @@ const ProjectDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ project_id: project.project_id }),
+        body: JSON.stringify({ project_id: projectId }),
       });
 
       console.log('Intake info API response status:', response.status);
@@ -2517,7 +2521,7 @@ const ProjectDetail = () => {
 
   // Function to fetch fees information from the API
   const fetchFeesInfo = async () => {
-    if (!project?.project_id) {
+    if (!projectId) {
       console.log('No project ID available for fees API call');
       return;
     }
@@ -2527,10 +2531,10 @@ const ProjectDetail = () => {
 
     try {
       console.log('=== FEES API CALL START ===');
-      console.log('Project ID:', project.project_id);
+      console.log('Project ID:', projectId);
       console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
-      const requestBody = { project_id: project.project_id };
+      const requestBody = { project_id: projectId };
       console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
@@ -2962,7 +2966,7 @@ const ProjectDetail = () => {
   };
   // Function to fetch fulfilment information from the API
   const fetchFulfilmentInfo = async () => {
-    if (!project?.project_id) {
+    if (!projectId) {
       console.log('No project ID available for fulfilment API call');
       return;
     }
@@ -2972,10 +2976,10 @@ const ProjectDetail = () => {
 
     try {
       console.log('=== FULFILMENT API CALL START ===');
-      console.log('Project ID:', project.project_id);
+      console.log('Project ID:', projectId);
       console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment');
 
-      const requestBody = { project_id: project.project_id };
+      const requestBody = { project_id: projectId };
       console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment', {
@@ -4802,9 +4806,9 @@ const ProjectDetail = () => {
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label d-flex align-items-center justify-content-between">
-                              <span>Business</span>
-                              <button
+                            <div className='form-label d-flex align-items-center justify-content-between'>
+                            <label style={{ marginBottom: '0px' }}>Business</label>
+                            <button
                                 className="btn btn-primary"
                                 style={{
                                   fontSize: '11px',
@@ -4822,10 +4826,8 @@ const ProjectDetail = () => {
                               >
                                 View
                               </button>
-                            </label>
-                            <div className="d-flex">
+                              </div>
                               <input type="text" className="form-control" defaultValue={project?.business_legal_name || ""} readOnly />
-                            </div>
                           </div>
                         </div>
                         <div className="col-md-4">
