@@ -4766,9 +4766,9 @@ const ProjectDetail = () => {
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label d-flex align-items-center justify-content-between">
-                              <span>Business</span>
-                              <button
+                            <div className='form-label d-flex align-items-center justify-content-between'>
+                            <label style={{ marginBottom: '0px' }}>Business</label>
+                            <button
                                 className="btn btn-primary"
                                 style={{
                                   fontSize: '11px',
@@ -4786,10 +4786,8 @@ const ProjectDetail = () => {
                               >
                                 View
                               </button>
-                            </label>
-                            <div className="d-flex">
+                              </div>
                               <input type="text" className="form-control" defaultValue={project?.business_legal_name || ""} readOnly />
-                            </div>
                           </div>
                         </div>
                         <div className="col-md-4">
