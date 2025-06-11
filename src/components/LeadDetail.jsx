@@ -2906,6 +2906,8 @@ const LeadDetail = () => {
 
       if (response.data && response.data.status) {
         // Update the project in the projects array
+        const selectedMilestone = milestones.find(m => m.name === projectFormData.Milestone);
+        const selectedStage = milestoneStages.find(s => s.name === projectFormData.MilestoneStage);
         const updatedProjects = projects.map(project => {
           if (project.id === projectFormData.projectID) {
             return {
@@ -2915,7 +2917,9 @@ const LeadDetail = () => {
               maxCredit: projectFormData.maximum_credit,
               estFee: projectFormData.estimated_fee,
               milestone: projectFormData.Milestone,
+              milestoneId: selectedMilestone ? selectedMilestone.id : project.milestoneId,
               stage: projectFormData.MilestoneStage,
+              stageId: selectedStage ? selectedStage.id : project.stageId,
               contactId: projectFormData.ContactList,
               collaborator: projectFormData.collaborators.length > 0 ? projectFormData.collaborators[0] : ''
             };
@@ -2929,6 +2933,7 @@ const LeadDetail = () => {
         // Close the modal after a delay
         setTimeout(() => {
           handleCloseEditProjectModal();
+          fetchProjectData();
         }, 2000);
       } else {
         setProjectUpdateError(response.data?.message || 'Failed to update project');
