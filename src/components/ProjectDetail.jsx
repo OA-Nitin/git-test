@@ -5160,6 +5160,7 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               {project?.product_id === "937" ? "Agreement Folder Link" : "Company Folder Link"}
+                              {companyFolderLink  && (
                               <a
                                 href={companyFolderLink}
                                 target="_blank"
@@ -5171,6 +5172,7 @@ const ProjectDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
                                 </svg>
                               </a>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -5189,6 +5191,7 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               {project?.product_id === "937" ? "STC Document Folder Link" : "ERC Document Folder Link"}
+                              {documentFolderLink  && (
                               <a
                                 href={documentFolderLink}
                                 target="_blank"
@@ -5200,6 +5203,7 @@ const ProjectDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
                                 </svg>
                               </a>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -5875,7 +5879,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Company Folder Link</label>
-                            <input
+                            {companyFolderLink  && (
+                              <a
+                                href={companyFolderLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ms-2"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
+                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
+                                </svg>
+                              </a>
+                              )}
+                              <input
                               type="text"
                               className="form-control"
                               placeholder="Company Folder Link"
@@ -9051,7 +9068,7 @@ const ProjectDetail = () => {
                                 <div className="col-sm-12">
                                   <div className="custom_opp_tab_header">
                                     <h5>
-                                      <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
+                                      <a href={invoice.invoice_url} target="_blank" data-invoiceid={invoice.id}>
                                         Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
                                       <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}>
                                         {invoice.invoice_status}
