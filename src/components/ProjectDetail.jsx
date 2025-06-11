@@ -938,7 +938,7 @@ const ProjectDetail = () => {
                                     <tr>
                                         <th>Year</th>
                                         <th>Mandatory</th>
-                                        <th>Tax Returns - 1040(Mandatory)</th>
+                                        <th>Tax Returns - 1040 (Mandatory)</th>
                                         <th>Status</th>
                                         <th>Comments</th>
                                     </tr>
@@ -3169,7 +3169,18 @@ const ProjectDetail = () => {
     if (totalPages <= 1) return null;
 
     const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const pageLimit = 3;
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, currentPage + 1);
+
+    if (currentPage === 1) {
+      endPage = Math.min(totalPages, pageLimit);
+    }
+    if (currentPage === totalPages) {
+      startPage = Math.max(1, totalPages - 2);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
 
@@ -3180,36 +3191,61 @@ const ProjectDetail = () => {
           {Math.min(currentPage * auditLogsPagination[tableType].itemsPerPage, data.length)} of {data.length} entries
         </div>
         <nav>
-          <ul className="pagination pagination-sm mb-0">
-            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-              <button
-                className="page-link"
+          <div className="pagination-container">
+            <button
                 onClick={() => handleAuditLogsPagination(tableType, currentPage - 1)}
                 disabled={currentPage === 1}
+                className="pagination-button"
               >
                 Previous
               </button>
-            </li>
-            {pages.map(page => (
-              <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                <button
-                  className="page-link"
-                  onClick={() => handleAuditLogsPagination(tableType, page)}
-                >
-                  {page}
-                </button>
-              </li>
-            ))}
-            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+            {/* <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              &lsaquo;
+            </button> */}
+
+            {pages.map(number => (
               <button
-                className="page-link"
-                onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
-                disabled={currentPage === totalPages}
+                key={number}
+                onClick={() => handleAuditLogsPagination(tableType, number)}
+                className={`pagination-button ${currentPage === number ? 'active' : ''}`}
               >
-                Next
+                {number}
               </button>
-            </li>
-          </ul>
+            ))}
+
+            <button
+              onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              Next
+            </button>
+            {/* <button
+              onClick={() => paginate(totalPages)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              &raquo;
+            </button> */}
+
+            {/* <div className="pagination-info">
+              <span>Page {currentPage} of {totalPages}</span>
+              <select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="items-per-page"
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+                <option value={25}>25 per page</option>
+                <option value={50}>50 per page</option>
+              </select>
+            </div> */}
+          </div>
         </nav>
       </div>
     );
