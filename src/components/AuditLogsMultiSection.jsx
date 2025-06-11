@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AuditLogsMultiSection.css';
-import DataTable from './DataTable';     
- 
+import DataTable from './DataTable';
+
 const AuditLogsMultiSection = ({ leadId }) => {
   // State for each API section
   const [fieldActivity, setFieldActivity] = useState([]);
@@ -35,15 +35,6 @@ const AuditLogsMultiSection = ({ leadId }) => {
     communicationLogs: null
   });
 
-  // Search state for each section
-  const [searchFieldActivity, setSearchFieldActivity] = useState('');
-  const [searchCommunicationLeadMapping, setSearchCommunicationLeadMapping] = useState('');
-  const [searchOptInOut, setSearchOptInOut] = useState('');
-  const [searchStatusChanges, setSearchStatusChanges] = useState('');
-  const [searchCampaignChanges, setSearchCampaignChanges] = useState('');
-  const [searchSourceChanges, setSearchSourceChanges] = useState('');
-  const [searchCommunicationLogs, setSearchCommunicationLogs] = useState('');
-
   // Format date for display in mm/dd/yyyy H:i:s format
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -61,7 +52,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
       const seconds = String(date.getSeconds()).padStart(2, '0');
-
+      
       return `${month}/${day}/${year} ${hours}:${minutes}`;
     } catch (err) {
       console.error('Error formatting date:', err);
@@ -81,17 +72,6 @@ const AuditLogsMultiSection = ({ leadId }) => {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  };
-
-  // Function to filter logs by search term (searches all string fields)
-  const filterLogs = (logs, searchTerm) => {
-    if (!searchTerm.trim()) return logs;
-    const lower = searchTerm.toLowerCase();
-    return logs.filter(log =>
-      Object.values(log)
-        .filter(val => typeof val === 'string' || typeof val === 'number')
-        .some(val => String(val).toLowerCase().includes(lower))
-    );
   };
 
   // Function to fetch data from all APIs
@@ -270,27 +250,17 @@ const AuditLogsMultiSection = ({ leadId }) => {
   }, [leadId]);
 
   return (
-    <div className="audit-logs-multi-section">
+    <>
+      <h2 className="section-title">Audit Logs</h2>
+
       {/* Field Activity Section */}
       <div className="audit-section">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h6 className="section-subtitle mb-0">Field Activity</h6>
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search Field Activity..."
-              value={searchFieldActivity}
-              onChange={e => setSearchFieldActivity(e.target.value)}
-              className="form-control form-control-sm"
-            />
-          </div>
-        </div>
         <DataTable
           title="Field Activity"
-          data={filterLogs(fieldActivity, searchFieldActivity)}
+          data={fieldActivity}
           loading={loading.fieldActivity}
           error={errors.fieldActivity}
-          emptyMessage={searchFieldActivity ? 'No results found.' : 'No field activity logs found.'}
+          emptyMessage="No field activity logs found."
           columns={[
             {
               header: 'Date',
@@ -305,7 +275,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
             {
               header: 'Field',
               accessor: 'field_name',
-              render: (row) => row.field_name || row.field || ''
+              render: (row) => formatFieldName(row.field_name || row.field || '')
             },
             {
               header: 'Old Value',
@@ -316,6 +286,11 @@ const AuditLogsMultiSection = ({ leadId }) => {
               header: 'New Value',
               accessor: 'new_value',
               render: (row) => row.new_value || row.changed_to || '-'
+            },
+            {
+              header: 'Action',
+              accessor: 'action',
+              render: (row) => row.action || row.activity_type || 'Update'
             }
           ]}
         />
@@ -323,24 +298,12 @@ const AuditLogsMultiSection = ({ leadId }) => {
 
       {/* Communication Lead Mapping Section */}
       <div className="audit-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">Communication Logs</h6>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Communication Lead Mapping..."
-            value={searchCommunicationLeadMapping}
-            onChange={e => setSearchCommunicationLeadMapping(e.target.value)}
-            className="form-control form-control-sm"
-          />
-        </div>
-        </div>
         <DataTable
           title="Communication Log: Lead Mapping"
-          data={filterLogs(communicationLeadMapping, searchCommunicationLeadMapping)}
+          data={communicationLeadMapping}
           loading={loading.communicationLeadMapping}
           error={errors.communicationLeadMapping}
-          emptyMessage={searchCommunicationLeadMapping ? 'No results found.' : 'No communication lead mapping logs found.'}
+          emptyMessage="No communication lead mapping logs found."
           columns={[
             {
               header: 'Date',
@@ -373,24 +336,12 @@ const AuditLogsMultiSection = ({ leadId }) => {
 
       {/* Opt In/Out Section */}
       <div className="audit-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">Opt In/Out</h6>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Opt In/Out Log..."
-            value={searchOptInOut}
-            onChange={e => setSearchOptInOut(e.target.value)}
-            className="form-control form-control-sm"
-          />
-        </div>
-        </div>
         <DataTable
           title="Opt In/Out Log"
-          data={filterLogs(optInOut, searchOptInOut)}
+          data={optInOut}
           loading={loading.optInOut}
           error={errors.optInOut}
-          emptyMessage={searchOptInOut ? 'No results found.' : 'No opt in/out logs found.'}
+          emptyMessage="No opt in/out logs found."
           columns={[
             {
               header: 'Date',
@@ -423,24 +374,12 @@ const AuditLogsMultiSection = ({ leadId }) => {
 
       {/* Status Changes Section */}
       <div className="audit-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">Status Changes</h6>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Status Changes..."
-            value={searchStatusChanges}
-            onChange={e => setSearchStatusChanges(e.target.value)}
-            className="form-control form-control-sm"
-          />
-        </div>
-        </div>
         <DataTable
           title="Status Changes"
-          data={filterLogs(statusChanges, searchStatusChanges)}
+          data={statusChanges}
           loading={loading.statusChanges}
           error={errors.statusChanges}
-          emptyMessage={searchStatusChanges ? 'No results found.' : 'No status changes logs found.'}
+          emptyMessage="No status changes logs found."
           columns={[
             {
               header: 'Date',
@@ -468,24 +407,12 @@ const AuditLogsMultiSection = ({ leadId }) => {
 
       {/* Campaign Changes Section */}
       <div className="audit-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">Campaign Changes</h6>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Campaign Changes..."
-            value={searchCampaignChanges}
-            onChange={e => setSearchCampaignChanges(e.target.value)}
-            className="form-control form-control-sm"
-          />
-        </div>
-        </div>
         <DataTable
           title="Campaign Changes"
-          data={filterLogs(campaignChanges, searchCampaignChanges)}
+          data={campaignChanges}
           loading={loading.campaignChanges}
           error={errors.campaignChanges}
-          emptyMessage={searchCampaignChanges ? 'No results found.' : 'No campaign changes logs found.'}
+          emptyMessage="No campaign changes logs found."
           columns={[
             {
               header: 'Date',
@@ -513,24 +440,12 @@ const AuditLogsMultiSection = ({ leadId }) => {
 
       {/* Source Changes Section */}
       <div className="audit-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">Source Changes</h6>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Source Changes..."
-            value={searchSourceChanges}
-            onChange={e => setSearchSourceChanges(e.target.value)}
-            className="form-control form-control-sm"
-          />
-        </div>
-        </div>
         <DataTable
           title="Source Changes"
-          data={filterLogs(sourceChanges, searchSourceChanges)}
+          data={sourceChanges}
           loading={loading.sourceChanges}
           error={errors.sourceChanges}
-          emptyMessage={searchSourceChanges ? 'No results found.' : 'No source changes logs found.'}
+          emptyMessage="No source changes logs found."
           columns={[
             {
               header: 'Date',
@@ -558,24 +473,12 @@ const AuditLogsMultiSection = ({ leadId }) => {
 
       {/* Communication Logs Section */}
       <div className="audit-section">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-      <h6 className="section-subtitle mb-0">Communication Log</h6>
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search Communication Logs..."
-            value={searchCommunicationLogs}
-            onChange={e => setSearchCommunicationLogs(e.target.value)}
-            className="form-control form-control-sm"
-          />
-        </div>
-        </div>
         <DataTable
           title="Communication Logs"
-          data={filterLogs(communicationLogs, searchCommunicationLogs)}
+          data={communicationLogs}
           loading={loading.communicationLogs}
           error={errors.communicationLogs}
-          emptyMessage={searchCommunicationLogs ? 'No results found.' : 'No communication logs found.'}
+          emptyMessage="No communication logs found."
           columns={[
             {
               header: 'Date',
@@ -605,7 +508,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
           ]}
         />
       </div>
-    </div>
+    </>
   );
 };
 
