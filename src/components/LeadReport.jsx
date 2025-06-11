@@ -708,11 +708,11 @@ const LeadReport = ({ projectType }) => {
     return `${month}/${day}/${year} ${time}`; // MM/DD/YYYY HH:MM
   };
 
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const capitalize = (str) => str.toUpperCase();
   
   const getProjectType = () => {
     const safeProduct = product?.toLowerCase() || 'all';
-    return `${capitalize(safeProduct)}Leads`;
+    return `${capitalize(safeProduct)}_Leads`;
   };
 
   const userName = user?.display_name || user?.username || 'User';

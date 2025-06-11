@@ -477,8 +477,7 @@ const OpportunityReport = ({ projectType }) => {
     return `${month}/${day}/${year} ${time}`; // MM/DD/YYYY HH:MM
   };
 
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
+  const capitalize = (str) => str.toUpperCase();
   const getProjectType = () => {
     // let type = opportunities.length > 0 ? opportunities[0].product : 'All';
     // type = type || 'All';
@@ -489,7 +488,7 @@ const OpportunityReport = ({ projectType }) => {
 
     // return `${type}Opportunities`;
     const safeProduct = product?.toLowerCase() || 'all';
-    return `${capitalize(safeProduct)}Opportunities`;
+    return `${capitalize(safeProduct)}_Opportunities`;
   };
 
   const userName = user?.display_name || user?.username || 'User';
