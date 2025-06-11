@@ -5503,7 +5503,7 @@ const LeadDetail = () => {
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
                                 <p>
-                                  <b>Created Date:</b>
+                                  <b>Created Date: </b>
                                   {opportunity.CreatedAt ? format(new Date(opportunity.CreatedAt), 'MM/dd/yyyy') : '-'}
                                 </p>
                                 <p><b>Current Stage:</b> {opportunity.milestoneStatus}</p>
