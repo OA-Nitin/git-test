@@ -103,7 +103,7 @@ const Sidebar = () => {
     <div id="adminmenumain" className="sidebar ps ps--active-y">
       <div id="adminmenuwrap">
         <div className="logo d-flex justify-content-between">
-          <Link className="large_logo" to="/dashboard">
+          <Link className="large_logo">
             <img src={getAssetPath('assets/images/logo-blue-360.svg')} alt="Occams Logo" />
           </Link>
         </div>
@@ -160,7 +160,7 @@ const Sidebar = () => {
                       const isChildActive = currentPath === child.path;
                       return (
                         <li key={child.key} className={isChildActive ? 'current wp-first-item' : 'wp-first-item'}>
-                          <Link to={child.path} className={isChildActive ? 'current' : ''}>
+                          <Link to={child.path} className={isChildActive ? 'current11' : ''}>
                             {child.name}
                           </Link>
                         </li>

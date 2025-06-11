@@ -31,9 +31,17 @@ export const leadDetailSchema = yup.object().shape({
     .matches(businessNameRegex, 'Please enter a valid business category.'),
 
   website: yup
-    .string()
-    .required('Please enter a valid website URL.')
-    .url('Please enter a valid website URL.'),
+  .string()
+  .notRequired()
+  .test(
+    'is-valid-domain',
+    'Please enter a valid domain or URL (example.com or https://example.com)',
+    value => {
+      if (!value) return true;
+      const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
+      return domainRegex.test(value);
+    }
+  ),
 
   authorized_signatory_name: yup
     .string()
@@ -126,19 +134,19 @@ export const leadDetailSchema = yup.object().shape({
     .required('Please enter a valid  other business type.')
     .max(60, 'Maximum 60 characters allowed'),
 
-  registration_number: yup
-    .string()
-    .required('Please enter a valid registration number.')
-    .max(30, 'Maximum 30 characters allowed'),
+  // registration_number: yup
+  //   .string()
+  //   .required('Please enter a valid registration number.')
+  //   .max(30, 'Maximum 30 characters allowed'),
 
-    registration_date: yup
-    .string()
-    .required('Please enter a valid registration date.')
-    .test(
-      'is-valid-date',
-      'Invalid date format. Use formats like mm/dd/yyyy, dd/mm/yyyy, or yyyy/mm/dd.',
-      value => !value || dateRegex.test(value)
-    ),  
+    // registration_date: yup
+    // .string()
+    // .required('Please enter a valid registration date.')
+    // .test(
+    //   'is-valid-date',
+    //   'Invalid date format. Use formats like mm/dd/yyyy, dd/mm/yyyy, or yyyy/mm/dd.',
+    //   value => !value || dateRegex.test(value)
+    // ),   
 
   state_of_registration: yup
     .string()
@@ -206,11 +214,14 @@ export const contactSchema = yup.object().shape({
 //     .string()
 //     .max(20, 'Maximum 20 characters allowed'),
     
-  job_title: yup
+  department: yup
     .string()
     .notRequired()
     .max(60, 'Maximum 60 characters allowed'),
-    
+  department:  yup
+    .string()
+    .notRequired()
+    .max(60, 'Maximum 60 characters allowed'),
   // Personal Info
   birthdate: yup
     .date()
@@ -236,7 +247,7 @@ export const contactSchema = yup.object().shape({
     .required('Phone number is required')
     .matches(phoneRegex, 'Please enter a valid phone number (e.g., 1234567890 or 123-456-7890)'),
     
-  phone_ext: yup
+  ph_extension: yup
     .string()
     .notRequired()
     .max(10, 'Maximum 10 characters allowed'),

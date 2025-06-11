@@ -43,7 +43,8 @@ const ReportFilter = ({
   selectAllColumns,
   exportToExcel,
   exportToPDF,
-  exportToCSV
+  exportToCSV,
+  datePickerKey
 }) => {
   // Handle search
   const handleSearch = () => {
@@ -78,13 +79,14 @@ const ReportFilter = ({
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by any field..."
+                placeholder="Search by Report ID, Business Name, Email, Phone, etc."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingRight: '30px' }}
-                onKeyDown={(e) => {
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                onKeyPress={(e) => {
                   if (e.key === 'Enter') {
-                    e.preventDefault();
                     handleSearch();
                   }
                 }}
@@ -124,6 +126,7 @@ const ReportFilter = ({
         {/* Date Range Filter */}
         <div className="col-md-3 mb-2 mb-md-0">
           <DateRangePicker
+            key={datePickerKey}
             onApplyFilter={handleApplyDateFilter}
             startDate={startDate}
             endDate={endDate}

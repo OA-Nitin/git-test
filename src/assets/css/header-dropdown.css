@@ -94,7 +94,7 @@
 #wpadminbar {
   position: relative;
   display: inline-block;
-  z-index: 1050; /* Ensure header is above most elements but below modals */
+  z-index: 1; /* Ensure header is above most elements but below modals */
 }
 
 /* Ensure profile info has proper z-index */
@@ -120,4 +120,9 @@
     top: 70px !important;
     right: 10px !important;
   }
+}
+
+
+.modal-backdrop {
+    opacity: 1 !important;
 }

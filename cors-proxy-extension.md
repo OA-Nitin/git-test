@@ -46,7 +46,7 @@ app.use(cors());
 
 app.get('/api/invoices', async (req, res) => {
   try {
-    const response = await axios.get('https://play.occamsadvisory.com/portal/wp-json/oc-login-api/v1/invoices', {
+    const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/oc-login-api/v1/invoices', {
       headers: {
         'x-auth-key': 'qV9@8kJz#2dP!mNc'
       },

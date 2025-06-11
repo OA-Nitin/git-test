@@ -15,6 +15,7 @@ import ContactCard from './common/ContactCard';
 import ReportFilter from './common/ReportFilter';
 import ReportPagination from './common/ReportPagination';
 import PageContainer from './common/PageContainer';
+import { getFormattedUserData } from '../utils/userUtils';
 
 // Product ID mapping
 const productIdMap = {
@@ -26,6 +27,8 @@ const productIdMap = {
   'audit-advisory': 934,
   all: null, // to fetch all opportunities without filtering
 };
+
+const user = getFormattedUserData();
 
 const OpportunityReport = ({ projectType }) => {
   // Get product from URL params
@@ -49,7 +52,11 @@ const OpportunityReport = ({ projectType }) => {
     document.title = reportTitle;
 
     console.log('OpportunityReport useEffect triggered with product:', product, 'productId:', productId);
-
+    setSearchTerm('');
+    setEndDate('');
+    setStartDate('');
+    setCurrentPage(1);
+    setDatePickerKey(prev => prev + 1);
     // Fetch opportunities from API
     fetchOpportunities();
   }, [product, projectType, productId]);
@@ -88,24 +95,18 @@ const OpportunityReport = ({ projectType }) => {
     }
 
     return data.map(opp => {
-      // Log the opportunity ID for debugging
-      console.log('Processing opportunity with ID:', opp.OpportunityID);
-
       // Make sure we have a valid ID for the opportunity
       const opportunityId = opp.OpportunityID || '';
       if (!opportunityId) {
         console.warn('Warning: Opportunity has no ID:', opp);
       }
 
-      // Log the opportunity ID for notes functionality
-      console.log('Processing opportunity with ID for notes:', opportunityId);
-
       return {
         id: opp.OpportunityID || '',
         opportunity_name: opp.OpportunityName || '',
         product: opp.productName || '',
         product_id: opp.product_ID || '',
-        probability: opp.Probability ? `${Math.round(parseFloat(opp.Probability) * 100)}%` : '0%',
+        probability: opp.Probability ? `${opp.Probability}%` : '0%',
         stage: opp.milestoneName || opp.Stage || '',
         stage_status: opp.milestoneStatus || '',
         amount: opp.currencyName && opp.OpportunityAmount ?
@@ -204,7 +205,7 @@ const OpportunityReport = ({ projectType }) => {
         business_name: company.name,
         product: assignedProductType,
         product_id: productIdMap[assignedProductType.toLowerCase().replace(' ', '-')] || '',
-        probability: `${Math.round(probabilities[probabilityIndex] * 100)}%`,
+        probability: `${probabilities[probabilityIndex]}%`,
         stage: stages[stageIndex],
         stage_status: stages[stageIndex],
         amount: `${currencies[currencyIndex]}${(Math.floor(Math.random() * 100000) + 10000).toLocaleString()}`,
@@ -360,6 +361,7 @@ const OpportunityReport = ({ projectType }) => {
   const [sortField, setSortField] = useState('id');
   const [sortDirection, setSortDirection] = useState('desc');
   const [isSearching, setIsSearching] = useState(false);
+  const [datePickerKey, setDatePickerKey] = useState(0);
 
   // Define all available columns based on the image
   const columnGroups = [
@@ -379,7 +381,7 @@ const OpportunityReport = ({ projectType }) => {
         { id: 'lastActivity', label: 'Last Activity', field: 'last_activity', sortable: true },
         { id: 'notes', label: 'Notes', field: 'notes', sortable: false },
         { id: 'leadSource', label: 'Lead Source', field: 'lead_source', sortable: true },
-        { id: 'action', label: 'Action', field: 'action', sortable: false }
+        // { id: 'action', label: 'Action', field: 'action', sortable: false }
       ]
     }
   ];
@@ -456,6 +458,46 @@ const OpportunityReport = ({ projectType }) => {
         }
       });
     }
+  };
+
+  const getFormattedDate = () => {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    return `${month}-${day}-${year}`; // MM-DD-YYYY
+  };
+
+  const getFormattedDateTime = () => {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    const time = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${month}/${day}/${year} ${time}`; // MM/DD/YYYY HH:MM
+  };
+
+  const capitalize = (str) => str.toUpperCase();
+  const getProjectType = () => {
+    // let type = opportunities.length > 0 ? opportunities[0].product : 'All';
+    // type = type || 'All';
+
+    // // Remove existing "Opportunities" word if already included
+    // type = type.replace(/Opportunities$/i, '').trim();
+    // type = type.replace(/\s+/g, '');  // remove spaces
+
+    // return `${type}Opportunities`;
+    const safeProduct = product?.toLowerCase() || 'all';
+    return `${capitalize(safeProduct)}_Opportunities`;
+  };
+
+  const userName = user?.display_name || user?.username || 'User';
+
+  const getExportFileName = () => {
+    const typeName = getProjectType();
+    const dateStr = getFormattedDate();
+    const safeUserName = userName.replace(/\s+/g, '_');
+    return `${typeName}_${safeUserName}_${dateStr}`;
   };
 
   // Filter opportunities based on search term, status, and date range
@@ -607,7 +649,14 @@ const OpportunityReport = ({ projectType }) => {
 
     // Create headers from visible columns
     const headers = visibleColumnsData.map(column => column.label);
-
+    const escapeCSV = (value) => {
+      if (value == null) return '';
+      const stringValue = value.toString();
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('$')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;  // Escape internal quotes also
+      }
+      return stringValue;
+    };
     // Create CSV data rows
     const csvData = filteredOpportunities.map(opportunity => {
       return visibleColumnsData.map(column => {
@@ -617,10 +666,17 @@ const OpportunityReport = ({ projectType }) => {
           const name = opportunity.opportunity_name || '';
           return `"${name.replace(/"/g, '""')}"`;  // Escape quotes
         }
+        if (column.id === 'businessName') {
+          const businessName = opportunity.business_name || '';
+          return `"${businessName.replace(/"/g, '""')}"`;  // Escape quotes
+        }
         if (column.id === 'product') return opportunity.product || '';
         if (column.id === 'probability') return opportunity.probability || '';
         if (column.id === 'stage') return opportunity.stage || '';
-        if (column.id === 'amount') return opportunity.amount || '';
+        if (column.id === 'amount') {
+          const amount = opportunity.amount || '';
+          return escapeCSV(amount);
+        }
         if (column.id === 'createdDate') return opportunity.created_date || '';
         if (column.id === 'closeDate') return opportunity.close_date || '';
         if (column.id === 'lastActivity') return opportunity.last_activity || '';
@@ -640,7 +696,7 @@ const OpportunityReport = ({ projectType }) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `opportunities_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `${getExportFileName()}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -672,11 +728,11 @@ const OpportunityReport = ({ projectType }) => {
 
       // Add title
       doc.setFontSize(16);
-      doc.text('Opportunities Report', 15, 15);
+      doc.text(`${capitalize(product?.toLowerCase() || 'all')} Opportunities`, 15, 15);
 
       // Add generation date and filter info
       doc.setFontSize(10);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 22);
+      doc.text(`Generated: ${getFormattedDateTime()}`, 15, 22);
 
       let yPos = 27;
 
@@ -699,6 +755,7 @@ const OpportunityReport = ({ projectType }) => {
           // Handle special columns with custom rendering
           if (column.id === 'id') return opportunity.id || '';
           if (column.id === 'opportunityName') return opportunity.opportunity_name || '';
+          if (column.id === 'businessName') return opportunity.business_name || '';
           if (column.id === 'product') return opportunity.product || '';
           if (column.id === 'probability') return opportunity.probability || '';
           if (column.id === 'stage') return opportunity.stage || '';
@@ -744,7 +801,7 @@ const OpportunityReport = ({ projectType }) => {
       });
 
       // Save the PDF with date in filename
-      doc.save(`opportunities_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+      doc.save(`${getExportFileName()}.pdf`);
     } catch (error) {
       console.error('PDF generation error:', error);
       alert('Error generating PDF: ' + error.message);
@@ -776,6 +833,7 @@ const OpportunityReport = ({ projectType }) => {
           // Handle special columns with custom rendering
           if (column.id === 'id') rowData[column.label] = opportunity.id || '';
           else if (column.id === 'opportunityName') rowData[column.label] = opportunity.opportunity_name || '';
+          else if (column.id === 'businessName') rowData[column.label] = opportunity.business_name || '';
           else if (column.id === 'product') rowData[column.label] = opportunity.product || '';
           else if (column.id === 'probability') rowData[column.label] = opportunity.probability || '';
           else if (column.id === 'stage') rowData[column.label] = opportunity.stage || '';
@@ -797,10 +855,10 @@ const OpportunityReport = ({ projectType }) => {
       const ws = XLSX.utils.json_to_sheet(excelData);
 
       // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(wb, ws, 'Opportunities');
+      XLSX.utils.book_append_sheet(wb, ws, `${getProjectType()}`);
 
       // Generate Excel file and trigger download
-      XLSX.writeFile(wb, `opportunities_report_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      XLSX.writeFile(wb, `${getExportFileName()}.xlsx`);
     } catch (error) {
       console.error('Excel generation error:', error);
       alert('Error generating Excel file: ' + error.message);
@@ -839,6 +897,7 @@ const OpportunityReport = ({ projectType }) => {
         isSearching={isSearching}
         setIsSearching={setIsSearching}
         setCurrentPage={setCurrentPage}
+        datePickerKey={datePickerKey}
       />
 
                 {/* Loading indicator */}
@@ -894,7 +953,7 @@ const OpportunityReport = ({ projectType }) => {
                                   case 'id':
                                     return (
                                       <td key={column.id}>
-                                        <Link
+                                        {/* <Link
                                           to={`/opportunity-detail/${opportunity.id}`}
                                           state={{ opportunityData: opportunity }}
                                           className="lead-link"
@@ -902,13 +961,14 @@ const OpportunityReport = ({ projectType }) => {
                                           rel="noopener noreferrer"
                                         >
                                           {opportunity.id || ''}
-                                        </Link>
+                                        </Link> */}
+                                        {opportunity.id || ''}
                                       </td>
                                     );
                                   case 'opportunityName':
                                     return (
                                       <td key={column.id}>
-                                        <Link
+                                        {/* <Link
                                           to={`/opportunity-detail/${opportunity.id}`}
                                           state={{ opportunityData: opportunity }}
                                           className="lead-link"
@@ -916,7 +976,8 @@ const OpportunityReport = ({ projectType }) => {
                                           rel="noopener noreferrer"
                                         >
                                           {opportunity.opportunity_name || ""}
-                                        </Link>
+                                        </Link> */}
+                                        {opportunity.opportunity_name || ""}
                                       </td>
                                     );
                                   case 'businessName':
@@ -977,61 +1038,61 @@ const OpportunityReport = ({ projectType }) => {
                                     );
                                   case 'leadSource':
                                     return <td key={column.id}>{opportunity.lead_source || ''}</td>;
-                                  case 'action':
-                                    return (
-                                      <td key={column.id} className="text-center">
-                                        <div className="dropdown">
-                                          <button
-                                            className="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                            type="button"
-                                            data-bs-toggle="dropdown"
-                                            aria-expanded="false"
-                                          >
-                                            <i className="fas fa-ellipsis-v"></i>
-                                          </button>
-                                          <ul className="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                              <Link
-                                                to={`/opportunity-detail/${opportunity.id}`}
-                                                className="dropdown-item"
-                                              >
-                                                <i className="fas fa-eye me-2"></i> View Details
-                                              </Link>
-                                            </li>
-                                            <li>
-                                              <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                  // Show a message directing the user to the Notes column
-                                                  Swal.fire({
-                                                    title: 'Notes',
-                                                    text: 'Please use the Notes column to view notes for this opportunity.',
-                                                    icon: 'info'
-                                                  });
-                                                }}
-                                              >
-                                                <i className="fas fa-eye me-2"></i> View Notes
-                                              </button>
-                                            </li>
-                                            <li>
-                                              <button
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                  // Show a message directing the user to the Notes column
-                                                  Swal.fire({
-                                                    title: 'Notes',
-                                                    text: 'Please use the Notes column to add notes for this opportunity.',
-                                                    icon: 'info'
-                                                  });
-                                                }}
-                                              >
-                                                <i className="fas fa-plus me-2"></i> Add Note
-                                              </button>
-                                            </li>
-                                          </ul>
-                                        </div>
-                                      </td>
-                                    );
+                                  // case 'action':
+                                  //   return (
+                                  //     <td key={column.id} className="text-center">
+                                  //       <div className="dropdown">
+                                  //         <button
+                                  //           className="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                  //           type="button"
+                                  //           data-bs-toggle="dropdown"
+                                  //           aria-expanded="false"
+                                  //         >
+                                  //           <i className="fas fa-ellipsis-v"></i>
+                                  //         </button>
+                                  //         <ul className="dropdown-menu dropdown-menu-end">
+                                  //           <li>
+                                  //             <Link
+                                  //               to={`/opportunity-detail/${opportunity.id}`}
+                                  //               className="dropdown-item"
+                                  //             >
+                                  //               <i className="fas fa-eye me-2"></i> View Details
+                                  //             </Link>
+                                  //           </li>
+                                  //           <li>
+                                  //             <button
+                                  //               className="dropdown-item"
+                                  //               onClick={() => {
+                                  //                 // Show a message directing the user to the Notes column
+                                  //                 Swal.fire({
+                                  //                   title: 'Notes',
+                                  //                   text: 'Please use the Notes column to view notes for this opportunity.',
+                                  //                   icon: 'info'
+                                  //                 });
+                                  //               }}
+                                  //             >
+                                  //               <i className="fas fa-eye me-2"></i> View Notes
+                                  //             </button>
+                                  //           </li>
+                                  //           <li>
+                                  //             <button
+                                  //               className="dropdown-item"
+                                  //               onClick={() => {
+                                  //                 // Show a message directing the user to the Notes column
+                                  //                 Swal.fire({
+                                  //                   title: 'Notes',
+                                  //                   text: 'Please use the Notes column to add notes for this opportunity.',
+                                  //                   icon: 'info'
+                                  //                 });
+                                  //               }}
+                                  //             >
+                                  //               <i className="fas fa-plus me-2"></i> Add Note
+                                  //             </button>
+                                  //           </li>
+                                  //         </ul>
+                                  //       </div>
+                                  //     </td>
+                                  //   );
                                   default:
                                     return <td key={column.id}>{opportunity[column.field] || ''}</td>;
                                 }
@@ -1051,7 +1112,7 @@ const OpportunityReport = ({ projectType }) => {
                     </table>
                   </div>
                 )}
-
+                
                 {/* Pagination */}
                 {!loading && (
                   <ReportPagination
@@ -1062,7 +1123,8 @@ const OpportunityReport = ({ projectType }) => {
                     goToNextPage={goToNextPage}
                     indexOfFirstItem={indexOfFirstOpportunity}
                     indexOfLastItem={indexOfLastOpportunity}
-                    totalItems={filteredOpportunities.length}
+                    totalFilteredItems={filteredOpportunities.length}
+                    totalItems={opportunities.length}
                     itemName="opportunities"
                     itemsPerPage={itemsPerPage}
                     setItemsPerPage={setItemsPerPage}

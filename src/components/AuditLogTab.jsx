@@ -3,7 +3,7 @@ import axios from 'axios';
 import './AuditLogTab.css';
 
 const AuditLogTab = ({ leadId, isActive }) => {
-  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,7 +24,7 @@ const AuditLogTab = ({ leadId, isActive }) => {
 
       // Call the audit logs API
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
+        `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
         { params: { lead_id: leadId } }
       );
 

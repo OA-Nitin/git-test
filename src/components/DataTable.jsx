@@ -15,6 +15,14 @@ const DataTable = ({
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filteredData, setFilteredData] = useState([]);
 
+  const getValueByAccessor = (item, accessor) => {
+    try {
+      return accessor.split('.').reduce((obj, key) => obj && obj[key], item);
+    } catch {
+      return undefined;
+    }
+  };
+
   // Filter and sort data when dependencies change
   useEffect(() => {
     let filtered = [...data];
@@ -23,9 +31,17 @@ const DataTable = ({
     if (searchTerm.trim() !== '') {
       filtered = filtered.filter(item => {
         return columns.some(column => {
-          const value = item[column.accessor];
-          if (value === null || value === undefined) return false;
-          return String(value).toLowerCase().includes(searchTerm.toLowerCase());
+          let cellValue;
+          // If a render function is provided, use its output for searching.
+          if (column.render) {
+            cellValue = column.render(item);
+          } else {
+            // Otherwise, fall back to the accessor.
+            cellValue = getValueByAccessor(item, column.accessor);
+          }
+          
+          const searchableValue = cellValue !== undefined && cellValue !== null ? String(cellValue).toLowerCase() : '';
+          return searchableValue.includes(searchTerm.toLowerCase());
         });
       });
     }
@@ -33,8 +49,8 @@ const DataTable = ({
     // Apply sorting
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key] || '';
-        const bValue = b[sortConfig.key] || '';
+        const aValue = getValueByAccessor(a, sortConfig.key) || '';
+        const bValue = getValueByAccessor(b, sortConfig.key) || '';
 
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
@@ -100,15 +116,15 @@ const DataTable = ({
           disabled={currentPage === 1}
           className="pagination-button"
         >
-          &laquo;
+          Previous
         </button>
-        <button
+        {/* <button
           onClick={() => paginate(currentPage - 1)}
           disabled={currentPage === 1}
           className="pagination-button"
         >
           &lsaquo;
-        </button>
+        </button> */}
 
         {pageNumbers.map(number => (
           <button
@@ -125,17 +141,17 @@ const DataTable = ({
           disabled={currentPage === totalPages}
           className="pagination-button"
         >
-          &rsaquo;
+          Next
         </button>
-        <button
+        {/* <button
           onClick={() => paginate(totalPages)}
           disabled={currentPage === totalPages}
           className="pagination-button"
         >
           &raquo;
-        </button>
+        </button> */}
 
-        <div className="pagination-info">
+        {/* <div className="pagination-info">
           <span>Page {currentPage} of {totalPages}</span>
           <select
             value={itemsPerPage}
@@ -147,7 +163,7 @@ const DataTable = ({
             <option value={25}>25 per page</option>
             <option value={50}>50 per page</option>
           </select>
-        </div>
+        </div> */}
       </div>
     );
   };
@@ -185,7 +201,7 @@ const DataTable = ({
             <tr key={rowIndex}>
               {columns.map((column, colIndex) => (
                 <td key={colIndex}>
-                  {column.render ? column.render(item) : item[column.accessor] || '-'}
+                  {column.render ? column.render(item) : getValueByAccessor(item, column.accessor) || '-'}
                 </td>
               ))}
             </tr>
@@ -235,8 +251,8 @@ const DataTable = ({
             </table>
           </div>
 
-          <div className="data-table-footer">
-            <div className="showing-entries">
+          <div className="d-flex justify-content-between align-items-center mt-3">
+            <div className="text-muted">
               Showing {filteredData.length > 0 ? indexOfFirstItem + 1 : 0} to {Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} entries
               {searchTerm && ` (filtered from ${data.length} total entries)`}
             </div>
@@ -246,6 +262,6 @@ const DataTable = ({
       )}
     </>
   );
-};
+}; 
 
 export default DataTable;

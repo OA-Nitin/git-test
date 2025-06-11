@@ -2,12 +2,29 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./EditContactModal.css";
 import LoadingOverlay from "./common/LoadingOverlay";
+import Swal from 'sweetalert2';
 
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { contactSchema } from "./validationSchemas/leadSchema.jsx";
 
+import { forwardRef } from "react";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
+const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
+  <input
+    className="form-control"
+    onClick={onClick}         // Calendar opens
+    value={value}             // Show selected date
+    onBlur={onBlur}
+    readOnly                 // Prevent typing
+    ref={ref}
+    placeholder="MM/DD/YYYY"
+    // style={{ cursor: "pointer", backgroundColor: "#fff" }}
+  />
+));
 
 const EditContactModal = ({
   isOpen,
@@ -129,7 +146,7 @@ const EditContactModal = ({
 
       // Make a POST request to fetch contact details
       const response = await axios.post(
-        `https://play.occamsadvisory.com/portal/wp-json/v1/lead-contacts`,
+        `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-contacts`,
         {
           lead_id: leadId,
           contact_id: contactId,
@@ -234,8 +251,13 @@ const EditContactModal = ({
           last_name: contactData.last_name || "",
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
-          birthdate: contactData.birthdate || "",
-          department: contactData.department || "",
+          birthdate: contactData.birthdate
+            ? (() => {
+                const [month, day, year] = contactData.birthdate.split('/');
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+              })()
+            : "",
+          job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
           contact_type: contactData.contact_type || "primary",
@@ -243,7 +265,7 @@ const EditContactModal = ({
           referral_type: contactData.referral_type || "",
           phone: contactData.phone || "",
           phone_type: contactData.phone_type || "Office",
-          phone_ext: contactData.ph_extension || "", // Map ph_extension to phone_ext
+          ph_extension: contactData.ph_extension || "", // Map ph_extension to ph_extension
           secondary_phone: contactData.secondary_phone || "",
           secondary_phone_type: contactData.secondary_phone_type || "Mobile",
           email: contactData.email || "",
@@ -253,9 +275,9 @@ const EditContactModal = ({
           primary_address_city: contactData.primary_address_city || "",
           primary_address_state: contactData.primary_address_state || "",
           primary_address_postalcode:
-            contactData.primary_address_postalcode || "",
+          contactData.primary_address_postalcode || "",
           primary_address_country: contactData.primary_address_country || "",
-          job_title: contactData.title || "", // Job title field
+          department: contactData.department || "", // Job title field
           selected_businesses: selectedBusinesses, // Store selected businesses
         });
 
@@ -306,7 +328,7 @@ const EditContactModal = ({
 
       // Use the API endpoint with type parameter
       const response = await axios.get(
-        `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
+        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
       );
 
       console.log("Contact referrals API response:", response.data);
@@ -443,50 +465,111 @@ const EditContactModal = ({
 
   // Handle form submission
   const onSubmit = async (data) => {
-    try {
-      setUpdateSuccess(false);
-      setUpdateError(null);
-      setLoading(true);
-
-      console.log("Form data before submission:", data);
-
-      const submitData = {
-        ...data,
-        dnd: data.dnd === "Yes" ? "1" : "0",
-        contact_id: contactId,
-        // Use the first selected business as the report_to_id if not already set
-        report_to_id:
-          data.report_to_id || 
-          (data.selected_businesses && data.selected_businesses.length > 0
-            ? data.selected_businesses[0]
-            : ""),
-      };
-
-      console.log("Submitting contact data:", submitData);
-
-      const response = await axios.put(
-        `https://play.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
-        submitData
-      );
-
-      console.log("Update response:", JSON.parse(response.data));
-
-      if (response.data && JSON.parse(response.data).code == "success") {
-        setUpdateSuccess(true);
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        setUpdateError("Failed to update contact. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error updating contact:", err);
-      setUpdateError(
-        "An error occurred while updating the contact. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    Swal.fire({
+    title: 'Are you sure?',
+    text: 'You are about to update this contact information.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, update it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+        updateContact(data);
     }
+  });
+      
+  };
+
+  const updateContact = async (data) => {
+    try {
+          setUpdateSuccess(false);
+          setUpdateError(null);
+          setLoading(true);
+
+          console.log("Form data before submission:", data);
+
+          // Ensure birthdate is in YYYY-MM-DD string format for submission
+          let formattedBirthdate = '';
+          if (data.birthdate) {
+            // data.birthdate should already be YYYY-MM-DD from DatePicker's setValue
+            // If it's somehow an ISO string (e.g., from initial load before edit), split it
+            // Otherwise, use it directly.
+            if (typeof data.birthdate === 'string' && data.birthdate.includes('T')) {
+              formattedBirthdate = data.birthdate.split('T')[0];
+            } else if (typeof data.birthdate === 'string') {
+              formattedBirthdate = data.birthdate; // Already YYYY-MM-DD
+            } 
+            // If it's a Date object (less likely with setValue, but for robustness)
+            else if (data.birthdate instanceof Date && !isNaN(data.birthdate.getTime())) {
+              const year = data.birthdate.getFullYear();
+              const month = String(data.birthdate.getMonth() + 1).padStart(2, '0');
+              const day = String(data.birthdate.getDate()).padStart(2, '0');
+              formattedBirthdate = `${year}-${month}-${day}`;
+            }
+          }
+
+          const submitData = {
+            ...data,
+            birthdate: formattedBirthdate, // Use the explicitly formatted string
+            dnd: data.dnd === "Yes" ? "1" : "0",
+            contact_id: contactId,
+            report_to_id:
+              data.report_to_id || 
+              (data.selected_businesses && data.selected_businesses.length > 0
+                ? data.selected_businesses[0]
+                : ""),
+          };
+
+          console.log("Submitting contact data:", submitData);
+
+          const response = await axios.put(
+            `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
+            submitData
+          );
+
+          console.log("Update response:", JSON.parse(response.data));
+
+          if (response.data && JSON.parse(response.data).code == "success") {
+            Swal.fire({
+              title: 'Success!',
+              text: 'Contact updated successfully!',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              setUpdateSuccess(false);
+              setUpdateError(null);
+              onClose();
+            });
+            // setUpdateSuccess(true);
+            // setTimeout(() => {
+            //   setUpdateSuccess(false);
+            //   setUpdateError(null);
+            //   onClose();
+            // }, 2000);
+          } else {
+              Swal.fire({
+              title: 'Error!',
+              text: 'Failed to update contact. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+            // setUpdateError("Failed to update contact. Please try again.");
+          }
+        } catch (err) {
+          console.error("Error updating contact:", err);
+          // setUpdateError(
+          //   "An error occurred while updating the contact. Please try again."
+          // );
+          Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while updating the contact. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        } finally {
+          setLoading(false);
+        }
   };
 
   if (!isOpen) return null;
@@ -501,6 +584,26 @@ const EditContactModal = ({
         }
       />
 
+<style>{`
+ .react-datepicker__month-dropdown,
+ .react-datepicker__year-dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
+  scrollbar-width: thin;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar,
+.react-datepicker__month-dropdown::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb,
+.react-datepicker__month-dropdown::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 6px;
+`}
+</style>
+ 
       <div className="modal-backdrop show" onClick={onClose}>
         <div className="modal show" style={{ display: "block" }}>
           <div
@@ -655,7 +758,6 @@ const EditContactModal = ({
                             
                             // disabled={true} // Disable the field
                             style={{
-                              height: "100px",
                               backgroundColor: '#e9ecef',
                               pointerEvents: 'none',   // make it readonly-like
                               color: '#6c757d',         // match disabled look
@@ -679,19 +781,19 @@ const EditContactModal = ({
                       </div>
                       <div class="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="job_title">Job Title:</label>
+                          <label htmlFor="department">Job Title:</label>
                           <input
                             type="text"
-                            id="job_title"
-                            name="job_title"
-                            className={`form-control ${errors.job_title ? 'is-invalid' : ''}`}
-                            {...register("job_title")}
-                            value={formData.job_title}
+                            id="department"
+                            name="department"
+                            className={`form-control ${errors.department ? 'is-invalid' : ''}`}
+                            {...register("department")}
+                            value={formData.department}
                             onChange={handleInputChange}
                           />
-                          {errors.job_title && (
+                          {errors.department && (
                             <div className="invalid-feedback">
-                              {errors.job_title.message}
+                              {errors.department.message}
                             </div>
                           )}
                         </div>
@@ -704,7 +806,7 @@ const EditContactModal = ({
                       <div class="col-md-4">
                         <div className="form-group">
                           <label htmlFor="birthdate">Birth Date:</label>
-                          <input
+                          {/* <input
                             type="date"
                             id="birthdate"
                             name="birthdate"
@@ -712,12 +814,50 @@ const EditContactModal = ({
                             {...register("birthdate")}
                             value={formData.birthdate}
                             onChange={handleInputChange}
+                          /> */}
+                          <DatePicker
+                            selected={
+                              formData.birthdate
+                                ? (() => {
+                                    const [year, month, day] = formData.birthdate.split('-');
+                                    return new Date(Number(year), Number(month) - 1, Number(day));
+                                  })()
+                                : null
+                            }
+                            name="birthdate"
+                            id="birthdate"
+                            onChange={(date) => {
+                              if (date) {
+                                // Get the date components in local time
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const formatted = `${year}-${month}-${day}`;
+                                
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: formatted,
+                                }));
+                                // Explicitly set the value in react-hook-form
+                                setValue("birthdate", formatted);
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: '',
+                                }));
+                                setValue("birthdate", ''); // Also update react-hook-form when cleared
+                              }
+                            }}
+                            dateFormat="MM/dd/yyyy"
+                            showMonthDropdown
+                            showYearDropdown
+                            dropdownMode="scroll"
+                            scrollableYearDropdown    
+                            yearDropdownItemNumber={120}  
+                            minDate={new Date('1900-01-01')}
+                            maxDate={new Date()}
+                            customInput={<ReadOnlyDateInput />}
                           />
-                          {errors.birthdate && (
-                            <div className="invalid-feedback">
-                              {errors.birthdate.message}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -770,19 +910,19 @@ const EditContactModal = ({
                       </div>
                       <div class="col-md-4">
                         <div className="form-group">
-                          <label htmlFor="phone_ext">Ext.</label>
+                          <label htmlFor="ph_extension">Ext.</label>
                           <input
                             type="text"
-                            id="phone_ext"
-                            name="phone_ext"
-                            className={`form-control ${errors.phone_ext ? 'is-invalid' : ''}`}
-                            {...register("phone_ext")}
-                            value={formData.phone_ext}
+                            id="ph_extension"
+                            name="ph_extension"
+                            className={`form-control ${errors.ph_extension ? 'is-invalid' : ''}`}
+                            {...register("ph_extension")}
+                            value={formData.ph_extension}
                             onChange={handleInputChange}
                           />
-                          {errors.phone_ext && (
+                          {errors.ph_extension && (
                             <div className="invalid-feedback">
-                              {errors.phone_ext.message}
+                              {errors.ph_extension.message}
                             </div>
                           )}
                         </div>
@@ -896,7 +1036,8 @@ const EditContactModal = ({
                             type="text"
                             id="primary_address_postalcode"
                             className={`form-control ${errors.primary_address_postalcode ? 'is-invalid' : ''}`}
-                            {...register("primary_address_postalcode")}
+                            {...register("primary_address_postalcode")} name="primary_address_postalcode"
+                            onChange={handleInputChange}
                           />
                           {errors.primary_address_postalcode && (
                             <div className="invalid-feedback">
@@ -912,11 +1053,12 @@ const EditContactModal = ({
                             type="text"
                             id="primary_address_city"
                             className={`form-control ${errors.primary_address_city ? 'is-invalid' : ''}`}
-                            {...register("primary_address_city")}
+                            {...register("primary_address_city")} name="primary_address_city"
+                            onChange={handleInputChange}
                           />
                           {errors.primary_address_city && (
                             <div className="invalid-feedback">
-                              {errors.primary_address_city.message}
+                              {errors.primary_address_city.message} 
                             </div>
                           )}
                         </div>
@@ -928,7 +1070,8 @@ const EditContactModal = ({
                             type="text"
                             id="primary_address_state"
                             className={`form-control ${errors.primary_address_state ? 'is-invalid' : ''}`}
-                            {...register("primary_address_state")}
+                            {...register("primary_address_state")} name="primary_address_state"
+                            onChange={handleInputChange}
                           />
                           {errors.primary_address_state && (
                             <div className="invalid-feedback">
@@ -948,7 +1091,8 @@ const EditContactModal = ({
                             type="text"
                             id="primary_address_country"
                             className={`form-control ${errors.primary_address_country ? 'is-invalid' : ''}`}
-                            {...register("primary_address_country")}
+                            {...register("primary_address_country")} name="primary_address_country"
+                            onChange={handleInputChange}
                           />
                           {errors.primary_address_country && (
                             <div className="invalid-feedback">
@@ -966,7 +1110,8 @@ const EditContactModal = ({
                             type="text"
                             id="primary_address_street"
                             className={`form-control ${errors.primary_address_street ? 'is-invalid' : ''}`}
-                            {...register("primary_address_street")}
+                            {...register("primary_address_street")} name="primary_address_street"
+                            onChange={handleInputChange}
                           />
                           {errors.primary_address_street && (
                             <div className="invalid-feedback">
@@ -982,7 +1127,8 @@ const EditContactModal = ({
                             type="text"
                             id="house_no"
                             className={`form-control ${errors.house_no ? 'is-invalid' : ''}`}
-                            {...register("house_no")}
+                            {...register("house_no")} name="house_no"
+                            onChange={handleInputChange}
                           />
                           {errors.house_no && (
                             <div className="invalid-feedback">
@@ -1155,6 +1301,8 @@ const EditContactModal = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setUpdateError(null);
+                          setUpdateSuccess(false);
                           onClose();
                         }}>
                         Cancel

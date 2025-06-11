@@ -5,12 +5,106 @@ import Swal from 'sweetalert2';
 import './Notes.css';
 import { SaveButton } from './ActionButtons';
 import Modal from './Modal';
-
+import { getUserId } from '../../utils/userUtils';
 
 // validations
 import { noteFormSchema } from '../../components/validationSchemas/leadSchema.jsx';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+
+// date formate
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+// Extend dayjs with plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
+
+
+// Standardized date formatting function for MM/DD/YYYY format
+const formatDateToMMDDYYYYss = (dateString) => {
+  if (!dateString) return '';
+
+  try {
+    const date = new Date(dateString);
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) return dateString;
+
+    // Format as MM/DD/YYYY
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
+export function formatDateToMMDDYYYY(dateString) {
+    if (!dateString) return "Invalid Date";
+
+    // List of possible formats your dateString may come in
+    const possibleFormats = [
+        "YYYY-MM-DD HH:mm:ss",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssA",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD HH:mm:ssA",
+        "YYYY-MM-DD HH:mm:ss a"
+    ];
+
+    let parsedDate = null;
+
+    // Try parsing the string with all formats
+    for (let format of possibleFormats) {
+        const attempt = dayjs.tz(dateString, format, "UTC");
+        if (attempt.isValid()) {
+            parsedDate = attempt;
+            break;
+        }
+    }
+
+    // If none matched, fallback
+    if (!parsedDate) {
+        parsedDate = dayjs.tz(dateString, "UTC");
+        if (!parsedDate.isValid()) {
+            return "Invalid Date";
+        }
+    }
+
+    // Convert to EST timezone (America/New_York)
+    const estDate = parsedDate.tz("America/New_York");
+
+    // Format output like: (08:15am on Wed Jun 04th, 2025)
+    const hour12 = estDate.format("hh:mmA").toLowerCase();
+    const weekDay = estDate.format("ddd");
+    const month = estDate.format("MMM");
+    const day = estDate.format("DD");
+    const year = estDate.format("YYYY");
+
+    // Add ordinal suffix
+    const ordinalSuffix = (n) => {
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return s[(v - 20) % 10] || s[v] || s[0];
+    };
+
+    return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+}
 
 
 /**
@@ -51,7 +145,7 @@ const Notes = ({
     resolver: yupResolver(noteFormSchema),
     mode: 'onTouched'
   });
-  
+
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
 
@@ -64,25 +158,25 @@ const Notes = ({
     switch (entityType) {
       case 'lead':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
       case 'project':
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
         };
       case 'opportunity':
         console.log('Opportunity ID for notes API:', safeEntityId);
         // Use the exact API endpoint from the Postman GET screenshot
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
         };
       default:
         return {
-          get: `https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://play.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
         };
     }
   };
@@ -202,23 +296,13 @@ const Notes = ({
         }
       }
 
-      // Format the notes for display
+      // Format the notes for display in MM/DD/YYYY format (no time)
       const formattedNotes = fetchedNotes.map(note => {
         // Parse the date from the note (handle different field names)
         const originalDate = new Date(note.created_at || note.date || note.created || new Date());
 
-        // Format the date
-        const formattedDate = originalDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-
-        const formattedTime = originalDate.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        });
+        // Format the date in MM/DD/YYYY format
+        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date());
 
         // Clean up the note text - remove any leading numbers or IDs
         let noteText = note.note || note.text || note.content || '';
@@ -232,8 +316,7 @@ const Notes = ({
           text: noteText,
           author: note.author || note.user_name || note.created_by || 'User',
           date: originalDate,
-          formattedDate,
-          formattedTime
+          formattedDate
         };
       });
 
@@ -348,11 +431,9 @@ const Notes = ({
   };
 
   // Function to handle adding a new note
-  const handleAddNote = (e) => {
-    e.preventDefault();
-
+  const handleAddNote = (formData) => {
     // Allow empty notes to be submitted, but trim it for the API call
-    const trimmedNote = newNote.trim();
+    const trimmedNote = formData.note ? formData.note.trim() : '';
 
     // Debug information
     console.log('Adding note for:', { entityType, entityId, trimmedNote });
@@ -364,15 +445,21 @@ const Notes = ({
 
     // Make sure entityId is not undefined or null
     const safeEntityId = entityId || '';
-
+    const userId = getUserId();
     // Prepare the data for the API based on entity type
     let noteData;
-
-    if (entityType === 'project') {
+    if (entityType === 'lead') {
+      noteData = {
+        lead_id: safeEntityId,
+        note: trimmedNote,
+        user_id: userId  // This should ideally come from a user context
+      };
+    }
+    else if (entityType === 'project') {
       noteData = {
         project_id: safeEntityId,
         note: trimmedNote,
-        user_id: 1  // This should ideally come from a user context
+        user_id: userId  // This should ideally come from a user context
       };
     } else if (entityType === 'opportunity') {
       // For opportunities, ensure we're sending the correct data format
@@ -380,7 +467,7 @@ const Notes = ({
       noteData = {
         opportunity_id: safeEntityId,
         note: trimmedNote,
-        user_id: 1  // Required parameter as shown in the Postman screenshot
+        user_id: userId  // Required parameter as shown in the Postman screenshot
       };
 
       // Log the data being sent for debugging
@@ -560,7 +647,6 @@ const Notes = ({
             >
               <div className="d-flex justify-content-between">
                 <div className="note-date fw-bold">{note.formattedDate}</div>
-                <div className="note-date fw-bold">{note.formattedTime}</div>
               </div>
               <div className="note-content mt-2">
                 <div className="d-flex align-items-start">

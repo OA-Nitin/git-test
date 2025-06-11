@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AuditLogsMultiSection.css';
-import DataTable from './DataTable';
-
+import DataTable from './DataTable';     
+ 
 const AuditLogsMultiSection = ({ leadId }) => {
   // State for each API section
   const [fieldActivity, setFieldActivity] = useState([]);
@@ -80,7 +80,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Field Activity
       try {
         const fieldActivityResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/field-activity`,
           { params: { lead_id: leadId } }
         );
         console.log('Field Activity API response:', fieldActivityResponse.data);
@@ -104,7 +104,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Communication Lead Mapping
       try {
         const communicationLeadMappingResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/communication-lead-mapping`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/communication-lead-mapping`,
           { params: { lead_id: leadId } }
         );
         console.log('Communication Lead Mapping API response:', communicationLeadMappingResponse.data);
@@ -128,7 +128,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Opt In/Out
       try {
         const optInOutResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/opt-in-out`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/opt-in-out`,
           { params: { lead_id: leadId } }
         );
         console.log('Opt In/Out API response:', optInOutResponse.data);
@@ -152,7 +152,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Status Changes
       try {
         const statusChangesResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/status-changes`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/status-changes`,
           { params: { lead_id: leadId } }
         );
         console.log('Status Changes API response:', statusChangesResponse.data);
@@ -176,7 +176,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Campaign Changes
       try {
         const campaignChangesResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/campaign-changes`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/campaign-changes`,
           { params: { lead_id: leadId } }
         );
         console.log('Campaign Changes API response:', campaignChangesResponse.data);
@@ -200,7 +200,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Source Changes
       try {
         const sourceChangesResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/source-changes`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/audit-logs/source-changes`,
           { params: { lead_id: leadId } }
         );
         console.log('Source Changes API response:', sourceChangesResponse.data);
@@ -224,7 +224,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
       // Communication Logs
       try {
         const communicationLogsResponse = await axios.get(
-          `https://play.occamsadvisory.com/portal/wp-json/oc-api/v1/communication-logs`,
+          `https://portal.occamsadvisory.com/portal/wp-json/oc-api/v1/communication-logs`,
           { params: { lead_id: leadId } }
         );
         console.log('Communication Logs API response:', communicationLogsResponse.data);

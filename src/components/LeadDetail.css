@@ -8,6 +8,10 @@
   color: #333;
 }
 
+.check {
+  color: #000;
+}
+
 .business_info_container {
   background-color: #f8f9fa;
   border-radius: 8px;
@@ -30,6 +34,7 @@
   font-weight: 500;
   color: #212529;
 }
+
 .white_card_header {
   background-color: #0d6efd;
   color: white;
@@ -399,6 +404,45 @@ label a.ms-2:hover svg {
 .assigned-users-list {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.assigned-users-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.assigned-user-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f4ff;
+  border: 1px solid #d1d9ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.user-name {
+  margin-right: 6px;
+}
+
+.remove-tag-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.remove-tag-btn:hover {
+  color: #dc3545;
+}
+
+.card_trashed {
+  background: #efefef;
 }
 
 .simple-user-item {
@@ -880,15 +924,15 @@ select[disabled] {
 
 /* payment history section css  start*/
 
-.total-payment-invoice{
-    border: 1px solid #b1c9db;
-    margin-bottom: 7px !important;
-    border-radius: 5px;
-    background: rgba(220, 233, 244, 0.50);
-    display: flex;
-    padding: 12px 10px;
-    align-items: center;
-    justify-content: space-between;
+.total-payment-invoice {
+  border: 1px solid #b1c9db;
+  margin-bottom: 7px !important;
+  border-radius: 5px;
+  background: rgba(220, 233, 244, 0.50);
+  display: flex;
+  padding: 12px 10px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .total-payment-invoice h4 {
@@ -899,6 +943,7 @@ select[disabled] {
   font-weight: 400;
   line-height: normal;
 }
+
 .total-payment-invoice p {
   margin-bottom: 0;
   color: #333333;
@@ -910,8 +955,9 @@ select[disabled] {
   margin-top: 0px;
 }
 
-.expand_pp_div{
-    margin-top: 7px;
-    font-weight: 600;
+.expand_pp_div {
+  margin-top: 7px;
+  font-weight: 600;
 }
+
 /* payment history section css  end*/
