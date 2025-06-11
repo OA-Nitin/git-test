@@ -68,6 +68,66 @@ const EditContactModal = ({
 
   // State to store business options from the API
   const [businessOptions, setBusinessOptions] = useState([]);
+const parseToDateString = (rawDate) => {
+  if (rawDate.includes('T')) {
+    try {
+      const date = new Date(rawDate);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      console.error("Error parsing ISO date:", e);
+    }
+  } 
+
+  const dateParts = rawDate.split(/[-/]/).map((part) => part.trim());
+
+  // Identify based on value structure
+  let year, month, day;
+
+  // Format: YYYY-MM-DD or YYYY/DD/MM
+  if (dateParts[0].length === 4) {
+    if (parseInt(dateParts[1]) > 12) {
+      // Treat as YYYY-DD-MM
+      year = dateParts[0];
+      day = dateParts[1];
+      month = dateParts[2];
+    } else {
+      // Treat as YYYY-MM-DD
+      year = dateParts[0];
+      month = dateParts[1];
+      day = dateParts[2];
+    }
+  }
+  // Format: DD-MM-YYYY or MM-DD-YYYY
+  else if (dateParts[2] && dateParts[2].length === 4) {
+    if (parseInt(dateParts[0]) > 12) {
+      // Treat as DD-MM-YYYY
+      day = dateParts[0];
+      month = dateParts[1];
+      year = dateParts[2];
+    } else {
+      // Treat as MM-DD-YYYY
+      month = dateParts[0];
+      day = dateParts[1];
+      year = dateParts[2];
+    }
+  } else {
+    return "";
+  }
+
+  if (!year || !month || !day) return "";
+
+  try {
+    const dateObj = new Date(`${year}-${month}-${day}T00:00:00Z`);
+    if (isNaN(dateObj.getTime())) return "";
+
+    // Return UTC-formatted YYYY-MM-DD
+    return dateObj.toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+};
 
   
   // Initialize form validation
@@ -251,12 +311,7 @@ const EditContactModal = ({
           last_name: contactData.last_name || "",
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
-          birthdate: contactData.birthdate
-            ? (() => {
-                const [month, day, year] = contactData.birthdate.split('/');
-                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-              })()
-            : "",
+          birthdate: parseToDateString(contactData.birthdate),
           job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
@@ -816,14 +871,12 @@ const EditContactModal = ({
                             onChange={handleInputChange}
                           /> */}
                           <DatePicker
-                            selected={
-                              formData.birthdate
-                                ? (() => {
-                                    const [year, month, day] = formData.birthdate.split('-');
-                                    return new Date(Number(year), Number(month) - 1, Number(day));
-                                  })()
-                                : null
-                            }
+
+selected={
+  formData.birthdate
+    ? new Date(`${formData.birthdate}T00:00:00Z`) // Ensures it's parsed in UTC
+    : null
+}
                             name="birthdate"
                             id="birthdate"
                             onChange={(date) => {
