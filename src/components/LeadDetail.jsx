@@ -5496,15 +5496,15 @@ const LeadDetail = () => {
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
                                 <p><b>Created Date:</b> {opportunity.CreatedAt}</p>
-                                <p><b>Current Stage:</b> {opportunity.Stage}</p>
-                                <p><b>Next Step:</b> {opportunity.NextStep || '-'}</p>
+                                <p><b>Current Stage:</b> {opportunity.milestoneStatus}</p>
+                                <p><b>Next Step:</b> {opportunity.NextStep || ''}</p>
                               </div>
                             </div>
                             <div className="col-md-5">
                               <div className="lead_des">
                                 <p><b>Opportunity Owner:</b> {opportunity.CreatedBy}</p>
                                 <p><b>Opportunity Amount:</b> {opportunity.currencyName} {opportunity.OpportunityAmount}</p>
-                                <p><b>Expected Close date:</b> {opportunity.ExpectedCloseDate}</p>
+                                <p><b>Expected Close date:</b> {formatDateToMMDDYYYY(opportunity.ExpectedCloseDate)}</p>
                               </div>
                             </div>
                           </div>

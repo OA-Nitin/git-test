@@ -405,7 +405,7 @@ const AllProjectsReport = () => {
     return `${month}/${day}/${year} ${time}`; // MM/DD/YYYY HH:MM
   };
 
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const capitalize = (str) => str.toUpperCase();
 
   const getProjectType = () => {
     // let type = projects.length > 0 ? projects[0].product_name : 'All';
@@ -417,7 +417,7 @@ const AllProjectsReport = () => {
 
     // return `${type}Projects`;
     const safeProduct = product?.toLowerCase() || 'all';
-    return `${capitalize(safeProduct)}Projects`;
+    return `${capitalize(safeProduct)}_Projects`;
   };
 
   const userName = user?.display_name || user?.username || 'User';
