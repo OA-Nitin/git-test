@@ -5132,7 +5132,7 @@ const ProjectDetail = () => {
                               <option value="4">Sole Proprietorship</option>
                               <option value="3">Partnership</option>
                               <option value="2">Limited Liability (LLC)</option>
-                              <option value="6">Corporation (S,C,B,etc)</option>
+                              <option value="6">Corporation (S, C, B, etc)</option>
                               <option value="7">Trust</option>
                               <option value="5">Other</option>
                             </select>
