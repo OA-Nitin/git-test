@@ -23,15 +23,64 @@ const InvoiceReport = () => {
   const merchantId = '1'; // adjust if dynamic later
 
   const columnDefinitions = [
-    { id: 'invoice_date', label: 'Date', sortable: true },
-    { id: 'customer_invoice_no', label: 'Invoice ID', sortable: true },
-    { id: 'total_amount', label: 'Amount', sortable: true },
-    { id: 'business_name', label: 'Business Name', sortable: true },
-    { id: 'customer_name', label: 'Customer Name', sortable: true },
-    { id: 'status_id', label: 'Status', sortable: true },
-    { id: 'invoice_type', label: 'Type', sortable: true },
-    { id: 'due_date', label: 'Due Date', sortable: true }
+    { id: 'invoice_date', label: 'Date', sortable: true, render: (value) => value || '-' },
+    { id: 'customer_invoice_no', label: 'Invoice #', sortable: true, render: (value) => value || '-' },
+    { 
+      id: 'total_amount', 
+      label: 'Amount', 
+      sortable: true, 
+      render: (value) => {
+        if (!value) return '-';
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) return '-';
+        return `$${numValue.toFixed(2)}`;
+      }
+    },
+    { id: 'business_name', label: 'Business Name', sortable: true, render: (value) => value || '-' },
+    { id: 'customer_name', label: 'Customer Name', sortable: true, render: (value) => value || '-' },
+    { 
+      id: 'status_id', 
+      label: 'Status', 
+      sortable: true, 
+      render: (value) => {
+        const statusMap = {
+          1: { text: 'Unpaid/Invoiced', color: '#FFA500' },  // Orange
+          2: { text: 'Paid', color: '#008000' },             // Green
+          3: { text: 'Cancelled/Stop', color: '#FF0000' },   // Red
+          4: { text: 'Draft', color: '#808080' },            // Gray
+          5: { text: 'Reminder', color: '#FFD700' },         // Gold
+          6: { text: 'Payment in process', color: '#0000FF' },// Blue
+          17: { text: 'Partial paid', color: '#FF8C00' },    // Dark Orange
+          19: { text: 'Overdue', color: '#FF0000' }          // Red
+        };
+
+        const status = statusMap[value];
+        if (!status) return '-';
+
+        return (
+          <span style={{
+            color: status.color,
+            fontWeight: 'bold',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            backgroundColor: `${status.color}20`, // 20 is for 20% opacity
+            display: 'inline-block'
+          }}>
+            {status.text}
+          </span>
+        );
+      }
+    },
+    { id: 'invoice_type', label: 'Type', sortable: true, render: (value) => value || '-' },
+    { 
+      id: 'due_date', 
+      label: 'Due Date', 
+      sortable: true, 
+      render: (value) => value || '-'
+    }
   ];
+
+  const [visibleColumns, setVisibleColumns] = useState(columnDefinitions.map(col => col.id));
 
   useEffect(() => {
     fetchInvoices();
@@ -39,6 +88,7 @@ const InvoiceReport = () => {
 
   const fetchInvoices = async () => {
     setLoading(true);
+    setError(null); 
     try {
       const response = await axios.post(
         'https://play.occamsadvisory.com/portal/wp-json/invoices/v1/invoice-listing',
@@ -77,6 +127,28 @@ const InvoiceReport = () => {
     setCurrentPage(1);
     fetchInvoices();
   };
+    // Function to toggle column visibility
+    const toggleColumnVisibility = (columnId) => {
+      setVisibleColumns(prevVisibleColumns => {
+        if (prevVisibleColumns.includes(columnId)) {
+          // If column is visible, hide it
+          return prevVisibleColumns.filter(id => id !== columnId);
+        } else {
+          // If column is hidden, show it
+          return [...prevVisibleColumns, columnId];
+        }
+      });
+    };
+  
+    // Function to reset to default columns
+    const resetToDefaultColumns = () => {
+      setVisibleColumns(columnDefinitions.map(col => col.id));
+    };
+  
+    // Function to select all columns
+    const selectAllColumns = () => {
+        setVisibleColumns(columnDefinitions.map(col => col.id));
+    };
 
   const filteredInvoices = invoices.filter(inv => {
     /*const matchesSearch =
@@ -174,20 +246,39 @@ const InvoiceReport = () => {
         setIsSearching={setIsSearching}
         setCurrentPage={setCurrentPage}
         columnGroups={[{ id: 'default', title: 'Columns', columns: columnDefinitions }]}
-        visibleColumns={columnDefinitions.map(col => col.id)}
-        toggleColumnVisibility={() => {}}
-        resetToDefaultColumns={() => {}}
-        selectAllColumns={() => {}}
+        visibleColumns={visibleColumns}
+        toggleColumnVisibility={toggleColumnVisibility}
+        resetToDefaultColumns={resetToDefaultColumns}  
+        selectAllColumns={selectAllColumns}
         exportToExcel={() => {}}
         exportToPDF={() => {}}
         exportToCSV={() => {}}
       />
 
       <div className="table-responsive mt-4">
+      {loading ? (
+        <div className="text-center p-4">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading invoice data...</p>
+        </div>
+      ) : error ? (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      ) : currentItems.length === 0 ? (
+        <div className="text-center p-4">
+          <p>No invoices found</p>
+        </div>
+      ) : (
+      // After data coming perfectlly  
         <table className="table table-bordered table-hover table-striped">
           <thead>
             <tr>
-              {columnDefinitions.map(col => (
+              {columnDefinitions
+              .filter(col => visibleColumns.includes(col.id)) // Filter columns based on visibility
+              .map(col => (
                 <SortableTableHeader
                   key={col.id}
                   label={col.label}
@@ -202,15 +293,22 @@ const InvoiceReport = () => {
           <tbody>
             {currentItems.map((inv, index) => (
               <tr key={index}>
-                {columnDefinitions.map(col => (
-                  <td key={col.id}>{inv[col.id] || '-'}</td>
+                {columnDefinitions
+                .filter(col => visibleColumns.includes(col.id)) // Filter columns based on visibility
+                .map(col => (
+                  <td key={col.id}>
+                    {col.render(inv[col.id])}
+                  </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
+      // After data coming perfectlly
+      )}  
       </div>
 
+      {/* Add loading component in ReportPagination component */}
       <ReportPagination
         currentPage={currentPage}
         totalPages={totalPages}
@@ -222,6 +320,7 @@ const InvoiceReport = () => {
         totalFilteredItems={filteredInvoices.length}
         totalItems={invoices.length}
         itemName="invoices"
+        loading={loading}
       />
     </PageContainer>
   );
