@@ -2883,6 +2883,7 @@ const LeadDetail = () => {
     setCurrentProject(null);
     setProjectUpdateSuccess(false);
     setProjectUpdateError(null);
+    resetProjectForm();
   };
 
   // All input change handlers have been replaced with inline functions
