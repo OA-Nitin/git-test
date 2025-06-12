@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./EditContactModal.css";
 import LoadingOverlay from "./common/LoadingOverlay";
+import Swal from 'sweetalert2';
 
 
 import { useForm } from "react-hook-form";
@@ -67,6 +68,66 @@ const EditContactModal = ({
 
   // State to store business options from the API
   const [businessOptions, setBusinessOptions] = useState([]);
+const parseToDateString = (rawDate) => {
+  if (rawDate.includes('T')) {
+    try {
+      const date = new Date(rawDate);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      console.error("Error parsing ISO date:", e);
+    }
+  } 
+
+  const dateParts = rawDate.split(/[-/]/).map((part) => part.trim());
+
+  // Identify based on value structure
+  let year, month, day;
+
+  // Format: YYYY-MM-DD or YYYY/DD/MM
+  if (dateParts[0].length === 4) {
+    if (parseInt(dateParts[1]) > 12) {
+      // Treat as YYYY-DD-MM
+      year = dateParts[0];
+      day = dateParts[1];
+      month = dateParts[2];
+    } else {
+      // Treat as YYYY-MM-DD
+      year = dateParts[0];
+      month = dateParts[1];
+      day = dateParts[2];
+    }
+  }
+  // Format: DD-MM-YYYY or MM-DD-YYYY
+  else if (dateParts[2] && dateParts[2].length === 4) {
+    if (parseInt(dateParts[0]) > 12) {
+      // Treat as DD-MM-YYYY
+      day = dateParts[0];
+      month = dateParts[1];
+      year = dateParts[2];
+    } else {
+      // Treat as MM-DD-YYYY
+      month = dateParts[0];
+      day = dateParts[1];
+      year = dateParts[2];
+    }
+  } else {
+    return "";
+  }
+
+  if (!year || !month || !day) return "";
+
+  try {
+    const dateObj = new Date(`${year}-${month}-${day}T00:00:00Z`);
+    if (isNaN(dateObj.getTime())) return "";
+
+    // Return UTC-formatted YYYY-MM-DD
+    return dateObj.toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+};
 
   
   // Initialize form validation
@@ -250,7 +311,7 @@ const EditContactModal = ({
           last_name: contactData.last_name || "",
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
-          birthdate: contactData.birthdate || "",
+          birthdate: parseToDateString(contactData.birthdate),
           job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
@@ -459,50 +520,111 @@ const EditContactModal = ({
 
   // Handle form submission
   const onSubmit = async (data) => {
-    try {
-      setUpdateSuccess(false);
-      setUpdateError(null);
-      setLoading(true);
-
-      console.log("Form data before submission:", data);
-
-      const submitData = {
-        ...data,
-        dnd: data.dnd === "Yes" ? "1" : "0",
-        contact_id: contactId,
-        // Use the first selected business as the report_to_id if not already set
-        report_to_id:
-          data.report_to_id || 
-          (data.selected_businesses && data.selected_businesses.length > 0
-            ? data.selected_businesses[0]
-            : ""),
-      };
-
-      console.log("Submitting contact data:", submitData);
-
-      const response = await axios.put(
-        `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
-        submitData
-      );
-
-      console.log("Update response:", JSON.parse(response.data));
-
-      if (response.data && JSON.parse(response.data).code == "success") {
-        setUpdateSuccess(true);
-        setTimeout(() => {
-          onClose();
-        }, 2000);
-      } else {
-        setUpdateError("Failed to update contact. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error updating contact:", err);
-      setUpdateError(
-        "An error occurred while updating the contact. Please try again."
-      );
-    } finally {
-      setLoading(false);
+    Swal.fire({
+    title: 'Are you sure?',
+    text: 'You are about to update this contact information.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, update it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+        updateContact(data);
     }
+  });
+      
+  };
+
+  const updateContact = async (data) => {
+    try {
+          setUpdateSuccess(false);
+          setUpdateError(null);
+          setLoading(true);
+
+          console.log("Form data before submission:", data);
+
+          // Ensure birthdate is in YYYY-MM-DD string format for submission
+          let formattedBirthdate = '';
+          if (data.birthdate) {
+            // data.birthdate should already be YYYY-MM-DD from DatePicker's setValue
+            // If it's somehow an ISO string (e.g., from initial load before edit), split it
+            // Otherwise, use it directly.
+            if (typeof data.birthdate === 'string' && data.birthdate.includes('T')) {
+              formattedBirthdate = data.birthdate.split('T')[0];
+            } else if (typeof data.birthdate === 'string') {
+              formattedBirthdate = data.birthdate; // Already YYYY-MM-DD
+            } 
+            // If it's a Date object (less likely with setValue, but for robustness)
+            else if (data.birthdate instanceof Date && !isNaN(data.birthdate.getTime())) {
+              const year = data.birthdate.getFullYear();
+              const month = String(data.birthdate.getMonth() + 1).padStart(2, '0');
+              const day = String(data.birthdate.getDate()).padStart(2, '0');
+              formattedBirthdate = `${year}-${month}-${day}`;
+            }
+          }
+
+          const submitData = {
+            ...data,
+            birthdate: formattedBirthdate, // Use the explicitly formatted string
+            dnd: data.dnd === "Yes" ? "1" : "0",
+            contact_id: contactId,
+            report_to_id:
+              data.report_to_id || 
+              (data.selected_businesses && data.selected_businesses.length > 0
+                ? data.selected_businesses[0]
+                : ""),
+          };
+
+          console.log("Submitting contact data:", submitData);
+
+          const response = await axios.put(
+            `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
+            submitData
+          );
+
+          console.log("Update response:", JSON.parse(response.data));
+
+          if (response.data && JSON.parse(response.data).code == "success") {
+            Swal.fire({
+              title: 'Success!',
+              text: 'Contact updated successfully!',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              setUpdateSuccess(false);
+              setUpdateError(null);
+              onClose();
+            });
+            // setUpdateSuccess(true);
+            // setTimeout(() => {
+            //   setUpdateSuccess(false);
+            //   setUpdateError(null);
+            //   onClose();
+            // }, 2000);
+          } else {
+              Swal.fire({
+              title: 'Error!',
+              text: 'Failed to update contact. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+            // setUpdateError("Failed to update contact. Please try again.");
+          }
+        } catch (err) {
+          console.error("Error updating contact:", err);
+          // setUpdateError(
+          //   "An error occurred while updating the contact. Please try again."
+          // );
+          Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while updating the contact. Please try again.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        } finally {
+          setLoading(false);
+        }
   };
 
   if (!isOpen) return null;
@@ -749,17 +871,35 @@ const EditContactModal = ({
                             onChange={handleInputChange}
                           /> */}
                           <DatePicker
-                            selected={formData.birthdate ? new Date(formData.birthdate) : null}
+
+selected={
+  formData.birthdate
+    ? new Date(`${formData.birthdate}T00:00:00Z`) // Ensures it's parsed in UTC
+    : null
+}
                             name="birthdate"
                             id="birthdate"
                             onChange={(date) => {
-                              const formatted = date ? date.toISOString().split('T')[0] : '';
-                              setFormData(prev => ({ ...prev, birthdate: formatted }));
-                              const error = validateField('birthdate', formatted);
-                              setErrors(prev => ({ ...prev, birthdate: error }));
-                            }}
-                            onBlur={() => {
-                              setTouched(prev => ({ ...prev, birthdate: true }));
+                              if (date) {
+                                // Get the date components in local time
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const formatted = `${year}-${month}-${day}`;
+                                
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: formatted,
+                                }));
+                                // Explicitly set the value in react-hook-form
+                                setValue("birthdate", formatted);
+                              } else {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  birthdate: '',
+                                }));
+                                setValue("birthdate", ''); // Also update react-hook-form when cleared
+                              }
                             }}
                             dateFormat="MM/dd/yyyy"
                             showMonthDropdown
@@ -771,11 +911,6 @@ const EditContactModal = ({
                             maxDate={new Date()}
                             customInput={<ReadOnlyDateInput />}
                           />
-                          {errors.birthdate && (
-                            <div className="invalid-feedback">
-                              {errors.birthdate.message}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -1219,6 +1354,8 @@ const EditContactModal = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setUpdateError(null);
+                          setUpdateSuccess(false);
                           onClose();
                         }}>
                         Cancel

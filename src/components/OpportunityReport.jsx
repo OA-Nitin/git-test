@@ -468,8 +468,16 @@ const OpportunityReport = ({ projectType }) => {
     return `${month}-${day}-${year}`; // MM-DD-YYYY
   };
 
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const getFormattedDateTime = () => {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    const time = today.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${month}/${day}/${year} ${time}`; // MM/DD/YYYY HH:MM
+  };
 
+  const capitalize = (str) => str.toUpperCase();
   const getProjectType = () => {
     // let type = opportunities.length > 0 ? opportunities[0].product : 'All';
     // type = type || 'All';
@@ -480,7 +488,7 @@ const OpportunityReport = ({ projectType }) => {
 
     // return `${type}Opportunities`;
     const safeProduct = product?.toLowerCase() || 'all';
-    return `${capitalize(safeProduct)}Opportunities`;
+    return `${capitalize(safeProduct)}_Opportunities`;
   };
 
   const userName = user?.display_name || user?.username || 'User';
@@ -720,11 +728,11 @@ const OpportunityReport = ({ projectType }) => {
 
       // Add title
       doc.setFontSize(16);
-      doc.text('Opportunities Report', 15, 15);
+      doc.text(`${capitalize(product?.toLowerCase() || 'all')} Opportunities`, 15, 15);
 
       // Add generation date and filter info
       doc.setFontSize(10);
-      doc.text(`Generated: ${new Date().toLocaleString()}`, 15, 22);
+      doc.text(`Generated: ${getFormattedDateTime()}`, 15, 22);
 
       let yPos = 27;
 
@@ -847,7 +855,7 @@ const OpportunityReport = ({ projectType }) => {
       const ws = XLSX.utils.json_to_sheet(excelData);
 
       // Add worksheet to workbook
-      XLSX.utils.book_append_sheet(wb, ws, 'Opportunities');
+      XLSX.utils.book_append_sheet(wb, ws, `${getProjectType()}`);
 
       // Generate Excel file and trigger download
       XLSX.writeFile(wb, `${getExportFileName()}.xlsx`);

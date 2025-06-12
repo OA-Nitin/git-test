@@ -16,6 +16,7 @@ import './LeadDetail.css';
 import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
+import { format } from 'date-fns';
 
 
 // Date utility functions
@@ -136,6 +137,7 @@ const LeadDetail = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userOptions, setUserOptions] = useState([]);
   const [unassignLoading, setUnassignLoading] = useState(false);
+  const [isAssigningUser, setIsAssigningUser] = useState(false);
 
 
   // Contacts related state
@@ -306,14 +308,14 @@ const LeadDetail = () => {
     trigger,
   } = useForm({
     resolver: yupResolver(leadDetailSchema),
-    mode: 'onSubmit',
+    mode: 'onChange',
     reValidateMode: 'onChange',
   });
 
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
-        setValue(key, lead[key]);
+        setValue(key, lead[key], { shouldValidate: true });
       });
 
       // Also set primary contact form values if they exist
@@ -329,6 +331,12 @@ const LeadDetail = () => {
       if (primaryContact.phoneType) {
         setValue('contact_phone_type', primaryContact.phoneType);
       }
+      if (lead) {
+        setFormData({
+          registration_date: lead.registration_date || '',
+        });
+      }
+
     }
   }, [lead, setValue, primaryContact]);
 
@@ -343,7 +351,7 @@ const LeadDetail = () => {
     watch: watchProject
   } = useForm({
     resolver: yupResolver(projectSchema),
-    mode: 'onSubmit',
+    mode: 'onChange',
     reValidateMode: 'onChange',
   });
 
@@ -2265,7 +2273,7 @@ const LeadDetail = () => {
   const handleAssignUser = async () => {
     if (selectedUser) {
       try {
-        setUnassignLoading(true);
+        setIsAssigningUser(true);
 
         // Check if user is already assigned
         const isAlreadyAssigned = assignedUsers.some(user => user.id === selectedUser.user.id);
@@ -2341,7 +2349,7 @@ const LeadDetail = () => {
         // Reset the selected user
         setSelectedUser(null);
       } finally {
-        setUnassignLoading(false);
+        setIsAssigningUser(false);
 
         // Refresh the assigned users list
         fetchAssignedUsers();
@@ -2898,6 +2906,8 @@ const LeadDetail = () => {
 
       if (response.data && response.data.status) {
         // Update the project in the projects array
+        const selectedMilestone = milestones.find(m => m.name === projectFormData.Milestone);
+        const selectedStage = milestoneStages.find(s => s.name === projectFormData.MilestoneStage);
         const updatedProjects = projects.map(project => {
           if (project.id === projectFormData.projectID) {
             return {
@@ -2907,7 +2917,9 @@ const LeadDetail = () => {
               maxCredit: projectFormData.maximum_credit,
               estFee: projectFormData.estimated_fee,
               milestone: projectFormData.Milestone,
+              milestoneId: selectedMilestone ? selectedMilestone.id : project.milestoneId,
               stage: projectFormData.MilestoneStage,
+              stageId: selectedStage ? selectedStage.id : project.stageId,
               contactId: projectFormData.ContactList,
               collaborator: projectFormData.collaborators.length > 0 ? projectFormData.collaborators[0] : ''
             };
@@ -2921,6 +2933,7 @@ const LeadDetail = () => {
         // Close the modal after a delay
         setTimeout(() => {
           handleCloseEditProjectModal();
+          fetchProjectData();
         }, 2000);
       } else {
         setProjectUpdateError(response.data?.message || 'Failed to update project');
@@ -3799,7 +3812,7 @@ const LeadDetail = () => {
                       <div className="row mb-3">
                         <div className="col-md-6">
                           <div className="form-group">
-                            <label className="form-label">Business Legal Name*</label>
+                            <label className="form-label">Business Legal Name</label>
                             <input
                               type="text"
                               className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
@@ -3808,9 +3821,9 @@ const LeadDetail = () => {
                               value={lead.business_legal_name || ''}
                               onChange={handleInputChange}
                             />
-                             {errors.business_legal_name && (
+                             {/* {errors.business_legal_name && (
                                 <div className="invalid-feedback">{errors.business_legal_name.message}</div>
-                              )}
+                              )} */}
                             <input
                               type="hidden"
                               name="user_id"
@@ -4384,6 +4397,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               Company Folder Link
+                              {companyFolderLink  && (
                               <a
                                 href={companyFolderLink}
                                 target="_blank"
@@ -4395,6 +4409,7 @@ const LeadDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
                                 </svg>
                               </a>
+                            )}
                             </label>
                             <input
                               type="text"
@@ -4412,6 +4427,7 @@ const LeadDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               Document Folder Link
+                              {documentFolderLink && (
                               <a
                                 href={documentFolderLink}
                                 target="_blank"
@@ -4423,6 +4439,7 @@ const LeadDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
                                 </svg>
                               </a>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -5001,7 +5018,7 @@ const LeadDetail = () => {
                                     {contact.name ? contact.name.split(' ').map(n => n[0]).join('') : ''}
                                   </div>
                                   <div className="card-exam-title">
-                                    <p><a href="javascript:void(0)" target="_blank">{contact.name || ''}</a></p>
+                                    <p><a>{contact.name || ''}</a></p>
                                     <p>{contact.title ? `${contact.title}` : ''} {contact.middle_name ? `${contact.middle_name}` : ''}</p>
                                     <p>{contact.email || ''}</p>
                                     <p>{contact.phone || ''} {contact.ph_extension ? `Ext: ${contact.ph_extension}` : ''}</p>
@@ -5082,7 +5099,7 @@ const LeadDetail = () => {
                             <div className="loading-overlay">
                               <div className="loading-spinner-container">
                                 <div className="loading-spinner"></div>
-                                <p className="loading-text">Updating project...</p>
+                                {/* <p className="loading-text">Updating project...</p> */}
                               </div>
                             </div>
                           )}
@@ -5448,9 +5465,9 @@ const LeadDetail = () => {
                   {activeTab === 'opportunities' && (
                     <div className="mb-4 left-section-container">
                       <div className="row custom_opp_create_btn">
-                          <a href='javaascript:void(0)'>
+                          {/* <a href='javaascript:void(0)'>
                             <i className="fa-solid fa-plus"></i> New Opportunity
-                          </a>
+                          </a> */}
                       </div>
 
                       {opportunities.length === 0 ? (
@@ -5472,29 +5489,32 @@ const LeadDetail = () => {
                                     style={{display:'none'}} >
                                     <i className="fas fa-pen"></i>
                                   </a>
-                                  <a
+                                  {/* <a
                                     className="delete_project"
                                     href="javascript:void(0)"
                                     title="Delete"
                                     onClick={() => showDeleteConfirmation(opportunity)}
                                   >
                                     <i className="fas fa-trash"></i>
-                                  </a>
+                                  </a> */}
                                 </div>
                               </div>
                             </div>
                             <div className="col-md-7 text-left">
                               <div className="lead_des">
-                                <p><b>Created Date:</b> {opportunity.CreatedAt}</p>
-                                <p><b>Current Stage:</b> {opportunity.Stage}</p>
-                                <p><b>Next Step:</b> {opportunity.NextStep || '-'}</p>
+                                <p>
+                                  <b>Created Date: </b>
+                                  {opportunity.CreatedAt ? format(new Date(opportunity.CreatedAt), 'MM/dd/yyyy') : '-'}
+                                </p>
+                                <p><b>Current Stage:</b> {opportunity.milestoneStatus}</p>
+                                <p><b>Next Step:</b> {opportunity.NextStep || ''}</p>
                               </div>
                             </div>
                             <div className="col-md-5">
                               <div className="lead_des">
                                 <p><b>Opportunity Owner:</b> {opportunity.CreatedBy}</p>
                                 <p><b>Opportunity Amount:</b> {opportunity.currencyName} {opportunity.OpportunityAmount}</p>
-                                <p><b>Expected Close date:</b> {opportunity.ExpectedCloseDate}</p>
+                                <p><b>Expected Close date:</b> {formatDateToMMDDYYYY(opportunity.ExpectedCloseDate)}</p>
                               </div>
                             </div>
                           </div>
@@ -5998,9 +6018,9 @@ const LeadDetail = () => {
                       <button
                         className="btn assign-user-btn w-100"
                         onClick={handleAssignUser}
-                        disabled={!selectedUser}
+                        disabled={!selectedUser || isAssigningUser}
                       >
-                        Assign User
+                        {isAssigningUser ? 'Assigning...' : 'Assign User'}
                       </button>
 
                       {/* Add custom CSS for the assigned user tags */}
@@ -6167,7 +6187,6 @@ const LeadDetail = () => {
                       {updateSuccess && (
                         <div className="alert alert-success mt-3" role="alert">
                           <strong><i className="fas fa-check-circle me-2"></i>Lead updated successfully!</strong>
-                          <p className="mb-0 mt-1">Your changes have been saved to the database.</p>
                         </div>
                       )}
                       {error && (

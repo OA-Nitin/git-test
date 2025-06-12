@@ -728,7 +728,10 @@ const ProjectDetail = () => {
     console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
     console.log('Project ID type:', typeof projectId);
     fetchProjectDetails();
-
+    fetchBankInfo();
+    fetchIntakeInfo();
+    fetchFeesInfo();
+    fetchFulfilmentInfo();
     console.log('Initial useEffect - Fetching milestones for product ID 936');
     // fetchMilestones();
   }, [projectId]);
@@ -935,7 +938,7 @@ const ProjectDetail = () => {
                                     <tr>
                                         <th>Year</th>
                                         <th>Mandatory</th>
-                                        <th>Tax Returns - 1040(Mandatory)</th>
+                                        <th>Tax Returns - 1040 (Mandatory)</th>
                                         <th>Status</th>
                                         <th>Comments</th>
                                     </tr>
@@ -2239,13 +2242,14 @@ const ProjectDetail = () => {
 
   // Function to fetch bank information from the API
   const fetchBankInfo = async () => {
-    if (!project?.project_id) return;
+    console.log('Fetching bank information for project IDs:', projectId);
+    if (!projectId) return;
 
     setBankInfoLoading(true);
     setBankInfoError(null);
 
     try {
-      console.log('Fetching bank information for project ID:', project.project_id);
+      console.log('Fetching bank information for project ID:', projectId);
 
       // Make a POST request to the bank info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
@@ -2253,7 +2257,7 @@ const ProjectDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ project_id: project.project_id }),
+        body: JSON.stringify({ project_id: projectId }),
       });
 
       console.log('Bank info API response status:', response.status);
@@ -2323,13 +2327,13 @@ const ProjectDetail = () => {
 
   // Function to fetch intake information from the API
   const fetchIntakeInfo = async () => {
-    if (!project?.project_id) return;
+    if (!projectId) return;
 
     setIntakeInfoLoading(true);
     setIntakeInfoError(null);
 
     try {
-      console.log('Fetching intake information for project ID:', project.project_id);
+      console.log('Fetching intake information for project ID:', projectId);
 
       // Make a POST request to the intake info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
@@ -2337,7 +2341,7 @@ const ProjectDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ project_id: project.project_id }),
+        body: JSON.stringify({ project_id: projectId }),
       });
 
       console.log('Intake info API response status:', response.status);
@@ -2517,7 +2521,7 @@ const ProjectDetail = () => {
 
   // Function to fetch fees information from the API
   const fetchFeesInfo = async () => {
-    if (!project?.project_id) {
+    if (!projectId) {
       console.log('No project ID available for fees API call');
       return;
     }
@@ -2527,10 +2531,10 @@ const ProjectDetail = () => {
 
     try {
       console.log('=== FEES API CALL START ===');
-      console.log('Project ID:', project.project_id);
+      console.log('Project ID:', projectId);
       console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
-      const requestBody = { project_id: project.project_id };
+      const requestBody = { project_id: projectId };
       console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
@@ -2962,7 +2966,7 @@ const ProjectDetail = () => {
   };
   // Function to fetch fulfilment information from the API
   const fetchFulfilmentInfo = async () => {
-    if (!project?.project_id) {
+    if (!projectId) {
       console.log('No project ID available for fulfilment API call');
       return;
     }
@@ -2972,10 +2976,10 @@ const ProjectDetail = () => {
 
     try {
       console.log('=== FULFILMENT API CALL START ===');
-      console.log('Project ID:', project.project_id);
+      console.log('Project ID:', projectId);
       console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment');
 
-      const requestBody = { project_id: project.project_id };
+      const requestBody = { project_id: projectId };
       console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment', {
@@ -3165,7 +3169,18 @@ const ProjectDetail = () => {
     if (totalPages <= 1) return null;
 
     const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const pageLimit = 3;
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, currentPage + 1);
+
+    if (currentPage === 1) {
+      endPage = Math.min(totalPages, pageLimit);
+    }
+    if (currentPage === totalPages) {
+      startPage = Math.max(1, totalPages - 2);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
 
@@ -3176,36 +3191,61 @@ const ProjectDetail = () => {
           {Math.min(currentPage * auditLogsPagination[tableType].itemsPerPage, data.length)} of {data.length} entries
         </div>
         <nav>
-          <ul className="pagination pagination-sm mb-0">
-            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-              <button
-                className="page-link"
+          <div className="pagination-container">
+            <button
                 onClick={() => handleAuditLogsPagination(tableType, currentPage - 1)}
                 disabled={currentPage === 1}
+                className="pagination-button"
               >
                 Previous
               </button>
-            </li>
-            {pages.map(page => (
-              <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                <button
-                  className="page-link"
-                  onClick={() => handleAuditLogsPagination(tableType, page)}
-                >
-                  {page}
-                </button>
-              </li>
-            ))}
-            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+            {/* <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              &lsaquo;
+            </button> */}
+
+            {pages.map(number => (
               <button
-                className="page-link"
-                onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
-                disabled={currentPage === totalPages}
+                key={number}
+                onClick={() => handleAuditLogsPagination(tableType, number)}
+                className={`pagination-button ${currentPage === number ? 'active' : ''}`}
               >
-                Next
+                {number}
               </button>
-            </li>
-          </ul>
+            ))}
+
+            <button
+              onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              Next
+            </button>
+            {/* <button
+              onClick={() => paginate(totalPages)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              &raquo;
+            </button> */}
+
+            {/* <div className="pagination-info">
+              <span>Page {currentPage} of {totalPages}</span>
+              <select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="items-per-page"
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+                <option value={25}>25 per page</option>
+                <option value={50}>50 per page</option>
+              </select>
+            </div> */}
+          </div>
         </nav>
       </div>
     );
@@ -4766,9 +4806,9 @@ const ProjectDetail = () => {
                         </div>
                         <div className="col-md-4">
                           <div className="form-group">
-                            <label className="form-label d-flex align-items-center justify-content-between">
-                              <span>Business</span>
-                              <button
+                            <div className='form-label d-flex align-items-center justify-content-between'>
+                            <label style={{ marginBottom: '0px' }}>Business</label>
+                            <button
                                 className="btn btn-primary"
                                 style={{
                                   fontSize: '11px',
@@ -4786,10 +4826,8 @@ const ProjectDetail = () => {
                               >
                                 View
                               </button>
-                            </label>
-                            <div className="d-flex">
+                              </div>
                               <input type="text" className="form-control" defaultValue={project?.business_legal_name || ""} readOnly />
-                            </div>
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -5059,17 +5097,14 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Website URL</label>
-                            <div className="input-group">
-                              <span className="input-group-text">https://</span>
-                              <input
-                                type="text"
-                                className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
-                                {...register('website_url')}
-                                value={project.website_url}
-                                onChange={(e) => setProject({...project, website_url: e.target.value})}
-                                readOnly={!isEditMode}
-                              />
-                            </div>
+                            <input
+                              type="text"
+                              className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
+                              {...register('website_url')}
+                              value={project.website_url}
+                              onChange={(e) => setProject({...project, website_url: e.target.value})}
+                              readOnly={!isEditMode}
+                            />
                             {errors.website_url && (
                                 <div className="invalid-feedback">{errors.website_url.message}</div>
                               )}
@@ -5163,6 +5198,7 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               {project?.product_id === "937" ? "Agreement Folder Link" : "Company Folder Link"}
+                              {companyFolderLink  && (
                               <a
                                 href={companyFolderLink}
                                 target="_blank"
@@ -5174,6 +5210,7 @@ const ProjectDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
                                 </svg>
                               </a>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -5181,7 +5218,7 @@ const ProjectDetail = () => {
                               {...register('company_folder_link')}
                               value={companyFolderLink}
                               onChange={(e) => setCompanyFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
+                              readOnly
                             />
                             {errors.company_folder_link && (
                                 <div className="invalid-feedback">{errors.company_folder_link.message}</div>
@@ -5192,6 +5229,7 @@ const ProjectDetail = () => {
                           <div className="form-group">
                             <label className="form-label d-flex align-items-center">
                               {project?.product_id === "937" ? "STC Document Folder Link" : "ERC Document Folder Link"}
+                              {documentFolderLink  && (
                               <a
                                 href={documentFolderLink}
                                 target="_blank"
@@ -5203,6 +5241,7 @@ const ProjectDetail = () => {
                                   <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
                                 </svg>
                               </a>
+                              )}
                             </label>
                             <input
                               type="text"
@@ -5210,7 +5249,7 @@ const ProjectDetail = () => {
                               {...register('document_folder_link')}
                               value={documentFolderLink}
                               onChange={(e) => setDocumentFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
+                              readOnly
                             />
                             {errors.document_folder_link && (
                                 <div className="invalid-feedback">{errors.document_folder_link.message}</div>
@@ -5878,7 +5917,20 @@ const ProjectDetail = () => {
                         <div className="col-md-4">
                           <div className="form-group">
                             <label className="form-label">Company Folder Link</label>
-                            <input
+                            {companyFolderLink  && (
+                              <a
+                                href={companyFolderLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ms-2"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
+                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
+                                </svg>
+                              </a>
+                              )}
+                              <input
                               type="text"
                               className="form-control"
                               placeholder="Company Folder Link"
@@ -9054,7 +9106,7 @@ const ProjectDetail = () => {
                                 <div className="col-sm-12">
                                   <div className="custom_opp_tab_header">
                                     <h5>
-                                      <a href="javascript:void(0)" target="_blank" data-invoiceid={invoice.id}>
+                                      <a href={invoice.invoice_url} target="_blank" data-invoiceid={invoice.id}>
                                         Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
                                       <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}>
                                         {invoice.invoice_status}
