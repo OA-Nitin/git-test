@@ -5218,7 +5218,7 @@ const ProjectDetail = () => {
                               {...register('company_folder_link')}
                               value={companyFolderLink}
                               onChange={(e) => setCompanyFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
+                              readOnly
                             />
                             {errors.company_folder_link && (
                                 <div className="invalid-feedback">{errors.company_folder_link.message}</div>
@@ -5249,7 +5249,7 @@ const ProjectDetail = () => {
                               {...register('document_folder_link')}
                               value={documentFolderLink}
                               onChange={(e) => setDocumentFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
+                              readOnly
                             />
                             {errors.document_folder_link && (
                                 <div className="invalid-feedback">{errors.document_folder_link.message}</div>
