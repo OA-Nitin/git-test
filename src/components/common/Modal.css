@@ -113,6 +113,7 @@
   font-size: 21px;
   line-height: 1;
   display: block;
+  margin-top: -2px;
 }
 
 .modal-header .btn-close:hover {
