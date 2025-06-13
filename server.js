@@ -42,8 +42,8 @@ app.use('/api', async (req, res) => {
     const method = req.method.toLowerCase();
     const params = req.query;
 
-    console.log(`Proxying ${method.toUpperCase()} request to: ${url}`);
-    console.log('With params:', params);
+    //console.log(`Proxying ${method.toUpperCase()} request to: ${url}`);
+    //console.log('With params:', params);
 
     // Make the request to the WordPress API
     const response = await axios({
@@ -83,6 +83,6 @@ app.get('*', (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Proxy server running on port ${PORT}`);
-  console.log(`API proxy endpoint: http://localhost:${PORT}/api`);
+  //console.log(`Proxy server running on port ${PORT}`);
+  //console.log(`API proxy endpoint: http://localhost:${PORT}/api`);
 });

@@ -21,7 +21,7 @@
       }
     );
 
-    console.log("Dropdown menu initialized");
+    //console.log("Dropdown menu initialized");
   });
 
 })(jQuery);

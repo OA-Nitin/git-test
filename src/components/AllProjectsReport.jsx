@@ -87,8 +87,8 @@ const AllProjectsReport = () => {
 
     try {
       // Log which type of projects we're fetching
-      console.log(`Fetching ${product ? product + ' ' : ''}projects from API...`);
-      console.log('Using product ID:', productId);
+      //console.log(`Fetching ${product ? product + ' ' : ''}projects from API...`);
+      //console.log('Using product ID:', productId);
 
       // Construct API URL with product_id parameter if available
       let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/projects';
@@ -105,15 +105,15 @@ const AllProjectsReport = () => {
         timeout: 10000 // 10 second timeout
       });
 
-      console.log('API Response:', response);
+      //console.log('API Response:', response);
 
       // Check if we have a valid response with data
       if (response && response.data) {
         // Check if response.data has a data property that is an array
         if (response.data.data && Array.isArray(response.data.data)) {
           const apiProjects = response.data.data;
-          console.log('API Projects (nested data):', apiProjects);
-          console.log('Number of projects returned:', apiProjects.length);
+          //console.log('API Projects (nested data):', apiProjects);
+          //console.log('Number of projects returned:', apiProjects.length);
 
           // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
           const filteredApiProjects = apiProjects.filter(project => {
@@ -122,7 +122,7 @@ const AllProjectsReport = () => {
             return productId !== '936' && productId !== '938' && productId !== '934';
           });
 
-          console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
+          //console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
 
           // Use the filtered API data
           setProjects(filteredApiProjects);
@@ -136,8 +136,8 @@ const AllProjectsReport = () => {
         else if (Array.isArray(response.data)) {
           // Use the data array from the API response
           const apiProjects = response.data;
-          console.log('API Projects:', apiProjects);
-          console.log('Number of projects returned:', apiProjects.length);
+          //console.log('API Projects:', apiProjects);
+          //console.log('Number of projects returned:', apiProjects.length);
 
           // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
           const filteredApiProjects = apiProjects.filter(project => {
@@ -146,7 +146,7 @@ const AllProjectsReport = () => {
             return productId !== '936' && productId !== '938' && productId !== '934';
           });
 
-          console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
+          //console.log('Filtered projects (excluding 936, 938, 934):', filteredApiProjects.length);
 
           // Use the filtered API data
           setProjects(filteredApiProjects);

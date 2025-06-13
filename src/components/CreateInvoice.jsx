@@ -126,7 +126,7 @@ const CreateInvoice = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Here you would typically send the invoice data to your backend
-    console.log('Invoice data:', invoiceData);
+    //console.log('Invoice data:', invoiceData);
     alert('Invoice created successfully!');
     // Redirect to manage invoices page
     window.location.href = '/finance/invoices';

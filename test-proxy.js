@@ -7,10 +7,10 @@ const axios = require('axios');
 // Test the proxy server
 async function testProxy() {
   try {
-    console.log('Testing proxy server...');
+    //console.log('Testing proxy server...');
     
     // Test the invoices endpoint
-    console.log('\nTesting /api/invoices endpoint:');
+    //console.log('\nTesting /api/invoices endpoint:');
     const invoicesResponse = await axios.get('http://localhost:3001/api/invoices', {
       params: {
         sort_by: 'date',
@@ -20,20 +20,20 @@ async function testProxy() {
       }
     });
     
-    console.log('Response status:', invoicesResponse.status);
-    console.log('Success:', invoicesResponse.data.success);
-    console.log('Message:', invoicesResponse.data.message);
-    console.log('Data count:', invoicesResponse.data.data ? invoicesResponse.data.data.length : 0);
+    //console.log('Response status:', invoicesResponse.status);
+    //console.log('Success:', invoicesResponse.data.success);
+    //console.log('Message:', invoicesResponse.data.message);
+    //console.log('Data count:', invoicesResponse.data.data ? invoicesResponse.data.data.length : 0);
     
     // Test the invoice-filters endpoint
-    console.log('\nTesting /api/invoice-filters endpoint:');
+    //console.log('\nTesting /api/invoice-filters endpoint:');
     const filtersResponse = await axios.get('http://localhost:3001/api/invoice-filters');
     
-    console.log('Response status:', filtersResponse.status);
-    console.log('Success:', filtersResponse.data.success);
-    console.log('Message:', filtersResponse.data.message);
+    //console.log('Response status:', filtersResponse.status);
+    //console.log('Success:', filtersResponse.data.success);
+    //console.log('Message:', filtersResponse.data.message);
     
-    console.log('\nProxy server is working correctly!');
+    //console.log('\nProxy server is working correctly!');
   } catch (error) {
     console.error('Error testing proxy server:');
     

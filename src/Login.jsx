@@ -37,7 +37,7 @@ const Login = () => {
                 password,
             })
             .then((response) => {
-                console.log(response.data); // Log the response data
+                //console.log(response.data); // Log the response data
 
                 // Check if login was successful based on the success flag
                 if (response.data.success === true) {

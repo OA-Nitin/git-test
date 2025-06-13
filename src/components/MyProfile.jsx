@@ -180,7 +180,7 @@ const MyProfile = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Here you would typically send the data to an API
-    console.log('Form submitted:', { personalDetails, profileSettings });
+    //console.log('Form submitted:', { personalDetails, profileSettings });
 
     // Use SweetAlert2 instead of default alert
     if (window.Swal) {
