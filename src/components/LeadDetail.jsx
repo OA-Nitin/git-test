@@ -383,12 +383,12 @@ const LeadDetail = () => {
   const fetchGroups = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching groups...');
+      //console.log('Fetching groups...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-groups');
 
-      console.log('Groups API response:', response);
+      //console.log('Groups API response:', response);
 
-      console.log('Groups API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Groups API response structure:', JSON.stringify(response.data, null, 2));
 
       // Check if the response has data directly or nested under a data property
       if (response.data) {
@@ -412,13 +412,13 @@ const LeadDetail = () => {
             label: group.group_name || group.name || group.title || ''
           }));
 
-          console.log('Setting group options:', groups);
+          //console.log('Setting group options:', groups);
           setGroupOptions(groups);
 
           // Prevent other API calls from overwriting the state
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          console.log('Group options after setting:', groupOptions);
+          //console.log('Group options after setting:', groupOptions);
         } else {
           console.warn('No groups data found in response');
         }
@@ -470,7 +470,7 @@ const LeadDetail = () => {
         contact_id: selectedContact.value
       };
 
-      console.log('Linking contact with data:', requestData);
+      //console.log('Linking contact with data:', requestData);
 
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
@@ -482,7 +482,7 @@ const LeadDetail = () => {
         }
       );
 
-      console.log('Link contact response:', response.data);
+      //console.log('Link contact response:', response.data);
 
       // Store the newly added contact ID to highlight it
       setNewContactId(selectedContact.value);
@@ -566,12 +566,12 @@ const LeadDetail = () => {
   const fetchCampaigns = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching campaigns...');
+      //console.log('Fetching campaigns...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-campaigns');
 
-      console.log('Campaigns API response:', response);
+      //console.log('Campaigns API response:', response);
 
-      console.log('Campaigns API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Campaigns API response structure:', JSON.stringify(response.data, null, 2));
 
       // Check if the response has data directly or nested under a data property
       if (response.data) {
@@ -595,13 +595,13 @@ const LeadDetail = () => {
             label: campaign.campaign || campaign.name || campaign.title || ''
           }));
 
-          console.log('Setting campaign options:', campaigns);
+          //console.log('Setting campaign options:', campaigns);
           setCampaignOptions(campaigns);
 
           // Prevent other API calls from overwriting the state
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          console.log('Campaign options after setting:', campaignOptions);
+          //console.log('Campaign options after setting:', campaignOptions);
         } else {
           console.warn('No campaigns data found in response');
         }
@@ -619,12 +619,12 @@ const LeadDetail = () => {
   const fetchSources = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching sources...');
+      //console.log('Fetching sources...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/sources');
 
-      console.log('Sources API response:', response);
+      //console.log('Sources API response:', response);
 
-      console.log('Sources API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Sources API response structure:', JSON.stringify(response.data, null, 2));
 
       // Check if the response has data directly or nested under a data property
       if (response.data) {
@@ -648,13 +648,13 @@ const LeadDetail = () => {
             label: source.source || source.name || source.title || ''
           }));
 
-          console.log('Setting source options:', sources);
+          //console.log('Setting source options:', sources);
           setSourceOptions(sources);
 
           // Prevent other API calls from overwriting the state
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          console.log('Source options after setting:', sourceOptions);
+          //console.log('Source options after setting:', sourceOptions);
         } else {
           console.warn('No sources data found in response');
         }
@@ -672,10 +672,10 @@ const LeadDetail = () => {
   const fetchBillingProfiles = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching billing profiles...');
+      //console.log('Fetching billing profiles...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
 
-      console.log('Billing Profiles API response:', response);
+      //console.log('Billing Profiles API response:', response);
 
       if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
         const profilesData = response.data.data;
@@ -687,7 +687,7 @@ const LeadDetail = () => {
             label: profile.profile_name
           }));
 
-          console.log('Setting billing profile options:', profiles);
+          //console.log('Setting billing profile options:', profiles);
           setBillingProfileOptions(profiles);
         } else {
           console.warn('No billing profiles found in response');
@@ -710,68 +710,68 @@ const LeadDetail = () => {
     // Fetch dropdown options first, then fetch lead details
     const fetchAllData = async () => {
       try {
-        console.log('Starting to fetch dropdown options...');
+        //console.log('Starting to fetch dropdown options...');
 
         // First fetch all dropdown options
         await fetchGroups();
-        console.log('Groups fetched, now fetching campaigns...');
+        //console.log('Groups fetched, now fetching campaigns...');
 
         await fetchCampaigns();
-        console.log('Campaigns fetched, now fetching sources...');
+        //console.log('Campaigns fetched, now fetching sources...');
 
         await fetchSources();
-        console.log('Sources fetched, now fetching billing profiles...');
+        //console.log('Sources fetched, now fetching billing profiles...');
 
         await fetchBillingProfiles();
-        console.log('All dropdown options fetched successfully');
+        //console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        console.log('Current dropdown options state:');
-        console.log('Group options:', groupOptions);
-        console.log('Campaign options:', campaignOptions);
-        console.log('Source options:', sourceOptions);
-        console.log('Billing profile options:', billingProfileOptions);
+        //console.log('Current dropdown options state:');
+        //console.log('Group options:', groupOptions);
+        //console.log('Campaign options:', campaignOptions);
+        //console.log('Source options:', sourceOptions);
+        //console.log('Billing profile options:', billingProfileOptions);
 
         // Then fetch lead details after dropdown options are loaded
-        console.log('Starting data fetch sequence for lead ID:', leadId);
+        //console.log('Starting data fetch sequence for lead ID:', leadId);
 
         // Fetch basic lead details
         await fetchLeadDetails();
-        console.log('Basic lead details fetched');
+        //console.log('Basic lead details fetched');
 
         // Then fetch business data to populate the form
         await fetchBusinessData();
-        console.log('Business data fetched');
+        //console.log('Business data fetched');
 
         // Fetch contact data
         await fetchContactData();
-        console.log('Contact data fetched');
+        //console.log('Contact data fetched');
 
         // Fetch project data
         await fetchProjectData();
-        console.log('Project data fetched');
+        //console.log('Project data fetched');
 
         // Also fetch affiliate commission data
         await fetchAffiliateCommissionData();
-        console.log('Affiliate commission data fetched');
+        //console.log('Affiliate commission data fetched');
 
         // Fetch opportunities data
         await fetchOpportunities();
-        console.log('Opportunities data fetched');
+        //console.log('Opportunities data fetched');
 
         // Fetch milestones data with default product_id
         await fetchOpportunityMilestones('');
-        console.log('Opportunity milestones data fetched');
+        //console.log('Opportunity milestones data fetched');
 
-        console.log('All data fetched successfully for lead ID:', leadId);
+        //console.log('All data fetched successfully for lead ID:', leadId);
 
         // Check if the dropdown values are set correctly
-        console.log('Final state of dropdown values:');
-        console.log('SELECTED Lead Group:', leadGroup);
-        console.log('Lead Campaign:', leadCampaign);
-        console.log('Lead Source:', leadSource);
+        //console.log('Final state of dropdown values:');
+        //console.log('SELECTED Lead Group:', leadGroup);
+        //console.log('Lead Campaign:', leadCampaign);
+        //console.log('Lead Source:', leadSource);
       } catch (error) {
         console.error('Error in data fetch sequence:', error);
       }
@@ -784,15 +784,15 @@ const LeadDetail = () => {
   useEffect(() => {
     const loadGroupOptions = async () => {
       if (groupOptions.length === 0) {
-        console.log('Fetching group options separately...');
+        //console.log('Fetching group options separately...');
         try {
           await fetchGroups();
-          console.log('Group options loaded separately:', groupOptions);
+          //console.log('Group options loaded separately:', groupOptions);
         } catch (error) {
           console.error('Error loading group options separately:', error);
         }
       } else {
-        console.log('Group options already loaded:', groupOptions);
+        //console.log('Group options already loaded:', groupOptions);
       }
     };
 
@@ -801,10 +801,10 @@ const LeadDetail = () => {
 
   // Add a useEffect to log when dropdown values change
   useEffect(() => {
-    console.log('Dropdown values changed:');
-    console.log('Lead Group:', leadGroup);
-    console.log('Lead Campaign:', leadCampaign);
-    console.log('Lead Source:', leadSource);
+    //console.log('Dropdown values changed:');
+    //console.log('Lead Group:', leadGroup);
+    //console.log('Lead Campaign:', leadCampaign);
+    //console.log('Lead Source:', leadSource);
   }, [leadGroup, leadCampaign, leadSource]);
 
   // Add a cleanup function to prevent state updates after unmounting
@@ -873,12 +873,12 @@ const LeadDetail = () => {
   // Function to fetch assigned users
   const fetchAssignedUsers = async () => {
     try {
-      console.log('Fetching assigned users for lead ID:', leadId);
+      //console.log('Fetching assigned users for lead ID:', leadId);
       setUnassignLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
 
-      console.log('Assigned users API response:', response);
+      //console.log('Assigned users API response:', response);
       //  && response.data.success && Array.isArray(response.data.data)
       if (response.data) {
         // Format the assigned users data
@@ -888,7 +888,7 @@ const LeadDetail = () => {
           role: user.role || 'User'
         }));
 
-        console.log('Setting assigned users:', assignedUsersData);
+        //console.log('Setting assigned users:', assignedUsersData);
         setAssignedUsers(assignedUsersData);
       } else {
         console.warn('No assigned users found or invalid response format');
@@ -905,13 +905,13 @@ const LeadDetail = () => {
   // Function to fetch user data
   const fetchUserData = async () => {
     try {
-      console.log('Fetching user data');
+      //console.log('Fetching user data');
       setIsLoadingOptions(true);
 
       // Use the same API endpoint as the sales team
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
 
-      console.log('User data API response:', response);
+      //console.log('User data API response:', response);
 
       if (response.data) {
         let userData = [];
@@ -941,11 +941,11 @@ const LeadDetail = () => {
             };
 
             // Log for debugging
-            console.log('Creating option for user:', {
-              userId,
-              displayName,
-              userObject
-            });
+            // console.log('Creating option for user:', {
+            //   userId,
+            //   displayName,
+            //   userObject
+            // });
 
             // Use plain text for label to make search work properly
             return {
@@ -955,7 +955,7 @@ const LeadDetail = () => {
             };
           });
 
-          console.log('Setting user options:', options);
+          //console.log('Setting user options:', options);
           setUserOptions(options);
 
           // Set assigned users if available in the lead data
@@ -983,11 +983,11 @@ const LeadDetail = () => {
 
   const fetchBusinessData = async () => {
     try {
-      console.log('Fetching business data for lead ID:', leadId);
+      //console.log('Fetching business data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
-        console.log('Business data fetched successfully:', response.data);
+        //console.log('Business data fetched successfully:', response.data);
 
         // Update lead state with business data
         const businessData = response.data.data;
@@ -1022,7 +1022,7 @@ const LeadDetail = () => {
             lead_id: leadId
           };
 
-          console.log('Mapped business data:', mappedData);
+          //console.log('Mapped business data:', mappedData);
 
           // Update lead state with mapped data
           setLead(prevLead => ({
@@ -1069,7 +1069,7 @@ const LeadDetail = () => {
             }));
           }
 
-          console.log('Lead state updated with business data:', mappedData);
+          //console.log('Lead state updated with business data:', mappedData);
         }
       } else {
         console.warn('Failed to fetch business data:', response.data);
@@ -1094,11 +1094,11 @@ const LeadDetail = () => {
 
   const fetchAffiliateCommissionData = async () => {
     try {
-      console.log('Fetching affiliate commission data for lead ID:', leadId);
+      //console.log('Fetching affiliate commission data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-affiliate-commission-data/${leadId}`);
 
       if (response.data && (response.data.status === 'success' || response.data.success)) {
-        console.log('Affiliate commission data fetched successfully:', response.data);
+        //console.log('Affiliate commission data fetched successfully:', response.data);
 
         // Update affiliate commission state with data
         // Handle both array and object response formats
@@ -1106,7 +1106,7 @@ const LeadDetail = () => {
           ? response.data.data[0]
           : response.data.data;
 
-        console.log('Commission data to process:', commissionData);
+        //console.log('Commission data to process:', commissionData);
 
         if (commissionData) {
           // Update Tier 1 Commission data
@@ -1213,7 +1213,7 @@ const LeadDetail = () => {
           }
           setMasterCommissionValue(commissionData.master_referrer_fixed || commissionData.master_referrer_percentage || '');
 
-          console.log('Affiliate commission state updated with data');
+          //console.log('Affiliate commission state updated with data');
         }
       } else {
         console.warn('Failed to fetch affiliate commission data:', response.data);
@@ -1284,7 +1284,7 @@ const LeadDetail = () => {
       // Call the API to disable the contact
       const response = await axios.delete(`https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
 
-      console.log('Disable contact API response:', response);
+      //console.log('Disable contact API response:', response);
 
       // Check if the API call was successful
       if (response.data && JSON.parse(response.data).code=="success") {
@@ -1322,7 +1322,7 @@ const LeadDetail = () => {
 
   const fetchContactData = async () => {
     try {
-      console.log('Fetching contact data for lead ID:', leadId);
+      //console.log('Fetching contact data for lead ID:', leadId);
       setContactsLoading(true);
 
       // Make the API call with a cache-busting parameter to ensure fresh data
@@ -1332,7 +1332,7 @@ const LeadDetail = () => {
       );
 
       if (response.data && response.data.status === 'success') {
-        console.log('Contact data fetched successfully:', response.data);
+        //console.log('Contact data fetched successfully:', response.data);
 
         // Store all contacts in state
         if (response.data.contacts && Array.isArray(response.data.contacts)) {
@@ -1346,7 +1346,7 @@ const LeadDetail = () => {
             }
           }, []);
 
-          console.log('Filtered unique contacts:', uniqueContacts);
+          //console.log('Filtered unique contacts:', uniqueContacts);
 
           // Update the contacts state with the unique contacts
           setContacts(uniqueContacts);
@@ -1355,7 +1355,7 @@ const LeadDetail = () => {
           const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
-          console.log('Found primary contact data:', primaryContactData);
+          //console.log('Found primary contact data:', primaryContactData);
 
           // Update primary contact state if found
           if (primaryContactData) {
@@ -1370,12 +1370,12 @@ const LeadDetail = () => {
               initials: primaryContactData.name ? primaryContactData.name.split(' ').map(n => n[0]).join('') : ''
             };
             
-            console.log('Updating primary contact to:', updatedPrimaryContact);
+            //console.log('Updating primary contact to:', updatedPrimaryContact);
             setPrimaryContact(updatedPrimaryContact);
             
             // Also update the ref
             contactDataRef.current.primary = updatedPrimaryContact;
-            console.log('Updated primary contact ref:', contactDataRef.current.primary);
+            //console.log('Updated primary contact ref:', contactDataRef.current.primary);
           }
 
           // Find secondary contact
@@ -1418,17 +1418,17 @@ const LeadDetail = () => {
 
   const fetchProjectData = async () => {
     try {
-      console.log('Fetching project data for lead ID:', leadId);
+      //console.log('Fetching project data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-project-data/${leadId}/0`);
 
-      console.log('Project API raw response:', response);
+      //console.log('Project API raw response:', response);
 
       // Check for success in different response formats
       if (response.data && (response.data.status === 'success' || response.data.success)) {
-        console.log('Project data fetched successfully');
+        //console.log('Project data fetched successfully');
 
         // Log the raw data structure to understand the API response format
-        console.log('Raw project data structure:', JSON.stringify(response.data, null, 2));
+        //console.log('Raw project data structure:', JSON.stringify(response.data, null, 2));
 
         // Get the data array from the response
         let projectsData = [];
@@ -1440,17 +1440,17 @@ const LeadDetail = () => {
 
         if (projectsData.length > 0) {
           // Log the first project to understand its structure
-          console.log('First project raw data:', JSON.stringify(projectsData[0], null, 2));
+          //console.log('First project raw data:', JSON.stringify(projectsData[0], null, 2));
 
           // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
           const filteredProjectsData = projectsData.filter(project => {
             const productId = project.product_id || project.productId;
-            console.log(productId);
+            //console.log(productId);
             // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
             return productId;
           });
 
-          console.log('Filtered projects (excluding 936, 934):', filteredProjectsData.length);
+          //console.log('Filtered projects (excluding 936, 934):', filteredProjectsData.length);
 
           // Map API response to our projects state format with careful field mapping
           const mappedProjects = filteredProjectsData.map(project => {
@@ -1474,12 +1474,12 @@ const LeadDetail = () => {
               contactId: project.contact_id || project.contactId || ''
             };
 
-            console.log('Mapped project:', mappedProject);
+            //console.log('Mapped project:', mappedProject);
             return mappedProject;
           });
 
           setProjects(mappedProjects);
-          console.log('Projects state updated with mapped data:', mappedProjects);
+          //console.log('Projects state updated with mapped data:', mappedProjects);
         } else {
           console.warn('No projects found in the response');
           setProjects([]);
@@ -1507,7 +1507,7 @@ const LeadDetail = () => {
     try {
       // If we have lead data passed from the report page, use it
       if (passedLeadData) {
-        console.log('Using passed lead data:', passedLeadData);
+        //console.log('Using passed lead data:', passedLeadData);
         setLead(passedLeadData);
 
         // Set TaxNow status if available
@@ -1537,14 +1537,14 @@ const LeadDetail = () => {
         setLoading(false);
       } else {
         // Fetch lead data from the API
-        console.log('Fetching lead data from API for lead ID:', leadId);
+        //console.log('Fetching lead data from API for lead ID:', leadId);
 
         try {
-          console.log('Fetching lead data from API with lead_id:', leadId);
+          //console.log('Fetching lead data from API with lead_id:', leadId);
 
           // Use a more direct approach with explicit configuration
           const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/leads?lead_id=${leadId}`;
-          console.log('API URL:', apiUrl);
+          //console.log('API URL:', apiUrl);
 
           const response = await axios({
             method: 'GET',
@@ -1556,14 +1556,14 @@ const LeadDetail = () => {
             timeout: 10000 // 10 seconds timeout
           });
 
-          console.log('Lead API response status:', response.status);
-          console.log('Lead API response data:', response.data);
+          //console.log('Lead API response status:', response.status);
+          //console.log('Lead API response data:', response.data);
 
           if (response.data) {
             const leadData = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
 
-            console.log('Lead data from API:', leadData);
-            console.log('Lead group from API:', leadData.lead_group);
+            //console.log('Lead data from API:', leadData);
+            //console.log('Lead group from API:', leadData.lead_group);
 
             // Create a lead object with the data from the API
             const apiLead = {
@@ -1575,12 +1575,12 @@ const LeadDetail = () => {
 
             // Extract product_id from the response
             if (leadData.product_id) {
-              console.log('Found product_id in lead data:', leadData.product_id);
+              //console.log('Found product_id in lead data:', leadData.product_id);
               setLeadProductId(leadData.product_id);
             }
 
             // DIRECT APPROACH: Get lead_group key value from API and set to dropdown
-            console.log('Setting lead_group value directly from API response');
+            //console.log('Setting lead_group value directly from API response');
 
             try {
               // For lead ID 9020, the API shows lead_group: "ERC - FPRS"
@@ -1589,10 +1589,10 @@ const LeadDetail = () => {
               // Get lead_group key value from API
               if (leadData.lead_group) {
                 const leadGroupValue = String(leadData.lead_group);
-                console.log('Lead group value from API:', leadGroupValue);
+                //console.log('Lead group value from API:', leadGroupValue);
 
                 // IMPORTANT: First check if groupOptions are loaded
-                console.log('Available group options:', groupOptions);
+                //console.log('Available group options:', groupOptions);
 
                 // Find matching option in groupOptions if available
                 if (groupOptions && groupOptions.length > 0) {
@@ -1609,7 +1609,7 @@ const LeadDetail = () => {
                   }
 
                   if (matchingOption) {
-                    console.log('Found matching option in groupOptions:', matchingOption);
+                    //console.log('Found matching option in groupOptions:', matchingOption);
                     setLeadGroup(matchingOption);
 
                     // Update form data
@@ -1618,18 +1618,18 @@ const LeadDetail = () => {
                         ...prevData,
                         lead_group: matchingOption.label
                       };
-                      console.log('Updated form data with matching lead_group:', newData);
+                      //console.log('Updated form data with matching lead_group:', newData);
                       return newData;
                     });
                   } else {
                     // If no match found, create a new option
-                    console.log('No matching option found, creating new one');
+                    //console.log('No matching option found, creating new one');
                     const newOption = {
                       value: leadGroupValue.toLowerCase().replace(/\s+/g, '-'),
                       label: leadGroupValue
                     };
 
-                    console.log('Created new lead group option:', newOption);
+                    //console.log('Created new lead group option:', newOption);
                     setLeadGroup(newOption);
 
                     // Update form data
@@ -1638,19 +1638,19 @@ const LeadDetail = () => {
                         ...prevData,
                         lead_group: leadGroupValue
                       };
-                      console.log('Updated form data with new lead_group:', newData);
+                      //console.log('Updated form data with new lead_group:', newData);
                       return newData;
                     });
                   }
                 } else {
                   // If groupOptions not loaded yet, create temporary option
-                  console.log('Group options not loaded yet, creating temporary option');
+                  //console.log('Group options not loaded yet, creating temporary option');
                   const tempOption = {
                     value: leadGroupValue.toLowerCase().replace(/\s+/g, '-'),
                     label: leadGroupValue
                   };
 
-                  console.log('Created temporary lead group option:', tempOption);
+                  //console.log('Created temporary lead group option:', tempOption);
                   setLeadGroup(tempOption);
 
                   // Update form data
@@ -1659,28 +1659,28 @@ const LeadDetail = () => {
                       ...prevData,
                       lead_group: leadGroupValue
                     };
-                    console.log('Updated form data with temporary lead_group:', newData);
+                    //console.log('Updated form data with temporary lead_group:', newData);
                     return newData;
                   });
                 }
 
                 // Log for confirmation
-                console.log('Lead group dropdown set with value from API:', leadGroupValue);
+                //console.log('Lead group dropdown set with value from API:', leadGroupValue);
               } else {
-                console.log('No lead_group key found in API response');
+                //console.log('No lead_group key found in API response');
               }
 
               // Set campaign from API
               if (leadData.campaign) {
                 const campaignValue = String(leadData.campaign);
-                console.log('Setting lead campaign from API to:', campaignValue);
+                //console.log('Setting lead campaign from API to:', campaignValue);
 
                 const campaignOption = {
                   value: campaignValue.toLowerCase().replace(/\s+/g, '-'),
                   label: campaignValue
                 };
 
-                console.log('Created campaign option:', campaignOption);
+                //console.log('Created campaign option:', campaignOption);
 
                 // Set the state directly with the campaign from API
                 setLeadCampaign(campaignOption);
@@ -1691,27 +1691,27 @@ const LeadDetail = () => {
                     ...prevData,
                     lead_campaign: campaignValue
                   };
-                  console.log('Updated form data with lead_campaign from API:', newData);
+                  //console.log('Updated form data with lead_campaign from API:', newData);
                   return newData;
                 });
 
                 // Log for debugging
-                console.log('Campaign value set from API:', campaignValue);
+                //console.log('Campaign value set from API:', campaignValue);
               } else {
-                console.log('No campaign value found in API response');
+                //console.log('No campaign value found in API response');
               }
 
               // Set source from API
               if (leadData.source) {
                 const sourceValue = String(leadData.source);
-                console.log('Setting lead source from API to:', sourceValue);
+                //console.log('Setting lead source from API to:', sourceValue);
 
                 const sourceOption = {
                   value: sourceValue.toLowerCase().replace(/\s+/g, '-'),
                   label: sourceValue
                 };
 
-                console.log('Created source option:', sourceOption);
+                //console.log('Created source option:', sourceOption);
 
                 // Set the state directly with the source from API
                 setLeadSource(sourceOption);
@@ -1722,29 +1722,29 @@ const LeadDetail = () => {
                     ...prevData,
                     lead_source: sourceValue
                   };
-                  console.log('Updated form data with lead_source from API:', newData);
+                  //console.log('Updated form data with lead_source from API:', newData);
                   return newData;
                 });
 
                 // Log for debugging
-                console.log('Source value set from API:', sourceValue);
+                //console.log('Source value set from API:', sourceValue);
               } else {
-                console.log('No source value found in API response');
+                //console.log('No source value found in API response');
               }
 
               // Log all values set from API
-              console.log('All values set from API:');
-              console.log('- lead_group:', leadData.lead_group || 'Not provided, defaulted to Reseller');
-              console.log('- campaign:', leadData.campaign || 'Not provided');
-              console.log('- source:', leadData.source || 'Not provided');
+              //console.log('All values set from API:');
+              //console.log('- lead_group:', leadData.lead_group || 'Not provided, defaulted to Reseller');
+              //console.log('- campaign:', leadData.campaign || 'Not provided');
+              //console.log('- source:', leadData.source || 'Not provided');
             } catch (error) {
               console.error('Error setting dropdown values:', error);
             }
 
             // Log available options for debugging
-            console.log('Available group options:', groupOptions);
-            console.log('Available campaign options:', campaignOptions);
-            console.log('Available source options:', sourceOptions);
+            //console.log('Available group options:', groupOptions);
+            //console.log('Available campaign options:', campaignOptions);
+            //console.log('Available source options:', sourceOptions);
 
             // We've already set the dropdown values directly above, so we don't need to do any matching here
           } else {
@@ -1765,7 +1765,7 @@ const LeadDetail = () => {
               label: "Canvassing"
             };
 
-            console.log('Setting default campaign to Canvassing');
+            //console.log('Setting default campaign to Canvassing');
             setLeadCampaign(defaultCampaignOption);
 
             // Set default source to Reseller
@@ -1774,7 +1774,7 @@ const LeadDetail = () => {
               label: "Reseller"
             };
 
-            console.log('Setting default source to Reseller');
+            //console.log('Setting default source to Reseller');
             setLeadSource(defaultSourceOption);
 
             // Update form data with default values
@@ -1784,7 +1784,7 @@ const LeadDetail = () => {
                 lead_campaign: "Canvassing",
                 lead_source: "Reseller"
               };
-              console.log('Updated form data with default values:', newData);
+              //console.log('Updated form data with default values:', newData);
               return newData;
             });
           }
@@ -1806,7 +1806,7 @@ const LeadDetail = () => {
             label: "Canvassing"
           };
 
-          console.log('Setting default campaign to Canvassing due to API error');
+          //console.log('Setting default campaign to Canvassing due to API error');
           setLeadCampaign(defaultCampaignOption);
 
           // Set default source to Reseller
@@ -1815,7 +1815,7 @@ const LeadDetail = () => {
             label: "Reseller"
           };
 
-          console.log('Setting default source to Reseller due to API error');
+          //console.log('Setting default source to Reseller due to API error');
           setLeadSource(defaultSourceOption);
 
           // Update form data with default values
@@ -1825,7 +1825,7 @@ const LeadDetail = () => {
               lead_campaign: "Canvassing",
               lead_source: "Reseller"
             };
-            console.log('Updated form data with default values due to API error:', newData);
+            //console.log('Updated form data with default values due to API error:', newData);
             return newData;
           });
         }
@@ -1857,13 +1857,13 @@ const LeadDetail = () => {
   // Function to fetch notes with pagination
   const fetchNotes = async () => {
     try {
-      console.log('Fetching notes for lead ID:', leadId);
+      //console.log('Fetching notes for lead ID:', leadId);
       setNotesLoading(true);
       setNotesError(null);
 
       // Fetch notes from the API
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
-      console.log('Notes API response:', response);
+      //console.log('Notes API response:', response);
 
       let notesData = [];
 
@@ -1877,7 +1877,7 @@ const LeadDetail = () => {
         notesData = [response.data];
       }
 
-      console.log('Processed notes data:', notesData);
+      //console.log('Processed notes data:', notesData);
 
       // Format dates in MM/DD/YYYY format (no time)
       const formattedNotes = notesData.map(note => ({
@@ -1888,7 +1888,7 @@ const LeadDetail = () => {
         formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
       }));
 
-      console.log('Formatted notes:', formattedNotes);
+      //console.log('Formatted notes:', formattedNotes);
 
       // If this is the first page, replace notes, otherwise append
       if (notesPage === 1) {
@@ -1927,11 +1927,11 @@ const LeadDetail = () => {
 
   // Function to handle adding a note
   const handleAddNote = () => {
-    console.log('handleAddNote called');
+    //console.log('handleAddNote called');
 
     // Use a flag to prevent multiple calls
     if (window.isAddingNote) {
-      console.log('Add note modal is already open, ignoring duplicate call');
+      //console.log('Add note modal is already open, ignoring duplicate call');
       return;
     }
 
@@ -1978,10 +1978,10 @@ const LeadDetail = () => {
       },
       preConfirm: async () => {
         const content = document.getElementById('note-content').value.trim();
-        console.log('content' + content);
+        //console.log('content' + content);
         try {
           const validated = await noteFormSchema.validate({ note: content });
-          console.log('validated' + validated);
+          //console.log('validated' + validated);
           return validated; // returns { note: "..." }
         } catch (err) {
           Swal.showValidationMessage(err.message);
@@ -2032,11 +2032,11 @@ const LeadDetail = () => {
         user_name: 'Current User' // Adding user_name parameter
       };
 
-      console.log('Sending note data:', noteData); // For debugging
+      //console.log('Sending note data:', noteData); // For debugging
 
       // Send the data to the API
       const response = await axios.post('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData);
-      console.log('Add note API response:', response);
+      //console.log('Add note API response:', response);
 
       // Show success message
       Swal.fire({
@@ -2117,7 +2117,7 @@ const LeadDetail = () => {
     axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
       .then(response => {
         const notes = response.data || [];
-        console.log('Notes API response for modal:', notes);
+        //console.log('Notes API response for modal:', notes);
 
         let notesData = [];
 
@@ -2214,7 +2214,7 @@ const LeadDetail = () => {
 
               // Add event listener to the new button
               newAddNoteBtn.addEventListener('click', () => {
-                console.log('Add Note button clicked');
+                //console.log('Add Note button clicked');
                 Swal.close();
                 setTimeout(() => {
                   handleAddNote();
@@ -2229,7 +2229,7 @@ const LeadDetail = () => {
 
               // Add event listener to the new button
               newAddFirstNoteBtn.addEventListener('click', () => {
-                console.log('Add First Note button clicked');
+                //console.log('Add First Note button clicked');
                 Swal.close();
                 setTimeout(() => {
                   handleAddNote();
@@ -2279,10 +2279,10 @@ const LeadDetail = () => {
         const isAlreadyAssigned = assignedUsers.some(user => user.id === selectedUser.user.id);
 
         if (!isAlreadyAssigned) {
-          console.log('Assigning user:', selectedUser.user);
+          //console.log('Assigning user:', selectedUser.user);
 
           // Call the API to assign the user
-          console.log('Assigning user with user_id:', selectedUser.user.id);
+          //console.log('Assigning user with user_id:', selectedUser.user.id);
           const response = await axios.post(
             'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
             {
@@ -2292,7 +2292,7 @@ const LeadDetail = () => {
             }
           );
 
-          console.log('API response:', response);
+          //console.log('API response:', response);
 
           if (response.data && response.data.success) {
             // Add the selected user to the assigned users list
@@ -2305,11 +2305,11 @@ const LeadDetail = () => {
               assigned_users: newAssignedUsers.map(user => user.id)
             }));
 
-            console.log('User assigned successfully:', selectedUser.user);
-            console.log('Updated assigned users:', newAssignedUsers);
+            //console.log('User assigned successfully:', selectedUser.user);
+            //console.log('Updated assigned users:', newAssignedUsers);
 
             // Show success message in console
-            console.log('Success: User assigned successfully');
+            //console.log('Success: User assigned successfully');
           } else {
             console.error('Failed to assign user:', response.data?.message || 'Unknown error');
 
@@ -2326,7 +2326,7 @@ const LeadDetail = () => {
             console.warn('API response indicates failure, but user was assigned locally');
           }
         } else {
-          console.log('User already assigned:', selectedUser.user);
+          //console.log('User already assigned:', selectedUser.user);
           console.warn('User is already assigned to this lead');
         }
 
@@ -2361,10 +2361,10 @@ const LeadDetail = () => {
   const handleRemoveUser = async (userId) => {
     try {
       setUnassignLoading(true);
-      console.log('Removing user with ID:', userId);
+      //console.log('Removing user with ID:', userId);
 
       // Call the API to unassign the user
-      console.log('Unassigning user with user_id:', userId);
+      //console.log('Unassigning user with user_id:', userId);
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
         {
@@ -2374,7 +2374,7 @@ const LeadDetail = () => {
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.success) {
         // Remove the user from the assigned users list
@@ -2387,8 +2387,8 @@ const LeadDetail = () => {
           assigned_users: updatedUsers.map(user => user.id)
         }));
 
-        console.log('User removed successfully. Updated assigned users:', updatedUsers);
-        console.log('Success: User unassigned successfully');
+        //console.log('User removed successfully. Updated assigned users:', updatedUsers);
+        //console.log('Success: User unassigned successfully');
       } else {
         console.error('Failed to unassign user:', response.data?.message || 'Unknown error');
 
@@ -2427,7 +2427,7 @@ const LeadDetail = () => {
 
   // Functions to handle lead classification changes
   const handleLeadGroupChange = (selectedOption) => {
-    console.log('Lead group changed:', selectedOption);
+    //console.log('Lead group changed:', selectedOption);
     setLeadGroup(selectedOption);
     setFormData(prevData => ({
       ...prevData,
@@ -2436,7 +2436,7 @@ const LeadDetail = () => {
   };
 
   const handleLeadCampaignChange = (selectedOption) => {
-    console.log('Lead campaign changed:', selectedOption);
+    //console.log('Lead campaign changed:', selectedOption);
     setLeadCampaign(selectedOption);
     setFormData(prevData => ({
       ...prevData,
@@ -2445,7 +2445,7 @@ const LeadDetail = () => {
   };
 
   const handleLeadSourceChange = (selectedOption) => {
-    console.log('Lead source changed:', selectedOption);
+    //console.log('Lead source changed:', selectedOption);
     setLeadSource(selectedOption);
     setFormData(prevData => ({
       ...prevData,
@@ -2571,7 +2571,7 @@ const LeadDetail = () => {
   // Function to fetch milestone stages from API
   const fetchMilestoneStages = async (milestone_id = '', product_id = '') => {
     try {
-      console.log('Fetching milestone stages for milestone_id:', milestone_id, 'and product_id:', product_id);
+      //console.log('Fetching milestone stages for milestone_id:', milestone_id, 'and product_id:', product_id);
 
       // Set default milestone stages in case API fails
       const defaultMilestoneStages = [
@@ -2582,7 +2582,7 @@ const LeadDetail = () => {
 
       // If no milestone_id is provided, return default stages
       if (!milestone_id) {
-        console.log('No milestone_id provided, returning default milestone stages');
+        //console.log('No milestone_id provided, returning default milestone stages');
         return defaultMilestoneStages;
       }
 
@@ -2594,36 +2594,36 @@ const LeadDetail = () => {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
 
-      console.log('Calling milestone stages API with URL1:', apiUrl);
+      //console.log('Calling milestone stages API with URL1:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
 
-      console.log('Milestone stages API response:', response);
-      console.log('Milestone stages API response data type:', typeof response.data);
-      console.log('Milestone stages API response data:', JSON.stringify(response.data, null, 2));
+      //console.log('Milestone stages API response:', response);
+      //console.log('Milestone stages API response data type:', typeof response.data);
+      //console.log('Milestone stages API response data:', JSON.stringify(response.data, null, 2));
 
       // Process the response similar to milestones
       let formattedStages = [];
 
       if (response.data && response.data.success && response.data.data && response.data.data.data) {
         // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
+        //console.log('Response has the expected format with data.data.data');
 
         const stagesData = response.data.data.data;
-        console.log('stagesData=');
-        console.log(stagesData);
+        //console.log('stagesData=');
+        //console.log(stagesData);
         if (Array.isArray(stagesData)) {
           formattedStages = stagesData.map(stage => ({
             id: stage.milestone_stage_id || stage.id || '',
             name: stage.stage_name || stage.name || ''
           })).filter(s => s.id && s.name);
 
-          console.log('Formatted milestone stages from API data:', formattedStages);
+          //console.log('Formatted milestone stages from API data:', formattedStages);
         }
       } else if (response.data && response.data.data) {
         // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
+        //console.log('Response has data in response.data.data');
 
         const stagesData = response.data.data;
         if (Array.isArray(stagesData)) {
@@ -2632,7 +2632,7 @@ const LeadDetail = () => {
             name: stage.stage_name || stage.name || ''
           })).filter(s => s.id && s.name);
 
-          console.log('Formatted milestone stages from data array:', formattedStages);
+          //console.log('Formatted milestone stages from data array:', formattedStages);
         } else if (typeof stagesData === 'object') {
           // Handle case where data is an object with stage objects
           formattedStages = Object.values(stagesData)
@@ -2643,21 +2643,21 @@ const LeadDetail = () => {
             }))
             .filter(s => s.id && s.name);
 
-          console.log('Formatted milestone stages from data object:', formattedStages);
+          //console.log('Formatted milestone stages from data object:', formattedStages);
         }
       } else if (Array.isArray(response.data)) {
         // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
+        //console.log('Response data is a direct array with length:', response.data.length);
 
         formattedStages = response.data.map(stage => ({
           id: stage.stage_id || stage.id || '',
           name: stage.stage_name || stage.name || ''
         })).filter(s => s.id && s.name);
 
-        console.log('Formatted milestone stages from direct array:', formattedStages);
+        //console.log('Formatted milestone stages from direct array:', formattedStages);
       } else if (typeof response.data === 'object') {
         // Response.data is an object, try to extract stages
-        console.log('Response data is an object, checking its properties');
+        //console.log('Response data is an object, checking its properties');
 
         formattedStages = Object.values(response.data)
           .filter(stage => stage && typeof stage === 'object')
@@ -2667,14 +2667,14 @@ const LeadDetail = () => {
           }))
           .filter(s => s.id && s.name);
 
-        console.log('Formatted milestone stages from object:', formattedStages);
+        //console.log('Formatted milestone stages from object:', formattedStages);
       }
 
-      console.log('Final formatted milestone stages:', formattedStages);
+      //console.log('Final formatted milestone stages:', formattedStages);
 
       // If we couldn't extract any valid stages, use the default ones
       if (formattedStages.length === 0) {
-        console.log('No valid milestone stages extracted, using default stages');
+        //console.log('No valid milestone stages extracted, using default stages');
         return defaultMilestoneStages;
       } else {
         return formattedStages;
@@ -2694,7 +2694,7 @@ const LeadDetail = () => {
   // Function to fetch project milestones from API
   const fetchProjectMilestones = async (product_id = '') => {
     try {
-      console.log('Fetching milestones for projects with product_id:', product_id);
+      //console.log('Fetching milestones for projects with product_id:', product_id);
 
       // Set default milestones in case API fails
       const defaultMilestones = [
@@ -2703,7 +2703,7 @@ const LeadDetail = () => {
         { id: '3', name: 'R&D Onboarding' }
       ];
 
-      console.log('product_id====='+product_id);
+      //console.log('product_id====='+product_id);
       
       // Build the API URL with the product_id parameter if provided
       let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
@@ -2711,21 +2711,21 @@ const LeadDetail = () => {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
 
-      console.log('Calling project milestones API with URL:', apiUrl);
+      //console.log('Calling project milestones API with URL:', apiUrl);
 
       // Make the API call with the project-specific endpoint
       const response = await axios.get(apiUrl);
 
-      console.log('Project milestones API response:', response);
-      console.log('Project milestones API response data type:', typeof response.data);
-      console.log('Project milestones API response data:', JSON.stringify(response.data, null, 2));
+      //console.log('Project milestones API response:', response);
+      //console.log('Project milestones API response data type:', typeof response.data);
+      //console.log('Project milestones API response data:', JSON.stringify(response.data, null, 2));
 
       // Direct approach - assume the API returns an array of objects with milestone_id and milestone_name
       let formattedMilestones = [];
 
       if (response.data && response.data.success && response.data.data && response.data.data.data) {
         // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
+        //console.log('Response has the expected format with data.data.data');
 
         const milestonesData = response.data.data.data;
         if (Array.isArray(milestonesData)) {
@@ -2734,11 +2734,11 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted project milestones from API data:', formattedMilestones);
+          //console.log('Formatted project milestones from API data:', formattedMilestones);
         }
       } else if (response.data && response.data.data) {
         // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
+        //console.log('Response has data in response.data.data');
 
         const milestonesData = response.data.data;
         if (Array.isArray(milestonesData)) {
@@ -2747,7 +2747,7 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted project milestones from data array:', formattedMilestones);
+          //console.log('Formatted project milestones from data array:', formattedMilestones);
         } else if (typeof milestonesData === 'object') {
           // Handle case where data is an object with milestone objects
           formattedMilestones = Object.values(milestonesData)
@@ -2758,21 +2758,21 @@ const LeadDetail = () => {
             }))
             .filter(m => m.id && m.name);
 
-          console.log('Formatted project milestones from data object:', formattedMilestones);
+          //console.log('Formatted project milestones from data object:', formattedMilestones);
         }
       } else if (Array.isArray(response.data)) {
         // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
+        //console.log('Response data is a direct array with length:', response.data.length);
 
         formattedMilestones = response.data.map(milestone => ({
           id: milestone.milestone_id || milestone.id || '',
           name: milestone.milestone_name || milestone.name || ''
         })).filter(m => m.id && m.name);
 
-        console.log('Formatted project milestones from direct array:', formattedMilestones);
+        //console.log('Formatted project milestones from direct array:', formattedMilestones);
       } else if (typeof response.data === 'object') {
         // Response.data is an object, try to extract milestones
-        console.log('Response data is an object, checking its properties');
+        //console.log('Response data is an object, checking its properties');
 
         formattedMilestones = Object.values(response.data)
           .filter(milestone => milestone && typeof milestone === 'object')
@@ -2782,14 +2782,14 @@ const LeadDetail = () => {
           }))
           .filter(m => m.id && m.name);
 
-        console.log('Formatted project milestones from object:', formattedMilestones);
+        //console.log('Formatted project milestones from object:', formattedMilestones);
       }
 
-      console.log('Final formatted project milestones:', formattedMilestones);
+      //console.log('Final formatted project milestones:', formattedMilestones);
 
       // If we couldn't extract any valid milestones, use the default ones
       if (formattedMilestones.length === 0) {
-        console.log('No valid project milestones extracted, using default milestones');
+        //console.log('No valid project milestones extracted, using default milestones');
         setMilestones(defaultMilestones);
       } else {
         setMilestones(formattedMilestones);
@@ -2808,7 +2808,7 @@ const LeadDetail = () => {
 
   // Function to open the edit project modal
   const handleEditProject = async (project) => {
-    console.log('Opening edit project modal for project:', project);
+    //console.log('Opening edit project modal for project:', project);
 
     // Set loading state immediately when edit icon is clicked
     setProjectUpdateLoading(true);
@@ -2817,7 +2817,7 @@ const LeadDetail = () => {
     setShowEditProjectModal(true);
 
     // Log the project object to see its structure
-    console.log('Project object structure:', JSON.stringify(project, null, 2));
+    //console.log('Project object structure:', JSON.stringify(project, null, 2));
 
     // Always fetch fresh milestones when opening the modal
     try {
@@ -2838,21 +2838,21 @@ const LeadDetail = () => {
       
       // If no product_id is available, try to map from the product name
       
-      console.log('Fetching fresh milestones for project modal with product_id:', product_id);
+      //console.log('Fetching fresh milestones for project modal with product_id:', product_id);
 
       // Pass the product_id to the fetchProjectMilestones function
       await fetchProjectMilestones(product_id);
-      console.log('Project milestones fetched successfully for project modal');
+      //console.log('Project milestones fetched successfully for project modal');
 
       // If the project has a milestone_id, fetch the milestone stages
       if (project.milestone_id || project.milestoneId) {
         const milestone_id = project.milestone_id || project.milestoneId;
-        console.log('Fetching milestone stages for project modal with milestone_id:', milestone_id, 'and product_id:', product_id);
+        //console.log('Fetching milestone stages for project modal with milestone_id:', milestone_id, 'and product_id:', product_id);
 
         // Fetch milestone stages
         const stages = await fetchMilestoneStages(milestone_id, product_id);
         setMilestoneStages(stages);
-        console.log('Milestone stages fetched successfully for project modal:', stages);
+        //console.log('Milestone stages fetched successfully for project modal:', stages);
       }
     } catch (error) {
       console.error('Error fetching data for project modal:', error);
@@ -2895,7 +2895,7 @@ const LeadDetail = () => {
       setProjectUpdateError(null);
       setProjectUpdateSuccess(false);
 
-      console.log('Updating project with data:', projectFormData);
+      //console.log('Updating project with data:', projectFormData);
 
       // Make the API call
       const response = await axios.post(
@@ -2903,7 +2903,7 @@ const LeadDetail = () => {
         projectFormData
       );
 
-      console.log('Project update API response:', response);
+      //console.log('Project update API response:', response);
 
       if (response.data && response.data.status) {
         // Update the project in the projects array
@@ -2952,15 +2952,15 @@ const LeadDetail = () => {
   // Function to fetch opportunities
   const fetchOpportunities = async () => {
     try {
-      console.log('Fetching opportunities for lead ID:', leadId);
+      //console.log('Fetching opportunities for lead ID:', leadId);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0`);
 
-      console.log('Opportunities API response:', response);
+      //console.log('Opportunities API response:', response);
 
       if (response.data && response.data.status == 'success' && Array.isArray(response.data.data)) {
         setOpportunities(response.data.data);
-        console.log('Opportunities set:', response.data.data);
+        //console.log('Opportunities set:', response.data.data);
       } else {
         console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
@@ -2974,7 +2974,7 @@ const LeadDetail = () => {
   // Function to fetch opportunity milestones from API
   const fetchOpportunityMilestones = async (product_id = '') => {
     try {
-      console.log('Fetching milestones for opportunities with product_id:', product_id);
+      //console.log('Fetching milestones for opportunities with product_id:', product_id);
 
       // Set default milestones in case API fails
       const defaultMilestones = [
@@ -2992,21 +2992,21 @@ const LeadDetail = () => {
       }
 
 
-      console.log('Calling opportunity milestones API with URL:', apiUrl);
+      //console.log('Calling opportunity milestones API with URL:', apiUrl);
 
       // Make the API call with the opportunity-specific endpoint
       const response = await axios.get(apiUrl);
 
-      console.log('Opportunity milestones API response:', response);
-      console.log('Opportunity milestones API response data type:', typeof response.data);
-      console.log('Opportunity milestones API response data:', JSON.stringify(response.data, null, 2));
+      //console.log('Opportunity milestones API response:', response);
+      //console.log('Opportunity milestones API response data type:', typeof response.data);
+      //console.log('Opportunity milestones API response data:', JSON.stringify(response.data, null, 2));
 
       // Direct approach - assume the API returns an array of objects with milestone_id and milestone_name
       let formattedMilestones = [];
 
       if (response.data && response.data.success && response.data.data && response.data.data.data) {
         // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
+        //console.log('Response has the expected format with data.data.data');
 
         const milestonesData = response.data.data.data;
         if (Array.isArray(milestonesData)) {
@@ -3015,11 +3015,11 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted opportunity milestones from API data:', formattedMilestones);
+          //console.log('Formatted opportunity milestones from API data:', formattedMilestones);
         }
       } else if (response.data && response.data.data) {
         // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
+        //console.log('Response has data in response.data.data');
 
         const milestonesData = response.data.data;
         if (Array.isArray(milestonesData)) {
@@ -3028,7 +3028,7 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted opportunity milestones from data array:', formattedMilestones);
+          //console.log('Formatted opportunity milestones from data array:', formattedMilestones);
         } else if (typeof milestonesData === 'object') {
           // Handle case where data is an object with milestone objects
           formattedMilestones = Object.values(milestonesData)
@@ -3039,21 +3039,21 @@ const LeadDetail = () => {
             }))
             .filter(m => m.id && m.name);
 
-          console.log('Formatted opportunity milestones from data object:', formattedMilestones);
+          //console.log('Formatted opportunity milestones from data object:', formattedMilestones);
         }
       } else if (Array.isArray(response.data)) {
         // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
+        //console.log('Response data is a direct array with length:', response.data.length);
 
         formattedMilestones = response.data.map(milestone => ({
           id: milestone.milestone_id || milestone.id || '',
           name: milestone.milestone_name || milestone.name || ''
         })).filter(m => m.id && m.name);
 
-        console.log('Formatted opportunity milestones from direct array:', formattedMilestones);
+        //console.log('Formatted opportunity milestones from direct array:', formattedMilestones);
       } else if (typeof response.data === 'object') {
         // Response.data is an object, try to extract milestones
-        console.log('Response data is an object, checking its properties');
+        //console.log('Response data is an object, checking its properties');
 
         formattedMilestones = Object.values(response.data)
           .filter(milestone => milestone && typeof milestone === 'object')
@@ -3063,14 +3063,14 @@ const LeadDetail = () => {
           }))
           .filter(m => m.id && m.name);
 
-        console.log('Formatted opportunity milestones from object:', formattedMilestones);
+        //console.log('Formatted opportunity milestones from object:', formattedMilestones);
       }
 
-      console.log('Final formatted opportunity milestones:', formattedMilestones);
+      //console.log('Final formatted opportunity milestones:', formattedMilestones);
 
       // If we couldn't extract any valid milestones, use the default ones
       if (formattedMilestones.length === 0) {
-        console.log('No valid opportunity milestones extracted, using default milestones');
+        //console.log('No valid opportunity milestones extracted, using default milestones');
         setMilestones(defaultMilestones);
       } else {
         setMilestones(formattedMilestones);
@@ -3089,7 +3089,7 @@ const LeadDetail = () => {
 
   // Function to open the edit opportunity modal
   const handleEditOpportunity = async (opportunity) => {
-    console.log('Opening edit opportunity modal for opportunity:', opportunity);
+    //console.log('Opening edit opportunity modal for opportunity:', opportunity);
 
     // Set loading state immediately when edit icon is clicked
     setOpportunityUpdateLoading(true);
@@ -3098,7 +3098,7 @@ const LeadDetail = () => {
     setShowEditOpportunityModal(true);
 
     // Log the opportunity object to see its structure
-    console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
+    //console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
 
     // Always fetch fresh milestones when opening the modal
     try {
@@ -3120,26 +3120,26 @@ const LeadDetail = () => {
       // If no product_id is available, try to map from the product name
       if (!product_id && opportunity.product) {
         product_id = productIdMap[opportunity.product] || '936'; // Use 936 (ERC) as a fallback
-        console.log('Mapped product name', opportunity.product, 'to product_id:', product_id);
+        //console.log('Mapped product name', opportunity.product, 'to product_id:', product_id);
       } else {
         product_id = '936'; // Default fallback to ERC product ID
       }
 
-      console.log('Fetching fresh milestones for opportunity modal with product_id:', product_id);
+      //console.log('Fetching fresh milestones for opportunity modal with product_id:', product_id);
 
       // Pass the product_id to the fetchOpportunityMilestones function
       await fetchOpportunityMilestones(product_id);
-      console.log('Opportunity milestones fetched successfully for opportunity modal');
+      //console.log('Opportunity milestones fetched successfully for opportunity modal');
 
       // If the opportunity has a milestone_id, fetch the milestone stages
       if (opportunity.milestone_id || opportunity.milestoneId) {
         const milestone_id = opportunity.milestone_id || opportunity.milestoneId;
-        console.log('Fetching milestone stages for opportunity modal with milestone_id:', milestone_id, 'and product_id:', product_id);
+        //console.log('Fetching milestone stages for opportunity modal with milestone_id:', milestone_id, 'and product_id:', product_id);
 
         // Fetch milestone stages
         const stages = await fetchMilestoneStages(milestone_id, product_id);
         setMilestoneStages(stages);
-        console.log('Milestone stages fetched successfully for opportunity modal:', stages);
+        //console.log('Milestone stages fetched successfully for opportunity modal:', stages);
       }
     } catch (error) {
       console.error('Error fetching data for opportunity modal:', error);
@@ -3151,8 +3151,8 @@ const LeadDetail = () => {
     // Use the milestone name directly
     const milestoneName = opportunity.milestone || '';
 
-    console.log('Original opportunity milestone name:', milestoneName);
-    console.log('Available milestones:', milestones);
+    //console.log('Original opportunity milestone name:', milestoneName);
+    //console.log('Available milestones:', milestones);
 
     setOpportunityFormData({
       id: opportunity.id || '',
@@ -3190,14 +3190,14 @@ const LeadDetail = () => {
       setOpportunityUpdateError(null);
       setOpportunityUpdateSuccess(false);
 
-      console.log('Updating opportunity with data:', opportunityFormData);
+      //console.log('Updating opportunity with data:', opportunityFormData);
 
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
         opportunityFormData
       );
 
-      console.log('Opportunity update API response:', response);
+      //console.log('Opportunity update API response:', response);
 
       if (response.data && response.data.success) {
         // Update the opportunity in the opportunities array
@@ -3257,7 +3257,7 @@ const LeadDetail = () => {
   // Function to handle deleting an opportunity
   const deleteOpportunity = async (opportunityId) => {
     try {
-      console.log('Deleting opportunity with ID:', opportunityId);
+      //console.log('Deleting opportunity with ID:', opportunityId);
       setDeleteOpportunityLoading(true);
 
       // Show loading indicator with SweetAlert
@@ -3275,11 +3275,11 @@ const LeadDetail = () => {
         data: { id: opportunityId }
       });
 
-      console.log('Delete opportunity API response:', response);
+      //console.log('Delete opportunity API response:', response);
 
       // Check if the deletion was successful
       if (response.data && response.data.success) {
-        console.log('Opportunity deleted successfully');
+        //console.log('Opportunity deleted successfully');
 
         // Remove the deleted opportunity from the state
         const updatedOpportunities = opportunities.filter(opp => opp.id !== opportunityId);
@@ -3355,7 +3355,7 @@ const LeadDetail = () => {
         ...prevLead,
         [name]: value
       }));
-      console.log(`Updated lead.${name} to:`, value);
+      //console.log(`Updated lead.${name} to:`, value);
     }
 
     // Update primary contact fields
@@ -3522,7 +3522,7 @@ const LeadDetail = () => {
         lead_source: leadSource ? leadSource.label : ''
       };
 
-      console.log('Lead classification data (using names):', classificationData);
+      //console.log('Lead classification data (using names):', classificationData);
 
       // Combine all data from all tabs
       const allTabsData = {
@@ -3546,10 +3546,10 @@ const LeadDetail = () => {
       };
 
       // Log user_id for debugging
-      console.log('Current user_id being sent:', getUserId());
+      //console.log('Current user_id being sent:', getUserId());
 
       // Make API call to update the lead
-      console.log('Sending data to API:', mergedData);
+      //console.log('Sending data to API:', mergedData);
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/leads',
         mergedData,
@@ -3570,7 +3570,7 @@ const LeadDetail = () => {
         }));
 
         // Show success message in the UI
-        console.log('Lead updated successfully!');
+        //console.log('Lead updated successfully!');
 
         // Scroll to the success message if the element exists
         const actionButtons = document.querySelector('.action-buttons');
@@ -3682,9 +3682,9 @@ const LeadDetail = () => {
   }
 
   // Add debugging to see what data we have
-  console.log('Current lead state:', lead);
-  console.log('Primary contact:', primaryContact);
-  console.log('Tier1CommissionBasis:', tier1CommissionBasis);
+  //console.log('Current lead state:', lead);
+  //console.log('Primary contact:', primaryContact);
+  //console.log('Tier1CommissionBasis:', tier1CommissionBasis);
 
   return (
     <div className="container-fluid">
@@ -5050,7 +5050,7 @@ const LeadDetail = () => {
                           <div key={project.id} className="row custom_opp_tab">
                             <div className="col-sm-12">
                               <div className="custom_opp_tab_header">
-                                <h5><a href={`/reporting/project-detail/${project.id}`}>{project.projectName}</a></h5>
+                                <h5><a href={`/reporting/project-detail/${project.id}`} target="_blank">{project.projectName}</a></h5>
                                 <div className="opp_edit_dlt_btn projects-iris">
                                   <a
                                     className="edit_project"
@@ -5243,8 +5243,6 @@ const LeadDetail = () => {
                                       <div className="col-md-6">
                                         <div className="form-group mb-3">
                                           <label className="form-label">Milestone:*</label>
-                                          {console.log('Project milestone dropdown - current value:', projectFormData.Milestone)}
-                                          {console.log('Project milestone dropdown - available milestones:', milestones)}
                                           <div className="milestone-select-wrapper">
                                             <select
                                               className={`form-select ${projectErrors.Milestone ? 'is-invalid' : ''}`}
@@ -5253,11 +5251,11 @@ const LeadDetail = () => {
                                               data-label="1"
                                               value={projectFormData.Milestone}
                                               onChange={async (e) => {
-                                                console.log('Project milestone selected:', e.target.value);
+                                                //console.log('Project milestone selected:', e.target.value);
 
                                                 // Find the selected milestone to get its ID
                                                 const selectedMilestone = milestones.find(m => m.name === e.target.value);
-                                                console.log('Selected milestone object:', selectedMilestone);
+                                                //console.log('Selected milestone object:', selectedMilestone);
 
                                                 // Update the form data with the selected milestone
                                                 setProjectFormData(prev => ({
@@ -5285,25 +5283,25 @@ const LeadDetail = () => {
                                                     // If no product_id is available, try to map from the product name
                                                     if (!product_id && currentProject?.productName) {
                                                       product_id = productIdMap[currentProject.productName] || '936';
-                                                      console.log('Mapped product name', currentProject.productName, 'to product_id:', product_id);
+                                                      //console.log('Mapped product name', currentProject.productName, 'to product_id:', product_id);
                                                     } else {
                                                       product_id = '936'; // Default fallback to ERC product ID
                                                     }
 
-                                                    console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
+                                                    //console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
 
                                                     // Fetch milestone stages using the API endpoint with milestone_id
                                                     const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL2:', apiUrl);
+                                                    //console.log('Calling milestone stages API with URL2:', apiUrl);
 
                                                     const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response11:', response.data);
+                                                    //console.log('Milestone stages API response11:', response.data);
 
                                                     // Process the response
                                                     let stages = [];
                                                     if (response.data && response.data.success) {
                                                       const stagesData = response.data.data.data;
-                                                      console.log('sdsdsd');
+                                                      //console.log('sdsdsd');
                                                       if (Array.isArray(stagesData)) {
                                                         stages = stagesData.map(stage => ({
                                                           id: stage.milestone_stage_id || stage.id || '',
@@ -5318,7 +5316,7 @@ const LeadDetail = () => {
                                                     }
 
                                                     setMilestoneStages(stages);
-                                                    console.log('Milestone stages fetched successfully for project:', stages);
+                                                    //console.log('Milestone stages fetched successfully for project:', stages);
                                                   } catch (error) {
                                                     console.error('Error fetching milestone stages for project:', error);
                                                     setMilestoneStages([]);
@@ -5356,7 +5354,7 @@ const LeadDetail = () => {
                                               name="MilestoneStage"
                                               value={projectFormData.MilestoneStage}
                                               onChange={(e) => {
-                                                console.log('Project milestone stage selected:', e.target.value);
+                                                //console.log('Project milestone stage selected:', e.target.value);
                                                 setProjectFormData(prev => ({
                                                   ...prev,
                                                   MilestoneStage: e.target.value
@@ -5601,7 +5599,7 @@ const LeadDetail = () => {
                                               }));
 
                                               // Update product selection
-                                              console.log('Product selected:', selectedProduct);
+                                              //console.log('Product selected:', selectedProduct);
                                             }}
                                             required
                                           >
@@ -5621,11 +5619,11 @@ const LeadDetail = () => {
                                               value={opportunityFormData.milestone}
                                               data-label="2"
                                               onChange={async (e) => {
-                                                console.log('Opportunity milestone selected:', e.target.value);
+                                                //console.log('Opportunity milestone selected:', e.target.value);
 
                                                 // Find the selected milestone to get its ID
                                                 const selectedMilestone = milestones.find(m => m.name === e.target.value);
-                                                console.log('Selected opportunity milestone object:', selectedMilestone);
+                                                //console.log('Selected opportunity milestone object:', selectedMilestone);
 
                                                 // Update the form data with the selected milestone
                                                 setOpportunityFormData(prev => ({
@@ -5653,19 +5651,19 @@ const LeadDetail = () => {
                                                     // If no product_id is available, try to map from the product name
                                                     if (!product_id && currentOpportunity?.product) {
                                                       product_id = productIdMap[currentOpportunity.product] || '936';
-                                                      console.log('Mapped product name', currentOpportunity.product, 'to product_id:', product_id);
+                                                      //console.log('Mapped product name', currentOpportunity.product, 'to product_id:', product_id);
                                                     } else {
                                                       product_id = '936'; // Default fallback to ERC product ID
                                                     }
 
-                                                    console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
+                                                    //console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
 
                                                     // Fetch milestone stages using the API endpoint with milestone_id
                                                     const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL3:', apiUrl);
+                                                    //console.log('Calling milestone stages API with URL3:', apiUrl);
 
                                                     const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response:', response);
+                                                    //console.log('Milestone stages API response:', response);
 
                                                     // Process the response
                                                     let stages = [];
@@ -5685,7 +5683,7 @@ const LeadDetail = () => {
                                                     }
 
                                                     setMilestoneStages(stages);
-                                                    console.log('Milestone stages fetched successfully for opportunity:', stages);
+                                                    //console.log('Milestone stages fetched successfully for opportunity:', stages);
                                                   } catch (error) {
                                                     console.error('Error fetching milestone stages for opportunity:', error);
                                                     setMilestoneStages([]);
@@ -5769,7 +5767,7 @@ const LeadDetail = () => {
                                               className="form-select"
                                               value={opportunityFormData.stage}
                                               onChange={(e) => {
-                                                console.log('Opportunity stage selected:', e.target.value);
+                                                //console.log('Opportunity stage selected:', e.target.value);
                                                 setOpportunityFormData(prev => ({
                                                   ...prev,
                                                   stage: e.target.value

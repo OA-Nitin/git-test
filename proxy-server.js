@@ -24,9 +24,9 @@ const PORT = process.env.PORT || 3001;
 // Enable request logging
 const logRequest = (req, res, next) => {
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  //console.log(`[${timestamp}] ${req.method} ${req.url}`);
   if (Object.keys(req.query).length > 0) {
-    console.log('Query params:', req.query);
+    //console.log('Query params:', req.query);
   }
   next();
 };
@@ -42,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 // Log all requests
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  //console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
@@ -58,11 +58,11 @@ app.get('/api/health', (req, res) => {
 // Proxy middleware for invoices endpoint
 app.get('/api/invoices', async (req, res) => {
   try {
-    console.log('Proxy server: Received request for invoices');
-    console.log('Query parameters:', req.query);
+    //console.log('Proxy server: Received request for invoices');
+    //console.log('Query parameters:', req.query);
 
     const url = `${API_BASE_URL}${API_PATH}/invoices`;
-    console.log('Forwarding to:', url);
+    //console.log('Forwarding to:', url);
 
     // Forward the request to the WordPress API
     const response = await axios({
@@ -76,8 +76,8 @@ app.get('/api/invoices', async (req, res) => {
       }
     });
 
-    console.log('Proxy server: Successfully fetched invoices');
-    console.log(`Received ${response.data.data ? response.data.data.length : 0} records`);
+    //console.log('Proxy server: Successfully fetched invoices');
+    //console.log(`Received ${response.data.data ? response.data.data.length : 0} records`);
 
     // Send the response back to the client
     res.json(response.data);
@@ -108,10 +108,10 @@ app.get('/api/invoices', async (req, res) => {
 app.get('/api/invoices/:id', async (req, res) => {
   try {
     const invoiceId = req.params.id;
-    console.log(`Proxy server: Received request for invoice ${invoiceId}`);
+    //console.log(`Proxy server: Received request for invoice ${invoiceId}`);
 
     const url = `${API_BASE_URL}${API_PATH}/invoices/${invoiceId}`;
-    console.log('Forwarding to:', url);
+    //console.log('Forwarding to:', url);
 
     // Forward the request to the WordPress API
     const response = await axios({
@@ -124,7 +124,7 @@ app.get('/api/invoices/:id', async (req, res) => {
       }
     });
 
-    console.log('Proxy server: Successfully fetched invoice details');
+    //console.log('Proxy server: Successfully fetched invoice details');
 
     // Send the response back to the client
     res.json(response.data);
@@ -146,10 +146,10 @@ app.get('/api/invoices/:id', async (req, res) => {
 // Proxy middleware for invoice filters endpoint
 app.get('/api/invoice-filters', async (req, res) => {
   try {
-    console.log('Proxy server: Received request for invoice filters');
+    //console.log('Proxy server: Received request for invoice filters');
 
     const url = `${API_BASE_URL}${API_PATH}/invoice-filters`;
-    console.log('Forwarding to:', url);
+    //console.log('Forwarding to:', url);
 
     // Forward the request to the WordPress API
     const response = await axios({
@@ -162,7 +162,7 @@ app.get('/api/invoice-filters', async (req, res) => {
       }
     });
 
-    console.log('Proxy server: Successfully fetched invoice filters');
+    //console.log('Proxy server: Successfully fetched invoice filters');
 
     // Send the response back to the client
     res.json(response.data);
@@ -188,6 +188,6 @@ app.get('*', (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
-  console.log(`API proxy endpoint: http://localhost:${PORT}/api`);
+  //console.log(`Proxy server running on http://localhost:${PORT}`);
+  //console.log(`API proxy endpoint: http://localhost:${PORT}/api`);
 });

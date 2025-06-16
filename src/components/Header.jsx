@@ -5,7 +5,7 @@ import '../assets/css/header-logout-button.css';
 import { getAssetPath } from '../utils/assetUtils';
 
 const Header = ({ user, onLogout }) => {
-  console.log('Header - user data:', user);
+  //console.log('Header - user data:', user);
   return (
     <div id="wpadminbar" className="nojq header_iner">
       <div className="quicklinks" id="wp-toolbar" role="navigation" aria-label="Toolbar">
