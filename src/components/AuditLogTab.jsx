@@ -20,7 +20,7 @@ const AuditLogTab = ({ leadId, isActive }) => {
       setLoading(true);
       setError(null);
 
-      console.log(`Fetching audit logs for lead ID: ${leadId}`);
+      //console.log(`Fetching audit logs for lead ID: ${leadId}`);
 
       // Call the audit logs API
       const response = await axios.get(
@@ -28,7 +28,7 @@ const AuditLogTab = ({ leadId, isActive }) => {
         { params: { lead_id: leadId } }
       );
 
-      console.log('Audit logs API response:', response.data);
+      //console.log('Audit logs API response:', response.data);
 
       if (response.data) {
         // Process the response data
@@ -41,7 +41,7 @@ const AuditLogTab = ({ leadId, isActive }) => {
           logs = response.data.data;
         }
 
-        console.log('Processed audit logs:', logs);
+        //console.log('Processed audit logs:', logs);
         setAuditLogs(logs);
       } else {
         setError('Failed to load audit logs. Invalid response format.');

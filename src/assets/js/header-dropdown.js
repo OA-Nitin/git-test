@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         );
       });
 
-      console.log('Header dropdown menu initialized');
+      //console.log('Header dropdown menu initialized');
     } else {
       console.error('jQuery not available');
     }

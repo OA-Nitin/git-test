@@ -335,7 +335,7 @@ const ProjectDetail = () => {
    // Log the updated invoiceActions when it changes
    useEffect(() => {
      // This effect will run when invoiceActions is updated
-     console.log(invoiceActions);
+     //console.log(invoiceActions);
    }, [invoiceActions]);  // The effect runs whenever invoiceActions is updated
 
    // Handle the change event when an action is selected
@@ -345,7 +345,7 @@ const ProjectDetail = () => {
      // Use the previous state to ensure the update is done properly
      setInvoiceActions(prev => {
        const updatedActions = { ...prev, [invoiceId]: value };
-       console.log(`Invoice ${invoiceId} action changed to: ${value}`);
+       //console.log(`Invoice ${invoiceId} action changed to: ${value}`);
        return updatedActions;
      });
    };
@@ -363,11 +363,11 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
-    console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
-    console.log('Project ID type:', typeof projectId);
+    //console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
+    //console.log('Project ID type:', typeof projectId);
     fetchProjectDetails();
 
-    console.log('Initial useEffect - Fetching milestones for product ID 936');
+    //console.log('Initial useEffect - Fetching milestones for product ID 936');
     fetchMilestones();
   }, [projectId]);
 
@@ -421,29 +421,29 @@ const ProjectDetail = () => {
   // Update folder links based on product ID and API response
   useEffect(() => {
     if (project) {
-      console.log('Project data for folder links:', project);
-      console.log('Product ID for folder links:', project.product_id);
+      //console.log('Project data for folder links:', project);
+      //console.log('Product ID for folder links:', project.product_id);
 
       // Log folder links from API
-      console.log('Company folder link from API:', project.company_folder_link);
-      console.log('ERC document folder from API:', project.erc_document_folder);
-      console.log('STC document folder from API:', project.stc_document_folder);
-      console.log('Agreement folder from API:', project.agreement_folder);
+      //console.log('Company folder link from API:', project.company_folder_link);
+      //console.log('ERC document folder from API:', project.erc_document_folder);
+      //console.log('STC document folder from API:', project.stc_document_folder);
+      //console.log('Agreement folder from API:', project.agreement_folder);
 
       if (project.product_id === "935") {
         // ERC product
-        console.log('Setting ERC folder links');
+        //console.log('Setting ERC folder links');
         // Use API values if available, otherwise use default values
         setCompanyFolderLink(project.company_folder_link || '');
         setDocumentFolderLink(project.erc_document_folder || '');
       } else if (project.product_id === "937") {
         // STC product
-        console.log('Setting STC folder links');
+        //console.log('Setting STC folder links');
         // Use API values if available, otherwise use default values
         setCompanyFolderLink(project.agreement_folder || '');
         setDocumentFolderLink(project.stc_document_folder || '');
       } else {
-        console.log('Product ID not recognized:', project.product_id);
+        //console.log('Product ID not recognized:', project.product_id);
         // Set default values if product ID is not recognized
         setCompanyFolderLink(project.company_folder_link || '');
         setDocumentFolderLink(project.erc_document_folder || project.stc_document_folder || '');
@@ -456,7 +456,7 @@ const ProjectDetail = () => {
   useEffect(() => {
     if (project) {
       const productId = project.product_id;
-      console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
+      //console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
 
       // Check if current active tab should be hidden for this product
       const shouldHideBankInfo = (productId === '937' || productId === '932') && activeTab === 'bankInfo';
@@ -464,11 +464,11 @@ const ProjectDetail = () => {
       const shouldHideFees = (productId === '937' || productId === '932') && activeTab === 'fees';
       const shouldHideDocuments = productId === '932' && activeTab === 'documents';
 
-      console.log(`Tab visibility: BankInfo hidden: ${productId === '937' || productId === '932'}, Intake hidden: ${productId === '937' || productId === '932'}, Fees hidden: ${productId === '937' || productId === '932'}, Documents hidden: ${productId === '932'}`);
+      //console.log(`Tab visibility: BankInfo hidden: ${productId === '937' || productId === '932'}, Intake hidden: ${productId === '937' || productId === '932'}, Fees hidden: ${productId === '937' || productId === '932'}, Documents hidden: ${productId === '932'}`);
 
       // If current tab should be hidden, switch to project tab
       if (shouldHideBankInfo || shouldHideIntake || shouldHideFees || shouldHideDocuments) {
-        console.log(`Switching from hidden tab ${activeTab} to project tab for product ID ${productId}`);
+        //console.log(`Switching from hidden tab ${activeTab} to project tab for product ID ${productId}`);
         setActiveTab('project');
       }
     }
@@ -504,12 +504,12 @@ const ProjectDetail = () => {
   // Function to fetch collaborators
   const fetchCollaborators = async () => {
     try {
-      console.log('Fetching collaborators for project ID:', projectId);
+      //console.log('Fetching collaborators for project ID:', projectId);
       setCollaboratorLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
 
-      console.log('Collaborators API response:', response);
+      //console.log('Collaborators API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Set available collaborators
@@ -554,12 +554,12 @@ const ProjectDetail = () => {
   // Function to fetch owners
   const fetchOwners = async () => {
     try {
-      console.log('Fetching owners for project ID:', projectId);
+      //console.log('Fetching owners for project ID:', projectId);
       setOwnerLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
 
-      console.log('Owners API response:', response);
+      //console.log('Owners API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Set available owners
@@ -615,12 +615,12 @@ const ProjectDetail = () => {
   // Function to fetch contacts
   const fetchContacts = async () => {
     try {
-      console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
+      //console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
       setContactLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
 
-      console.log('Contacts API response:', response);
+      //console.log('Contacts API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Set available contacts
@@ -676,15 +676,15 @@ const ProjectDetail = () => {
   // Function to fetch project milestone and stage
   const fetchProjectMilestoneAndStage = async () => {
     try {
-      console.log('Fetching milestone and stage for project ID:', projectId);
+      //console.log('Fetching milestone and stage for project ID:', projectId);
       setIsLoadingMilestones(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
 
-      console.log('Milestone API response:', response);
+      //console.log('Milestone API response:', response);
 
       if (response.data && response.data.status === 1) {
-        console.log('Milestone data received:', response.data);
+        //console.log('Milestone data received:', response.data);
 
         // Set milestone
         if (response.data.milestone_id && response.data.milestone_name) {
@@ -693,7 +693,7 @@ const ProjectDetail = () => {
             label: response.data.milestone_name
           };
           setMilestone(milestoneData);
-          console.log('Setting milestone:', milestoneData);
+          //console.log('Setting milestone:', milestoneData);
         }
 
         // Set stage
@@ -703,7 +703,7 @@ const ProjectDetail = () => {
             label: response.data.milestone_stage_name
           };
           setProjectStage(stageData);
-          console.log('Setting stage:', stageData);
+          //console.log('Setting stage:', stageData);
 
           // Also update the milestoneStages array with this stage
           setMilestoneStages([stageData]);
@@ -737,15 +737,15 @@ const ProjectDetail = () => {
   // Function to fetch all available milestones for the dropdown
   const fetchAllMilestones = async () => {
     try {
-      console.log('Fetching all available milestones');
+      //console.log('Fetching all available milestones');
 
       // Build the API URL with the product_id parameter
       const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
-      console.log('All milestones API URL:', apiUrl);
+      //console.log('All milestones API URL:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
-      console.log('All milestones API response:', response.data);
+      //console.log('All milestones API response:', response.data);
 
       // Process the response data based on the actual structure
       if (response.data) {
@@ -767,7 +767,7 @@ const ProjectDetail = () => {
         }
         // If we have a valid list of milestones
         if (formattedMilestones.length > 0) {
-          console.log('Setting all available milestones:', formattedMilestones);
+          //console.log('Setting all available milestones:', formattedMilestones);
 
           // Preserve the currently selected milestone
           const currentMilestone = milestone;
@@ -794,7 +794,7 @@ const ProjectDetail = () => {
     try {
       // If we have project data passed from the report page, use it
       if (passedProjectData) {
-        console.log('Using passed project data:', passedProjectData);
+        //console.log('Using passed project data:', passedProjectData);
         setProject(passedProjectData);
 
         // Set TaxNow status if available
@@ -808,15 +808,15 @@ const ProjectDetail = () => {
         setLoading(false);
       } else {
         // Otherwise fetch from API
-        console.log('No passed data, fetching from API');
+        //console.log('No passed data, fetching from API');
 
         try {
           // Make a POST request to the project info API
           const projectIdToUse = projectId || "1700";
-          console.log('Making API request with project_id:', projectIdToUse);
+          //console.log('Making API request with project_id:', projectIdToUse);
 
-          console.log('Sending API request to:', 'http://localhost:3002/products-api/get-project-info');
-          console.log('Request body:', JSON.stringify({ project_id: projectIdToUse }));
+          //console.log('Sending API request to:', 'http://localhost:3002/products-api/get-project-info');
+          //console.log('Request body:', JSON.stringify({ project_id: projectIdToUse }));
 
           let response;
           try {
@@ -831,7 +831,7 @@ const ProjectDetail = () => {
               credentials: 'same-origin',
             });
 
-            console.log('API response status:', response.status);
+            //console.log('API response status:', response.status);
 
             // Check if response is ok
             if (!response.ok) {
@@ -840,7 +840,7 @@ const ProjectDetail = () => {
 
             // Try to parse the response as JSON
             const responseText = await response.text();
-            console.log('API response text:', responseText);
+            //console.log('API response text:', responseText);
 
             try {
               // Try to parse the response as JSON
@@ -866,7 +866,7 @@ const ProjectDetail = () => {
 
             // If proxy server fails, try direct API
             try {
-              console.log('Trying direct API request');
+              //console.log('Trying direct API request');
               response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
                 method: 'POST',
                 headers: {
@@ -876,7 +876,7 @@ const ProjectDetail = () => {
                 mode: 'cors',
               });
 
-              console.log('Direct API response status:', response.status);
+              //console.log('Direct API response status:', response.status);
 
               // Check if response is ok
               if (!response.ok) {
@@ -885,7 +885,7 @@ const ProjectDetail = () => {
 
               // Try to parse the response as JSON
               const responseText = await response.text();
-              console.log('Direct API response text:', responseText);
+              //console.log('Direct API response text:', responseText);
 
               try {
                 // Try to parse the response as JSON
@@ -913,33 +913,33 @@ const ProjectDetail = () => {
           }
 
           const data = await response.json();
-          console.log('Project data from API:', data);
+          //console.log('Project data from API:', data);
 
           if (data && (data.success || data.status === 1)) {
             // Map the API response to our project structure
             const projectData = data.data || data.result?.[0] || {};
 
-            console.log('Raw project data from API:', projectData);
+            //console.log('Raw project data from API:', projectData);
 
             // Log all available fields in the API response
-            console.log('Available fields in API response:', Object.keys(projectData));
+            //console.log('Available fields in API response:', Object.keys(projectData));
 
             // Check for lead ID field
-            console.log('Lead ID field:', {
+            //console.log('Lead ID field:', {
               lead_id: projectData.lead_id,
               leadId: projectData.leadId,
               lead: projectData.lead
             });
 
             // Check for folder link fields
-            console.log('Folder link fields:', {
+            //console.log('Folder link fields:', {
               erc_document_folder: projectData.erc_document_folder,
               company_folder: projectData.company_folder,
               company_folder_link: projectData.company_folder_link
             });
 
             // Check for document number related fields
-            console.log('Document number fields:', {
+            //console.log('Document number fields:', {
               document_number: projectData.document_number,
               identity_document_number: projectData.identity_document_number,
               document_id: projectData.document_id,
@@ -947,7 +947,7 @@ const ProjectDetail = () => {
             });
 
             // Check for website and business entity type fields
-            console.log('Website and business entity type fields:', {
+            //console.log('Website and business entity type fields:', {
               website_url: projectData.website_url,
               business_website: projectData.business_website,
               company_website: projectData.company_website,
@@ -956,7 +956,7 @@ const ProjectDetail = () => {
             });
 
             // Log the product_id from API
-            console.log('Product ID from API:', projectData.product_id);
+            //console.log('Product ID from API:', projectData.product_id);
 
             const mappedProject = {
               // Project details
@@ -1005,9 +1005,9 @@ const ProjectDetail = () => {
               agreement_folder: projectData.agreement_folder || ""
             };
 
-            console.log('Mapped project data:', mappedProject);
-            console.log('Website URL:', mappedProject.website_url);
-            console.log('Product ID:', mappedProject.product_id);
+            //console.log('Mapped project data:', mappedProject);
+            //console.log('Website URL:', mappedProject.website_url);
+            //console.log('Product ID:', mappedProject.product_id);
             setProject(mappedProject);
           } else {
             throw new Error('Invalid data received from API');
@@ -1019,7 +1019,7 @@ const ProjectDetail = () => {
           setError(`The API is currently experiencing issues. Using mock data instead. Error: ${apiError.message}`);
 
           // Fallback to mock data if API fails
-          console.log('Falling back to mock data');
+          //console.log('Falling back to mock data');
           const mockProject = {
             project_id: projectId,
             product_id: projectId === "1700" ? "935" : "937", // Keep product ID for folder links to work
@@ -1068,7 +1068,7 @@ const ProjectDetail = () => {
     setBankInfoError(null);
 
     try {
-      console.log('Fetching bank information for project ID:', project.project_id);
+      //console.log('Fetching bank information for project ID:', project.project_id);
 
       // Make a POST request to the bank info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
@@ -1079,20 +1079,20 @@ const ProjectDetail = () => {
         body: JSON.stringify({ project_id: project.project_id }),
       });
 
-      console.log('Bank info API response status:', response.status);
+      //console.log('Bank info API response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`Bank info API request failed with status ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Bank info data from API:', data);
+      //console.log('Bank info data from API:', data);
 
       if (data && data.status === 1) {
         // Extract bank data from the response
         const bankData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
 
-        console.log('Bank data extracted from API response:', bankData);
+        //console.log('Bank data extracted from API response:', bankData);
 
         if (bankData) {
           // Update bank info state with the data from API
@@ -1152,7 +1152,7 @@ const ProjectDetail = () => {
     setIntakeInfoError(null);
 
     try {
-      console.log('Fetching intake information for project ID:', project.project_id);
+      //console.log('Fetching intake information for project ID:', project.project_id);
 
       // Make a POST request to the intake info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
@@ -1163,20 +1163,20 @@ const ProjectDetail = () => {
         body: JSON.stringify({ project_id: project.project_id }),
       });
 
-      console.log('Intake info API response status:', response.status);
+      //console.log('Intake info API response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`Intake info API request failed with status ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Intake info data from API:', data);
+      //console.log('Intake info data from API:', data);
 
       if (data && data.status === 1) {
         // Extract intake data from the response
         const intakeData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
 
-        console.log('Intake data extracted from API response:', intakeData);
+        //console.log('Intake data extracted from API response:', intakeData);
 
         if (intakeData) {
           // Update intake info state with the data from API
@@ -1339,7 +1339,7 @@ const ProjectDetail = () => {
   // Function to fetch fees information from the API
   const fetchFeesInfo = async () => {
     if (!project?.project_id) {
-      console.log('No project ID available for fees API call');
+      //console.log('No project ID available for fees API call');
       return;
     }
 
@@ -1347,12 +1347,12 @@ const ProjectDetail = () => {
     setFeesInfoError(null);
 
     try {
-      console.log('=== FEES API CALL START ===');
-      console.log('Project ID:', project.project_id);
-      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
+      //console.log('=== FEES API CALL START ===');
+      //console.log('Project ID:', project.project_id);
+      //console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
       const requestBody = { project_id: project.project_id };
-      console.log('Request Body:', JSON.stringify(requestBody));
+      //console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
         method: 'POST',
@@ -1362,21 +1362,21 @@ const ProjectDetail = () => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('Response Status:', response.status);
-      console.log('Response OK:', response.ok);
+      //console.log('Response Status:', response.status);
+      //console.log('Response OK:', response.ok);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Fees info data from API:', data);
+      //console.log('Fees info data from API:', data);
 
       if (data && data.status === 1) {
         // Extract fees data from the response - following intake API pattern
         const feesData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
 
-        console.log('Fees data extracted from API response:', feesData);
+        //console.log('Fees data extracted from API response:', feesData);
 
         if (feesData) {
           // Update fees info state with the data from API - following intake API pattern
@@ -1542,7 +1542,7 @@ const ProjectDetail = () => {
             iv_invoice_affref_share: feesData.iv_invoice_aff_ref_share || ''
           });
 
-          console.log('✅ Fees data successfully loaded from API');
+          //console.log('✅ Fees data successfully loaded from API');
           setFeesInfoError(null); // Clear any previous errors
         } else {
           throw new Error('No fees data found in the API response');
@@ -1720,7 +1720,7 @@ const ProjectDetail = () => {
       });
     } finally {
       setFeesInfoLoading(false);
-      console.log('=== FEES API CALL END ===');
+      //console.log('=== FEES API CALL END ===');
     }
   };
 
@@ -1852,7 +1852,7 @@ const ProjectDetail = () => {
         );
 
         if (!isAlreadyAssigned) {
-          console.log('Assigning collaborator:', selectedCollaborator.collaborator);
+          //console.log('Assigning collaborator:', selectedCollaborator.collaborator);
 
           // Call the API to assign the collaborator
           const response = await axios.post(
@@ -1864,7 +1864,7 @@ const ProjectDetail = () => {
             }
           );
 
-          console.log('API response:', response);
+          //console.log('API response:', response);
 
           if (response.data && response.data.status === 1) {
             // Add the collaborator to the current collaborators list
@@ -1876,8 +1876,8 @@ const ProjectDetail = () => {
             const newCollaborators = [...currentCollaborators, newCollaborator];
             setCurrentCollaborators(newCollaborators);
 
-            console.log('Collaborator assigned successfully:', selectedCollaborator.collaborator);
-            console.log('Updated collaborators:', newCollaborators);
+            //console.log('Collaborator assigned successfully:', selectedCollaborator.collaborator);
+            //console.log('Updated collaborators:', newCollaborators);
 
             // Show success message
             Swal.fire({
@@ -1898,7 +1898,7 @@ const ProjectDetail = () => {
             });
           }
         } else {
-          console.log('Collaborator already assigned:', selectedCollaborator.collaborator);
+          //console.log('Collaborator already assigned:', selectedCollaborator.collaborator);
 
           // Show warning message
           Swal.fire({
@@ -1937,7 +1937,7 @@ const ProjectDetail = () => {
   const handleRemoveCollaborator = async (collaboratorId) => {
     try {
       setCollaboratorLoading(true);
-      console.log('Removing collaborator with ID:', collaboratorId);
+      //console.log('Removing collaborator with ID:', collaboratorId);
 
       // Call the API to unassign the collaborator
       const response = await axios.post(
@@ -1949,7 +1949,7 @@ const ProjectDetail = () => {
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Remove the collaborator from the current collaborators list
@@ -1959,7 +1959,7 @@ const ProjectDetail = () => {
 
         setCurrentCollaborators(updatedCollaborators);
 
-        console.log('Collaborator removed successfully. Updated collaborators:', updatedCollaborators);
+        //console.log('Collaborator removed successfully. Updated collaborators:', updatedCollaborators);
 
         // Show success message
         Swal.fire({
@@ -2000,12 +2000,12 @@ const ProjectDetail = () => {
   // Functions for project group, campaign, and source
   const handleProjectGroupChange = (selectedOption) => {
     // This function is kept for compatibility with other parts of the code
-    console.log("Project group changed:", selectedOption);
+    //console.log("Project group changed:", selectedOption);
   };
 
   // Function to handle owner selection change (only updates state, doesn't call API)
   const handleOwnerChange = (selectedOption) => {
-    console.log('Owner selection changed to:', selectedOption);
+    //console.log('Owner selection changed to:', selectedOption);
     setOwner(selectedOption);
   };
 
@@ -2013,7 +2013,7 @@ const ProjectDetail = () => {
   const saveOwner = async () => {
     try {
       setOwnerLoading(true);
-      console.log('Saving owner:', owner);
+      //console.log('Saving owner:', owner);
 
       // Call the API to update the owner
       const response = await axios.post(
@@ -2024,7 +2024,7 @@ const ProjectDetail = () => {
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Show success message
@@ -2065,7 +2065,7 @@ const ProjectDetail = () => {
 
   // Function to handle contact selection change (only updates state, doesn't call API)
   const handleContactChange = (selectedOption) => {
-    console.log('Contact selection changed to:', selectedOption);
+    //console.log('Contact selection changed to:', selectedOption);
     setSelectedContact(selectedOption);
   };
 
@@ -2073,7 +2073,7 @@ const ProjectDetail = () => {
   const saveContact = async () => {
     try {
       setContactLoading(true);
-      console.log('Saving contact:', selectedContact);
+      //console.log('Saving contact:', selectedContact);
 
       // Call the API to update the contact
       const response = await axios.post(
@@ -2084,7 +2084,7 @@ const ProjectDetail = () => {
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Show success message
@@ -2132,7 +2132,7 @@ const ProjectDetail = () => {
   };
 
   const handleProjectStageChange = (selectedOption) => {
-    console.log('Stage changed to:', selectedOption);
+    //console.log('Stage changed to:', selectedOption);
     setProjectStage(selectedOption);
   };
 
@@ -2140,35 +2140,35 @@ const ProjectDetail = () => {
   const fetchMilestones = async () => {
     try {
       setIsLoadingMilestones(true);
-      console.log('Fetching milestones for product ID:', selectedProductId);
+      //console.log('Fetching milestones for product ID:', selectedProductId);
 
       // Build the API URL with the product_id parameter
       const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
-      console.log('Milestones API URL:', apiUrl);
+      //console.log('Milestones API URL:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
-      console.log('Milestones API response:', response.data);
+      //console.log('Milestones API response:', response.data);
 
       // Log the entire response for debugging
-      console.log('Complete API response:', response);
-      console.log('Response data type:', typeof response.data);
-      console.log('Response data structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Complete API response:', response);
+      //console.log('Response data type:', typeof response.data);
+      //console.log('Response data structure:', JSON.stringify(response.data, null, 2));
 
       // Process the response data based on the actual structure
       if (response.data) {
-        console.log('Response data exists');
+        //console.log('Response data exists');
 
         // Check if the response has a success property
         if ('success' in response.data) {
-          console.log('Response has success property:', response.data.success);
+          //console.log('Response has success property:', response.data.success);
         } else {
-          console.log('Response does not have a success property');
+          //console.log('Response does not have a success property');
         }
 
         // Check if the response is an array directly
         if (Array.isArray(response.data)) {
-          console.log('Response data is an array with length:', response.data.length);
+          //console.log('Response data is an array with length:', response.data.length);
 
           // Map the API response to the format needed for the dropdown
           const formattedMilestones = response.data.map(milestone => ({
@@ -2176,7 +2176,7 @@ const ProjectDetail = () => {
             label: milestone.milestone_name
           }));
 
-          console.log('Formatted milestones from array:', formattedMilestones);
+          //console.log('Formatted milestones from array:', formattedMilestones);
           setMilestones(formattedMilestones);
 
           // If we have milestones, fetch stages for the first milestone
@@ -2186,7 +2186,7 @@ const ProjectDetail = () => {
             fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
-            console.log('No milestones found in array');
+            //console.log('No milestones found in array');
             setMilestone(null);
             setMilestoneStages([]);
             setProjectStage(null);
@@ -2194,7 +2194,7 @@ const ProjectDetail = () => {
         }
         // Check if the response has the expected nested structure
         else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
-          console.log('Response has the expected nested structure');
+          //console.log('Response has the expected nested structure');
 
           // Map the API response to the format needed for the dropdown
           const formattedMilestones = response.data.data.data.map(milestone => ({
@@ -2202,7 +2202,7 @@ const ProjectDetail = () => {
             label: milestone.milestone_name
           }));
 
-          console.log('Formatted milestones from nested structure:', formattedMilestones);
+          //console.log('Formatted milestones from nested structure:', formattedMilestones);
           setMilestones(formattedMilestones);
 
           // If we have milestones, fetch stages for the first milestone
@@ -2212,21 +2212,21 @@ const ProjectDetail = () => {
             fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
-            console.log('No milestones found in nested structure');
+            //console.log('No milestones found in nested structure');
             setMilestone(null);
             setMilestoneStages([]);
             setProjectStage(null);
           }
         } else {
           console.warn('Unexpected API response structure for milestones');
-          console.log('Response data structure details:', JSON.stringify(response.data, null, 2));
+          //console.log('Response data structure details:', JSON.stringify(response.data, null, 2));
 
           // Set default milestones for testing
           const defaultMilestones = [
             { value: '100', label: 'Default Milestone 1' },
             { value: '101', label: 'Default Milestone 2' }
           ];
-          console.log('Setting default milestones:', defaultMilestones);
+          //console.log('Setting default milestones:', defaultMilestones);
           setMilestones(defaultMilestones);
           setMilestone(defaultMilestones[0]);
         }
@@ -2245,7 +2245,7 @@ const ProjectDetail = () => {
         { value: '101', label: 'Default Milestone 2' },
         { value: '102', label: 'Default Milestone 3' }
       ];
-      console.log('Setting default milestones due to error:', defaultMilestones);
+      //console.log('Setting default milestones due to error:', defaultMilestones);
       setMilestones(defaultMilestones);
       setMilestone(defaultMilestones[0]);
 
@@ -2268,32 +2268,32 @@ const ProjectDetail = () => {
 
     try {
       setIsLoadingStages(true);
-      console.log('Fetching milestone stages for milestone ID:', milestoneId, 'isUserSelection:', isUserSelection);
+      //console.log('Fetching milestone stages for milestone ID:', milestoneId, 'isUserSelection:', isUserSelection);
 
       // Store the current stage if we need to preserve it
       const currentStage = !isUserSelection ? projectStage : null;
 
       // Build the API URL with the milestone_id parameter
       const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
-      console.log('Milestone stages API URL:', apiUrl);
+      //console.log('Milestone stages API URL:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
-      console.log('Milestone stages API response:', response.data);
-      console.log('Milestone stages API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Milestone stages API response:', response.data);
+      //console.log('Milestone stages API response structure:', JSON.stringify(response.data, null, 2));
 
       // Log the entire response for debugging
-      console.log('Complete stages API response:', response);
-      console.log('Stages response data type:', typeof response.data);
-      console.log('Stages response data structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Complete stages API response:', response);
+      //console.log('Stages response data type:', typeof response.data);
+      //console.log('Stages response data structure:', JSON.stringify(response.data, null, 2));
 
       // Process the response data based on the actual structure
       if (response.data) {
-        console.log('Stages response data exists');
+        //console.log('Stages response data exists');
 
         // Check if the response is an array directly
         if (Array.isArray(response.data)) {
-          console.log('Stages response data is an array with length:', response.data.length);
+          //console.log('Stages response data is an array with length:', response.data.length);
 
           // Map the API response to the format needed for the dropdown
           const formattedStages = response.data.map(stage => ({
@@ -2301,7 +2301,7 @@ const ProjectDetail = () => {
             label: stage.stage_name
           }));
 
-          console.log('Formatted stages from array:', formattedStages);
+          //console.log('Formatted stages from array:', formattedStages);
           setMilestoneStages(formattedStages);
 
           // If this is a user selection, set the first stage as selected
@@ -2322,7 +2322,7 @@ const ProjectDetail = () => {
         }
         // Check if the response has the expected nested structure
         else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
-          console.log('Stages response has the expected nested structure');
+          //console.log('Stages response has the expected nested structure');
 
           // Map the API response to the format needed for the dropdown
           const formattedStages = response.data.data.data.map(stage => ({
@@ -2330,7 +2330,7 @@ const ProjectDetail = () => {
             label: stage.stage_name
           }));
 
-          console.log('Formatted stages from nested structure:', formattedStages);
+          //console.log('Formatted stages from nested structure:', formattedStages);
           setMilestoneStages(formattedStages);
 
           // If this is a user selection, set the first stage as selected
@@ -2350,7 +2350,7 @@ const ProjectDetail = () => {
           }
         } else {
           console.warn('Unexpected API response structure for milestone stages');
-          console.log('Stages response data structure details:', JSON.stringify(response.data, null, 2));
+          //console.log('Stages response data structure details:', JSON.stringify(response.data, null, 2));
 
           // Set default stages for testing
           const defaultStages = [
@@ -2358,7 +2358,7 @@ const ProjectDetail = () => {
             { value: '201', label: 'Default Stage 2' },
             { value: '202', label: 'Default Stage 3' }
           ];
-          console.log('Setting default stages:', defaultStages);
+          //console.log('Setting default stages:', defaultStages);
           setMilestoneStages(defaultStages);
           setProjectStage(defaultStages[0]);
         }
@@ -2377,7 +2377,7 @@ const ProjectDetail = () => {
         { value: '201', label: 'Default Stage 2' },
         { value: '202', label: 'Default Stage 3' }
       ];
-      console.log('Setting default stages due to error:', defaultStages);
+      //console.log('Setting default stages due to error:', defaultStages);
       setMilestoneStages(defaultStages);
       setProjectStage(defaultStages[0]);
     } finally {
@@ -2387,7 +2387,7 @@ const ProjectDetail = () => {
 
   // Function to handle milestone change
   const handleMilestoneChange = (selectedOption) => {
-    console.log('Milestone changed to:', selectedOption);
+    //console.log('Milestone changed to:', selectedOption);
     setMilestone(selectedOption);
 
     // Fetch stages for the selected milestone
@@ -2404,9 +2404,9 @@ const ProjectDetail = () => {
   const saveMilestoneAndStage = async () => {
     try {
       setIsLoadingMilestones(true);
-      console.log('Saving milestone and stage changes:');
-      console.log('Milestone:', milestone);
-      console.log('Stage:', projectStage);
+      //console.log('Saving milestone and stage changes:');
+      //console.log('Milestone:', milestone);
+      //console.log('Stage:', projectStage);
 
       if (!milestone) {
         Swal.fire({
@@ -2438,7 +2438,7 @@ const ProjectDetail = () => {
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Show success message
@@ -2678,7 +2678,7 @@ const ProjectDetail = () => {
                                   const leadId = project?.lead_id || "9020"; // Use the lead ID from the API or fallback to default
                                   const leadDetailUrl = `/reporting/lead-detail/${leadId}`;
                                   window.open(leadDetailUrl, '_blank');
-                                  console.log('Opening lead detail page:', leadDetailUrl, 'with lead ID:', leadId);
+                                  //console.log('Opening lead detail page:', leadDetailUrl, 'with lead ID:', leadId);
                                 }}
                               >
                                 View

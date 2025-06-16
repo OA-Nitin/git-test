@@ -153,7 +153,7 @@ const Notes = ({
   const getApiEndpoints = () => {
     // Make sure entityId is not undefined or null
     const safeEntityId = entityId || '';
-    console.log('Using entityId for API endpoints:', safeEntityId);
+    //console.log('Using entityId for API endpoints:', safeEntityId);
 
     switch (entityType) {
       case 'lead':
@@ -167,7 +167,7 @@ const Notes = ({
           post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
         };
       case 'opportunity':
-        console.log('Opportunity ID for notes API:', safeEntityId);
+        //console.log('Opportunity ID for notes API:', safeEntityId);
         // Use the exact API endpoint from the Postman GET screenshot
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
@@ -203,94 +203,94 @@ const Notes = ({
       ? get
       : `${get}${page > 1 ? `?page=${page}` : ''}`;
 
-    console.log(`Fetching notes from API: ${apiUrl} for entity type: ${entityType}, entityId: ${entityId}, isRetry: ${isRetry}, retryCount: ${retryCount}`);
+    //console.log(`Fetching notes from API: ${apiUrl} for entity type: ${entityType}, entityId: ${entityId}, isRetry: ${isRetry}, retryCount: ${retryCount}`);
 
     // Additional logging for opportunity notes
     if (entityType === 'opportunity') {
-      console.log('OPPORTUNITY NOTES FETCH DEBUG:');
-      console.log('- API URL:', apiUrl);
-      console.log('- Opportunity ID:', entityId);
-      console.log('- Entity Name:', entityName);
+      //console.log('OPPORTUNITY NOTES FETCH DEBUG:');
+      //console.log('- API URL:', apiUrl);
+      //console.log('- Opportunity ID:', entityId);
+      //console.log('- Entity Name:', entityName);
     }
 
     // For debugging - log the entity ID and type
-    console.log('Entity details:', {
-      type: entityType,
-      id: entityId,
-      name: entityName,
-      endpoint: get
-    });
+    // console.log('Entity details:', {
+    //   type: entityType,
+    //   id: entityId,
+    //   name: entityName,
+    //   endpoint: get
+    // });
 
     // Function to process notes response
     const processNotesResponse = (response) => {
       // Reset retry count on successful response
       if (retryCount > 0) {
-        console.log('Resetting retry count after successful response');
+        //console.log('Resetting retry count after successful response');
         setRetryCount(0);
       }
 
-      console.log('Notes API response:', response);
+      //console.log('Notes API response:', response);
 
       // Process the response data based on format
       let fetchedNotes = [];
 
       if (Array.isArray(response.data)) {
-        console.log('Response data is an array with', response.data.length, 'items');
+        //console.log('Response data is an array with', response.data.length, 'items');
         fetchedNotes = response.data;
       } else if (response.data && typeof response.data === 'object') {
-        console.log('Response data is an object:', response.data);
+        //console.log('Response data is an object:', response.data);
 
         // Special handling for opportunity notes
         if (entityType === 'opportunity') {
-          console.log('Processing opportunity notes response');
+          //console.log('Processing opportunity notes response');
 
           // Check for different possible formats in the opportunity notes response
-          console.log('Opportunity notes response structure:', JSON.stringify(response.data, null, 2));
+          //console.log('Opportunity notes response structure:', JSON.stringify(response.data, null, 2));
 
           // Based on the Postman GET screenshot, the response has a notes array
           if (response.data.status === 200 && response.data.message && response.data.message.includes("fetch successfully") && Array.isArray(response.data.notes)) {
-            console.log('Found opportunity notes in response.data.notes');
+            //console.log('Found opportunity notes in response.data.notes');
             fetchedNotes = response.data.notes;
           }
           // Handle create note response
           else if (response.data.status === 200 && response.data.message && response.data.message.includes("create successfully")) {
-            console.log('Found success response for note creation');
+            //console.log('Found success response for note creation');
             // This is a success response for creating a note, not for fetching notes
             fetchedNotes = [];
           }
           // Handle other possible formats
           else if (Array.isArray(response.data)) {
-            console.log('Found opportunity notes as array in response.data');
+            //console.log('Found opportunity notes as array in response.data');
             fetchedNotes = response.data;
           } else if (Array.isArray(response.data.data)) {
-            console.log('Found opportunity notes in response.data.data');
+            //console.log('Found opportunity notes in response.data.data');
             fetchedNotes = response.data.data;
           } else if (Array.isArray(response.data.opportunity_notes)) {
-            console.log('Found opportunity notes in response.data.opportunity_notes');
+            //console.log('Found opportunity notes in response.data.opportunity_notes');
             fetchedNotes = response.data.opportunity_notes;
           } else if (response.data.note) {
-            console.log('Found single opportunity note in response.data.note');
+            //console.log('Found single opportunity note in response.data.note');
             fetchedNotes = [response.data.note];
           } else if (response.data.status && response.data.status === 200 && response.data.message) {
             // This is likely a success response with no notes
-            console.log('Found success response with no notes');
+            //console.log('Found success response with no notes');
             fetchedNotes = [];
           } else {
             // If it's a single note object, wrap it in an array
-            console.log('Treating response data as a single opportunity note object');
+            //console.log('Treating response data as a single opportunity note object');
             fetchedNotes = [response.data];
           }
         } else {
           // Standard handling for other entity types
           if (Array.isArray(response.data.data)) {
-            console.log('Response data.data is an array with', response.data.data.length, 'items');
+            //console.log('Response data.data is an array with', response.data.data.length, 'items');
             fetchedNotes = response.data.data;
           } else if (Array.isArray(response.data.notes)) {
-            console.log('Found notes in response.data.notes');
+            //console.log('Found notes in response.data.notes');
             fetchedNotes = response.data.notes;
           } else {
             // If it's a single note object, wrap it in an array
-            console.log('Treating response data as a single note object');
+            //console.log('Treating response data as a single note object');
             fetchedNotes = [response.data];
           }
         }
@@ -346,39 +346,39 @@ const Notes = ({
         // If it's a 404 error for opportunity notes, don't show an error message
         // This is likely because there are no notes yet for this opportunity
         if (entityType === 'opportunity' && err.response.status === 404) {
-          console.log('No notes found for this opportunity (404 response)');
-          console.log('Opportunity ID:', entityId);
-          console.log('API URL that returned 404:', apiUrl);
+          //console.log('No notes found for this opportunity (404 response)');
+          //console.log('Opportunity ID:', entityId);
+          //console.log('API URL that returned 404:', apiUrl);
           // Set empty notes array and clear error
           setNotes([]);
           setError(null);
           // Log additional information for debugging
-          console.log('Setting empty notes array for opportunity with no notes');
+          //console.log('Setting empty notes array for opportunity with no notes');
         }
         // Handle 500 errors for opportunity notes - retry a few times before showing error
         else if (entityType === 'opportunity' && err.response.status === 500) {
-          console.log('Server error for opportunity notes (500 response)');
-          console.log('Opportunity ID:', entityId);
-          console.log('API URL that returned 500:', apiUrl);
-          console.log('Current retry count:', retryCount);
+          //console.log('Server error for opportunity notes (500 response)');
+          //console.log('Opportunity ID:', entityId);
+          //console.log('API URL that returned 500:', apiUrl);
+          //console.log('Current retry count:', retryCount);
 
           // If we haven't reached the maximum number of retries, try again
           if (retryCount < MAX_RETRIES) {
-            console.log(`Retrying (${retryCount + 1}/${MAX_RETRIES})...`);
+            //console.log(`Retrying (${retryCount + 1}/${MAX_RETRIES})...`);
             setRetryCount(prevCount => prevCount + 1);
 
             // Wait a moment before retrying
             setTimeout(() => {
-              console.log('Retrying fetch notes after 500 error');
+              //console.log('Retrying fetch notes after 500 error');
               fetchNotes(page, true);
             }, 1000); // Wait 1 second before retrying
           } else {
             // If we've reached the maximum number of retries, show an error
-            console.log(`Maximum retries (${MAX_RETRIES}) reached, showing error`);
+            //console.log(`Maximum retries (${MAX_RETRIES}) reached, showing error`);
             setRetryCount(0); // Reset retry count
             setNotes([]);
             setError('No notes available for this opportunity.');
-            console.log('Setting empty notes array for opportunity with server error after max retries');
+            //console.log('Setting empty notes array for opportunity with server error after max retries');
           }
         } else {
           setError(`Failed to load notes. Error: ${err.response.status} - ${err.response.statusText}`);
@@ -393,8 +393,8 @@ const Notes = ({
     };
 
     // Use GET for all entity types including opportunity
-    console.log(`Using GET for ${entityType} notes with ID:`, entityId);
-    console.log('API URL:', apiUrl);
+    //console.log(`Using GET for ${entityType} notes with ID:`, entityId);
+    //console.log('API URL:', apiUrl);
 
     axios.get(apiUrl)
       .then(processNotesResponse)
@@ -436,12 +436,12 @@ const Notes = ({
     const trimmedNote = formData.note ? formData.note.trim() : '';
 
     // Debug information
-    console.log('Adding note for:', { entityType, entityId, trimmedNote });
+    //console.log('Adding note for:', { entityType, entityId, trimmedNote });
 
     setLoading(true);
 
     const { post } = getApiEndpoints();
-    console.log('Using API endpoint:', post);
+    //console.log('Using API endpoint:', post);
 
     // Make sure entityId is not undefined or null
     const safeEntityId = entityId || '';
@@ -471,7 +471,7 @@ const Notes = ({
       };
 
       // Log the data being sent for debugging
-      console.log('Opportunity note data being sent:', noteData);
+      //console.log('Opportunity note data being sent:', noteData);
     } else {
       // Default case for leads
       noteData = {
@@ -482,14 +482,14 @@ const Notes = ({
     }
 
     // Log the data being sent
-    console.log('Sending note data:', noteData);
+    //console.log('Sending note data:', noteData);
 
     // Log additional information for opportunity notes
     if (entityType === 'opportunity') {
-      console.log('OPPORTUNITY NOTE DEBUG INFO:');
-      console.log('- Opportunity ID:', entityId);
-      console.log('- API Endpoint:', post);
-      console.log('- Note Data:', JSON.stringify(noteData, null, 2));
+      //console.log('OPPORTUNITY NOTE DEBUG INFO:');
+      //console.log('- Opportunity ID:', entityId);
+      //console.log('- API Endpoint:', post);
+      //console.log('- Note Data:', JSON.stringify(noteData, null, 2));
     }
 
     // Send the data to the API
@@ -500,7 +500,7 @@ const Notes = ({
       }
     })
       .then(response => {
-        console.log('Note added successfully:', response);
+        //console.log('Note added successfully:', response);
 
         // Check if the response contains an error message
         if (response.data && response.data.error) {
@@ -533,7 +533,7 @@ const Notes = ({
         setTimeout(() => {
           // For opportunity notes, we need to force a refresh
           if (entityType === 'opportunity') {
-            console.log('Refreshing opportunity notes after adding a new note');
+            //console.log('Refreshing opportunity notes after adding a new note');
             // Clear the notes array first to ensure we get fresh data
             setNotes([]);
             // Then fetch the notes again

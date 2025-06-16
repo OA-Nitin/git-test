@@ -50,20 +50,20 @@ const ManageFinanceReport = () => {
   // Load data when component mounts
   useEffect(() => {
     document.title = "Finance Report - Occams Portal"; // Set title for Finance Report page
-    console.log('Component mounted - fetching initial data');
+    //console.log('Component mounted - fetching initial data');
 
     // Use a self-executing async function to handle async operations
     (async () => {
       try {
         // Fetch filter options first
-        console.log('Calling fetchFilterOptions...');
+        //console.log('Calling fetchFilterOptions...');
         await fetchFilterOptions();
-        console.log('fetchFilterOptions called successfully');
+        //console.log('fetchFilterOptions called successfully');
 
         // Then load initial data
-        console.log('Calling fetchInvoices...');
+        //console.log('Calling fetchInvoices...');
         await fetchInvoices();
-        console.log('fetchInvoices called successfully');
+        //console.log('fetchInvoices called successfully');
       } catch (error) {
         console.error('Error in useEffect:', error);
 
@@ -72,14 +72,14 @@ const ManageFinanceReport = () => {
           icon: 'error',
           title: 'Error Loading Data',
           text: `Failed to load initial data: ${error.message}`,
-          footer: '<a href="javascript:void(0)" onclick="console.log(\'Open console for more details\')">See console for more details</a>'
+          footer: '<a href="javascript:void(0)" onclick="//console.log(\'Open console for more details\')">See console for more details</a>'
         });
       }
     })();
 
     // Return cleanup function
     return () => {
-      console.log('Component unmounting - cleaning up');
+      //console.log('Component unmounting - cleaning up');
     };
   }, []);
 
@@ -95,7 +95,7 @@ const ManageFinanceReport = () => {
       return;
     }
 
-    console.log('Refetching due to sorting or filtering change');
+    //console.log('Refetching due to sorting or filtering change');
     setCurrentPage(1); // Reset to first page when sort or filter changes
     fetchInvoices();
   }, [sortField, sortDirection, filterStatus]);
@@ -103,22 +103,22 @@ const ManageFinanceReport = () => {
   // Function to fetch filter options from API - using the invoice-api-client
   const fetchFilterOptions = async () => {
     try {
-      console.log('Fetching filter options from API...');
+      //console.log('Fetching filter options from API...');
 
       // Initialize the API client
       const invoiceApi = new InvoiceApiClient();
 
       // Call the API using the client
       const response = await invoiceApi.getFilterOptions();
-      console.log('Filter Options Response:', response);
+      //console.log('Filter Options Response:', response);
 
       // Check if we have a valid response with data
       if (response && response.success && response.data) {
         setFilterOptions(response.data);
-        console.log('Filter options set from API response');
+        //console.log('Filter options set from API response');
       } else {
         // If API doesn't return filter options, use hardcoded defaults
-        console.log('Using default filter options');
+        //console.log('Using default filter options');
         setFilterOptions({
           statuses: [
             "Invoiced",
@@ -159,7 +159,7 @@ const ManageFinanceReport = () => {
       console.error('Error fetching filter options:', err);
 
       // Use hardcoded defaults on error
-      console.log('Using default filter options due to error');
+      //console.log('Using default filter options due to error');
       setFilterOptions({
         statuses: [
           "Invoiced",
@@ -202,12 +202,12 @@ const ManageFinanceReport = () => {
 
   // Function to fetch invoices from API - using the invoice-api-client
   const fetchInvoices = async () => {
-    console.log('fetchInvoices function called');
+    //console.log('fetchInvoices function called');
     setLoading(true);
     setError(null);
 
     try {
-      console.log('Fetching invoices from API...');
+      //console.log('Fetching invoices from API...');
 
       // Initialize the API client
       const invoiceApi = new InvoiceApiClient();
@@ -237,11 +237,11 @@ const ManageFinanceReport = () => {
         date_to: formattedDateTo // API expects YYYY-MM-DD format
       };
 
-      console.log('API params:', params);
+      //console.log('API params:', params);
 
       // Call the API using the client
       const response = await invoiceApi.getInvoices(params);
-      console.log('API Response:', response);
+      //console.log('API Response:', response);
 
       // Check if we have a valid response
       if (response && response.success === true) {
@@ -255,12 +255,12 @@ const ManageFinanceReport = () => {
         // Set the invoices state with the API data
         setInvoices(apiData);
 
-        console.log(`API returned ${apiData.length} records, total: ${response.total}, pages: ${response.pages}`);
+        //console.log(`API returned ${apiData.length} records, total: ${response.total}, pages: ${response.pages}`);
 
         // If filters are included in the response, update the filter options
         if (response.filters) {
           setFilterOptions(response.filters);
-          console.log('Updated filter options from API response');
+          //console.log('Updated filter options from API response');
         }
 
         // Clear any previous error message
@@ -309,11 +309,11 @@ const ManageFinanceReport = () => {
         icon: 'error',
         title: 'Error Fetching Data',
         text: errorMessage,
-        footer: '<a href="javascript:void(0)" onclick="console.log(\'Open console for more details\')">See console for more details</a>'
+        footer: '<a href="javascript:void(0)" onclick="//console.log(\'Open console for more details\')">See console for more details</a>'
       });
     } finally {
       setLoading(false);
-      console.log('fetchInvoices function completed');
+      //console.log('fetchInvoices function completed');
     }
   };
 
@@ -391,7 +391,7 @@ const ManageFinanceReport = () => {
     // Reset to first page when sorting changes
     setCurrentPage(1);
 
-    console.log('Sorting changed:', { field, direction: newDirection });
+    //console.log('Sorting changed:', { field, direction: newDirection });
 
     // Fetch new data with the updated sorting
     // We don't need setTimeout here - React will batch the state updates
@@ -400,7 +400,7 @@ const ManageFinanceReport = () => {
 
   // Update when sort field or direction changes
   useEffect(() => {
-    console.log('Sort changed:', { sortField, sortDirection });
+    //console.log('Sort changed:', { sortField, sortDirection });
   }, [sortField, sortDirection]);
 
   // We're using server-side pagination, filtering, and sorting
@@ -411,15 +411,15 @@ const ManageFinanceReport = () => {
   const currentInvoices = invoices; // No client-side pagination needed
 
   // Log the number of invoices for debugging
-  console.log('Number of invoices to display:', filteredInvoices.length);
-  console.log('Current invoices to display:', currentInvoices.length);
-  console.log('First few invoices:', currentInvoices.slice(0, 3));
+  //console.log('Number of invoices to display:', filteredInvoices.length);
+  //console.log('Current invoices to display:', currentInvoices.length);
+  //console.log('First few invoices:', currentInvoices.slice(0, 3));
 
   // Change page and fetch new data
   const paginate = (pageNumber) => {
     // Only fetch if the page number is different from the current page
     if (pageNumber !== currentPage) {
-      console.log(`Changing page from ${currentPage} to ${pageNumber}`);
+      //console.log(`Changing page from ${currentPage} to ${pageNumber}`);
       setCurrentPage(pageNumber);
       // Fetch new data when page changes
       fetchInvoices();
@@ -679,18 +679,18 @@ const ManageFinanceReport = () => {
   };
 
   // Log before rendering
-  console.log('About to render ManageFinanceReport component');
-  console.log('Current state:', {
-    invoices: invoices.length,
-    loading,
-    error,
-    currentPage,
-    sortField,
-    sortDirection,
-    filteredInvoices: filteredInvoices.length,
-    sortedInvoices: sortedInvoices.length,
-    currentInvoices: currentInvoices.length
-  });
+  //console.log('About to render ManageFinanceReport component');
+  // console.log('Current state:', {
+  //   invoices: invoices.length,
+  //   loading,
+  //   error,
+  //   currentPage,
+  //   sortField,
+  //   sortDirection,
+  //   filteredInvoices: filteredInvoices.length,
+  //   sortedInvoices: sortedInvoices.length,
+  //   currentInvoices: currentInvoices.length
+  // });
 
   // Render function
   return (

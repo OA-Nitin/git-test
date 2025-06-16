@@ -16,12 +16,12 @@ const Sidebar = () => {
   useEffect(() => {
     // Get user data from localStorage
     const userData = localStorage.getItem('user');
-    console.log('User data from localStorage:', userData);
+    //console.log('User data from localStorage:', userData);
 
     if (userData) {
       try {
         const parsedData = JSON.parse(userData);
-        console.log('Parsed user data:', parsedData);
+        //console.log('Parsed user data:', parsedData);
 
         // Access the roles from the correct nested path based on the JSON structure
         let userRoles = [];
@@ -30,18 +30,18 @@ const Sidebar = () => {
             parsedData.data.user &&
             Array.isArray(parsedData.data.user.roles)) {
           userRoles = parsedData.data.user.roles;
-          console.log('Found roles in data.user.roles:', userRoles);
+          //console.log('Found roles in data.user.roles:', userRoles);
         }
 
         // Set menu data based on user role
         if (userRoles.includes('master_ops')) {
-          console.log('Loading ops menu for master_ops role');
+          //console.log('Loading ops menu for master_ops role');
           setSidebarMenu(opsMenuData);
         } else if (userRoles.includes('echeck_client')) {
-          console.log('Loading finance menu for echeck_client role');
+          //console.log('Loading finance menu for echeck_client role');
           setSidebarMenu(financeMenuData);
         } else {
-          console.log('No matching role found, loading default menu');
+          //console.log('No matching role found, loading default menu');
           setSidebarMenu(defaultMenuData);
         }
       } catch (error) {
@@ -49,19 +49,19 @@ const Sidebar = () => {
         setSidebarMenu(defaultMenuData);
       }
     } else {
-      console.log('No user data found in localStorage');
+      //console.log('No user data found in localStorage');
     }
   }, []);
 
   // Effect to initialize MetisMenu after menu data changes
   useEffect(() => {
-    console.log('Menu data changed, initializing MetisMenu...');
+    //console.log('Menu data changed, initializing MetisMenu...');
 
     // Wait for the DOM to update with the new menu data
     const timer = setTimeout(() => {
       if (window.$ && window.$.fn && window.$.fn.metisMenu) {
         try {
-          console.log('Sidebar: Initializing MetisMenu after menu data change');
+          //console.log('Sidebar: Initializing MetisMenu after menu data change');
 
           // First, dispose any existing instance
           if (window.$('#adminmenu').data('metisMenu')) {
