@@ -405,25 +405,14 @@ const parseToDateString = (rawDate) => {
           }));
         }
 
-        // Deduplicate referrals based on id or user_id
-        const seenIds = new Set();
-        const uniqueReferrals = referrals.filter(referral => {
-          const key = referral.user_id || referral.id;
-          if (key && !seenIds.has(key)) {
-            seenIds.add(key);
-            return true;
-          }
-          return false;
-        });
-
-        //console.log("Processed contact referrals:", uniqueReferrals);
+        //console.log("Processed contact referrals:", referrals);
 
         // Set the contact referrals
-        setContactReferrals(uniqueReferrals);
+        setContactReferrals(referrals);
 
         // Auto-select the first value if available
-        if (uniqueReferrals.length > 0) {
-          const firstReferral = uniqueReferrals[0];
+        if (referrals.length > 0) {
+          const firstReferral = referrals[0];
           // Prioritize user_id for the value
           const firstReferralUserId =
             firstReferral.user_id || firstReferral.id || "";
