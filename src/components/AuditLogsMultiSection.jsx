@@ -3,7 +3,7 @@ import axios from 'axios';
 import './AuditLogsMultiSection.css';
 import DataTable from './DataTable';
 
-const AuditLogsMultiSection = ({ leadId }) => {
+const AuditLogsMultiSection = ({leadId, isAuditLogsData}) => {
   // State for each API section
   const [fieldActivity, setFieldActivity] = useState([]);
   const [communicationLeadMapping, setCommunicationLeadMapping] = useState([]);
@@ -86,6 +86,7 @@ const AuditLogsMultiSection = ({ leadId }) => {
         //console.log('Field Activity API response:', fieldActivityResponse.data);
 
         if (fieldActivityResponse.data) {
+          isAuditLogsData = true;
           let logs = [];
           if (Array.isArray(fieldActivityResponse.data)) {
             logs = fieldActivityResponse.data;
@@ -246,7 +247,9 @@ const AuditLogsMultiSection = ({ leadId }) => {
       }
     };
 
-    fetchAllData();
+    if(!isAuditLogsData){
+      fetchAllData();
+    }
   }, [leadId]);
 
   return (
