@@ -3411,7 +3411,8 @@ const ProjectDetail = () => {
             {
               project_id: projectId,
               user_id: selectedCollaborator.collaborator.id,
-              operation: 'assign_collabs_user'
+              operation: 'assign_collabs_user',
+              current_user_id:getUserId(),
             }
           );
 
@@ -3496,7 +3497,8 @@ const ProjectDetail = () => {
         {
           project_id: projectId,
           user_id: collaboratorId,
-          operation: 'unassign_collabs_user'
+          operation: 'unassign_collabs_user',
+          current_user_id:getUserId(),
         }
       );
 
@@ -3643,7 +3645,8 @@ const ProjectDetail = () => {
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
         {
           project_id: projectId,
-          owner_id: owner.value
+          owner_id: owner.value,
+          current_user_id: getUserId(),
         }
       );
 
@@ -3703,7 +3706,8 @@ const ProjectDetail = () => {
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
         {
           project_id: projectId,
-          contact_id: selectedContact.value
+          contact_id: selectedContact.value,
+          current_user_id: getUserId(),
         }
       );
 
@@ -4057,7 +4061,8 @@ const ProjectDetail = () => {
         {
           project_id: projectId,
           milestone_id: milestone.value,
-          milestone_stage_id: projectStage.value
+          milestone_stage_id: projectStage.value,
+          user_id:getUserId(),
         }
       );
 
