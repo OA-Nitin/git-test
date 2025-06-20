@@ -8,7 +8,6 @@ import Notes from './common/Notes';
 import { forwardRef } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import PlaceholderLoading from 'react-placeholder-loading';
 // import './common/CommonStyles.css';
 import { hasRoleAccess, hasSpecificRole, isAdministrator, isEcheckClient } from '../utils/accessControl';
 import './common/ReportStyle.css';
@@ -17,7 +16,6 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 import { format } from 'date-fns';
-import LeadClassificationAndAssignment from './common/LeadClassificationAndAssignment';
 
 // Import tab components
 import BusinessInfoTab from './lead-tabs/BusinessInfoTab';
@@ -26,6 +24,8 @@ import ContactsTab from './lead-tabs/ContactsTab';
 import OpportunitiesTab from './lead-tabs/OpportunitiesTab';
 import ProjectsTab from './lead-tabs/ProjectsTab';
 import AuditLogsTab from './lead-tabs/AuditLogsTab';
+import LeadClassificationAndAssignment from './common/LeadClassificationAndAssignment';
+// ...import OpportunitiesTab and AuditLogsTab if you have them
 
 
 // Date utility functions
@@ -135,6 +135,8 @@ const LeadDetail = () => {
   const [linkContactError, setLinkContactError] = useState(null);
   const [linkContactLoading, setLinkContactLoading] = useState(false);
   // Notes related state
+  const [notes, setNotes] = useState([]);
+  const [hasMoreNotes, setHasMoreNotes] = useState(true);
   const [notesPage, setNotesPage] = useState(1);
   const [newNote, setNewNote] = useState('');
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
@@ -151,8 +153,7 @@ const LeadDetail = () => {
   const [isContactsData, setIsContactsData] = useState(false);
   const [isOpportunitiesData, setIsOpportunitiesData] = useState(false);
   const [isProjectsData, setIsProjectsData] = useState(false);
-  const [isAuditLogsData, setIsAuditLogsData] = useState(false);
-  
+
 
   // Contacts related state
   const [primaryContact, setPrimaryContact] = useState({
@@ -233,6 +234,10 @@ const LeadDetail = () => {
 
   // Delete opportunity related state
   const [deleteOpportunityLoading, setDeleteOpportunityLoading] = useState(false);
+
+  // Notes related state (already defined above)
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [notesError, setNotesError] = useState(null);
 
   // Lead classification state
   const [leadGroup, setLeadGroup] = useState(null);
@@ -348,7 +353,6 @@ const LeadDetail = () => {
       }
 
     }
-
   }, [lead, setValue, primaryContact]);
 
 
@@ -753,7 +757,9 @@ const LeadDetail = () => {
         //console.log('Basic lead details fetched');
 
         // Then fetch business data to populate the form
-        // await fetchBusinessData();
+        if(!isBusinessInfoData){
+          await fetchBusinessData();
+        }
         //console.log('Business data fetched');
 
         // Fetch contact data
@@ -792,31 +798,31 @@ const LeadDetail = () => {
   }, [leadId]);
 
   // Add a useEffect to fetch group options separately to ensure they're loaded
-  // useEffect(() => {
-  //   const loadGroupOptions = async () => {
-  //     if (groupOptions.length === 0) {
-  //       //console.log('Fetching group options separately...');
-  //       try {
-  //         await fetchGroups();
-  //         //console.log('Group options loaded separately:', groupOptions);
-  //       } catch (error) {
-  //         console.error('Error loading group options separately:', error);
-  //       }
-  //     } else {
-  //       //console.log('Group options already loaded:', groupOptions);
-  //     }
-  //   };
+  useEffect(() => {
+    const loadGroupOptions = async () => {
+      if (groupOptions.length === 0) {
+        //console.log('Fetching group options separately...');
+        try {
+          await fetchGroups();
+          //console.log('Group options loaded separately:', groupOptions);
+        } catch (error) {
+          console.error('Error loading group options separately:', error);
+        }
+      } else {
+        //console.log('Group options already loaded:', groupOptions);
+      }
+    };
 
-  //   loadGroupOptions();
-  // }, []);
+    loadGroupOptions();
+  }, []);
 
   // Add a useEffect to log when dropdown values change
-  // useEffect(() => {
-  //   //console.log('Dropdown values changed:');
-  //   //console.log('Lead Group:', leadGroup);
-  //   //console.log('Lead Campaign:', leadCampaign);
-  //   //console.log('Lead Source:', leadSource);
-  // }, [leadGroup, leadCampaign, leadSource]);
+  useEffect(() => {
+    //console.log('Dropdown values changed:');
+    //console.log('Lead Group:', leadGroup);
+    //console.log('Lead Campaign:', leadCampaign);
+    //console.log('Lead Source:', leadSource);
+  }, [leadGroup, leadCampaign, leadSource]);
 
   // Add a cleanup function to prevent state updates after unmounting
   useEffect(() => {
@@ -865,6 +871,13 @@ const LeadDetail = () => {
     }
   }, [lead, primaryContact.email]);
 
+  // Fetch notes when component loads
+  useEffect(() => {
+    if (lead && notes.length === 0) {
+      fetchNotes();
+    }
+  }, [lead]);
+
   // Fetch user data when component loads
   useEffect(() => {
     if (leadId) {
@@ -877,15 +890,22 @@ const LeadDetail = () => {
   // Function to fetch assigned users
   const fetchAssignedUsers = async () => {
     try {
+      //console.log('Fetching assigned users for lead ID:', leadId);
       setUnassignLoading(true);
+
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
 
+      //console.log('Assigned users API response:', response);
+      //  && response.data.success && Array.isArray(response.data.data)
       if (response.data) {
+        // Format the assigned users data
         const assignedUsersData = response.data.assign_user.map(user => ({
           id: user.user_id,
-          name: user.display_name + " (" + user.user_role + ") " || '',
+          name: user.display_name+" ("+user.user_role+") " || '',
           role: user.role || 'User'
         }));
+
+        //console.log('Setting assigned users:', assignedUsersData);
         setAssignedUsers(assignedUsersData);
       } else {
         console.warn('No assigned users found or invalid response format');
@@ -902,11 +922,17 @@ const LeadDetail = () => {
   // Function to fetch user data
   const fetchUserData = async () => {
     try {
+      //console.log('Fetching user data');
       setIsLoadingOptions(true);
+
+      // Use the same API endpoint as the sales team
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
+
+      //console.log('User data API response:', response);
 
       if (response.data) {
         let userData = [];
+
         if (response.data.success && Array.isArray(response.data.data)) {
           userData = response.data.data;
         } else if (Array.isArray(response.data)) {
@@ -916,32 +942,57 @@ const LeadDetail = () => {
         }
 
         if (userData.length > 0) {
+          // Format options for react-select
           const options = userData.map(user => {
+            // Use full_name if available, otherwise fall back to other name fields
             const displayName = user.full_name || user.name || user.display_name || user.user_name || '';
+
+            // Make sure to use user_id as the primary identifier
             const userId = user.user_id || user.id || '';
+
+            // Create the user object first for clarity
             const userObject = {
               id: userId,
               name: displayName,
               role: user.role || 'User'
             };
+
+            // Log for debugging
+            // console.log('Creating option for user:', {
+            //   userId,
+            //   displayName,
+            //   userObject
+            // });
+
+            // Use plain text for label to make search work properly
             return {
               value: userId,
-              label: displayName,
+              label: displayName, // Plain text label for better search
               user: userObject
             };
           });
+
+          //console.log('Setting user options:', options);
           setUserOptions(options);
+
+          // Set assigned users if available in the lead data
+          if (lead && lead.assigned_users && lead.assigned_users.length > 0) {
+            setAssignedUsers(lead.assigned_users);
+          }
         } else {
           console.warn('No user data found in response');
           setUserOptions([]);
+          setAssignedUsers([]);
         }
       } else {
         console.warn('Failed to fetch user data:', response.data);
         setUserOptions([]);
+        setAssignedUsers([]);
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
       setUserOptions([]);
+      setAssignedUsers([]);
     } finally {
       setIsLoadingOptions(false);
     }
@@ -950,12 +1001,13 @@ const LeadDetail = () => {
   const fetchBusinessData = async () => {
 
     try {
-      //console.log('Fetching business data for lead ID:', leadId);
+      // console.log('Fetching business data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
         //console.log('Business data fetched successfully:', response.data);
         setIsBusinessInfoData(true);
+        // console.log(isBusinessInfoData);
         // Update lead state with business data
         const businessData = response.data.data;
 
@@ -1021,7 +1073,7 @@ const LeadDetail = () => {
             setPrimaryContact(prevContact => ({
               ...prevContact,
               email: businessData.business_email || prevContact.email,
-              phone: businessData.business_phone || prevContact.phone
+              phone: businessData.business_phone || prevContact.phone,
             }));
           }
 
@@ -1235,30 +1287,6 @@ const LeadDetail = () => {
     });
   };
 
-  const handleUpdateContact = async (contactData) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/contacts/${contactData.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(contactData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update contact');
-      }
-
-      // Refresh contacts after update
-      await fetchContactData();
-      setShowEditContactModal(false);
-    } catch (error) {
-      console.error('Error updating contact:', error);
-      // You might want to show an error message to the user here
-    }
-  };
-
   // Function to disable contact via API
   const disableContact = async (contactId) => {
     try {
@@ -1347,7 +1375,7 @@ const LeadDetail = () => {
           const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
-          //console.log('Found primary contact data:', primaryContactData);
+          console.log('Found primary contact data:', primaryContactData);
 
           // Update primary contact state if found
           if (primaryContactData) {
@@ -1512,20 +1540,20 @@ const LeadDetail = () => {
         }
 
         // Set lead classification data
-        // if (passedLeadData.lead_group) {
-        //   setLeadGroup({ value: passedLeadData.lead_group.toLowerCase().replace(/\s+/g, '-'),
-        //                    label: passedLeadData.lead_group });
-        // }
+        if (passedLeadData.lead_group) {
+          setLeadGroup({ value: passedLeadData.lead_group.toLowerCase().replace(/\s+/g, '-'),
+                         label: passedLeadData.lead_group });
+        }
 
-        // if (passedLeadData.campaign) {
-        //   setLeadCampaign({ value: passedLeadData.campaign.toLowerCase().replace(/\s+/g, '-'),
-        //                     label: passedLeadData.campaign });
-        // }
+        if (passedLeadData.campaign) {
+          setLeadCampaign({ value: passedLeadData.campaign.toLowerCase().replace(/\s+/g, '-'),
+                            label: passedLeadData.campaign });
+        }
 
-        // if (passedLeadData.source) {
-        //   setLeadSource({ value: passedLeadData.source.toLowerCase().replace(/\s+/g, '-'),
-        //                   label: passedLeadData.source });
-        // }
+        if (passedLeadData.source) {
+          setLeadSource({ value: passedLeadData.source.toLowerCase().replace(/\s+/g, '-'),
+                          label: passedLeadData.source });
+        }
 
         setLoading(false);
       } else {
@@ -1753,22 +1781,22 @@ const LeadDetail = () => {
             setLead(basicLead);
 
             // Set default campaign to Canvassing
-            // const defaultCampaignOption = {
-            //   value: "canvassing",
-            //   label: "Canvassing"
-            // };
+            const defaultCampaignOption = {
+              value: "canvassing",
+              label: "Canvassing"
+            };
 
             //console.log('Setting default campaign to Canvassing');
-            // setLeadCampaign(defaultCampaignOption);
+            setLeadCampaign(defaultCampaignOption);
 
             // Set default source to Reseller
-            // const defaultSourceOption = {
-            //   value: "reseller",
-            //   label: "Reseller"
-            // };
+            const defaultSourceOption = {
+              value: "reseller",
+              label: "Reseller"
+            };
 
             //console.log('Setting default source to Reseller');
-            // setLeadSource(defaultSourceOption);
+            setLeadSource(defaultSourceOption);
 
             // Update form data with default values
             setFormData(prevData => {
@@ -1794,22 +1822,22 @@ const LeadDetail = () => {
           setLead(basicLead);
 
           // Set default campaign to Canvassing
-          // const defaultCampaignOption = {
-          //   value: "canvassing",
-          //   label: "Canvassing"
-          // };
+          const defaultCampaignOption = {
+            value: "canvassing",
+            label: "Canvassing"
+          };
 
           //console.log('Setting default campaign to Canvassing due to API error');
-          // setLeadCampaign(defaultCampaignOption);
+          setLeadCampaign(defaultCampaignOption);
 
           // Set default source to Reseller
-          // const defaultSourceOption = {
-          //   value: "reseller",
-          //   label: "Reseller"
-          // };
+          const defaultSourceOption = {
+            value: "reseller",
+            label: "Reseller"
+          };
 
           //console.log('Setting default source to Reseller due to API error');
-          // setLeadSource(defaultSourceOption);
+          setLeadSource(defaultSourceOption);
 
           // Update form data with default values
           setFormData(prevData => {
@@ -1883,52 +1911,506 @@ const LeadDetail = () => {
     }, 100);
   };
 
-  // Function to handle user selection change
+  // Function to fetch notes with pagination
+  const fetchNotes = async () => {
+    try {
+      //console.log('Fetching notes for lead ID:', leadId);
+      setNotesLoading(true);
+      setNotesError(null);
+
+      // Fetch notes from the API
+      const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
+      //console.log('Notes API response:', response);
+
+      let notesData = [];
+
+      // Handle different possible response formats
+      if (Array.isArray(response.data)) {
+        notesData = response.data;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        notesData = response.data.data;
+      } else if (response.data && typeof response.data === 'object') {
+        // If it's a single note object, wrap it in an array
+        notesData = [response.data];
+      }
+
+      //console.log('Processed notes data:', notesData);
+
+      // Format dates in MM/DD/YYYY format (no time)
+      const formattedNotes = notesData.map(note => ({
+        id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
+        text: note.note || note.text || note.content || '',
+        author: note.user_name || note.author || 'User',
+        date: note.created_at || note.date || new Date().toISOString(),
+        formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
+      }));
+
+      //console.log('Formatted notes:', formattedNotes);
+
+      // If this is the first page, replace notes, otherwise append
+      if (notesPage === 1) {
+        setNotes(formattedNotes);
+      } else {
+        setNotes(prevNotes => [...prevNotes, ...formattedNotes]);
+      }
+
+      // Check if there are more notes to load
+      setHasMoreNotes(response.data && response.data.has_more ? true : false);
+
+    } catch (err) {
+      console.error('Error fetching notes:', err);
+      setNotesError('Failed to load notes. Please try again later.');
+      // Set empty array if there's an error
+      if (notesPage === 1) {
+        setNotes([]);
+      }
+      setHasMoreNotes(false);
+    } finally {
+      setNotesLoading(false);
+    }
+  };
+
+  // Function to load more notes when scrolling
+  const loadMoreNotes = () => {
+    setNotesPage(prevPage => prevPage + 1);
+    fetchNotes();
+  };
+
+  // Function to toggle the add note modal
+  const toggleAddNoteModal = () => {
+    setShowAddNoteModal(!showAddNoteModal);
+    setNewNote('');
+  };
+
+  // Function to handle adding a note
+  const handleAddNote = () => {
+    //console.log('handleAddNote called');
+
+    // Use a flag to prevent multiple calls
+    if (window.isAddingNote) {
+      //console.log('Add note modal is already open, ignoring duplicate call');
+      return;
+    }
+
+    window.isAddingNote = true;
+
+    // Use SweetAlert2 for the add note popup
+    Swal.fire({
+      title: `<span style="font-size: 1.2rem; color: #333;">Add Note</span>`,
+      html: `
+        <div class="text-start">
+          <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
+            <div>
+              <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <textarea
+              class="form-control"
+              id="note-content"
+              rows="5"
+              placeholder="Enter your note here..."
+              style="resize: vertical; min-height: 100px;"
+            ></textarea>
+          </div>
+          <div class="text-muted small">
+            <i class="fas fa-info-circle me-1"></i>
+            Your note will be saved with the current date and time.
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Save Note',
+      cancelButtonText: 'Cancel',
+      width: '650px',
+      customClass: {
+        container: 'swal-wide',
+        popup: 'swal-popup-custom',
+        header: 'swal-header-custom',
+        title: 'swal-title-custom',
+        closeButton: 'swal-close-button-custom',
+        content: 'swal-content-custom',
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary'
+      },
+      preConfirm: async () => {
+        const content = document.getElementById('note-content').value.trim();
+        //console.log('content' + content);
+        try {
+          const validated = await noteFormSchema.validate({ note: content });
+          //console.log('validated' + validated);
+          return validated; // returns { note: "..." }
+        } catch (err) {
+          Swal.showValidationMessage(err.message);
+          return false;
+        }
+      },
+      willClose: () => {
+        // Reset the flag when the modal is closed
+        window.isAddingNote = false;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        saveNote(result.value.content);
+      } else {
+        // Reset the flag if the user cancels
+        window.isAddingNote = false;
+      }
+    });
+  };
+
+  // Function to save a note to the API
+  const saveNote = async (noteContent) => {
+    try {
+      // Show loading state
+      Swal.fire({
+        title: `<span style="font-size: 1.2rem; color: #333;">Saving Note</span>`,
+        html: `
+          <div class="text-center py-3">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted">Saving your note...</p>
+          </div>
+        `,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        customClass: {
+          popup: 'swal-popup-custom',
+          title: 'swal-title-custom'
+        }
+      });
+
+      // Prepare the data for the API
+      const noteData = {
+        lead_id: leadId,
+        note: noteContent,
+        user_id: 1,  // Adding user_id parameter as required by the API
+        user_name: 'Current User' // Adding user_name parameter
+      };
+
+      //console.log('Sending note data:', noteData); // For debugging
+
+      // Send the data to the API
+      const response = await axios.post('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData);
+      //console.log('Add note API response:', response);
+
+      // Show success message
+      Swal.fire({
+        title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+        html: `
+          <div class="text-center py-3">
+            <div class="mb-3">
+              <i class="fas fa-check-circle fa-3x text-success"></i>
+            </div>
+            <p class="text-muted">Your note has been saved successfully.</p>
+          </div>
+        `,
+        timer: 2000,
+        showConfirmButton: false,
+        customClass: {
+          popup: 'swal-popup-custom',
+          title: 'swal-title-custom'
+        }
+      });
+
+      // Refresh the notes
+      setTimeout(() => {
+        setNotesPage(1);
+        fetchNotes();
+      }, 2100);
+    } catch (error) {
+      console.error('Error saving note:', error);
+
+      // Show error message
+      Swal.fire({
+        title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
+        html: `
+          <div class="text-center py-3">
+            <div class="mb-3">
+              <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+            </div>
+            <p class="text-muted">There was a problem saving your note. Please try again.</p>
+            <p class="text-danger small">${error.message || 'Unknown error'}</p>
+          </div>
+        `,
+        confirmButtonText: 'OK',
+        customClass: {
+          popup: 'swal-popup-custom',
+          title: 'swal-title-custom',
+          confirmButton: 'btn btn-primary'
+        }
+      });
+    }
+  };
+
+  // Function to view all notes
+  const handleViewNotes = () => {
+    // Show loading state
+    Swal.fire({
+      title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
+      html: `
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted">Loading notes...</p>
+        </div>
+      `,
+      showConfirmButton: false,
+      showCloseButton: true,
+      allowOutsideClick: false,
+      customClass: {
+        container: 'swal-wide',
+        popup: 'swal-popup-custom',
+        header: 'swal-header-custom',
+        title: 'swal-title-custom',
+        closeButton: 'swal-close-button-custom',
+        content: 'swal-content-custom'
+      }
+    });
+
+    // Fetch notes from the API
+    axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
+      .then(response => {
+        const notes = response.data || [];
+        //console.log('Notes API response for modal:', notes);
+
+        let notesData = [];
+
+        // Handle different possible response formats
+        if (Array.isArray(response.data)) {
+          notesData = response.data;
+        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          notesData = response.data.data;
+        } else if (response.data && typeof response.data === 'object') {
+          // If it's a single note object, wrap it in an array
+          notesData = [response.data];
+        }
+
+        // Format the notes for display in MM/DD/YYYY format (no time)
+        const formattedNotes = notesData.map(note => ({
+          id: note.id || note.note_id || Math.random().toString(36).substring(2, 9),
+          text: note.note || note.text || note.content || '',
+          author: note.user_name || note.author || 'User',
+          date: note.created_at || note.date || new Date().toISOString(),
+          formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
+        }));
+
+        // Generate HTML for the notes
+        let notesHtml = '';
+        if (formattedNotes.length === 0) {
+          notesHtml = `
+            <div class="text-center py-4">
+              <div class="mb-3">
+                <i class="fas fa-sticky-note fa-3x text-muted"></i>
+              </div>
+              <p class="text-muted">No notes available for this lead</p>
+              <button id="add-first-note-btn" class="btn btn-primary mt-3">
+                <i class="fas fa-plus me-2"></i>Add First Note
+              </button>
+            </div>
+          `;
+        } else {
+          notesHtml = formattedNotes.map(note => `
+            <div class="note-item mb-3 p-3 bg-white rounded shadow-sm">
+              <div class="d-flex justify-content-between">
+                <div class="note-date fw-bold">${note.formattedDate}</div>
+              </div>
+              <div class="note-content mt-2">
+                <div class="d-flex align-items-center mb-1">
+                  <span class="fw-bold text-dark">${note.author}</span>
+                </div>
+                <div class="note-text">${note.text}</div>
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // Show the notes in a modal
+        Swal.fire({
+          title: `<span style="font-size: 1.2rem; color: #333;">Notes</span>`,
+          html: `
+            <div class="text-start">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <span class="text-black">Lead ID: <span class="text-dark">${leadId}</span></span>
+                </div>
+                <button id="add-note-btn" class="btn btn-primary btn-sm">
+                  <i class="fas fa-plus me-1"></i>Add Note
+                </button>
+              </div>
+              <div class="notes-container" style="max-height: 450px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; background-color: white; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                ${notesHtml}
+              </div>
+            </div>
+          `,
+          width: '650px',
+          showCloseButton: false,
+          showConfirmButton: true,
+          confirmButtonText: 'Close',
+          confirmButtonColor: '#0d6efd',
+          customClass: {
+            container: 'swal-wide',
+            popup: 'swal-popup-custom',
+            header: 'swal-header-custom',
+            title: 'swal-title-custom',
+            closeButton: 'swal-close-button-custom',
+            content: 'swal-content-custom',
+            footer: 'swal-footer-custom'
+          },
+          didOpen: () => {
+            // Remove any existing event listeners first
+            const addNoteBtn = document.getElementById('add-note-btn');
+            const addFirstNoteBtn = document.getElementById('add-first-note-btn');
+
+            // Clone and replace the buttons to remove any existing event listeners
+            if (addNoteBtn) {
+              const newAddNoteBtn = addNoteBtn.cloneNode(true);
+              addNoteBtn.parentNode.replaceChild(newAddNoteBtn, addNoteBtn);
+
+              // Add event listener to the new button
+              newAddNoteBtn.addEventListener('click', () => {
+                //console.log('Add Note button clicked');
+                Swal.close();
+                setTimeout(() => {
+                  handleAddNote();
+                }, 300);
+              });
+            }
+
+            // Do the same for the Add First Note button if it exists
+            if (addFirstNoteBtn) {
+              const newAddFirstNoteBtn = addFirstNoteBtn.cloneNode(true);
+              addFirstNoteBtn.parentNode.replaceChild(newAddFirstNoteBtn, addFirstNoteBtn);
+
+              // Add event listener to the new button
+              newAddFirstNoteBtn.addEventListener('click', () => {
+                //console.log('Add First Note button clicked');
+                Swal.close();
+                setTimeout(() => {
+                  handleAddNote();
+                }, 300);
+              });
+            }
+          }
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching notes:', error);
+
+        // Show error message
+        Swal.fire({
+          title: `<span style="font-size: 1.2rem; color: #333;">Error</span>`,
+          html: `
+            <div class="text-center py-3">
+              <div class="mb-3">
+                <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+              </div>
+              <p class="text-muted">There was a problem loading notes for this lead.</p>
+            </div>
+          `,
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+      });
+  };
+
+  // This function is replaced by the SweetAlert2 version above
+
+  // Function to handle user selection
   const handleUserChange = (selectedOption) => {
     setSelectedUser(selectedOption);
   };
 
-  // Function to handle user assignment
+  // Function to assign a user
   const handleAssignUser = async () => {
-    if (!selectedUser) {
-      Swal.fire({
-        title: 'Error!',
-        text: 'Please select a user to assign.',
-        icon: 'error'
-      });
-      return;
-    }
+    if (selectedUser) {
+      try {
+        setIsAssigningUser(true);
 
-    try {
-      setIsAssigningUser(true);
-      const response = await axios.post(
-        `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/assign-user/${leadId}`,
-        {
-          user_id: selectedUser.value
+        // Check if user is already assigned
+        const isAlreadyAssigned = assignedUsers.some(user => user.id === selectedUser.user.id);
+
+        if (!isAlreadyAssigned) {
+          //console.log('Assigning user:', selectedUser.user);
+
+          // Call the API to assign the user
+          //console.log('Assigning user with user_id:', selectedUser.user.id);
+          const response = await axios.post(
+            'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
+            {
+              lead_id: leadId,
+              user_id: selectedUser.user.id,
+              operation: 'assign_user'
+            }
+          );
+
+          //console.log('API response:', response);
+
+          if (response.data && response.data.success) {
+            // Add the selected user to the assigned users list
+            const newAssignedUsers = [...assignedUsers, selectedUser.user];
+            setAssignedUsers(newAssignedUsers);
+
+            // Update form data with assigned users
+            setFormData(prevData => ({
+              ...prevData,
+              assigned_users: newAssignedUsers.map(user => user.id)
+            }));
+
+            //console.log('User assigned successfully:', selectedUser.user);
+            //console.log('Updated assigned users:', newAssignedUsers);
+
+            // Show success message in console
+            //console.log('Success: User assigned successfully');
+          } else {
+            console.error('Failed to assign user:', response.data?.message || 'Unknown error');
+
+            // Add the user locally if the API fails
+            const newAssignedUsers = [...assignedUsers, selectedUser.user];
+            setAssignedUsers(newAssignedUsers);
+
+            // Update form data with assigned users
+            setFormData(prevData => ({
+              ...prevData,
+              assigned_users: newAssignedUsers.map(user => user.id)
+            }));
+
+            console.warn('API response indicates failure, but user was assigned locally');
+          }
+        } else {
+          //console.log('User already assigned:', selectedUser.user);
+          console.warn('User is already assigned to this lead');
         }
-      );
 
-      if (response.data && response.data.status === 'success') {
-        Swal.fire({
-          title: 'Success!',
-          text: 'User assigned successfully.',
-          icon: 'success'
-        });
-        // Refresh assigned users list
-        await fetchAssignedUsers();
+        // Reset the selected user
         setSelectedUser(null);
-      } else {
-        throw new Error(response.data?.message || 'Failed to assign user');
+      } catch (error) {
+        console.error('Error assigning user:', error);
+        console.error('Error assigning user: ' + (error.response?.data?.message || error.message));
+
+        // Add the user locally if the API fails
+        const newAssignedUsers = [...assignedUsers, selectedUser.user];
+        setAssignedUsers(newAssignedUsers);
+
+        // Update form data with assigned users
+        setFormData(prevData => ({
+          ...prevData,
+          assigned_users: newAssignedUsers.map(user => user.id)
+        }));
+
+        // Reset the selected user
+        setSelectedUser(null);
+      } finally {
+        setIsAssigningUser(false);
+
+        // Refresh the assigned users list
+        fetchAssignedUsers();
       }
-    } catch (error) {
-      console.error('Error assigning user:', error);
-      Swal.fire({
-        title: 'Error!',
-        text: error.message || 'An error occurred while assigning the user.',
-        icon: 'error'
-      });
-    } finally {
-      setIsAssigningUser(false);
     }
   };
 
@@ -2536,7 +3018,9 @@ const LeadDetail = () => {
       if (response.data && response.data.status == 'success' && Array.isArray(response.data.data)) {
         setIsOpportunitiesData(true);
         setOpportunities(response.data.data);
+        //console.log('Opportunities set:', response.data.data);
       } else {
+        console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
       }
     } catch (err) {
@@ -3176,7 +3660,7 @@ const LeadDetail = () => {
       console.error(`API Error: ${errorMessage}`);
     } finally {
       // setLoading(false);
-      setLoadingContent(false);
+      setLoadingContent(false); 
     }
   };
 
@@ -3195,7 +3679,6 @@ const LeadDetail = () => {
   };
 
   const handleCloseLinkContactModal = () => {
-
     setShowLinkContactModal(false);
     setSelectedContact(null);
     setLinkContactError(null);
@@ -3260,7 +3743,7 @@ const LeadDetail = () => {
 
   // Add debugging to see what data we have
   //console.log('Current lead state:', lead);
-  //console.log('Primary contact:', primaryContact);
+  // console.log('Primary contact:', primaryContact);
   //console.log('Tier1CommissionBasis:', tier1CommissionBasis);
 
   return (
@@ -3270,17 +3753,24 @@ const LeadDetail = () => {
           {/* Overlay */}
           {loadingContent && (
             <div className="overlay-loading d-flex flex-column justify-content-center align-items-center">
-              <div
-                className="spinner-border text-primary"
-                role="status"
-                style={{ width: '3rem', height: '3rem' }}
-              >
-                <span className="visually-hidden">Loading...</span>
-              </div>
-              <p className="mt-3 mb-0 text-muted">Loading leads data...</p>
+              <svg class="loader" viewBox="0 0 200 100">
+                <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#007bff" />
+                <stop offset="100%" stop-color="#ff6600" />
+                </linearGradient>
+                </defs>
+                <path class="infinity-shape"
+                      d="M30,50
+                        C30,20 70,20 100,50
+                        C130,80 170,80 170,50
+                        C170,20 130,20 100,50
+                        C70,80 30,80 30,50"
+                    />
+              </svg>
+              <p className="mt-3 mb-0 text-muted">Processing data...</p>
             </div>
           )}
-
           {loading &&(
             <div className="white_card card_height_100 mb_30">
               <div className="white_card_header">
@@ -3531,35 +4021,35 @@ const LeadDetail = () => {
                 </ul>
               </div>
               <div className="white_card_body">
-                  <div className="row">
-                    {/* Left Content Area - Changes based on active tab */}
-                    {tabLoading && (
-                      <div className="col-md-8">
-                        <div className="text-center my-5">
-                          <svg class="loader" viewBox="0 0 200 100">
-                            <defs>
-                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="#007bff" />
-                            <stop offset="100%" stop-color="#ff6600" />
-                            </linearGradient>
-                            </defs>
-                            <path class="infinity-shape"
-                                  d="M30,50
-                                    C30,20 70,20 100,50
-                                    C130,80 170,80 170,50
-                                    C170,20 130,20 100,50
-                                    C70,80 30,80 30,50"
-                                />
-                          </svg>
-                          <p style={{color: '#000'}}>Processing data...</p>
-                        </div>
+                <div className="row">
+                  {/* Left Content Area - Changes based on active tab */}
+                  {tabLoading && (
+                    <div className="col-md-8">
+                      <div className="text-center my-5">
+                        <svg class="loader" viewBox="0 0 200 100">
+                          <defs>
+                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#007bff" />
+                          <stop offset="100%" stop-color="#ff6600" />
+                          </linearGradient>
+                          </defs>
+                          <path class="infinity-shape"
+                                d="M30,50
+                                  C30,20 70,20 100,50
+                                  C130,80 170,80 170,50
+                                  C170,20 130,20 100,50
+                                  C70,80 30,80 30,50"
+                              />
+                        </svg>
+                        <p style={{color: '#000'}}>Processing data...</p>
                       </div>
-                    )}
-                    {!tabLoading && (
-                      <div className="col-md-8">
-                        {/* Business Info Tab Content */}
-                        {activeTab === 'businessInfo' && (
-                          <BusinessInfoTab
+                    </div>
+                  )}
+                  {!tabLoading && (
+                    <div className="col-md-8">
+                      {/* Business Info Tab Content */}
+                      {activeTab === 'businessInfo' && (
+                        <BusinessInfoTab
                           lead={lead}
                           errors={errors}
                           register={register}
@@ -3571,143 +4061,140 @@ const LeadDetail = () => {
                           primaryContact={primaryContact}
                           billingProfileOptions={billingProfileOptions}
                           leadId={leadId}
+                          formData={formData}
+                          setFormData={setFormData}
                         />
-                        )}
+                      )}
 
-
-
-                        {/* Affiliate Commission Tab Content */}
-                        {shouldShowAffiliateTab && activeTab === 'affiliateCommission' ? (
-                          <AffiliateCommissionTab
-                            tier1CommissionBasis={tier1CommissionBasis}
-                            tier1ReferrerType={tier1ReferrerType}
-                            tier1ReferrerFixed={tier1ReferrerFixed}
-                            referrer_percentage={referrer_percentage}
-                            tier1InvoiceAmount={tier1InvoiceAmount}
-                            tier2CommissionBasis={tier2CommissionBasis}
-                            tier2CommissionType={tier2CommissionType}
-                            tier2ReferrerFixed={tier2ReferrerFixed}
-                            tier2ErcChgReceived={tier2ErcChgReceived}
-                            tier2InvoiceAmount={tier2InvoiceAmount}
-                            tier3CommissionBasis={tier3CommissionBasis}
-                            tier3CommissionType={tier3CommissionType}
-                            tier3ReferrerFixed={tier3ReferrerFixed}
-                            tier3ErcChgReceived={tier3ErcChgReceived}
-                            tier3InvoiceAmount={tier3InvoiceAmount}
-                            currentTier={currentTier}
-                            slab1AppliedOn={slab1AppliedOn}
-                            slab1CommissionType={slab1CommissionType}
-                            slab1CommissionValue={slab1CommissionValue}
-                            slab2AppliedOn={slab2AppliedOn}
-                            slab2CommissionType={slab2CommissionType}
-                            slab2CommissionValue={slab2CommissionValue}
-                            slab3AppliedOn={slab3AppliedOn}
-                            slab3CommissionType={slab3CommissionType}
-                            slab3CommissionValue={slab3CommissionValue}
-                            masterCommissionType={masterCommissionType}
-                            masterCommissionValue={masterCommissionValue}
-                            handleTier1CommissionBasisChange={handleTier1CommissionBasisChange}
-                            handleTier1ReferrerTypeChange={handleTier1ReferrerTypeChange}
-                            handleTier1ReferrerFixedChange={handleTier1ReferrerFixedChange}
-                            handlereferrer_percentageChange={handlereferrer_percentageChange}
-                            handleTier1InvoiceAmountChange={handleTier1InvoiceAmountChange}
-                            handleTier2CommissionBasisChange={handleTier2CommissionBasisChange}
-                            handleTier2CommissionTypeChange={handleTier2CommissionTypeChange}
-                            handleTier2ReferrerFixedChange={handleTier2ReferrerFixedChange}
-                            handleTier2ErcChgReceivedChange={handleTier2ErcChgReceivedChange}
-                            handleTier2InvoiceAmountChange={handleTier2InvoiceAmountChange}
-                            handleTier3CommissionBasisChange={handleTier3CommissionBasisChange}
-                            handleTier3CommissionTypeChange={handleTier3CommissionTypeChange}
-                            handleTier3ReferrerFixedChange={handleTier3ReferrerFixedChange}
-                            handleTier3ErcChgReceivedChange={handleTier3ErcChgReceivedChange}
-                            handleTier3InvoiceAmountChange={handleTier3InvoiceAmountChange}
-                            handleCurrentTierChange={handleCurrentTierChange}
-                            handleSlab1AppliedOnChange={handleSlab1AppliedOnChange}
-                            handleSlab1CommissionTypeChange={handleSlab1CommissionTypeChange}
-                            handleSlab1CommissionValueChange={handleSlab1CommissionValueChange}
-                            handleSlab2AppliedOnChange={handleSlab2AppliedOnChange}
-                            handleSlab2CommissionTypeChange={handleSlab2CommissionTypeChange}
-                            handleSlab2CommissionValueChange={handleSlab2CommissionValueChange}
-                            handleSlab3AppliedOnChange={handleSlab3AppliedOnChange}
-                            handleSlab3CommissionTypeChange={handleSlab3CommissionTypeChange}
-                            handleSlab3CommissionValueChange={handleSlab3CommissionValueChange}
-                            handleMasterCommissionTypeChange={handleMasterCommissionTypeChange}
-                            handleMasterCommissionValueChange={handleMasterCommissionValueChange}
-                          />
+                      {shouldShowAffiliateTab && activeTab === 'affiliateCommission' && (
+                        <AffiliateCommissionTab
+                          tier1CommissionBasis={tier1CommissionBasis}
+                          tier1ReferrerType={tier1ReferrerType}
+                          tier1ReferrerFixed={tier1ReferrerFixed}
+                          referrer_percentage={referrer_percentage}
+                          tier1InvoiceAmount={tier1InvoiceAmount}
+                          tier2CommissionBasis={tier2CommissionBasis}
+                          tier2CommissionType={tier2CommissionType}
+                          tier2ReferrerFixed={tier2ReferrerFixed}
+                          tier2ErcChgReceived={tier2ErcChgReceived}
+                          tier2InvoiceAmount={tier2InvoiceAmount}
+                          tier3CommissionBasis={tier3CommissionBasis}
+                          tier3CommissionType={tier3CommissionType}
+                          tier3ReferrerFixed={tier3ReferrerFixed}
+                          tier3ErcChgReceived={tier3ErcChgReceived}
+                          tier3InvoiceAmount={tier3InvoiceAmount}
+                          currentTier={currentTier}
+                          slab1AppliedOn={slab1AppliedOn}
+                          slab1CommissionType={slab1CommissionType}
+                          slab1CommissionValue={slab1CommissionValue}
+                          slab2AppliedOn={slab2AppliedOn}
+                          slab2CommissionType={slab2CommissionType}
+                          slab2CommissionValue={slab2CommissionValue}
+                          slab3AppliedOn={slab3AppliedOn}
+                          slab3CommissionType={slab3CommissionType}
+                          slab3CommissionValue={slab3CommissionValue}
+                          masterCommissionType={masterCommissionType}
+                          masterCommissionValue={masterCommissionValue}
+                          handleTier1CommissionBasisChange={handleTier1CommissionBasisChange}
+                          handleTier1ReferrerTypeChange={handleTier1ReferrerTypeChange}
+                          handleTier1ReferrerFixedChange={handleTier1ReferrerFixedChange}
+                          handlereferrer_percentageChange={handlereferrer_percentageChange}
+                          handleTier1InvoiceAmountChange={handleTier1InvoiceAmountChange}
+                          handleTier2CommissionBasisChange={handleTier2CommissionBasisChange}
+                          handleTier2CommissionTypeChange={handleTier2CommissionTypeChange}
+                          handleTier2ReferrerFixedChange={handleTier2ReferrerFixedChange}
+                          handleTier2ErcChgReceivedChange={handleTier2ErcChgReceivedChange}
+                          handleTier2InvoiceAmountChange={handleTier2InvoiceAmountChange}
+                          handleTier3CommissionBasisChange={handleTier3CommissionBasisChange}
+                          handleTier3CommissionTypeChange={handleTier3CommissionTypeChange}
+                          handleTier3ReferrerFixedChange={handleTier3ReferrerFixedChange}
+                          handleTier3ErcChgReceivedChange={handleTier3ErcChgReceivedChange}
+                          handleTier3InvoiceAmountChange={handleTier3InvoiceAmountChange}
+                          handleCurrentTierChange={handleCurrentTierChange}
+                          handleSlab1AppliedOnChange={handleSlab1AppliedOnChange}
+                          handleSlab1CommissionTypeChange={handleSlab1CommissionTypeChange}
+                          handleSlab1CommissionValueChange={handleSlab1CommissionValueChange}
+                          handleSlab2AppliedOnChange={handleSlab2AppliedOnChange}
+                          handleSlab2CommissionTypeChange={handleSlab2CommissionTypeChange}
+                          handleSlab2CommissionValueChange={handleSlab2CommissionValueChange}
+                          handleSlab3AppliedOnChange={handleSlab3AppliedOnChange}
+                          handleSlab3CommissionTypeChange={handleSlab3CommissionTypeChange}
+                          handleSlab3CommissionValueChange={handleSlab3CommissionValueChange}
+                          handleMasterCommissionTypeChange={handleMasterCommissionTypeChange}
+                          handleMasterCommissionValueChange={handleMasterCommissionValueChange}
+                        />
+                      )}
                         
-                        ) : null}
                         {/* Contacts Tab Content */}
-                        {activeTab === 'contacts' && (
-                          <ContactsTab
-                            leadId={leadId}
-                            handleOpenLinkContactModal={handleOpenLinkContactModal}
-                            contacts={contacts}
-                            handleEditContact={handleEditContact}
-                            handleDisableContact={handleDisableContact}
-                            handleUpdateContact={handleUpdateContact}
-                            contactsLoading={contactsLoading} // Pass contactsLoading as a prop
-                            newContactId={newContactId} // Pass newContactId as a prop
-                          />
-                        )}
+                      {activeTab === 'contacts' && (
+                        <ContactsTab
+                          leadId={leadId}
+                          handleOpenLinkContactModal={handleOpenLinkContactModal}
+                          contacts={contacts}
+                          handleEditContact={handleEditContact}
+                          handleDisableContact={handleDisableContact}
+                          contactsLoading={contactsLoading}
+                          newContactId={newContactId}
+                        />
+                      )}
 
-                        {/* Projects Tab Content */}
-                        {activeTab === 'projects' && (
-                          <ProjectsTab
-                            projects={projects}
-                            showEditProjectModal={showEditProjectModal}
-                            projectUpdateLoading={projectUpdateLoading}
-                            projectUpdateSuccess={projectUpdateSuccess}
-                            projectUpdateError={projectUpdateError}
-                            projectFormData={projectFormData}
-                            currentProject={currentProject}
-                            projectErrors={projectErrors}
-                            milestones={milestones}
-                            milestoneStages={milestoneStages}
-                            contacts={contacts}
-                            handleEditProject={handleEditProject}
-                            handleCloseEditProjectModal={handleCloseEditProjectModal}
-                            handleUpdateProject={handleUpdateProject}
-                            handleSubmitProject={handleSubmitProject}
-                            registerProject={registerProject}
-                            setProjectFormData={setProjectFormData}
-                            setMilestoneStages={setMilestoneStages}
-                            fetchMilestoneStages={fetchMilestoneStages}
-                          />
-                        )}
+                      {activeTab === 'projects' && (
+                        <ProjectsTab
+                          projects={projects}
+                          showEditProjectModal={showEditProjectModal}
+                          projectUpdateLoading={projectUpdateLoading}
+                          projectUpdateSuccess={projectUpdateSuccess}
+                          projectUpdateError={projectUpdateError}
+                          projectFormData={projectFormData}
+                          currentProject={currentProject}
+                          projectErrors={projectErrors}
+                          milestones={milestones}
+                          milestoneStages={milestoneStages}
+                          contacts={contacts}
+                          handleEditProject={handleEditProject}
+                          handleCloseEditProjectModal={handleCloseEditProjectModal}
+                          handleUpdateProject={handleUpdateProject}
+                          handleSubmitProject={handleSubmitProject}
+                          registerProject={registerProject}
+                          setProjectFormData={setProjectFormData}
+                          setMilestoneStages={setMilestoneStages}
+                          fetchMilestoneStages={fetchMilestoneStages}
+                        />
+                      )}
 
-                        {/* Opportunities Tab Content */}
-                        {activeTab === 'opportunities' && (
-                          <OpportunitiesTab
-                            opportunities={opportunities}
-                            handleEditOpportunity={handleEditOpportunity}
-                            showDeleteConfirmation={showDeleteConfirmation}
-                            showEditOpportunityModal={showEditOpportunityModal}
-                            opportunityUpdateLoading={opportunityUpdateLoading}
-                            opportunityUpdateSuccess={opportunityUpdateSuccess}
-                            opportunityUpdateError={opportunityUpdateError}
-                            opportunityFormData={opportunityFormData}
-                            currentOpportunity={currentOpportunity}
-                            milestones={milestones}
-                            milestoneStages={milestoneStages}
-                            handleCloseEditOpportunityModal={handleCloseEditOpportunityModal}
-                            handleUpdateOpportunity={handleUpdateOpportunity}
-                            setOpportunityFormData={setOpportunityFormData}
-                            setMilestoneStages={setMilestoneStages}
-                            fetchMilestoneStages={fetchMilestoneStages}
-                          />
-                        )}
+                      {/* Opportunities Tab Content */}
+                      {activeTab === 'opportunities' && (
+                        <OpportunitiesTab
+                          opportunities={opportunities}
+                          handleEditOpportunity={handleEditOpportunity}
+                          showDeleteConfirmation={showDeleteConfirmation}
+                          showEditOpportunityModal={showEditOpportunityModal}
+                          opportunityUpdateLoading={opportunityUpdateLoading}
+                          opportunityUpdateSuccess={opportunityUpdateSuccess}
+                          opportunityUpdateError={opportunityUpdateError}
+                          opportunityFormData={opportunityFormData}
+                          currentOpportunity={currentOpportunity}
+                          milestones={milestones}
+                          milestoneStages={milestoneStages}
+                          handleCloseEditOpportunityModal={handleCloseEditOpportunityModal}
+                          handleUpdateOpportunity={handleUpdateOpportunity}
+                          setOpportunityFormData={setOpportunityFormData}
+                          setMilestoneStages={setMilestoneStages}
+                          fetchMilestoneStages={fetchMilestoneStages}
+                        />
+                      )}
 
                       {/* Audit Logs Tab Content */}
                       {activeTab === 'auditLogs' && (
                         <div className="mb-4 left-section-container">
-                          <AuditLogsMultiSection isAuditLogsData={isAuditLogsData} leadId={leadId || '9020'} />
+                          <AuditLogsMultiSection leadId={leadId || '9020'} />
                         </div>
                       )}
-                      </div>
-                    )}
-                    {/* Right Side Section - Same for all tabs */}
-                    <div className="col-md-4">
-                      <LeadClassificationAndAssignment
+                    </div>
+                  )}
+                  {/* Right Side Section - Same for all tabs */}
+                  <div className="col-md-4">
+                    <LeadClassificationAndAssignment
                         leadId={leadId}
                         setFormData={setFormData}
                         leadGroup={leadGroup}
@@ -3756,7 +4243,7 @@ const LeadDetail = () => {
                           </div>
                         )}
                     </div>
-                    </div>
+                  </div>
                 </div>
 
                   {/* Debug Panel */}
