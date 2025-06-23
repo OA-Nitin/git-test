@@ -9,13 +9,13 @@ const ProjectAuditLogsTest = ({ project }) => {
   const { projectId } = useParams();
 
   useEffect(() => {
-    console.log('=== PROJECT AUDIT LOGS API TEST ===');
-    console.log('Project ID from URL:', projectId);
-    console.log('Project data:', project);
+    //console.log('=== PROJECT AUDIT LOGS API TEST ===');
+    //console.log('Project ID from URL:', projectId);
+    //console.log('Project data:', project);
     
     if (project) {
-      console.log('Lead ID:', project.lead_id);
-      console.log('Product ID:', project.product_id);
+      //console.log('Lead ID:', project.lead_id);
+      //console.log('Product ID:', project.product_id);
       
       // Build the API URL
       const apiUrl = new URL('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-audit-logs');
@@ -23,11 +23,11 @@ const ProjectAuditLogsTest = ({ project }) => {
       apiUrl.searchParams.append('lead_id', project.lead_id);
       apiUrl.searchParams.append('product_id', project.product_id);
       
-      console.log('Constructed API URL:', apiUrl.toString());
+      //console.log('Constructed API URL:', apiUrl.toString());
       
       // Check if all required parameters are present
       const hasAllParams = projectId && project.lead_id && project.product_id;
-      console.log('All required parameters present:', hasAllParams);
+      //console.log('All required parameters present:', hasAllParams);
       
       if (!hasAllParams) {
         console.warn('Missing required parameters:');
@@ -38,7 +38,7 @@ const ProjectAuditLogsTest = ({ project }) => {
     } else {
       console.warn('Project data not available yet');
     }
-    console.log('=====================================');
+    //console.log('=====================================');
   }, [projectId, project]);
 
   if (!project) {

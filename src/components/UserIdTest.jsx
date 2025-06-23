@@ -7,11 +7,11 @@ import { getUserId, getUserData } from '../utils/userUtils';
  */
 const UserIdTest = () => {
   useEffect(() => {
-    console.log('=== USER ID TEST ===');
-    console.log('getUserId():', getUserId());
-    console.log('getUserData():', getUserData());
-    console.log('localStorage user:', localStorage.getItem('user'));
-    console.log('==================');
+    //console.log('=== USER ID TEST ===');
+    //console.log('getUserId():', getUserId());
+    //console.log('getUserData():', getUserData());
+    //console.log('localStorage user:', localStorage.getItem('user'));
+    //console.log('==================');
   }, []);
 
   const currentUserId = getUserId();

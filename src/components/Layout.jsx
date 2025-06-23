@@ -11,11 +11,11 @@ const Layout = ({ children }) => {
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
-        console.log('Layout - parsed user data:', parsedData);
+        //console.log('Layout - parsed user data:', parsedData);
 
         // Extract user data from the nested structure based on the exact JSON format
         if (parsedData.data && parsedData.data.user) {
-          console.log('Layout - found user data in data.user:', parsedData.data.user);
+          //console.log('Layout - found user data in data.user:', parsedData.data.user);
           return parsedData.data.user;
         }
 
@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
     const initializeMenu = () => {
       if (window.$ && window.$.fn && window.$.fn.metisMenu) {
         try {
-          console.log('Layout: Initializing MetisMenu from React component');
+          //console.log('Layout: Initializing MetisMenu from React component');
 
           // First, dispose any existing instance
           if (window.$('#adminmenu').data('metisMenu')) {

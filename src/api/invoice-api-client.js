@@ -210,8 +210,8 @@ class InvoiceApiClient {
       if (!cleanParams.sort_order) cleanParams.sort_order = 'desc';
 
       // Log the parameters being sent to the API
-      console.log('Sending params to API:', cleanParams);
-      console.log('API URL:', `${this.baseUrl}/invoices`);
+      //console.log('Sending params to API:', cleanParams);
+      //console.log('API URL:', `${this.baseUrl}/invoices`);
 
       // Make a direct API request without authentication
       try {
@@ -229,19 +229,19 @@ class InvoiceApiClient {
         });
 
         // Log the response structure
-        console.log('API response structure:', {
-          success: response.data.success,
-          message: response.data.message,
-          dataCount: response.data.data ? response.data.data.length : 0,
-          total: response.data.total,
-          pages: response.data.pages,
-          filters: response.data.filters ? Object.keys(response.data.filters) : []
-        });
+        // console.log('API response structure:', {
+        //   success: response.data.success,
+        //   message: response.data.message,
+        //   dataCount: response.data.data ? response.data.data.length : 0,
+        //   total: response.data.total,
+        //   pages: response.data.pages,
+        //   filters: response.data.filters ? Object.keys(response.data.filters) : []
+        // });
 
         return response.data;
       } catch (error) {
         console.error('Error making direct API request:', error);
-        console.log('Falling back to sample data for demonstration');
+        //console.log('Falling back to sample data for demonstration');
 
         // Create a sample response that matches the API response structure
         // This ensures pagination and other features work correctly
@@ -416,14 +416,14 @@ class InvoiceApiClient {
       };
 
       // Log the response structure
-      console.log('API response structure:', {
-        success: response.success,
-        message: response.message,
-        dataCount: response.data.length,
-        total: response.total,
-        pages: response.pages,
-        filters: Object.keys(response.filters)
-      });
+      // console.log('API response structure:', {
+      //   success: response.success,
+      //   message: response.message,
+      //   dataCount: response.data.length,
+      //   total: response.total,
+      //   pages: response.pages,
+      //   filters: Object.keys(response.filters)
+      // });
 
       return response;
     } catch (error) {
@@ -440,7 +440,6 @@ class InvoiceApiClient {
    */
   async getInvoiceDetail(invoiceId) {
     try {
-      console.log(`Fetching invoice details for ID: ${invoiceId}`);
 
       // Make a direct API request without authentication
       const response = await axios({
@@ -455,7 +454,7 @@ class InvoiceApiClient {
         withCredentials: false // Important for CORS
       });
 
-      console.log('Invoice detail response:', response.data);
+      //console.log('Invoice detail response:', response.data);
       return response.data;
     } catch (error) {
       this.handleError(error, `Error fetching invoice ${invoiceId}`);
@@ -470,7 +469,7 @@ class InvoiceApiClient {
    */
   async getFilterOptions() {
     try {
-      console.log('Fetching filter options');
+      //console.log('Fetching filter options');
 
       // Make a direct API request without authentication
       try {
@@ -486,11 +485,9 @@ class InvoiceApiClient {
           withCredentials: false // Important for CORS
         });
 
-        console.log('Filter options response:', response.data);
+        //console.log('Filter options response:', response.data);
         return response.data;
       } catch (error) {
-        console.error('Error making direct API request for filter options:', error);
-        console.log('Falling back to sample filter options for demonstration');
 
         // Return sample filter options as fallback
         return SAMPLE_FILTER_OPTIONS;

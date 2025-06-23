@@ -24,7 +24,7 @@ app.use(cors({
 
 // Log all requests
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  //console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
@@ -66,7 +66,7 @@ const productsApiProxy = createProxyMiddleware({
         rawBody += chunk.toString();
       });
       req.on('end', () => {
-        console.log('Request body:', rawBody);
+        //console.log('Request body:', rawBody);
       });
     }
   }
@@ -78,7 +78,7 @@ app.use('/products-api', productsApiProxy);
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`CORS proxy server running on http://localhost:${PORT}`);
-  console.log(`API proxy endpoint: http://localhost:${PORT}/api`);
-  console.log(`Products API endpoint: http://localhost:${PORT}/products-api`);
+  //console.log(`CORS proxy server running on http://localhost:${PORT}`);
+  //console.log(`API proxy endpoint: http://localhost:${PORT}/api`);
+  //console.log(`Products API endpoint: http://localhost:${PORT}/products-api`);
 });

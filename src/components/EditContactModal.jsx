@@ -197,12 +197,12 @@ const parseToDateString = (rawDate) => {
       setError(null);
 
       // Use the specified API endpoint for contact data
-      console.log(
-        "Fetching contact data with leadId:",
-        leadId,
-        "and contactId:",
-        contactId
-      );
+      // console.log(
+      //   "Fetching contact data with leadId:",
+      //   leadId,
+      //   "and contactId:",
+      //   contactId
+      // );
 
       // Make a POST request to fetch contact details
       const response = await axios.post(
@@ -213,14 +213,14 @@ const parseToDateString = (rawDate) => {
         }
       );
 
-      console.log("Contact API response:", response.data);
+      //console.log("Contact API response:", response.data);
 
       if (response.data) {
         // Log the entire response structure to understand its format
-        console.log(
-          "Full API response structure:",
-          JSON.stringify(response.data, null, 2)
-        );
+        // console.log(
+        //   "Full API response structure:",
+        //   JSON.stringify(response.data, null, 2)
+        // );
 
         // Extract contact data from the response
         // The structure might be different from what we expect, so we need to handle it properly
@@ -267,7 +267,7 @@ const parseToDateString = (rawDate) => {
           return;
         }
 
-        console.log("Extracted contact data:", contactData);
+        //console.log("Extracted contact data:", contactData);
 
         // Extract business information from the response
         let businessInfo = [];
@@ -300,8 +300,8 @@ const parseToDateString = (rawDate) => {
           }
         }
 
-        console.log("Business info:", businessInfo);
-        console.log("Selected businesses:", selectedBusinesses);
+        //console.log("Business info:", businessInfo);
+        //console.log("Selected businesses:", selectedBusinesses);
 
         selectedBusinesses = [leadId];
         // Set form data with values from API response
@@ -338,7 +338,7 @@ const parseToDateString = (rawDate) => {
 
         // Fetch contact referrals based on referral type
         if (contactData.referral_type) {
-          console.log("Referral type from API:", contactData.referral_type);
+          //console.log("Referral type from API:", contactData.referral_type);
 
           // Map referral type value to the correct type parameter
           let referralTypeParam = "";
@@ -350,17 +350,17 @@ const parseToDateString = (rawDate) => {
           }
 
           if (referralTypeParam) {
-            console.log(
-              "Fetching contact referrals for type:",
-              referralTypeParam
-            );
+            // console.log(
+            //   "Fetching contact referrals for type:",
+            //   referralTypeParam
+            // );
             fetchContactReferrals(referralTypeParam);
           }
         } else {
           // Default to affiliate_referral if no referral type is specified
-          console.log(
-            "No referral type specified, using default: affiliate_referral"
-          );
+          // console.log(
+          //   "No referral type specified, using default: affiliate_referral"
+          // );
           fetchContactReferrals("affiliate_referral");
         }
       } else {
@@ -379,14 +379,14 @@ const parseToDateString = (rawDate) => {
   // Fetch contact referrals based on referral type
   const fetchContactReferrals = async (type) => {
     try {
-      console.log(`Fetching contact referrals for type: ${type}`);
+      //console.log(`Fetching contact referrals for type: ${type}`);
 
       // Use the API endpoint with type parameter
       const response = await axios.get(
         `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/contact-referrals?type=${type}`
       );
 
-      console.log("Contact referrals API response:", response.data);
+      //console.log("Contact referrals API response:", response.data);
 
       if (response.data) {
         // Process the response data
@@ -405,7 +405,7 @@ const parseToDateString = (rawDate) => {
           }));
         }
 
-        console.log("Processed contact referrals:", referrals);
+        //console.log("Processed contact referrals:", referrals);
 
         // Set the contact referrals
         setContactReferrals(referrals);
@@ -424,17 +424,17 @@ const parseToDateString = (rawDate) => {
               contact_referral: firstReferralUserId,
             }));
 
-            console.log(
-              "Auto-selected first referral with userId:",
-              firstReferralUserId
-            );
+            // console.log(
+            //   "Auto-selected first referral with userId:",
+            //   firstReferralUserId
+            // );
           } else {
-            console.warn("First referral has no valid user ID:", firstReferral);
+            // console.warn("First referral has no valid user ID:", firstReferral);
           }
         }
       }
     } catch (err) {
-      console.error("Error fetching contact referrals:", err);
+      // console.error("Error fetching contact referrals:", err);
     }
   };
 
@@ -444,7 +444,7 @@ const parseToDateString = (rawDate) => {
 
     // Add debug logging for contact referral changes
     if (name === "contact_referral") {
-      console.log("Contact referral changed to:", value);
+      //console.log("Contact referral changed to:", value);
 
       // Force update for contact_referral
       const newFormData = {
@@ -452,7 +452,7 @@ const parseToDateString = (rawDate) => {
         contact_referral: value,
       };
 
-      console.log("Updated form data:", newFormData);
+      //console.log("Updated form data:", newFormData);
       setFormData(newFormData);
     } else {
       // Handle other fields normally
@@ -466,7 +466,7 @@ const parseToDateString = (rawDate) => {
   // Handle referral type change
   const handleReferralTypeChange = (e) => {
     const value = e.target.value;
-    console.log("Selected referral type:", value);
+    //console.log("Selected referral type:", value);
 
     setFormData({
       ...formData,
@@ -484,7 +484,7 @@ const parseToDateString = (rawDate) => {
     }
 
     if (referralTypeParam) {
-      console.log("Fetching contact referrals for type:", referralTypeParam);
+      //console.log("Fetching contact referrals for type:", referralTypeParam);
       fetchContactReferrals(referralTypeParam);
     } else {
       setContactReferrals([]);
@@ -498,7 +498,7 @@ const parseToDateString = (rawDate) => {
       (option) => option.value
     );
 
-    console.log("Selected business values:", selectedValues);
+    //console.log("Selected business values:", selectedValues);
 
     setFormData({
       ...formData,
@@ -509,7 +509,7 @@ const parseToDateString = (rawDate) => {
   // Handle contact referral change specifically
   const handleContactReferralChange = (e) => {
     const value = e.target.value;
-    console.log("Contact referral changed to (specific handler):", value);
+    //console.log("Contact referral changed to (specific handler):", value);
 
     // Update the form data with the new contact referral value
     setFormData((prevData) => ({
@@ -542,7 +542,7 @@ const parseToDateString = (rawDate) => {
           setUpdateError(null);
           setLoading(true);
 
-          console.log("Form data before submission:", data);
+          //console.log("Form data before submission:", data);
 
           // Ensure birthdate is in YYYY-MM-DD string format for submission
           let formattedBirthdate = '';
@@ -576,14 +576,14 @@ const parseToDateString = (rawDate) => {
                 : ""),
           };
 
-          console.log("Submitting contact data:", submitData);
+          //console.log("Submitting contact data:", submitData);
 
           const response = await axios.put(
             `https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`,
             submitData
           );
 
-          console.log("Update response:", JSON.parse(response.data));
+          //console.log("Update response:", JSON.parse(response.data));
 
           if (response.data && JSON.parse(response.data).code == "success") {
             Swal.fire({
@@ -1275,10 +1275,6 @@ selected={
                           <label htmlFor="contact_referral">
                             Contact Referral:*
                           </label>
-                          {console.log(
-                            "Current contact_referral value:",
-                            formData.contact_referral
-                          )}
                           <select
                             id="contact_referral"
                             name="contact_referral"
@@ -1309,7 +1305,7 @@ selected={
                                   ? `referral-${userId}`
                                   : `referral-index-${index}`;
 
-                                //console.log(`Rendering option: key=${uniqueKey}, userId=${userId}, name=${name}`);
+                                ////console.log(`Rendering option: key=${uniqueKey}, userId=${userId}, name=${name}`);
 
                                 return (
                                   <option key={uniqueKey} value={userId}>

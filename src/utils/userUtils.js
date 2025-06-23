@@ -12,11 +12,11 @@ export const getUserData = () => {
   if (storedData) {
     try {
       const parsedData = JSON.parse(storedData);
-      console.log('getUserData - parsed user data:', parsedData);
+      //console.log('getUserData - parsed user data:', parsedData);
 
       // Extract user data from the nested structure based on the exact JSON format
       if (parsedData.data && parsedData.data.user) {
-        console.log('getUserData - found user data in data.user:', parsedData.data.user);
+        //console.log('getUserData - found user data in data.user:', parsedData.data.user);
         return parsedData.data.user;
       }
 
@@ -125,9 +125,9 @@ const MyComponent = () => {
   const username = getUsername();
   const userData = getUserData();
   
-  console.log('Current user ID:', userId);
-  console.log('Current username:', username);
-  console.log('Full user data:', userData);
+  //console.log('Current user ID:', userId);
+  //console.log('Current username:', username);
+  //console.log('Full user data:', userData);
   
   return (
     <div>

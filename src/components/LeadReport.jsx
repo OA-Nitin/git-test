@@ -77,7 +77,7 @@ const LeadReport = ({ projectType }) => {
     fetchLeads();
 
     // Log for debugging
-    console.log('LeadReport useEffect triggered with product:', product, 'productId:', productId);
+    //console.log('LeadReport useEffect triggered with product:', product, 'productId:', productId);
   }, [product, projectType, productId]);
 
   // Function to fetch leads from API
@@ -88,8 +88,8 @@ const LeadReport = ({ projectType }) => {
     try {
       // Log which type of leads we're fetching (from URL param or prop)
       const reportType = product || projectType;
-      console.log(`Fetching ${reportType ? reportType + ' ' : ''}leads from API...`);
-      console.log('Using product ID:', productId);
+      //console.log(`Fetching ${reportType ? reportType + ' ' : ''}leads from API...`);
+      //console.log('Using product ID:', productId);
 
       // Define filterType early so it can be used throughout the function
       const filterType = product || projectType;
@@ -101,9 +101,9 @@ const LeadReport = ({ projectType }) => {
       // For debugging: try with product_id parameter first, but fallback to all leads
       if (productId && filterType && filterType.toLowerCase() !== 'all') {
         apiUrl += `?product_id=${productId}`;
-        console.log('Trying API call with product_id filter:', apiUrl);
+        //console.log('Trying API call with product_id filter:', apiUrl);
       } else {
-        console.log('Fetching all leads without server-side filtering:', apiUrl);
+        //console.log('Fetching all leads without server-side filtering:', apiUrl);
       }
 
       // Make the API request with proper headers
@@ -116,7 +116,7 @@ const LeadReport = ({ projectType }) => {
           },
           timeout: 80000 // 80 second timeout
         });
-        console.log('API Response:', response);
+        //console.log('API Response:', response);
       } catch (apiError) {
         // If API call with product_id fails, try without it
         if (productId && apiUrl.includes('product_id')) {
@@ -129,7 +129,7 @@ const LeadReport = ({ projectType }) => {
             },
             timeout: 80000 // 80 second timeout
           });
-          console.log('Fallback API Response:', response);
+          //console.log('Fallback API Response:', response);
         } else {
           throw apiError; // Re-throw if it's not a product_id related issue
         }
@@ -139,16 +139,16 @@ const LeadReport = ({ projectType }) => {
       if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
         // Use the data array from the API response
         let apiLeads = response.data.data;
-        console.log('API Leads (before filtering):', apiLeads);
+        //console.log('API Leads (before filtering):', apiLeads);
 
         // Filter leads by product parameter or project type prop if specified
         // filterType is already defined earlier in the function
 
         // Special case for "all" - don't filter the leads
         if (filterType && filterType.toLowerCase() !== 'all') {
-          console.log('Filtering leads for specific type:', filterType);
-          console.log('Product ID to match:', productId);
-          console.log('Sample lead data for debugging:', apiLeads[0]);
+          //console.log('Filtering leads for specific type:', filterType);
+          //console.log('Product ID to match:', productId);
+          //console.log('Sample lead data for debugging:', apiLeads[0]);
 
           // If we have a specific product ID, filter by that first
           if (productId) {
@@ -156,11 +156,11 @@ const LeadReport = ({ projectType }) => {
               const leadProductId = lead.product_id ? String(lead.product_id) : '';
               const matches = leadProductId === String(productId);
               if (!matches) {
-                console.log(`Lead ${lead.lead_id} product_id: ${leadProductId} doesn't match expected: ${productId}`);
+                //console.log(`Lead ${lead.lead_id} product_id: ${leadProductId} doesn't match expected: ${productId}`);
               }
               return matches;
             });
-            console.log(`Filtered leads by product_id ${productId}:`, apiLeads.length, 'leads found');
+            //console.log(`Filtered leads by product_id ${productId}:`, apiLeads.length, 'leads found');
           } else {
             // Fallback to text-based filtering if no product ID
             const originalCount = apiLeads.length;
@@ -178,17 +178,17 @@ const LeadReport = ({ projectType }) => {
                              leadGroup.includes(typeToMatch);
 
               if (!matches) {
-                console.log(`Lead ${lead.lead_id} - category: "${category}", productType: "${productType}", leadGroup: "${leadGroup}" doesn't match: "${typeToMatch}"`);
+                //console.log(`Lead ${lead.lead_id} - category: "${category}", productType: "${productType}", leadGroup: "${leadGroup}" doesn't match: "${typeToMatch}"`);
               }
 
               return matches;
             });
-            console.log(`Text-based filtering: ${originalCount} -> ${apiLeads.length} leads`);
+            //console.log(`Text-based filtering: ${originalCount} -> ${apiLeads.length} leads`);
           }
 
-          console.log(`Final filtered leads for ${filterType}:`, apiLeads);
+          //console.log(`Final filtered leads for ${filterType}:`, apiLeads);
         } else if (filterType && filterType.toLowerCase() === 'all') {
-          console.log('Showing all leads without filtering by type');
+          //console.log('Showing all leads without filtering by type');
         }
 
         if (apiLeads.length > 0) {
@@ -351,7 +351,7 @@ const LeadReport = ({ projectType }) => {
     // Reset to first page
     setCurrentPage(1);
     
-    console.log('Reset search and filters due to product change:', product);
+    //console.log('Reset search and filters due to product change:', product);
   }, [product]); // This will run whenever the product/report type changes
 
   // Add another useEffect to reset search when the URL path changes
@@ -363,13 +363,13 @@ const LeadReport = ({ projectType }) => {
     setFilterStatus('');
     setCurrentPage(1);
     
-    console.log('Reset search and filters due to URL change');
+    //console.log('Reset search and filters due to URL change');
   }, [location.pathname]); // This will run whenever the URL path changes
 
   // Add useEffect to log when date filters change
   useEffect(() => {
-    console.log('Date filter changed - startDate:', startDate, 'endDate:', endDate);
-    console.log('Total leads:', leads.length);
+    //console.log('Date filter changed - startDate:', startDate, 'endDate:', endDate);
+    //console.log('Total leads:', leads.length);
     
     if (startDate || endDate) {
       // Count how many leads match the date filter
@@ -415,14 +415,14 @@ const LeadReport = ({ projectType }) => {
         }
       });
       
-      console.log(`Date filter matches ${matchingLeads.length} leads out of ${leads.length}`);
+      //console.log(`Date filter matches ${matchingLeads.length} leads out of ${leads.length}`);
       
       // Log a few sample leads with their dates for debugging
       if (leads.length > 0) {
-        console.log('Sample lead dates:');
+        //console.log('Sample lead dates:');
         leads.slice(0, 5).forEach(lead => {
           const createdDate = lead.created_at || lead.date_created || '';
-          console.log(`Lead ${lead.lead_id}: ${createdDate}`);
+          //console.log(`Lead ${lead.lead_id}: ${createdDate}`);
         });
       }
     }
@@ -535,7 +535,7 @@ const LeadReport = ({ projectType }) => {
 
   // Handle date filter application
   const handleApplyDateFilter = (start, end) => {
-    console.log('Raw date inputs:', { start, end });
+    //console.log('Raw date inputs:', { start, end });
     
     // Format dates consistently as YYYY-MM-DD
     let formattedStart = '';
@@ -567,7 +567,7 @@ const LeadReport = ({ projectType }) => {
       }
     }
     
-    console.log('Formatted dates:', { formattedStart, formattedEnd });
+    //console.log('Formatted dates:', { formattedStart, formattedEnd });
     
     // Update state with formatted dates
     setStartDate(formattedStart);
@@ -615,14 +615,14 @@ const LeadReport = ({ projectType }) => {
     }
     
     // Log the filter application
-    console.log(`Date filter applied: ${formattedStart} to ${formattedEnd}`);
+    //console.log(`Date filter applied: ${formattedStart} to ${formattedEnd}`);
   };
 
   // Add this debugging code near the top of your component
   useEffect(() => {
     if (searchTerm && leads.length > 0) {
       // Log the first few leads to see their structure
-      console.log('Sample leads for debugging search:', leads.slice(0, 3));
+      //console.log('Sample leads for debugging search:', leads.slice(0, 3));
       
       // Check if any leads have the search term in their ID
       const searchTermLower = searchTerm.toLowerCase().trim();
@@ -630,8 +630,7 @@ const LeadReport = ({ projectType }) => {
         String(lead.lead_id || lead.id || '').toLowerCase().includes(searchTermLower)
       );
       
-      console.log(`Found ${matchingLeads.length} leads with ID matching "${searchTerm}":`, 
-        matchingLeads.length > 0 ? matchingLeads.slice(0, 3) : 'None');
+      
     }
   }, [searchTerm, leads]);
 
@@ -639,7 +638,7 @@ const LeadReport = ({ projectType }) => {
   const parseLeadDate = (dateString) => {
     if (!dateString) return null;
     
-    console.log(`Parsing date: "${dateString}"`);
+    //console.log(`Parsing date: "${dateString}"`);
     
     // Try different date formats
     let date;
@@ -647,7 +646,7 @@ const LeadReport = ({ projectType }) => {
     // Try as ISO date (YYYY-MM-DD)
     date = new Date(dateString);
     if (!isNaN(date.getTime())) {
-      console.log(`  Parsed as ISO: ${date.toISOString().split('T')[0]}`);
+      //console.log(`  Parsed as ISO: ${date.toISOString().split('T')[0]}`);
       return date;
     }
     
@@ -658,7 +657,7 @@ const LeadReport = ({ projectType }) => {
       const [_, month, day, year] = mmddyyyyMatch;
       date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       if (!isNaN(date.getTime())) {
-        console.log(`  Parsed as MM/DD/YYYY: ${date.toISOString().split('T')[0]}`);
+        //console.log(`  Parsed as MM/DD/YYYY: ${date.toISOString().split('T')[0]}`);
         return date;
       }
     }
@@ -670,7 +669,7 @@ const LeadReport = ({ projectType }) => {
       const [_, month, day, year] = mdyyyyMatch;
       date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       if (!isNaN(date.getTime())) {
-        console.log(`  Parsed as M/D/YYYY: ${date.toISOString().split('T')[0]}`);
+        //console.log(`  Parsed as M/D/YYYY: ${date.toISOString().split('T')[0]}`);
         return date;
       }
     }
@@ -682,12 +681,12 @@ const LeadReport = ({ projectType }) => {
       const [_, year, month, day] = yyyymmddMatch;
       date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
       if (!isNaN(date.getTime())) {
-        console.log(`  Parsed as YYYY/MM/DD: ${date.toISOString().split('T')[0]}`);
+        //console.log(`  Parsed as YYYY/MM/DD: ${date.toISOString().split('T')[0]}`);
         return date;
       }
     }
     
-    console.log(`  Failed to parse date: "${dateString}"`);
+    //console.log(`  Failed to parse date: "${dateString}"`);
     return null;
   };
 
@@ -730,13 +729,13 @@ const LeadReport = ({ projectType }) => {
 
   // Update the filteredLeads function to use our new date parsing helper
   const filteredLeads = useMemo(() => {
-    console.log('Filtering leads with:', {
-      searchTerm,
-      filterStatus,
-      startDate,
-      endDate,
-      totalLeads: leads.length
-    });
+    // console.log('Filtering leads with:', {
+    //   searchTerm,
+    //   filterStatus,
+    //   startDate,
+    //   endDate,
+    //   totalLeads: leads.length
+    // });
     
     // Convert filter dates to Date objects once
     const startDateObj = startDate ? new Date(startDate) : null;
@@ -745,10 +744,10 @@ const LeadReport = ({ projectType }) => {
     if (startDateObj) startDateObj.setHours(0, 0, 0, 0);
     if (endDateObj) endDateObj.setHours(23, 59, 59, 999);
     
-    console.log('Filter date objects:', {
-      startDate: startDateObj ? startDateObj.toISOString() : null,
-      endDate: endDateObj ? endDateObj.toISOString() : null
-    });
+    // console.log('Filter date objects:', {
+    //   startDate: startDateObj ? startDateObj.toISOString() : null,
+    //   endDate: endDateObj ? endDateObj.toISOString() : null
+    // });
     
     return leads.filter(lead => {
       // Skip filtering if no filters are applied
@@ -810,7 +809,7 @@ const LeadReport = ({ projectType }) => {
         const leadDate = parseLeadDate(createdDateStr);
         
         if (!leadDate) {
-          console.log(`Lead ${lead.lead_id}: Invalid date "${createdDateStr}"`);
+          //console.log(`Lead ${lead.lead_id}: Invalid date "${createdDateStr}"`);
           matchesDateRange = false;
         } else {
           // Set to midnight for date comparison
@@ -818,12 +817,12 @@ const LeadReport = ({ projectType }) => {
           
           // Check if date is within range
           if (startDateObj && leadDate < startDateObj) {
-            console.log(`Lead ${lead.lead_id}: Date ${leadDate.toISOString().split('T')[0]} is before start date ${startDateObj.toISOString().split('T')[0]}`);
+            //console.log(`Lead ${lead.lead_id}: Date ${leadDate.toISOString().split('T')[0]} is before start date ${startDateObj.toISOString().split('T')[0]}`);
             matchesDateRange = false;
           }
           
           if (endDateObj && leadDate > endDateObj) {
-            console.log(`Lead ${lead.lead_id}: Date ${leadDate.toISOString().split('T')[0]} is after end date ${endDateObj.toISOString().split('T')[0]}`);
+            //console.log(`Lead ${lead.lead_id}: Date ${leadDate.toISOString().split('T')[0]} is after end date ${endDateObj.toISOString().split('T')[0]}`);
             matchesDateRange = false;
           }
         }

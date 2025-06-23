@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         collapseCloseClass: 'mm-collapse',
       });
       
-      console.log('MetisMenu initialized');
+      //console.log('MetisMenu initialized');
     } else {
       console.error('MetisMenu not available');
     }

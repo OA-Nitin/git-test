@@ -6,14 +6,14 @@
 
 // Function to initialize MetisMenu
 function initializeMetisMenu() {
-  console.log('Attempting to initialize MetisMenu...');
+  //console.log('Attempting to initialize MetisMenu...');
   
   if (typeof $ !== 'undefined' && $.fn.metisMenu) {
     try {
       // First, destroy any existing metisMenu instances to prevent conflicts
       if ($('#adminmenu').data('metisMenu')) {
         $('#adminmenu').metisMenu('dispose');
-        console.log('Disposed existing MetisMenu instance');
+        //console.log('Disposed existing MetisMenu instance');
       }
       
       // Initialize metisMenu with proper configuration
@@ -25,7 +25,7 @@ function initializeMetisMenu() {
         subMenu: 'ul'
       });
       
-      console.log('MetisMenu successfully initialized');
+      //console.log('MetisMenu successfully initialized');
       
       // Add active class to current menu items
       const currentPath = window.location.pathname;
@@ -35,7 +35,7 @@ function initializeMetisMenu() {
           $(this).addClass('active');
           $(this).parents('li').addClass('mm-active');
           $(this).parents('ul.mm-collapse').addClass('mm-show');
-          console.log('Set active menu item:', link);
+          //console.log('Set active menu item:', link);
         }
       });
     } catch (error) {
@@ -48,7 +48,7 @@ function initializeMetisMenu() {
 
 // Function to initialize dropdown menus
 function initializeDropdowns() {
-  console.log('Attempting to initialize dropdowns...');
+  //console.log('Attempting to initialize dropdowns...');
   
   if (typeof $ !== 'undefined') {
     try {
@@ -65,7 +65,7 @@ function initializeDropdowns() {
         }
       );
       
-      console.log('Dropdowns successfully initialized');
+      //console.log('Dropdowns successfully initialized');
     } catch (error) {
       console.error('Error initializing dropdowns:', error);
     }
@@ -76,7 +76,7 @@ function initializeDropdowns() {
 
 // Main initialization function
 function initializeUI() {
-  console.log('UI initialization started');
+  //console.log('UI initialization started');
   
   // Initialize MetisMenu
   initializeMetisMenu();
@@ -84,12 +84,12 @@ function initializeUI() {
   // Initialize dropdowns
   initializeDropdowns();
   
-  console.log('UI initialization completed');
+  //console.log('UI initialization completed');
 }
 
 // Initialize when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, waiting for React to render...');
+  //console.log('DOM loaded, waiting for React to render...');
   
   // Initial delay to ensure React has rendered components
   setTimeout(initializeUI, 1000);
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (mutation.addedNodes.length > 0) {
         // If adminmenu is added to the DOM, initialize again
         if (document.getElementById('adminmenu')) {
-          console.log('Menu structure changed, reinitializing...');
+          //console.log('Menu structure changed, reinitializing...');
           setTimeout(initializeUI, 500);
         }
       }
@@ -114,6 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Additional initialization for route changes (for React Router)
 window.addEventListener('popstate', function() {
-  console.log('Navigation detected, reinitializing menus...');
+  //console.log('Navigation detected, reinitializing menus...');
   setTimeout(initializeUI, 500);
 });
