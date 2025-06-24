@@ -18,7 +18,6 @@ import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 import { format } from 'date-fns';
 
-var taxNowOnboardingSelect = '';
 
 // Date utility functions
 const formatDateToMMDDYYYY = (date) => {
@@ -4122,79 +4121,59 @@ const LeadDetail = () => {
                       </div>
 
                       <h5 className="section-title mt-4">TaxNow</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Select TaxNow Signup Status</label>
-                            <select
-                              className={`form-select ${errors.taxnow_signup_status ? 'is-invalid' : ''}`}
-                              {...register('taxnow_signup_status')}
-                              name="taxnow_signup_status"
-                              value={taxNowSignupStatus}
-                              onChange={handleInputChange}
-                            >
-                              <option value="">Select TaxNow Signup Status</option>
-                              <option value="Complete">Complete</option>
-                              <option value="Incomplete">Incomplete</option>
-                            </select>
-                            {errors.taxnow_signup_status && (
-                              <div className="invalid-feedback">{errors.taxnow_signup_status.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Select TaxNow Onboarding Status</label>
-                            <select
-                              className={`form-select ${errors.taxnow_onboarding_status ? 'is-invalid' : ''}`}
-                              {...register('taxnow_onboarding_status')}
-                              name="taxnow_onboarding_status"
-                              value={taxNowOnboardingStatus}
-                              onChange={handleInputChange}
-                            >
-                              <option value="">Select TaxNow Onboarding Status</option>
-                              {taxNowSignupStatus === 'Complete' ? (
-                                <>
-                                {taxNowOnboardingStatus === 'Awaiting IRS' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}
-                                  <option value="Awaiting IRS" selected={taxNowOnboardingSelect}>Awaiting IRS</option>
-                                {taxNowOnboardingStatus === 'Active' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}  
-                                  <option value="Active" selected={taxNowOnboardingSelect}>Active</option>
-                                </>
-                              ) : taxNowSignupStatus === 'Incomplete' ? (
-                                <>
-                                {taxNowOnboardingStatus === 'Invite Sent' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}
-                                  <option value="Invite Sent" selected={taxNowOnboardingSelect}>Invite Sent</option>
-                                  {taxNowOnboardingStatus === 'KYC Verification' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}
-                                  <option value="KYC Verification" selected={taxNowOnboardingSelect}>KYC Verification</option>
-                                  {taxNowOnboardingStatus === 'KYB Verification' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}
-                                  <option value="KYB Verification" selected={taxNowOnboardingSelect}>KYB Verification</option>
-                                  {taxNowOnboardingStatus === 'TIA Unsigned' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}
-                                  <option value="TIA Unsigned" selected={taxNowOnboardingSelect}>TIA Unsigned</option>
-                                  {taxNowOnboardingStatus === 'Blank' ? (
-                                  taxNowOnboardingSelect = 'selected'
-                                ):taxNowOnboardingSelect = ''}
-                                  <option value="Blank" selected={taxNowOnboardingSelect}>Blank</option>
-                                </>
-                              ) : null}
-                            </select>
-                            {errors.taxnow_onboarding_status && (
-                              <div className="invalid-feedback">{errors.taxnow_onboarding_status.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+      <div className="row mb-3">
+        <div className="col-md-6">
+          <div className="form-group">
+            <label className="form-label">Select TaxNow Signup Status</label>
+            <select
+              className={`form-select ${errors.taxnow_signup_status ? 'is-invalid' : ''}`}
+              {...register('taxnow_signup_status')}
+              name="taxnow_signup_status"
+              value={taxNowSignupStatus}
+              onChange={handleInputChange}
+            >
+              <option value="">Select TaxNow Signup Status</option>
+              <option value="Complete">Complete</option>
+              <option value="Incomplete">Incomplete</option>
+            </select>
+            {errors.taxnow_signup_status && (
+              <div className="invalid-feedback">{errors.taxnow_signup_status.message}</div>
+            )}
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="form-group">
+            <label className="form-label">Select TaxNow Onboarding Status</label>
+            <select
+              className={`form-select ${errors.taxnow_onboarding_status ? 'is-invalid' : ''}`}
+              {...register('taxnow_onboarding_status')}
+              name="taxnow_onboarding_status"
+              value={taxNowOnboardingStatus}
+              onChange={handleInputChange}
+            >
+              <option value="">Select TaxNow Onboarding Status</option>
+              {taxNowSignupStatus === 'Complete' ? (
+                <>
+                  <option value="Awaiting IRS">Awaiting IRS</option>
+                  <option value="Active">Active</option>
+                </>
+              ) : taxNowSignupStatus === 'Incomplete' ? (
+                <>
+                  <option value="Invite Sent">Invite Sent</option>
+                  <option value="KYC Verification">KYC Verification</option>
+                  <option value="KYB Verification">KYB Verification</option>
+                  <option value="TIA Unsigned">TIA Unsigned</option>
+                  <option value="Blank">Blank</option>
+                </>
+              ) : null}
+            </select>
+            {errors.taxnow_onboarding_status && (
+              <div className="invalid-feedback">{errors.taxnow_onboarding_status.message}</div>
+            )}
+          </div>
+        </div>
+      </div>
+ 
 
                       <h5 className="section-title mt-4">Business Legal Info</h5>
                       <div className="row mb-3">
