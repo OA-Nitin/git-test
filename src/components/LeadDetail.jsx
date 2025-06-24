@@ -18,6 +18,7 @@ import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 import { format } from 'date-fns';
 
+var taxNowOnboardingSelect = '';
 
 // Date utility functions
 const formatDateToMMDDYYYY = (date) => {
@@ -4154,16 +4155,37 @@ const LeadDetail = () => {
                               <option value="">Select TaxNow Onboarding Status</option>
                               {taxNowSignupStatus === 'Complete' ? (
                                 <>
-                                  <option value="Awaiting IRS">Awaiting IRS</option>
-                                  <option value="Active">Active</option>
+                                {taxNowOnboardingStatus === 'Awaiting IRS' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}
+                                  <option value="Awaiting IRS" selected={taxNowOnboardingSelect}>Awaiting IRS</option>
+                                {taxNowOnboardingStatus === 'Active' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}  
+                                  <option value="Active" selected={taxNowOnboardingSelect}>Active</option>
                                 </>
                               ) : taxNowSignupStatus === 'Incomplete' ? (
                                 <>
-                                  <option value="Invite Sent">Invite Sent</option>
-                                  <option value="KYC Verification">KYC Verification</option>
-                                  <option value="KYB Verification">KYB Verification</option>
-                                  <option value="TIA Unsigned">TIA Unsigned</option>
-                                  <option value="Blank">Blank</option>
+                                {taxNowOnboardingStatus === 'Invite Sent' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}
+                                  <option value="Invite Sent" selected={taxNowOnboardingSelect}>Invite Sent</option>
+                                  {taxNowOnboardingStatus === 'KYC Verification' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}
+                                  <option value="KYC Verification" selected={taxNowOnboardingSelect}>KYC Verification</option>
+                                  {taxNowOnboardingStatus === 'KYB Verification' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}
+                                  <option value="KYB Verification" selected={taxNowOnboardingSelect}>KYB Verification</option>
+                                  {taxNowOnboardingStatus === 'TIA Unsigned' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}
+                                  <option value="TIA Unsigned" selected={taxNowOnboardingSelect}>TIA Unsigned</option>
+                                  {taxNowOnboardingStatus === 'Blank' ? (
+                                  taxNowOnboardingSelect = 'selected'
+                                ):taxNowOnboardingSelect = ''}
+                                  <option value="Blank" selected={taxNowOnboardingSelect}>Blank</option>
                                 </>
                               ) : null}
                             </select>
