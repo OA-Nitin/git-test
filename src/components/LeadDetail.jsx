@@ -839,6 +839,7 @@ const LeadDetail = () => {
   // Reset onboarding status when signup status changes
   useEffect(() => {
     setTaxNowOnboardingStatus('');
+    // console.log('=onboardingsss2222=');
   }, [taxNowSignupStatus]);
 
   // Ensure primary contact state is preserved during tab changes
@@ -1032,7 +1033,13 @@ const LeadDetail = () => {
 
           // Update specific state variables
           setTaxNowSignupStatus(businessData.taxnow_signup_status || '');
-          setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          
+    
+          setTimeout(() => {
+            // If primary contact state was lost, restore it
+            setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+            // console.log('=onboardingsss5555s='+businessData.taxnow_onboarding_status);
+          }, 100);
 
           // Update folder links if available
           setCompanyFolderLink(businessData.company_folder_link || '');
@@ -1516,8 +1523,9 @@ const LeadDetail = () => {
         }
         if (passedLeadData.taxnow_onboarding_status) {
           setTaxNowOnboardingStatus(passedLeadData.taxnow_onboarding_status);
+          // console.log('=onboarding='+passedLeadData.taxnow_onboarding_status);
         }
-
+          // console.log('=onboardingsss=');
         // Set lead classification data
         if (passedLeadData.lead_group) {
           setLeadGroup({ value: passedLeadData.lead_group.toLowerCase().replace(/\s+/g, '-'),
@@ -3374,6 +3382,7 @@ const LeadDetail = () => {
       setTaxNowSignupStatus(value);
     } else if (name === 'taxnow_onboarding_status') {
       setTaxNowOnboardingStatus(value);
+      // console.log('=onboardingsss111=');
     } else if (name === 'company_folder_link') {
       setCompanyFolderLink(value);
     } else if (name === 'document_folder_link') {
