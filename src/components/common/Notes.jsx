@@ -23,7 +23,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 
-
 // Standardized date formatting function for MM/DD/YYYY format
 const formatDateToMMDDYYYYss = (dateString) => {
   if (!dateString) return '';
@@ -136,6 +135,9 @@ const Notes = ({
   const [showViewNotesModal, setShowViewNotesModal] = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   // const [newNote, setNewNote] = useState('');
+
+  const [userData, setUserData] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -188,6 +190,33 @@ const Notes = ({
     }
   }, [entityId, showNotes, showViewNotesModal]);
 
+
+const ConfidentialUser = () => {  
+  useEffect(() => {
+    axios
+      .get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/confidential-user?user_id='+getUserId())
+      .then((response) => {
+        setUserData(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []); 
+  var confidence_user = '';
+  if(userData.status==1){
+    // console.log('confidence_user=');
+    // console.log(userData.confidence_user);
+    confidence_user = userData.confidence_user;
+  }
+  // confidence_user = 0;
+  return confidence_user;
+};  
+
+
+  var confidence_users = ConfidentialUser();
+  // console.log('confidence_users='+ confidence_users);
   // Function to fetch notes from API
   const fetchNotes = (page = 1, isRetry = false) => {
     if (loading) return;
@@ -314,6 +343,7 @@ const Notes = ({
         return {
           id: note.id || note.note_id || `note-${Math.random().toString(36).toString(36).slice(2)}`,
           text: noteText,
+          confidential_notes: note.confidential_notes || note.confidence_notes_access,
           author: note.author || note.user_name || note.created_by || 'User',
           date: originalDate,
           formattedDate
@@ -432,9 +462,10 @@ const Notes = ({
 
   // Function to handle adding a new note
   const handleAddNote = (formData) => {
+  console.log(formData);
     // Allow empty notes to be submitted, but trim it for the API call
     const trimmedNote = formData.note ? formData.note.trim() : '';
-
+    const confidential_notes_val = formData.confidential_notes ? formData.confidential_notes : 0;
     // Debug information
     //console.log('Adding note for:', { entityType, entityId, trimmedNote });
 
@@ -452,6 +483,7 @@ const Notes = ({
       noteData = {
         lead_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         user_id: userId  // This should ideally come from a user context
       };
     }
@@ -459,6 +491,7 @@ const Notes = ({
       noteData = {
         project_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         user_id: userId  // This should ideally come from a user context
       };
     } else if (entityType === 'opportunity') {
@@ -467,6 +500,7 @@ const Notes = ({
       noteData = {
         opportunity_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         user_id: userId  // Required parameter as shown in the Postman screenshot
       };
 
@@ -477,6 +511,7 @@ const Notes = ({
       noteData = {
         lead_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         status: 'active'
       };
     }
@@ -594,6 +629,7 @@ const Notes = ({
       });
   };
 
+  
   // Render the notes list
   const renderNotesList = () => {
     if (notes.length === 0) {
@@ -640,10 +676,29 @@ const Notes = ({
           }
           scrollableTarget="scrollableNotesDiv"
         >
-          {notes.map((note) => (
-            <div
+          {notes.map((note) => {
+            
+             let main_background_cls = "note-item mb-3 p-3 rounded shadow-sm";
+              if(confidence_users == 0 && note.confidential_notes === 1){
+                    // console.log('confidential notes true but user not confidential');
+              }else{
+              if (confidence_users == 1 && note.confidential_notes == 1 ) {
+                  main_background_cls += " confidential-notes-div";
+                  // console.log('confidential notes true');
+              }else{
+                main_background_cls += " bg-white";
+                // console.log('no confidential notes');
+              }
+              
+              // if (confidence_users === 0 && note.confidential_notes === 1 ) {
+              //   console.log('yesss');
+              // }else{
+              //   console.log('noo');
+              // }
+
+              return (<div
               key={note.id}
-              className="note-item mb-3 p-3 bg-white rounded shadow-sm"
+              className={main_background_cls}
             >
               <div className="d-flex justify-content-between">
                 <div className="note-date fw-bold">{note.formattedDate}</div>
@@ -653,8 +708,9 @@ const Notes = ({
                   <span className="note-text">{note.text}</span>
                 </div>
               </div>
-            </div>
-          ))}
+            </div>);
+          }
+  })}
         </InfiniteScroll>
       </div>
     );
@@ -717,9 +773,12 @@ const Notes = ({
               )}
             </div>
             <div className="text-muted small">
-              <i className="fas fa-info-circle me-1"></i>
-              Your note will be saved with the current date and time.
-            </div>
+              {confidence_users === 1 && (
+                <div><i className="fas fa-info-circle me-1"></i>
+              Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
+              </div>
+              )}  
+              </div>
           </div>
           <div className="d-flex justify-content-center mt-4">
             <SaveButton
