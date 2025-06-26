@@ -679,7 +679,7 @@ const ConfidentialUser = () => {
           {notes.map((note) => {
             
              let main_background_cls = "note-item mb-3 p-3 rounded shadow-sm";
-              if(confidence_users == 0 && note.confidential_notes === 1){
+              if(confidence_users == 0 && note.confidential_notes == 1){
                     // console.log('confidential notes true but user not confidential');
               }else{
               if (confidence_users == 1 && note.confidential_notes == 1 ) {
