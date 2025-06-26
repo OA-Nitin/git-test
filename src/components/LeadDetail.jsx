@@ -741,7 +741,7 @@ const LeadDetail = () => {
         //console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // await new Promise(resolve => setTimeout(resolve, 500));
 
         //console.log('Current dropdown options state:');
         //console.log('Group options:', groupOptions);
@@ -757,13 +757,13 @@ const LeadDetail = () => {
         //console.log('Basic lead details fetched');
 
         // Then fetch business data to populate the form
-        if(!isBusinessInfoData){
-          await fetchBusinessData();
-        }
+        
+        await fetchBusinessData();
+        
         //console.log('Business data fetched');
 
         // Fetch contact data
-        // await fetchContactData();
+        await fetchContactData();
         //console.log('Contact data fetched');
 
         // Fetch project data
@@ -1005,7 +1005,7 @@ const LeadDetail = () => {
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
-        //console.log('Business data fetched successfully:', response.data);
+        // console.log('Business data fetched successfully:', response.data);
         setIsBusinessInfoData(true);
         // console.log(isBusinessInfoData);
         // Update lead state with business data
@@ -3884,7 +3884,7 @@ const LeadDetail = () => {
               </div>
               <div className="white_card_body">
                   <div className="row">
-                    <div className="col-md-8">
+                    <div className="col-md-12">
                       <div className="text-center my-5">
                         <svg class="loader" viewBox="0 0 200 100">
                           <defs>

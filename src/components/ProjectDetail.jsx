@@ -4898,354 +4898,356 @@ const ProjectDetail = () => {
                 </div>
             </div>
           )}
-          <div className="white_card card_height_100 mb_30">
-            <div className="white_card_header">
-              <div className="box_header m-0 justify-content-between">
-                <h4 className="iris-lead-name">{project?.project_name || "Project Details"}</h4>
+          {!loading &&(
+            <div className="white_card card_height_100 mb_30">
+              <div className="white_card_header">
+                <div className="box_header m-0 justify-content-between">
+                  <h4 className="iris-lead-name">{project?.project_name || "Project Details"}</h4>
+                </div>
+                <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                  <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-project"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('project');
+                      }}
+                      href="#pills-project"
+                      role="tab"
+                      aria-controls="pills-project"
+                      aria-selected={activeTab === 'project'}
+                    >
+                      Project
+                    </a>
+                  </li>
+                  {/* Show Fulfilment tab only for STC (937) projects */}
+                  {project?.product_id === '937' && (
+                    <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-fulfilment"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('fulfilment');
+                        }}
+                        href="#pills-fulfilment"
+                        role="tab"
+                        aria-controls="pills-fulfilment"
+                        aria-selected={activeTab === 'fulfilment'}
+                      >
+                        Fulfilment
+                      </a>
+                    </li>
+                  )}
+
+                  {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
+                  {project?.product_id !== '937' && project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-bank-info"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('bankInfo');
+                        }}
+                        href="#pills-bank-info"
+                        role="tab"
+                        aria-controls="pills-bank-info"
+                        aria-selected={activeTab === 'bankInfo'}
+                      >
+                        Bank Info
+                      </a>
+                    </li>
+                  )}
+                  {/* Hide Intake tab for STC (937) and RDC (932) projects */}
+                  {project?.product_id !== '937' && project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-intake"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('intake');
+                        }}
+                        href="#pills-intake"
+                        role="tab"
+                        aria-controls="pills-intake"
+                        aria-selected={activeTab === 'intake'}
+                      >
+                        Intake
+                      </a>
+                    </li>
+                  )}
+                  {/* Hide Fees tab for STC (937) and RDC (932) projects */}
+                  {project?.product_id !== '937' && project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-fees"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('fees');
+                        }}
+                        href="#pills-fees"
+                        role="tab"
+                        aria-controls="pills-fees"
+                        aria-selected={activeTab === 'fees'}
+                      >
+                        Fees
+                      </a>
+                    </li>
+                  )}
+                  {/* Hide Documents tab for RDC (932) projects */}
+                  {project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-documents"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('documents');
+                        }}
+                        href="#pills-documents"
+                        role="tab"
+                        aria-controls="pills-documents"
+                        aria-selected={activeTab === 'documents'}
+                      >
+                        Documents
+                      </a>
+                    </li>
+                  )}
+
+                  <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-invoices"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('invoices');
+                      }}
+                      href="#pills-invoices"
+                      role="tab"
+                      aria-controls="pills-invoices"
+                      aria-selected={activeTab === 'invoices'}
+                    >
+                      Invoices
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-audit-logs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('auditLogs');
+                      }}
+                      href="#pills-logs"
+                      role="tab"
+                      aria-controls="pills-logs"
+                      aria-selected={activeTab === 'auditLogs'}
+                    >
+                      Audit Logs
+                    </a>
+                  </li>
+                </ul>
               </div>
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-project"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('project');
-                    }}
-                    href="#pills-project"
-                    role="tab"
-                    aria-controls="pills-project"
-                    aria-selected={activeTab === 'project'}
-                  >
-                    Project
-                  </a>
-                </li>
-                {/* Show Fulfilment tab only for STC (937) projects */}
-                {project?.product_id === '937' && (
-                  <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-fulfilment"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('fulfilment');
-                      }}
-                      href="#pills-fulfilment"
-                      role="tab"
-                      aria-controls="pills-fulfilment"
-                      aria-selected={activeTab === 'fulfilment'}
-                    >
-                      Fulfilment
-                    </a>
-                  </li>
-                )}
 
-                {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
-                {project?.product_id !== '937' && project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-bank-info"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('bankInfo');
-                      }}
-                      href="#pills-bank-info"
-                      role="tab"
-                      aria-controls="pills-bank-info"
-                      aria-selected={activeTab === 'bankInfo'}
-                    >
-                      Bank Info
-                    </a>
-                  </li>
-                )}
-                {/* Hide Intake tab for STC (937) and RDC (932) projects */}
-                {project?.product_id !== '937' && project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-intake"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('intake');
-                      }}
-                      href="#pills-intake"
-                      role="tab"
-                      aria-controls="pills-intake"
-                      aria-selected={activeTab === 'intake'}
-                    >
-                      Intake
-                    </a>
-                  </li>
-                )}
-                {/* Hide Fees tab for STC (937) and RDC (932) projects */}
-                {project?.product_id !== '937' && project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-fees"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('fees');
-                      }}
-                      href="#pills-fees"
-                      role="tab"
-                      aria-controls="pills-fees"
-                      aria-selected={activeTab === 'fees'}
-                    >
-                      Fees
-                    </a>
-                  </li>
-                )}
-                {/* Hide Documents tab for RDC (932) projects */}
-                {project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-documents"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('documents');
-                      }}
-                      href="#pills-documents"
-                      role="tab"
-                      aria-controls="pills-documents"
-                      aria-selected={activeTab === 'documents'}
-                    >
-                      Documents
-                    </a>
-                  </li>
-                )}
-
-                <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-invoices"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('invoices');
-                    }}
-                    href="#pills-invoices"
-                    role="tab"
-                    aria-controls="pills-invoices"
-                    aria-selected={activeTab === 'invoices'}
-                  >
-                    Invoices
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-audit-logs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('auditLogs');
-                    }}
-                    href="#pills-logs"
-                    role="tab"
-                    aria-controls="pills-logs"
-                    aria-selected={activeTab === 'auditLogs'}
-                  >
-                    Audit Logs
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="white_card_body">
-              <div className="row">
-                {/* Left Content Area - Changes based on active tab */}
-                <div className="col-md-9">
-                  {/* Project Tab */}
-                  {activeTab === 'project' && (
-                    <ProjectTab
-                      project={project}
-                      isEditMode={isEditMode}
-                      errors={errors}
-                      register={register}
-                      setProject={setProject}
-                      DateInput={DateInput}
-                      companyFolderLink={companyFolderLink}
-                      documentFolderLink={documentFolderLink}
-                      toggleEditMode={toggleEditMode}
-                    />
-                  )}
-                  {/* Fulfilment Tab Content */}
-                  {activeTab === 'fulfilment' && (
-                    <FulfilmentTab
-                      fulfilmentError={fulfilmentError}
-                      fulfilmentLoading={fulfilmentLoading}
-                      fulfilmentData={fulfilmentData}
-                      setFulfilmentData={setFulfilmentData}
-                    />
-                  )}
-                  {/* Bank Info Tab */}
-                  {activeTab === 'bankInfo' && (
-                    <BankInfoTab
-                      bankInfo={bankInfo}
-                      setBankInfo={setBankInfo}
-                      bankInfoLoading={bankInfoLoading}
-                      bankInfoError={bankInfoError}
-                      fetchBankInfo={fetchBankInfo}
-                    />
-                  )}
-
-                  {/* Intake Tab Content */}
-                  {activeTab === 'intake' && (
-                    <IntakeTab
-                      intakeInfo={intakeInfo}
-                      setIntakeInfo={setIntakeInfo}
-                      companyFolderLink={companyFolderLink}
-                      documentFolderLink={documentFolderLink}
-                      intakeInfoLoading={intakeInfoLoading}
-                      intakeInfoError={intakeInfoError}
-                      DateInput={DateInput}
-                    />
-                  )}
-
-                  {/* Fees Tab Content */}
-                  {activeTab === 'fees' && (
-                    <FeesTab
-                      feesInfo={feesInfo}
-                      setFeesInfo={setFeesInfo}
-                      feesInfoLoading={feesInfoLoading}
-                      feesInfoError={feesInfoError}
-                      DateInput={DateInput}
-                    />
-                  )}
-
-                  {/* Documents Tab Content */}
-                  {activeTab === 'documents' && (
-                    <DocumentsTab
-                      ercDocuments={ercDocuments}
-                      companyDocuments={companyDocuments}
-                      otherDocuments={otherDocuments}
-                      payrollDocuments={payrollDocuments}
-                      stcRequiredDocuments={stcRequiredDocuments}
-                      stcImpactedDays={stcImpactedDays}
-                      documentsLoading={documentsLoading}
-                      STCDocumentTable={STCDocumentTable}
-                      STCImpactedDaysTable={STCImpactedDaysTable}
-                      DocumentTable={DocumentTable}
-                    />
-                  )}
-
-                   {/* Invoices Tab Content */}
-                    {activeTab === 'invoices' && (
-                      <InvoicesTab
-                        invoices={invoices}
-                        setInvoices={setInvoices}
-                        loading={loading}
-                        error={error}
+              <div className="white_card_body">
+                <div className="row">
+                  {/* Left Content Area - Changes based on active tab */}
+                  <div className="col-md-9">
+                    {/* Project Tab */}
+                    {activeTab === 'project' && (
+                      <ProjectTab
+                        project={project}
+                        isEditMode={isEditMode}
+                        errors={errors}
+                        register={register}
+                        setProject={setProject}
+                        DateInput={DateInput}
+                        companyFolderLink={companyFolderLink}
+                        documentFolderLink={documentFolderLink}
+                        toggleEditMode={toggleEditMode}
+                      />
+                    )}
+                    {/* Fulfilment Tab Content */}
+                    {activeTab === 'fulfilment' && (
+                      <FulfilmentTab
+                        fulfilmentError={fulfilmentError}
+                        fulfilmentLoading={fulfilmentLoading}
+                        fulfilmentData={fulfilmentData}
+                        setFulfilmentData={setFulfilmentData}
+                      />
+                    )}
+                    {/* Bank Info Tab */}
+                    {activeTab === 'bankInfo' && (
+                      <BankInfoTab
+                        bankInfo={bankInfo}
+                        setBankInfo={setBankInfo}
+                        bankInfoLoading={bankInfoLoading}
+                        bankInfoError={bankInfoError}
+                        fetchBankInfo={fetchBankInfo}
                       />
                     )}
 
+                    {/* Intake Tab Content */}
+                    {activeTab === 'intake' && (
+                      <IntakeTab
+                        intakeInfo={intakeInfo}
+                        setIntakeInfo={setIntakeInfo}
+                        companyFolderLink={companyFolderLink}
+                        documentFolderLink={documentFolderLink}
+                        intakeInfoLoading={intakeInfoLoading}
+                        intakeInfoError={intakeInfoError}
+                        DateInput={DateInput}
+                      />
+                    )}
+
+                    {/* Fees Tab Content */}
+                    {activeTab === 'fees' && (
+                      <FeesTab
+                        feesInfo={feesInfo}
+                        setFeesInfo={setFeesInfo}
+                        feesInfoLoading={feesInfoLoading}
+                        feesInfoError={feesInfoError}
+                        DateInput={DateInput}
+                      />
+                    )}
+
+                    {/* Documents Tab Content */}
+                    {activeTab === 'documents' && (
+                      <DocumentsTab
+                        ercDocuments={ercDocuments}
+                        companyDocuments={companyDocuments}
+                        otherDocuments={otherDocuments}
+                        payrollDocuments={payrollDocuments}
+                        stcRequiredDocuments={stcRequiredDocuments}
+                        stcImpactedDays={stcImpactedDays}
+                        documentsLoading={documentsLoading}
+                        STCDocumentTable={STCDocumentTable}
+                        STCImpactedDaysTable={STCImpactedDaysTable}
+                        DocumentTable={DocumentTable}
+                      />
+                    )}
+
+                    {/* Invoices Tab Content */}
+                      {activeTab === 'invoices' && (
+                        <InvoicesTab
+                          invoices={invoices}
+                          setInvoices={setInvoices}
+                          loading={loading}
+                          error={error}
+                        />
+                      )}
 
 
-                  {/* Audit Logs Tab Content */}
-                  {activeTab === 'auditLogs' && (
-                    <AuditLogsTab
-                      auditLogsData={auditLogsData}
-                      setAuditLogsData={setAuditLogsData}
-                      auditLogsLoading={auditLogsLoading}
-                      auditLogsError={auditLogsError}
-                      auditLogsSearch={auditLogsSearch}
-                      filterAndSortAuditData={filterAndSortAuditData}
-                      getPaginatedData={getPaginatedData}
-                      renderSortIcon={renderSortIcon}
-                      formatAuditDate={formatAuditDate}
-                      renderPaginationControls={renderPaginationControls}
-                      isAuditData={isAuditData}
-                    />
-                  )}
 
-                  {activeTab !== 'documents' ? (
-                      <div className="mt-4">
-                        <div className="action-buttons d-flex align-items-center justify-content-center">
-                          {(!loading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
-                            <button
-                              className="btn save-btn"
-                              onClick={handleSubmit(handleUpdateProject)}
-                              disabled={isUpdating}
-                            >
-                              {isUpdating ? (
-                                <>
-                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                  Updating...
-                                </>
-                              ) : 'Update'}
-                            </button>
-                          )}
+                    {/* Audit Logs Tab Content */}
+                    {activeTab === 'auditLogs' && (
+                      <AuditLogsTab
+                        auditLogsData={auditLogsData}
+                        setAuditLogsData={setAuditLogsData}
+                        auditLogsLoading={auditLogsLoading}
+                        auditLogsError={auditLogsError}
+                        auditLogsSearch={auditLogsSearch}
+                        filterAndSortAuditData={filterAndSortAuditData}
+                        getPaginatedData={getPaginatedData}
+                        renderSortIcon={renderSortIcon}
+                        formatAuditDate={formatAuditDate}
+                        renderPaginationControls={renderPaginationControls}
+                        isAuditData={isAuditData}
+                      />
+                    )}
+
+                    {activeTab !== 'documents' ? (
+                        <div className="mt-4">
+                          <div className="action-buttons d-flex align-items-center justify-content-center">
+                            {(!loading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
+                              <button
+                                className="btn save-btn"
+                                onClick={handleSubmit(handleUpdateProject)}
+                                disabled={isUpdating}
+                              >
+                                {isUpdating ? (
+                                  <>
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Updating...
+                                  </>
+                                ) : 'Update'}
+                              </button>
+                            )}
+                          </div>
+
                         </div>
+                    ) : null}
 
-                      </div>
-                  ) : null}
+                  </div>
+
+                  {/* Right Side Section - Same for all tabs */}
+                  <div className="col-md-3">
+                    <ProjectSidebar
+                      milestone={milestone}
+                      stage={projectStage}
+                      isEditing={isEditing}
+                      startEditingMilestoneStage={startEditingMilestoneStage}
+                      owner={owner}
+                      isEditingOwner={isEditingOwner}
+                      startEditingOwner={startEditingOwner}
+                      ownerOptions={ownerOptions}
+                      handleOwnerChange={handleOwnerChange}
+                      collaborators={collaborators}
+                      collaboratorOptions={collaboratorOptions}
+                      selectedCollaborator={selectedCollaborator}
+                      handleCollaboratorChange={handleCollaboratorChange}
+                      handleAssignCollaborator={handleAssignCollaborator}
+                      currentCollaborators={currentCollaborators}
+                      handleRemoveCollaborator={handleRemoveCollaborator}
+                      collaboratorLoading={collaboratorLoading}
+                      contact={selectedContact}
+                      isEditingContact={isEditingContact}
+                      startEditingContact={startEditingContact}
+                      contactOptions={contactOptions}
+                      handleContactChange={handleContactChange}
+                      assignedCollaborators={currentCollaborators}
+                      isAssigningCollaborator={collaboratorLoading}
+                      saveMilestoneAndStage={saveMilestoneAndStage}
+                      cancelMilestoneStageEdit={cancelMilestoneStageEdit}
+                      milestones={milestones}
+                      milestoneStages={milestoneStages}
+                      handleMilestoneChange={handleMilestoneChange}
+                      handleProjectStageChange={handleProjectStageChange}
+                      isLoadingMilestones={isLoadingMilestones}
+                      isLoadingStages={isLoadingStages}
+                      saveOwner={saveOwner}
+                      cancelOwnerEdit={cancelOwnerEdit}
+                      ownerLoading={ownerLoading}
+                      saveContact={saveContact}
+                      cancelContactEdit={cancelContactEdit}
+                      contactLoading={contactLoading}
+                    />
+                  </div>
+                </div>
+
+                <div className='row mt-4'>
+                  <div className='col-md-9'>
+                    {/* Notes Section */}
+                    <h5 className="section-title mt-4">Notes</h5>
+                    <Notes
+                      entityType="project"
+                      entityId={projectId}
+                      entityName={project?.business_legal_name || ''}
+                      showButtons={false}
+                      showNotes={true}
+                      maxHeight={300}
+                    />
+                  </div>
 
                 </div>
 
-                {/* Right Side Section - Same for all tabs */}
-                <div className="col-md-3">
-                  <ProjectSidebar
-                    milestone={milestone}
-                    stage={projectStage}
-                    isEditing={isEditing}
-                    startEditingMilestoneStage={startEditingMilestoneStage}
-                    owner={owner}
-                    isEditingOwner={isEditingOwner}
-                    startEditingOwner={startEditingOwner}
-                    ownerOptions={ownerOptions}
-                    handleOwnerChange={handleOwnerChange}
-                    collaborators={collaborators}
-                    collaboratorOptions={collaboratorOptions}
-                    selectedCollaborator={selectedCollaborator}
-                    handleCollaboratorChange={handleCollaboratorChange}
-                    handleAssignCollaborator={handleAssignCollaborator}
-                    currentCollaborators={currentCollaborators}
-                    handleRemoveCollaborator={handleRemoveCollaborator}
-                    collaboratorLoading={collaboratorLoading}
-                    contact={selectedContact}
-                    isEditingContact={isEditingContact}
-                    startEditingContact={startEditingContact}
-                    contactOptions={contactOptions}
-                    handleContactChange={handleContactChange}
-                    assignedCollaborators={currentCollaborators}
-                    isAssigningCollaborator={collaboratorLoading}
-                    saveMilestoneAndStage={saveMilestoneAndStage}
-                    cancelMilestoneStageEdit={cancelMilestoneStageEdit}
-                    milestones={milestones}
-                    milestoneStages={milestoneStages}
-                    handleMilestoneChange={handleMilestoneChange}
-                    handleProjectStageChange={handleProjectStageChange}
-                    isLoadingMilestones={isLoadingMilestones}
-                    isLoadingStages={isLoadingStages}
-                    saveOwner={saveOwner}
-                    cancelOwnerEdit={cancelOwnerEdit}
-                    ownerLoading={ownerLoading}
-                    saveContact={saveContact}
-                    cancelContactEdit={cancelContactEdit}
-                    contactLoading={contactLoading}
-                  />
-                </div>
               </div>
-
-              <div className='row mt-4'>
-                <div className='col-md-9'>
-                  {/* Notes Section */}
-                  <h5 className="section-title mt-4">Notes</h5>
-                  <Notes
-                    entityType="project"
-                    entityId={projectId}
-                    entityName={project?.business_legal_name || ''}
-                    showButtons={false}
-                    showNotes={true}
-                    maxHeight={300}
-                  />
-                </div>
-
-              </div>
-
             </div>
-          </div>
+          )}
         </div>
       </div>
 
