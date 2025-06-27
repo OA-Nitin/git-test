@@ -422,6 +422,7 @@ const ProjectDetail = () => {
   const [stcImpactedDays, setSTCImpactedDays] = useState(null);
 
   const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
 
 
     // validation 
@@ -3364,6 +3365,13 @@ const ProjectDetail = () => {
         fetchERCDocuments(projectId, 3);
       }
     }
+
+    if(tab === 'invoices'){
+      setInvoiceLoading(true);
+      setTimeout(() => {
+        setInvoiceLoading(false);
+      }, 2500);
+    }
   };
 
   // Function to fetch notes with pagination
@@ -5155,6 +5163,7 @@ const ProjectDetail = () => {
                           setInvoices={setInvoices}
                           loading={loading}
                           error={error}
+                          invoiceLoading={invoiceLoading}
                         />
                       )}
 
