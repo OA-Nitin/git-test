@@ -640,7 +640,7 @@ const ConfidentialUser = () => {
           </div>
           <p className="text-muted">No notes available</p>
           <button
-            className="btn add-note-btn mt-3"
+            className="add-note-btn"
             onClick={toggleAddNoteModal}
           >
             <span className="d-flex align-items-center">
