@@ -1,6 +1,6 @@
 import React from 'react';
 
-const InvoicesTab = ({ invoices, setInvoices, loading, error }) => {
+const InvoicesTab = ({ invoices, setInvoices, loading, error, invoiceLoading }) => {
   return (
     <div className="mb-4 left-section-container">
       {loading ? (
@@ -26,6 +26,25 @@ const InvoicesTab = ({ invoices, setInvoices, loading, error }) => {
         <div className="alert alert-danger" role="alert">
           {error}
           <button className="btn btn-sm btn-outline-danger ms-2" onClick={fetchInvoiceData}>Retry</button>
+        </div>
+      ) : invoiceLoading ?(
+        <div className="text-center my-5">
+          <svg class="loader" viewBox="0 0 200 100">
+            <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#007bff" />
+            <stop offset="100%" stop-color="#ff6600" />
+            </linearGradient>
+            </defs>
+            <path class="infinity-shape"
+                  d="M30,50
+                    C30,20 70,20 100,50
+                    C130,80 170,80 170,50
+                    C170,20 130,20 100,50
+                    C70,80 30,80 30,50"
+                />
+          </svg>
+          <p style={{color: '#000'}}>Processing data...</p>
         </div>
       ) : invoices.length === 0 ? (
         <div className="text-center p-4">
