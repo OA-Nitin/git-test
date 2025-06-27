@@ -10,7 +10,9 @@ const AuditLogsTab = ({
   renderSortIcon,
   formatAuditDate,
   renderPaginationControls,
-  isAuditData
+  isAuditData,
+  handleAuditLogsSearch,
+  handleAuditLogsSorting
 }) => {
   return (
     <div className="mb-4 left-section-container">
