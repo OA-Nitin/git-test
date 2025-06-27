@@ -5,11 +5,23 @@ const FulfilmentTab = ({ fulfilmentData, setFulfilmentData, fulfilmentLoading, f
     <div className="mb-4 left-section-container">
       {/* Display loading state */}
       {fulfilmentLoading && (
-        <div className="text-center mb-3">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading fulfilment information...</span>
-          </div>
-          <p className="mt-2">Loading fulfilment information...</p>
+        <div className="text-center my-5">
+          <svg class="loader" viewBox="0 0 200 100">
+            <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#007bff" />
+            <stop offset="100%" stop-color="#ff6600" />
+            </linearGradient>
+            </defs>
+            <path class="infinity-shape"
+                  d="M30,50
+                    C30,20 70,20 100,50
+                    C130,80 170,80 170,50
+                    C170,20 130,20 100,50
+                    C70,80 30,80 30,50"
+                />
+          </svg>
+          <p style={{color: '#000'}}>Processing data...</p>
         </div>
       )}
 

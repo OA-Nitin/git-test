@@ -2947,9 +2947,6 @@ const ProjectDetail = () => {
     try {
       setAuditLogsLoading(true);
       setAuditLogsError(null);
-      // if(!isProjectDetailssData){
-        fetchProjectDetails();
-      // }
       //console.log('=== PROJECT AUDIT LOGS API CALL START ===');
       //console.log('Project ID:', projectId);
       //console.log('Lead ID:', project?.lead_id);
@@ -4616,7 +4613,7 @@ const ProjectDetail = () => {
         if (isEditMode) {
           setIsEditMode(false);
         }
-
+        fetchProjectAuditLogs();
         // Show SweetAlert success message
         Swal.fire({
           title: 'Success!',
@@ -4714,188 +4711,208 @@ const ProjectDetail = () => {
 
       <div className="row">
         <div className="col-12">
-        {loading &&(
-            <div className="white_card card_height_100 mb_30">
-              <div className="white_card_header">
-                <div className="box_header m-0 justify-content-between">
-                  <h4 className="iris-lead-name">Project Details</h4>
-                  <div>
+          {loading &&(
+              <div className="white_card card_height_100 mb_30">
+                <div className="white_card_header">
+                  <div className="box_header m-0 justify-content-between">
+                    <h4 className="iris-lead-name">Project Details</h4>
+                    <div>
+                    </div>
                   </div>
+                  <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                    <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-project"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('project');
+                        }}
+                        href="#pills-project"
+                        role="tab"
+                        aria-controls="pills-project"
+                        aria-selected={activeTab === 'project'}
+                      >
+                        Project
+                      </a>
+                    </li>
+                    {/* Show Fulfilment tab only for STC (937) projects */}
+                    {project?.product_id === '937' && (
+                      <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-fulfilment"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('fulfilment');
+                          }}
+                          href="#pills-fulfilment"
+                          role="tab"
+                          aria-controls="pills-fulfilment"
+                          aria-selected={activeTab === 'fulfilment'}
+                        >
+                          Fulfilment
+                        </a>
+                      </li>
+                    )}
+
+                    {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
+                    {project?.product_id !== '937' && project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-bank-info"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('bankInfo');
+                          }}
+                          href="#pills-bank-info"
+                          role="tab"
+                          aria-controls="pills-bank-info"
+                          aria-selected={activeTab === 'bankInfo'}
+                        >
+                          Bank Info
+                        </a>
+                      </li>
+                    )}
+                    {/* Hide Intake tab for STC (937) and RDC (932) projects */}
+                    {project?.product_id !== '937' && project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-intake"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('intake');
+                          }}
+                          href="#pills-intake"
+                          role="tab"
+                          aria-controls="pills-intake"
+                          aria-selected={activeTab === 'intake'}
+                        >
+                          Intake
+                        </a>
+                      </li>
+                    )}
+                    {/* Hide Fees tab for STC (937) and RDC (932) projects */}
+                    {project?.product_id !== '937' && project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-fees"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('fees');
+                          }}
+                          href="#pills-fees"
+                          role="tab"
+                          aria-controls="pills-fees"
+                          aria-selected={activeTab === 'fees'}
+                        >
+                          Fees
+                        </a>
+                      </li>
+                    )}
+                    {/* Hide Documents tab for RDC (932) projects */}
+                    {project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-documents"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('documents');
+                          }}
+                          href="#pills-documents"
+                          role="tab"
+                          aria-controls="pills-documents"
+                          aria-selected={activeTab === 'documents'}
+                        >
+                          Documents
+                        </a>
+                      </li>
+                    )}
+
+                    <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-invoices"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('invoices');
+                        }}
+                        href="#pills-invoices"
+                        role="tab"
+                        aria-controls="pills-invoices"
+                        aria-selected={activeTab === 'invoices'}
+                      >
+                        Invoices
+                      </a>
+                    </li>
+                    {project && project.lead_id &&  (
+                    <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-audit-logs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('auditLogs');
+                        }}
+                        href="#pills-logs"
+                        role="tab"
+                        aria-controls="pills-logs"
+                        aria-selected={activeTab === 'auditLogs'}
+                      >
+                        Audit Logs
+                      </a>
+                    </li>
+                    )}
+                  </ul>
                 </div>
-                <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                  <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-project"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('project');
-                      }}
-                      href="#pills-project"
-                      role="tab"
-                      aria-controls="pills-project"
-                      aria-selected={activeTab === 'project'}
-                    >
-                      Project
-                    </a>
-                  </li>
-                  {/* Show Fulfilment tab only for STC (937) projects */}
-                  {project?.product_id === '937' && (
-                    <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
-                      <a
-                        className="nav-link"
-                        id="pills-fulfilment"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleTabChange('fulfilment');
-                        }}
-                        href="#pills-fulfilment"
-                        role="tab"
-                        aria-controls="pills-fulfilment"
-                        aria-selected={activeTab === 'fulfilment'}
-                      >
-                        Fulfilment
-                      </a>
-                    </li>
-                  )}
-
-                  {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
-                  {project?.product_id !== '937' && project?.product_id !== '932' && (
-                    <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
-                      <a
-                        className="nav-link"
-                        id="pills-bank-info"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleTabChange('bankInfo');
-                        }}
-                        href="#pills-bank-info"
-                        role="tab"
-                        aria-controls="pills-bank-info"
-                        aria-selected={activeTab === 'bankInfo'}
-                      >
-                        Bank Info
-                      </a>
-                    </li>
-                  )}
-                  {/* Hide Intake tab for STC (937) and RDC (932) projects */}
-                  {project?.product_id !== '937' && project?.product_id !== '932' && (
-                    <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
-                      <a
-                        className="nav-link"
-                        id="pills-intake"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleTabChange('intake');
-                        }}
-                        href="#pills-intake"
-                        role="tab"
-                        aria-controls="pills-intake"
-                        aria-selected={activeTab === 'intake'}
-                      >
-                        Intake
-                      </a>
-                    </li>
-                  )}
-                  {/* Hide Fees tab for STC (937) and RDC (932) projects */}
-                  {project?.product_id !== '937' && project?.product_id !== '932' && (
-                    <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
-                      <a
-                        className="nav-link"
-                        id="pills-fees"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleTabChange('fees');
-                        }}
-                        href="#pills-fees"
-                        role="tab"
-                        aria-controls="pills-fees"
-                        aria-selected={activeTab === 'fees'}
-                      >
-                        Fees
-                      </a>
-                    </li>
-                  )}
-                  {/* Hide Documents tab for RDC (932) projects */}
-                  {project?.product_id !== '932' && (
-                    <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
-                      <a
-                        className="nav-link"
-                        id="pills-documents"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleTabChange('documents');
-                        }}
-                        href="#pills-documents"
-                        role="tab"
-                        aria-controls="pills-documents"
-                        aria-selected={activeTab === 'documents'}
-                      >
-                        Documents
-                      </a>
-                    </li>
-                  )}
-
-                  <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-invoices"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('invoices');
-                      }}
-                      href="#pills-invoices"
-                      role="tab"
-                      aria-controls="pills-invoices"
-                      aria-selected={activeTab === 'invoices'}
-                    >
-                      Invoices
-                    </a>
-                  </li>
-                  {project && project.lead_id &&  (
-                  <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-audit-logs"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('auditLogs');
-                      }}
-                      href="#pills-logs"
-                      role="tab"
-                      aria-controls="pills-logs"
-                      aria-selected={activeTab === 'auditLogs'}
-                    >
-                      Audit Logs
-                    </a>
-                  </li>
-                  )}
-                </ul>
-              </div>
-              <div className="white_card_body">
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="text-center my-5">
-                        <svg class="loader" viewBox="0 0 200 100">
-                          <defs>
-                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stop-color="#007bff" />
-                          <stop offset="100%" stop-color="#ff6600" />
-                          </linearGradient>
-                          </defs>
-                          <path class="infinity-shape"
-                                d="M30,50
-                                  C30,20 70,20 100,50
-                                  C130,80 170,80 170,50
-                                  C170,20 130,20 100,50
-                                  C70,80 30,80 30,50"
-                              />
-                        </svg>
-                        <p style={{color: '#000'}}>Processing data...</p>
+                <div className="white_card_body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <div className="text-center my-5">
+                          <svg class="loader" viewBox="0 0 200 100">
+                            <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#007bff" />
+                            <stop offset="100%" stop-color="#ff6600" />
+                            </linearGradient>
+                            </defs>
+                            <path class="infinity-shape"
+                                  d="M30,50
+                                    C30,20 70,20 100,50
+                                    C130,80 170,80 170,50
+                                    C170,20 130,20 100,50
+                                    C70,80 30,80 30,50"
+                                />
+                          </svg>
+                          <p style={{color: '#000'}}>Processing data...</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+              </div>
+          )}
+          {isUpdating && (
+            <div className="overlay-loading d-flex flex-column justify-content-center align-items-center">
+              <svg class="loader" viewBox="0 0 200 100">
+                <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#007bff" />
+                <stop offset="100%" stop-color="#ff6600" />
+                </linearGradient>
+                </defs>
+                <path class="infinity-shape"
+                      d="M30,50
+                        C30,20 70,20 100,50
+                        C130,80 170,80 170,50
+                        C170,20 130,20 100,50
+                        C70,80 30,80 30,50"
+                    />
+              </svg>
+              <p className="mt-3 mb-0 text-muted">Processing data...</p>
             </div>
           )}
           {!loading &&(
@@ -5157,6 +5174,8 @@ const ProjectDetail = () => {
                         formatAuditDate={formatAuditDate}
                         renderPaginationControls={renderPaginationControls}
                         isAuditData={isAuditData}
+                        handleAuditLogsSearch={handleAuditLogsSearch}
+                        handleAuditLogsSorting={handleAuditLogsSorting}
                       />
                     )}
 
@@ -5204,7 +5223,7 @@ const ProjectDetail = () => {
                       currentCollaborators={currentCollaborators}
                       handleRemoveCollaborator={handleRemoveCollaborator}
                       collaboratorLoading={collaboratorLoading}
-                      contact={selectedContact}
+                      selectedContact={selectedContact}
                       isEditingContact={isEditingContact}
                       startEditingContact={startEditingContact}
                       contactOptions={contactOptions}
@@ -5225,6 +5244,7 @@ const ProjectDetail = () => {
                       saveContact={saveContact}
                       cancelContactEdit={cancelContactEdit}
                       contactLoading={contactLoading}
+                      projectStage={projectStage}
                     />
                   </div>
                 </div>
@@ -5293,6 +5313,10 @@ const ProjectDetail = () => {
 export default ProjectDetail;
 
 // Add custom CSS for DatePicker styling
+const existing = document.head.querySelector('style[data-datepicker-styles]');
+if (existing) {
+  existing.remove(); // Remove the old style tag
+}
 const style = document.createElement('style');
 style.textContent = `
   .react-datepicker-wrapper {
@@ -5369,9 +5393,83 @@ style.textContent = `
     background-color: #fff3cd;
     color: #856404;
   }
-`;
+  /* Loading Overlay Styles */
+  .loading-overlay {
+    animation: fadeIn 0.3s ease-in-out;
+  }
 
-if (!document.head.querySelector('style[data-datepicker-styles]')) {
-  style.setAttribute('data-datepicker-styles', 'true');
-  document.head.appendChild(style);
-}
+  .loading-content {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Custom PlaceholderLoading styles */
+  .react-placeholder-loading {
+    border-radius: 50%;
+  }
+  .overlay-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,0.6);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loader {
+    width: 120px;
+    height: 100px;
+  }
+ 
+  .infinity-shape {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 220 60;
+    stroke-dashoffset: 0;
+    animation: dashMove 2s linear infinite;
+  }
+ 
+  @keyframes dashMove {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -280;
+    }
+  }
+`;
+style.setAttribute('data-datepicker-styles', 'true');
+document.head.appendChild(style);
+// const style = document.createElement('style');
+
+
+// if (!document.head.querySelector('style[data-datepicker-styles]')) {
+//   style.setAttribute('data-datepicker-styles', 'true');
+//   document.head.appendChild(style);
+// }
