@@ -1051,7 +1051,10 @@ const LeadDetail = () => {
 
           // Update specific state variables
           setTaxNowSignupStatus(businessData.taxnow_signup_status || '');
-          setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          setTimeout(() => {
+            setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          }, 100);
+          // setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
           setCompanyFolderLink(businessData.company_folder_link || '');

@@ -138,6 +138,7 @@ const ProjectDetail = () => {
   const [isPayrollDocData, setIsPayrollDocData] = useState(false);
   const [isSTCRDocData, setIsSTCRDocData] = useState(false);
   const [isSTCIDocData, setIsSTCIDocData] = useState(false);
+  const [isInvoiceData, setIsInvoiceData] = useState(false);
 
   // State for bank information
   const [bankInfo, setBankInfo] = useState({
@@ -1597,6 +1598,7 @@ const ProjectDetail = () => {
         );
 
         if (response.data.status == 200) {
+          setIsInvoiceData(true);
           setInvoices(response.data.data || []);
         } else {
           setError(response.data.message || 'Failed to fetch invoices');
@@ -3367,10 +3369,12 @@ const ProjectDetail = () => {
     }
 
     if(tab === 'invoices'){
-      setInvoiceLoading(true);
-      setTimeout(() => {
-        setInvoiceLoading(false);
-      }, 2500);
+      if(!isInvoiceData){
+        setInvoiceLoading(true);
+        setTimeout(() => {
+          setInvoiceLoading(false);
+        }, 2500);
+      }
     }
   };
 
@@ -5191,7 +5195,7 @@ const ProjectDetail = () => {
                     {activeTab !== 'documents' ? (
                         <div className="mt-4">
                           <div className="action-buttons d-flex align-items-center justify-content-center">
-                            {(!loading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
+                            {(!loading && !invoiceLoading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
                               <button
                                 className="btn save-btn"
                                 onClick={handleSubmit(handleUpdateProject)}
