@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 export const noteFormSchema = yup.object().shape({
-  note: yup.string().required('Note is required').min(10, 'Note must be at least 10 characters').max(1000, 'Note cannot exceed 1000 characters'),
+  note: yup.string().required('Note is required').transform(value => value.trim()).min(10, 'Note must be at least 10 characters').max(1000, 'Note cannot exceed 1000 characters').test('not-only-spaces', 'Note cannot be only spaces', value => !!value && value.trim().length > 0),
 });
 
 

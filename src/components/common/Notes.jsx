@@ -110,7 +110,66 @@ if(entityType=='lead'){
   // Parse as custom time format in UTC
   const parsed = dayjs.utc(dateString, 'YYYY-MM-DD hh:mm:ssa');
 
-  if (!parsed.isValid()) return 'Invalid Date';
+  if (!parsed.isValid()){
+    // ------ date formate change ----
+    if (!dateString) return "Invalid Date";
+
+    // List of possible formats your dateString may come in
+    const possibleFormats = [
+        "YYYY-MM-DD HH:mm:ss",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssA",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD HH:mm:ssA",
+        "YYYY-MM-DD HH:mm:ss a"
+    ];
+
+    let parsedDate = null;
+
+    // Try parsing the string with all formats
+    for (let format of possibleFormats) {
+        const attempt = dayjs.tz(dateString, format, "UTC");
+        if (attempt.isValid()) {
+            parsedDate = attempt;
+            break;
+        }
+    }
+
+    // If none matched, fallback
+    if (!parsedDate) {
+        parsedDate = dayjs.tz(dateString, "UTC");
+        if (!parsedDate.isValid()) {
+            return "Invalid Date";
+        }
+    }
+
+    // Convert to EST timezone (America/New_York)
+    const estDate = parsedDate.tz("America/New_York");
+
+    // Format output like: (08:15am on Wed Jun 04th, 2025)
+    const hour12 = estDate.format("hh:mmA").toLowerCase();
+    const weekDay = estDate.format("ddd");
+    const month = estDate.format("MMM");
+    const day = estDate.format("DD");
+    const year = estDate.format("YYYY");
+
+    // Add ordinal suffix
+    const ordinalSuffix = (n) => {
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return s[(v - 20) % 10] || s[v] || s[0];
+    };
+
+    return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+  }
 
   const estDate = parsed.tz('America/New_York');
 
@@ -165,6 +224,9 @@ const Notes = ({
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [showEditNoteModal, setShowEditNoteModal] = useState(false);
   const [editNoteData, setEditNoteData] = useState(null);
+
+  // Character counter state for add/edit note
+  const [noteCharCount, setNoteCharCount] = useState(0);
 
   const [userData, setUserData] = useState(true);
 
@@ -494,6 +556,10 @@ const ConfidentialUser = () => {
   const toggleAddNoteModal = () => {
     // setShowAddNoteModal(!showAddNoteModal);
     // setNewNote('');
+    if (!showAddNoteModal) {
+      // Only reset when opening
+      reset({ note: '', confidential_notes: 0 });
+    }
     setShowAddNoteModal(!showAddNoteModal);
     reset(); // clear form and validation
   };
@@ -512,6 +578,7 @@ const ConfidentialUser = () => {
       note: noteText,
       confidential_notes: note.confidential_notes ? 1 : 0
     });
+    setNoteCharCount(noteText.length); // set char count for edit
   };
 
   // Function to close edit note modal and reset
@@ -605,13 +672,13 @@ const ConfidentialUser = () => {
 
         // Show success message
         Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+          title: `<span style="font-size: 3.2rem; color: #333;font-weight:bold;">Success</span>`,
           html: `
             <div class="text-center py-3">
               <div class="mb-3">
                 <i class="fas fa-check-circle fa-3x text-success"></i>
               </div>
-              <p class="text-muted">Your note has been saved successfully.</p>
+              <h1>Note added successfully.</h1>
             </div>
           `,
           timer: 2000,
@@ -741,13 +808,13 @@ const ConfidentialUser = () => {
     })
       .then(response => {
         Swal.fire({
-          title: `<span style=\"font-size: 1.2rem; color: #333;\">Success</span>`,
+          title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
           html: `
-            <div class=\"text-center py-3\">
-              <div class=\"mb-3\">
-                <i class=\"fas fa-check-circle fa-3x text-success\"></i>
+            <div class="text-center py-3">
+              <div class="mb-3">
+                <i class="fas fa-check-circle fa-3x text-success"></i>
               </div>
-              <p class=\"text-muted\">Your note has been updated successfully.</p>
+              <h1>Note updated successfully.</h1>
             </div>
           `,
           timer: 2000,
@@ -1020,10 +1087,17 @@ const ConfidentialUser = () => {
                 style={{ resize: 'vertical', minHeight: '100px' }}
                 {...register('note')}
                 maxLength={1000}
+                onChange={e => {
+                  setNoteCharCount(e.target.value.length);
+                  // Let react-hook-form handle the value
+                }}
               ></textarea>
               {errors.note && (
                 <div className="invalid-feedback">{errors.note.message}</div>
               )}
+              <div className="text-end text-muted small mt-1">
+                {1000 - noteCharCount}/{1000} characters remaining.
+              </div>
             </div>
             <div className="text-muted small">
               {confidence_users === 1 && (
@@ -1067,10 +1141,17 @@ const ConfidentialUser = () => {
                 style={{ resize: 'vertical', minHeight: '100px' }}
                 {...register('note')}
                 maxLength={1000}
+                onChange={e => {
+                  setNoteCharCount(e.target.value.length);
+                  // Let react-hook-form handle the value
+                }}
               ></textarea>
               {errors.note && (
                 <div className="invalid-feedback">{errors.note.message}</div>
               )}
+              <div className="text-end text-muted small mt-1">
+                {1000 - noteCharCount}/{1000} characters remaining.
+              </div>
             </div>
             <div className="text-muted small">
               {confidence_users === 1 && (
