@@ -46,7 +46,73 @@ const formatDateToMMDDYYYYss = (dateString) => {
   }
 };
 
-export function formatDateToMMDDYYYY(dateString) {
+export function formatDateToMMDDYYYY(dateString,entityType) {
+if(entityType=='lead'){
+  if (!dateString) return "Invalid Date";
+
+    // List of possible formats your dateString may come in
+    const possibleFormats = [
+        "YYYY-MM-DD HH:mm:ss",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssA",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD HH:mm:ssA",
+        "YYYY-MM-DD HH:mm:ss a"
+    ];
+
+    let parsedDate = null;
+
+    // Try parsing the string with all formats
+    for (let format of possibleFormats) {
+        const attempt = dayjs.tz(dateString, format, "UTC");
+        if (attempt.isValid()) {
+            parsedDate = attempt;
+            break;
+        }
+    }
+
+    // If none matched, fallback
+    if (!parsedDate) {
+        parsedDate = dayjs.tz(dateString, "UTC");
+        if (!parsedDate.isValid()) {
+            return "Invalid Date";
+        }
+    }
+
+    // Convert to EST timezone (America/New_York)
+    const estDate = parsedDate.tz("America/New_York");
+
+    // Format output like: (08:15am on Wed Jun 04th, 2025)
+    const hour12 = estDate.format("hh:mmA").toLowerCase();
+    const weekDay = estDate.format("ddd");
+    const month = estDate.format("MMM");
+    const day = estDate.format("DD");
+    const year = estDate.format("YYYY");
+
+    // Add ordinal suffix
+    const ordinalSuffix = (n) => {
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return s[(v - 20) % 10] || s[v] || s[0];
+    };
+
+    return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+  }else{
+    if (!dateString) return 'Invalid Date';
+
+  // Parse as custom time format in UTC
+  const parsed = dayjs.utc(dateString, 'YYYY-MM-DD hh:mm:ssa');
+
+  if (!parsed.isValid()){
+    // ------ date formate change ----
     if (!dateString) return "Invalid Date";
 
     // List of possible formats your dateString may come in
@@ -104,6 +170,28 @@ export function formatDateToMMDDYYYY(dateString) {
     };
 
     return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+  }
+
+  const estDate = parsed.tz('America/New_York');
+
+  const hour12 = estDate.format('hh:mma').toLowerCase(); // e.g., 11:45am
+  const weekDay = estDate.format('ddd');                 // e.g., Mon
+  const month = estDate.format('MMM');                   // e.g., Jun
+  const day = estDate.date();                            // e.g., 30
+  const year = estDate.year();                           // e.g., 2025
+
+  const ordinalSuffix = (n) => {
+    if (n >= 11 && n <= 13) return 'th';
+    switch (n % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
+  return `(${hour12} on ${weekDay} ${month} ${day}${ordinalSuffix(day)}, ${year})`;
+  }
 }
 
 
@@ -302,7 +390,8 @@ const Notes = ({
         const originalDate = new Date(note.created_at || note.date || note.created || new Date());
 
         // Format the date in MM/DD/YYYY format
-        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date());
+        // const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date());
+           const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date(),entityType);
 
         // Clean up the note text - remove any leading numbers or IDs
         let noteText = note.note || note.text || note.content || '';
