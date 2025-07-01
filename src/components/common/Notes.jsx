@@ -45,8 +45,9 @@ const formatDateToMMDDYYYYss = (dateString) => {
   }
 };
 
-export function formatDateToMMDDYYYY(dateString) {
-    if (!dateString) return "Invalid Date";
+export function formatDateToMMDDYYYY(dateString,entityType) {
+if(entityType=='lead'){
+  if (!dateString) return "Invalid Date";
 
     // List of possible formats your dateString may come in
     const possibleFormats = [
@@ -103,6 +104,34 @@ export function formatDateToMMDDYYYY(dateString) {
     };
 
     return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+  }else{
+    if (!dateString) return 'Invalid Date';
+
+  // Parse as custom time format in UTC
+  const parsed = dayjs.utc(dateString, 'YYYY-MM-DD hh:mm:ssa');
+
+  if (!parsed.isValid()) return 'Invalid Date';
+
+  const estDate = parsed.tz('America/New_York');
+
+  const hour12 = estDate.format('hh:mma').toLowerCase(); // e.g., 11:45am
+  const weekDay = estDate.format('ddd');                 // e.g., Mon
+  const month = estDate.format('MMM');                   // e.g., Jun
+  const day = estDate.date();                            // e.g., 30
+  const year = estDate.year();                           // e.g., 2025
+
+  const ordinalSuffix = (n) => {
+    if (n >= 11 && n <= 13) return 'th';
+    switch (n % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
+  return `(${hour12} on ${weekDay} ${month} ${day}${ordinalSuffix(day)}, ${year})`;
+  }
 }
 
 
@@ -134,7 +163,8 @@ const Notes = ({
   const [notesPage, setNotesPage] = useState(1);
   const [showViewNotesModal, setShowViewNotesModal] = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
-  // const [newNote, setNewNote] = useState('');
+  const [showEditNoteModal, setShowEditNoteModal] = useState(false);
+  const [editNoteData, setEditNoteData] = useState(null);
 
   const [userData, setUserData] = useState(true);
 
@@ -161,24 +191,32 @@ const Notes = ({
       case 'lead':
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`
         };
       case 'project':
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`
         };
       case 'opportunity':
         //console.log('Opportunity ID for notes API:', safeEntityId);
         // Use the exact API endpoint from the Postman GET screenshot
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes/${safeEntityId}`
         };
       default:
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`
         };
     }
   };
@@ -331,7 +369,7 @@ const ConfidentialUser = () => {
         const originalDate = new Date(note.created_at || note.date || note.created || new Date());
 
         // Format the date in MM/DD/YYYY format
-        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date());
+        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date(),entityType);
 
         // Clean up the note text - remove any leading numbers or IDs
         let noteText = note.note || note.text || note.content || '';
@@ -344,7 +382,7 @@ const ConfidentialUser = () => {
           id: note.id || note.note_id || `note-${Math.random().toString(36).toString(36).slice(2)}`,
           text: noteText,
           confidential_notes: note.confidential_notes || note.confidence_notes_access,
-          author: note.author || note.user_name || note.created_by || 'User',
+          created_by: note.created_by || 'User',
           date: originalDate,
           formattedDate
         };
@@ -458,6 +496,29 @@ const ConfidentialUser = () => {
     // setNewNote('');
     setShowAddNoteModal(!showAddNoteModal);
     reset(); // clear form and validation
+  };
+
+  // Function to open edit note modal and set note data
+  const handleEditNote = (note) => {
+    setEditNoteData(note);
+    setShowEditNoteModal(true);
+    // Extract only the text after 'notes:' or 'note:' (case-insensitive)
+    let noteText = note.text || '';
+    const match = noteText.match(/(?:notes?:)(.*)$/i);
+    if (match && match[1]) {
+      noteText = match[1].trim();
+    }
+    reset({
+      note: noteText,
+      confidential_notes: note.confidential_notes ? 1 : 0
+    });
+  };
+
+  // Function to close edit note modal and reset
+  const closeEditNoteModal = () => {
+    setShowEditNoteModal(false);
+    setEditNoteData(null);
+    reset();
   };
 
   // Function to handle adding a new note
@@ -629,7 +690,184 @@ const ConfidentialUser = () => {
       });
   };
 
-  
+  // Function to handle edit note submit
+  const handleEditNoteSubmit = (formData) => {
+    if (!editNoteData) return;
+    setLoading(true);
+    const trimmedNote = formData.note ? formData.note.trim() : '';
+    const confidential_notes_val = formData.confidential_notes ? formData.confidential_notes : 0;
+    const userId = getUserId();
+    let putUrl = '', noteData = {};
+
+    if (entityType === 'lead') {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note';
+      noteData = {
+        note_id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    } else if (entityType === 'project') {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes';
+      noteData = {
+        id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    } else if (entityType === 'opportunity') {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes';
+      noteData = {
+        id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    } else {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note';
+      noteData = {
+        note_id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    }
+
+    axios.put(putUrl, noteData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+      .then(response => {
+        Swal.fire({
+          title: `<span style=\"font-size: 1.2rem; color: #333;\">Success</span>`,
+          html: `
+            <div class=\"text-center py-3\">
+              <div class=\"mb-3\">
+                <i class=\"fas fa-check-circle fa-3x text-success\"></i>
+              </div>
+              <p class=\"text-muted\">Your note has been updated successfully.</p>
+            </div>
+          `,
+          timer: 2000,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+        closeEditNoteModal();
+        setTimeout(() => {
+          fetchNotes();
+          if (typeof onNotesUpdated === 'function') {
+            onNotesUpdated();
+          }
+        }, 2100);
+      })
+      .catch(err => {
+        Swal.fire({
+          title: `<span style=\"font-size: 1.2rem; color: #333;\">Error</span>`,
+          html: `
+            <div class=\"text-center py-3\">
+              <div class=\"mb-3\">
+                <i class=\"fas fa-exclamation-circle fa-3x text-danger\"></i>
+              </div>
+              <p class=\"text-muted\">There was a problem updating your note. Please try again.</p>
+              <p class=\"text-muted small\">${err.response ? `Error: ${err.response.status} - ${err.response.statusText}` : err.message}</p>
+            </div>
+          `,
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  // Function to handle deleting a note
+  const handleDeleteNote = (note) => {
+    Swal.fire({
+      title: 'Are you sure you want to delete this confidential note?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No',
+      customClass: {
+        popup: 'swal-popup-custom',
+        title: 'swal-title-custom'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let deleteUrl = '';
+        if (entityType === 'lead') {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note?id=${note.id}`;
+        } else if (entityType === 'project') {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes?id=${note.id}`;
+        } else if (entityType === 'opportunity') {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?id=${note.id}`;
+        } else {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note?id=${note.id}`;
+        }
+        setLoading(true);
+        axios.delete(deleteUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+          .then(() => {
+            Swal.fire({
+              title: '<span style="font-size: 1.2rem; color: #333;">Success</span>',
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                  </div>
+                  <p class="text-muted">Note deleted successfully.</p>
+                </div>
+              `,
+              timer: 2000,
+              showConfirmButton: false,
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+            // Remove note from listing
+            setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+          })
+          .catch((err) => {
+            Swal.fire({
+              title: '<span style="font-size: 1.2rem; color: #333;">Error</span>',
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+                  </div>
+                  <p class="text-muted">There was a problem deleting your note. Please try again.</p>
+                  <p class="text-muted small">${err.response ? `Error: ${err.response.status} - ${err.response.statusText}` : err.message}</p>
+                </div>
+              `,
+              confirmButtonText: 'OK',
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+      // else: do nothing, popup will close
+    });
+  };
+
   // Render the notes list
   const renderNotesList = () => {
     if (notes.length === 0) {
@@ -640,7 +878,7 @@ const ConfidentialUser = () => {
           </div>
           <p className="text-muted">No notes available</p>
           <button
-            className="btn add-note-btn mt-3"
+            className="add-note-btn"
             onClick={toggleAddNoteModal}
           >
             <span className="d-flex align-items-center">
@@ -679,12 +917,16 @@ const ConfidentialUser = () => {
           {notes.map((note) => {
             
              let main_background_cls = "note-item mb-3 p-3 rounded shadow-sm";
+             let edit_delete_btn = '';
               if(confidence_users == 0 && note.confidential_notes == 1){
                     // console.log('confidential notes true but user not confidential');
               }else{
               if (confidence_users == 1 && note.confidential_notes == 1 ) {
                   main_background_cls += " confidential-notes-div";
-                  // console.log('confidential notes true');
+                    console.log('confidential notes');
+                  if(note.created_by== getUserId()){
+                      edit_delete_btn = 1;
+                  }
               }else{
                 main_background_cls += " bg-white";
                 // console.log('no confidential notes');
@@ -700,6 +942,17 @@ const ConfidentialUser = () => {
               key={note.id}
               className={main_background_cls}
             >
+              {
+                (edit_delete_btn && (
+                  <div className="d-flex float-end">
+                        <a href="javascript:void(0)" title="Edit Notes" class="edit_self_notes" data-note_id={note.id} onClick={() => handleEditNote(note)}>
+                        <i class="fa-regular fa-pen-to-square"></i></a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:void(0)" title="Delete Notes" class="delete_self_notes" data-note_id={note.id} onClick={() => handleDeleteNote(note)}>
+                        <i class="fa fa-trash" aria-hidden="true"></i></a>
+                   </div>     
+                ))}
+              
               <div className="d-flex justify-content-between">
                 <div className="note-date fw-bold">{note.formattedDate}</div>
               </div>
@@ -794,6 +1047,52 @@ const ConfidentialUser = () => {
     );
   };
 
+  // Render the edit note modal
+  const renderEditNoteModal = () => {
+    return (
+      <Modal
+        show={showEditNoteModal}
+        onClose={closeEditNoteModal}
+        title="Edit Note"
+        showFooter={false}
+      >
+        <form onSubmit={handleSubmit(handleEditNoteSubmit)}>
+          <div className="text-start">
+            <div className="mb-3">
+              <textarea
+                className={`form-control ${errors.note ? 'is-invalid' : ''}`}
+                id="edit-note-content"
+                rows="5"
+                placeholder="Edit your note here..."
+                style={{ resize: 'vertical', minHeight: '100px' }}
+                {...register('note')}
+                maxLength={1000}
+              ></textarea>
+              {errors.note && (
+                <div className="invalid-feedback">{errors.note.message}</div>
+              )}
+            </div>
+            <div className="text-muted small">
+              {confidence_users === 1 && (
+                <div><i className="fas fa-info-circle me-1"></i>
+              Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
+              </div>
+              )}  
+              </div>
+          </div>
+          <div className="d-flex justify-content-center mt-4">
+            <SaveButton
+              type="submit"
+              text="Update Note"
+              disabled={loading}
+              loading={loading}
+            />
+          </div>
+        </form>
+      </Modal>
+    );
+  };
+
   return (
     <div className="notes-component">
       {/* Buttons for viewing and adding notes */}
@@ -854,12 +1153,15 @@ const ConfidentialUser = () => {
           )}
         </div>
       )}
-
+      
       {/* View Notes Modal */}
       {showViewNotesModal && renderViewNotesModal()}
 
       {/* Add Note Modal */}
       {showAddNoteModal && renderAddNoteModal()}
+
+      {/* Edit Note Modal */}
+      {showEditNoteModal && renderEditNoteModal()}
     </div>
   );
 };
