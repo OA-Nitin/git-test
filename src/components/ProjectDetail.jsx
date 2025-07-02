@@ -23,6 +23,7 @@ import InvoicesTab from './tabs/InvoicesTab';
 import AuditLogsTab from './tabs/AuditLogsTab';
 import ProjectSidebar from './ProjectSidebar';
 
+
 // Date utility functions
 const formatDateToMMDDYYYY = (date) => {
   if (!date) return '';
