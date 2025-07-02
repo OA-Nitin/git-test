@@ -1,5 +1,11 @@
 import React from 'react';
 
+function decodeHtmlEntities(str) {
+  const parser = new DOMParser();
+  const decoded = parser.parseFromString(str, 'text/html');
+  return decoded.body.textContent || "";
+} 
+
 const AuditLogsTab = ({ 
   auditLogsData, 
   auditLogsLoading, 
@@ -112,8 +118,8 @@ const AuditLogsTab = ({
                         {paginatedData.map((record, index) => (
                           <tr key={index}>
                             <td>{record.fieldname || 'N/A'}</td>
-                            <td>{record.from || 'N/A'}</td>
-                            <td>{record.to || 'N/A'}</td>
+                            <td>{decodeHtmlEntities(record.from) || 'N/A'}</td>
+                            <td>{decodeHtmlEntities(record.to) || 'N/A'}</td>
                             <td>{formatAuditDate(record.change_date)}</td>
                             <td>{record.changed_by || 'N/A'}</td>
                           </tr>
@@ -284,8 +290,8 @@ const AuditLogsTab = ({
                           <tr key={index}>
                             <td>{record.customer_invoice_no || 'N/A'}</td>
                             <td>{record.fieldname || 'N/A'}</td>
-                            <td>{record.from || 'N/A'}</td>
-                            <td>{record.to || 'N/A'}</td>
+                            <td>{decodeHtmlEntities(record.from) || 'N/A'}</td>
+                            <td>{decodeHtmlEntities(record.to) || 'N/A'}</td>
                             <td>{formatAuditDate(record.changed_date)}</td>
                             <td>{record.changed_by || 'N/A'}</td>
                           </tr>
@@ -369,8 +375,8 @@ const AuditLogsTab = ({
                       {paginatedData.map((record, index) => (
                         <tr key={index}>
                           <td>{record.fieldname || 'N/A'}</td>
-                          <td>{record.from || 'N/A'}</td>
-                          <td>{record.to || 'N/A'}</td>
+                          <td>{decodeHtmlEntities(record.from) || 'N/A'}</td>
+                          <td>{decodeHtmlEntities(record.to) || 'N/A'}</td>
                           <td>{record.note || 'N/A'}</td>
                           <td>{formatAuditDate(record.change_date)}</td>
                           <td>{record.changed_by || 'N/A'}</td>
