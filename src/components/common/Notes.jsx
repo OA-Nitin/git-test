@@ -23,7 +23,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 
-
 // Standardized date formatting function for MM/DD/YYYY format
 const formatDateToMMDDYYYYss = (dateString) => {
   if (!dateString) return '';
@@ -46,7 +45,73 @@ const formatDateToMMDDYYYYss = (dateString) => {
   }
 };
 
-export function formatDateToMMDDYYYY(dateString) {
+export function formatDateToMMDDYYYY(dateString,entityType) {
+if(entityType=='lead'){
+  if (!dateString) return "Invalid Date";
+
+    // List of possible formats your dateString may come in
+    const possibleFormats = [
+        "YYYY-MM-DD HH:mm:ss",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ssA",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss A",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD hh:mm:ss",
+        "YYYY-MM-DD hh:mm:ssa",
+        "YYYY-MM-DD HH:mm:ssA",
+        "YYYY-MM-DD HH:mm:ss a"
+    ];
+
+    let parsedDate = null;
+
+    // Try parsing the string with all formats
+    for (let format of possibleFormats) {
+        const attempt = dayjs.tz(dateString, format, "UTC");
+        if (attempt.isValid()) {
+            parsedDate = attempt;
+            break;
+        }
+    }
+
+    // If none matched, fallback
+    if (!parsedDate) {
+        parsedDate = dayjs.tz(dateString, "UTC");
+        if (!parsedDate.isValid()) {
+            return "Invalid Date";
+        }
+    }
+
+    // Convert to EST timezone (America/New_York)
+    const estDate = parsedDate.tz("America/New_York");
+
+    // Format output like: (08:15am on Wed Jun 04th, 2025)
+    const hour12 = estDate.format("hh:mmA").toLowerCase();
+    const weekDay = estDate.format("ddd");
+    const month = estDate.format("MMM");
+    const day = estDate.format("DD");
+    const year = estDate.format("YYYY");
+
+    // Add ordinal suffix
+    const ordinalSuffix = (n) => {
+        const s = ["th", "st", "nd", "rd"];
+        const v = n % 100;
+        return s[(v - 20) % 10] || s[v] || s[0];
+    };
+
+    return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+  }else{
+    if (!dateString) return 'Invalid Date';
+
+  // Parse as custom time format in UTC
+  const parsed = dayjs.utc(dateString, 'YYYY-MM-DD hh:mm:ssa');
+
+  if (!parsed.isValid()){
+    // ------ date formate change ----
     if (!dateString) return "Invalid Date";
 
     // List of possible formats your dateString may come in
@@ -104,6 +169,28 @@ export function formatDateToMMDDYYYY(dateString) {
     };
 
     return `(${hour12} on ${weekDay} ${month} ${parseInt(day)}${ordinalSuffix(day)}, ${year})`;
+  }
+
+  const estDate = parsed.tz('America/New_York');
+
+  const hour12 = estDate.format('hh:mma').toLowerCase(); // e.g., 11:45am
+  const weekDay = estDate.format('ddd');                 // e.g., Mon
+  const month = estDate.format('MMM');                   // e.g., Jun
+  const day = estDate.date();                            // e.g., 30
+  const year = estDate.year();                           // e.g., 2025
+
+  const ordinalSuffix = (n) => {
+    if (n >= 11 && n <= 13) return 'th';
+    switch (n % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  };
+
+  return `(${hour12} on ${weekDay} ${month} ${day}${ordinalSuffix(day)}, ${year})`;
+  }
 }
 
 
@@ -135,7 +222,14 @@ const Notes = ({
   const [notesPage, setNotesPage] = useState(1);
   const [showViewNotesModal, setShowViewNotesModal] = useState(false);
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
-  // const [newNote, setNewNote] = useState('');
+  const [showEditNoteModal, setShowEditNoteModal] = useState(false);
+  const [editNoteData, setEditNoteData] = useState(null);
+
+  // Character counter state for add/edit note
+  const [noteCharCount, setNoteCharCount] = useState(0);
+
+  const [userData, setUserData] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -153,30 +247,38 @@ const Notes = ({
   const getApiEndpoints = () => {
     // Make sure entityId is not undefined or null
     const safeEntityId = entityId || '';
-    console.log('Using entityId for API endpoints:', safeEntityId);
+    //console.log('Using entityId for API endpoints:', safeEntityId);
 
     switch (entityType) {
       case 'lead':
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`
         };
       case 'project':
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes/${safeEntityId}`
         };
       case 'opportunity':
-        console.log('Opportunity ID for notes API:', safeEntityId);
+        //console.log('Opportunity ID for notes API:', safeEntityId);
         // Use the exact API endpoint from the Postman GET screenshot
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?opportunity_id=${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes/${safeEntityId}`
         };
       default:
         return {
           get: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${safeEntityId}`,
-          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes'
+          post: 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes',
+          PUT: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`,
+          DELETE: `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note/${safeEntityId}`
         };
     }
   };
@@ -188,6 +290,33 @@ const Notes = ({
     }
   }, [entityId, showNotes, showViewNotesModal]);
 
+
+const ConfidentialUser = () => {  
+  useEffect(() => {
+    axios
+      .get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/confidential-user?user_id='+getUserId())
+      .then((response) => {
+        setUserData(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []); 
+  var confidence_user = '';
+  if(userData.status==1){
+    // console.log('confidence_user=');
+    // console.log(userData.confidence_user);
+    confidence_user = userData.confidence_user;
+  }
+  // confidence_user = 0;
+  return confidence_user;
+};  
+
+
+  var confidence_users = ConfidentialUser();
+  // console.log('confidence_users='+ confidence_users);
   // Function to fetch notes from API
   const fetchNotes = (page = 1, isRetry = false) => {
     if (loading) return;
@@ -203,94 +332,94 @@ const Notes = ({
       ? get
       : `${get}${page > 1 ? `?page=${page}` : ''}`;
 
-    console.log(`Fetching notes from API: ${apiUrl} for entity type: ${entityType}, entityId: ${entityId}, isRetry: ${isRetry}, retryCount: ${retryCount}`);
+    //console.log(`Fetching notes from API: ${apiUrl} for entity type: ${entityType}, entityId: ${entityId}, isRetry: ${isRetry}, retryCount: ${retryCount}`);
 
     // Additional logging for opportunity notes
     if (entityType === 'opportunity') {
-      console.log('OPPORTUNITY NOTES FETCH DEBUG:');
-      console.log('- API URL:', apiUrl);
-      console.log('- Opportunity ID:', entityId);
-      console.log('- Entity Name:', entityName);
+      //console.log('OPPORTUNITY NOTES FETCH DEBUG:');
+      //console.log('- API URL:', apiUrl);
+      //console.log('- Opportunity ID:', entityId);
+      //console.log('- Entity Name:', entityName);
     }
 
     // For debugging - log the entity ID and type
-    console.log('Entity details:', {
-      type: entityType,
-      id: entityId,
-      name: entityName,
-      endpoint: get
-    });
+    // console.log('Entity details:', {
+    //   type: entityType,
+    //   id: entityId,
+    //   name: entityName,
+    //   endpoint: get
+    // });
 
     // Function to process notes response
     const processNotesResponse = (response) => {
       // Reset retry count on successful response
       if (retryCount > 0) {
-        console.log('Resetting retry count after successful response');
+        //console.log('Resetting retry count after successful response');
         setRetryCount(0);
       }
 
-      console.log('Notes API response:', response);
+      //console.log('Notes API response:', response);
 
       // Process the response data based on format
       let fetchedNotes = [];
 
       if (Array.isArray(response.data)) {
-        console.log('Response data is an array with', response.data.length, 'items');
+        //console.log('Response data is an array with', response.data.length, 'items');
         fetchedNotes = response.data;
       } else if (response.data && typeof response.data === 'object') {
-        console.log('Response data is an object:', response.data);
+        //console.log('Response data is an object:', response.data);
 
         // Special handling for opportunity notes
         if (entityType === 'opportunity') {
-          console.log('Processing opportunity notes response');
+          //console.log('Processing opportunity notes response');
 
           // Check for different possible formats in the opportunity notes response
-          console.log('Opportunity notes response structure:', JSON.stringify(response.data, null, 2));
+          //console.log('Opportunity notes response structure:', JSON.stringify(response.data, null, 2));
 
           // Based on the Postman GET screenshot, the response has a notes array
           if (response.data.status === 200 && response.data.message && response.data.message.includes("fetch successfully") && Array.isArray(response.data.notes)) {
-            console.log('Found opportunity notes in response.data.notes');
+            //console.log('Found opportunity notes in response.data.notes');
             fetchedNotes = response.data.notes;
           }
           // Handle create note response
           else if (response.data.status === 200 && response.data.message && response.data.message.includes("create successfully")) {
-            console.log('Found success response for note creation');
+            //console.log('Found success response for note creation');
             // This is a success response for creating a note, not for fetching notes
             fetchedNotes = [];
           }
           // Handle other possible formats
           else if (Array.isArray(response.data)) {
-            console.log('Found opportunity notes as array in response.data');
+            //console.log('Found opportunity notes as array in response.data');
             fetchedNotes = response.data;
           } else if (Array.isArray(response.data.data)) {
-            console.log('Found opportunity notes in response.data.data');
+            //console.log('Found opportunity notes in response.data.data');
             fetchedNotes = response.data.data;
           } else if (Array.isArray(response.data.opportunity_notes)) {
-            console.log('Found opportunity notes in response.data.opportunity_notes');
+            //console.log('Found opportunity notes in response.data.opportunity_notes');
             fetchedNotes = response.data.opportunity_notes;
           } else if (response.data.note) {
-            console.log('Found single opportunity note in response.data.note');
+            //console.log('Found single opportunity note in response.data.note');
             fetchedNotes = [response.data.note];
           } else if (response.data.status && response.data.status === 200 && response.data.message) {
             // This is likely a success response with no notes
-            console.log('Found success response with no notes');
+            //console.log('Found success response with no notes');
             fetchedNotes = [];
           } else {
             // If it's a single note object, wrap it in an array
-            console.log('Treating response data as a single opportunity note object');
+            //console.log('Treating response data as a single opportunity note object');
             fetchedNotes = [response.data];
           }
         } else {
           // Standard handling for other entity types
           if (Array.isArray(response.data.data)) {
-            console.log('Response data.data is an array with', response.data.data.length, 'items');
+            //console.log('Response data.data is an array with', response.data.data.length, 'items');
             fetchedNotes = response.data.data;
           } else if (Array.isArray(response.data.notes)) {
-            console.log('Found notes in response.data.notes');
+            //console.log('Found notes in response.data.notes');
             fetchedNotes = response.data.notes;
           } else {
             // If it's a single note object, wrap it in an array
-            console.log('Treating response data as a single note object');
+            //console.log('Treating response data as a single note object');
             fetchedNotes = [response.data];
           }
         }
@@ -302,7 +431,7 @@ const Notes = ({
         const originalDate = new Date(note.created_at || note.date || note.created || new Date());
 
         // Format the date in MM/DD/YYYY format
-        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date());
+        const formattedDate = formatDateToMMDDYYYY(note.created_at || note.date || note.created || new Date(),entityType);
 
         // Clean up the note text - remove any leading numbers or IDs
         let noteText = note.note || note.text || note.content || '';
@@ -314,7 +443,8 @@ const Notes = ({
         return {
           id: note.id || note.note_id || `note-${Math.random().toString(36).toString(36).slice(2)}`,
           text: noteText,
-          author: note.author || note.user_name || note.created_by || 'User',
+          confidential_notes: note.confidential_notes || note.confidence_notes_access,
+          created_by: note.created_by || 'User',
           date: originalDate,
           formattedDate
         };
@@ -346,39 +476,39 @@ const Notes = ({
         // If it's a 404 error for opportunity notes, don't show an error message
         // This is likely because there are no notes yet for this opportunity
         if (entityType === 'opportunity' && err.response.status === 404) {
-          console.log('No notes found for this opportunity (404 response)');
-          console.log('Opportunity ID:', entityId);
-          console.log('API URL that returned 404:', apiUrl);
+          //console.log('No notes found for this opportunity (404 response)');
+          //console.log('Opportunity ID:', entityId);
+          //console.log('API URL that returned 404:', apiUrl);
           // Set empty notes array and clear error
           setNotes([]);
           setError(null);
           // Log additional information for debugging
-          console.log('Setting empty notes array for opportunity with no notes');
+          //console.log('Setting empty notes array for opportunity with no notes');
         }
         // Handle 500 errors for opportunity notes - retry a few times before showing error
         else if (entityType === 'opportunity' && err.response.status === 500) {
-          console.log('Server error for opportunity notes (500 response)');
-          console.log('Opportunity ID:', entityId);
-          console.log('API URL that returned 500:', apiUrl);
-          console.log('Current retry count:', retryCount);
+          //console.log('Server error for opportunity notes (500 response)');
+          //console.log('Opportunity ID:', entityId);
+          //console.log('API URL that returned 500:', apiUrl);
+          //console.log('Current retry count:', retryCount);
 
           // If we haven't reached the maximum number of retries, try again
           if (retryCount < MAX_RETRIES) {
-            console.log(`Retrying (${retryCount + 1}/${MAX_RETRIES})...`);
+            //console.log(`Retrying (${retryCount + 1}/${MAX_RETRIES})...`);
             setRetryCount(prevCount => prevCount + 1);
 
             // Wait a moment before retrying
             setTimeout(() => {
-              console.log('Retrying fetch notes after 500 error');
+              //console.log('Retrying fetch notes after 500 error');
               fetchNotes(page, true);
             }, 1000); // Wait 1 second before retrying
           } else {
             // If we've reached the maximum number of retries, show an error
-            console.log(`Maximum retries (${MAX_RETRIES}) reached, showing error`);
+            //console.log(`Maximum retries (${MAX_RETRIES}) reached, showing error`);
             setRetryCount(0); // Reset retry count
             setNotes([]);
             setError('No notes available for this opportunity.');
-            console.log('Setting empty notes array for opportunity with server error after max retries');
+            //console.log('Setting empty notes array for opportunity with server error after max retries');
           }
         } else {
           setError(`Failed to load notes. Error: ${err.response.status} - ${err.response.statusText}`);
@@ -393,8 +523,8 @@ const Notes = ({
     };
 
     // Use GET for all entity types including opportunity
-    console.log(`Using GET for ${entityType} notes with ID:`, entityId);
-    console.log('API URL:', apiUrl);
+    //console.log(`Using GET for ${entityType} notes with ID:`, entityId);
+    //console.log('API URL:', apiUrl);
 
     axios.get(apiUrl)
       .then(processNotesResponse)
@@ -426,22 +556,51 @@ const Notes = ({
   const toggleAddNoteModal = () => {
     // setShowAddNoteModal(!showAddNoteModal);
     // setNewNote('');
+    if (!showAddNoteModal) {
+      // Only reset when opening
+      reset({ note: '', confidential_notes: 0 });
+    }
     setShowAddNoteModal(!showAddNoteModal);
     reset(); // clear form and validation
   };
 
+  // Function to open edit note modal and set note data
+  const handleEditNote = (note) => {
+    setEditNoteData(note);
+    setShowEditNoteModal(true);
+    // Extract only the text after 'notes:' or 'note:' (case-insensitive)
+    let noteText = note.text || '';
+    const match = noteText.match(/(?:notes?:)(.*)$/i);
+    if (match && match[1]) {
+      noteText = match[1].trim();
+    }
+    reset({
+      note: noteText,
+      confidential_notes: note.confidential_notes ? 1 : 0
+    });
+    setNoteCharCount(noteText.length); // set char count for edit
+  };
+
+  // Function to close edit note modal and reset
+  const closeEditNoteModal = () => {
+    setShowEditNoteModal(false);
+    setEditNoteData(null);
+    reset();
+  };
+
   // Function to handle adding a new note
   const handleAddNote = (formData) => {
+  console.log(formData);
     // Allow empty notes to be submitted, but trim it for the API call
     const trimmedNote = formData.note ? formData.note.trim() : '';
-
+    const confidential_notes_val = formData.confidential_notes ? formData.confidential_notes : 0;
     // Debug information
-    console.log('Adding note for:', { entityType, entityId, trimmedNote });
+    //console.log('Adding note for:', { entityType, entityId, trimmedNote });
 
     setLoading(true);
 
     const { post } = getApiEndpoints();
-    console.log('Using API endpoint:', post);
+    //console.log('Using API endpoint:', post);
 
     // Make sure entityId is not undefined or null
     const safeEntityId = entityId || '';
@@ -452,6 +611,7 @@ const Notes = ({
       noteData = {
         lead_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         user_id: userId  // This should ideally come from a user context
       };
     }
@@ -459,6 +619,7 @@ const Notes = ({
       noteData = {
         project_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         user_id: userId  // This should ideally come from a user context
       };
     } else if (entityType === 'opportunity') {
@@ -467,29 +628,31 @@ const Notes = ({
       noteData = {
         opportunity_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         user_id: userId  // Required parameter as shown in the Postman screenshot
       };
 
       // Log the data being sent for debugging
-      console.log('Opportunity note data being sent:', noteData);
+      //console.log('Opportunity note data being sent:', noteData);
     } else {
       // Default case for leads
       noteData = {
         lead_id: safeEntityId,
         note: trimmedNote,
+        confidential_notes: confidential_notes_val,
         status: 'active'
       };
     }
 
     // Log the data being sent
-    console.log('Sending note data:', noteData);
+    //console.log('Sending note data:', noteData);
 
     // Log additional information for opportunity notes
     if (entityType === 'opportunity') {
-      console.log('OPPORTUNITY NOTE DEBUG INFO:');
-      console.log('- Opportunity ID:', entityId);
-      console.log('- API Endpoint:', post);
-      console.log('- Note Data:', JSON.stringify(noteData, null, 2));
+      //console.log('OPPORTUNITY NOTE DEBUG INFO:');
+      //console.log('- Opportunity ID:', entityId);
+      //console.log('- API Endpoint:', post);
+      //console.log('- Note Data:', JSON.stringify(noteData, null, 2));
     }
 
     // Send the data to the API
@@ -500,7 +663,7 @@ const Notes = ({
       }
     })
       .then(response => {
-        console.log('Note added successfully:', response);
+        //console.log('Note added successfully:', response);
 
         // Check if the response contains an error message
         if (response.data && response.data.error) {
@@ -509,13 +672,13 @@ const Notes = ({
 
         // Show success message
         Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+          title: `<span style="font-size: 3.2rem; color: #333;font-weight:bold;">Success</span>`,
           html: `
             <div class="text-center py-3">
               <div class="mb-3">
                 <i class="fas fa-check-circle fa-3x text-success"></i>
               </div>
-              <p class="text-muted">Your note has been saved successfully.</p>
+              <h1>Note added successfully.</h1>
             </div>
           `,
           timer: 2000,
@@ -533,7 +696,7 @@ const Notes = ({
         setTimeout(() => {
           // For opportunity notes, we need to force a refresh
           if (entityType === 'opportunity') {
-            console.log('Refreshing opportunity notes after adding a new note');
+            //console.log('Refreshing opportunity notes after adding a new note');
             // Clear the notes array first to ensure we get fresh data
             setNotes([]);
             // Then fetch the notes again
@@ -594,6 +757,184 @@ const Notes = ({
       });
   };
 
+  // Function to handle edit note submit
+  const handleEditNoteSubmit = (formData) => {
+    if (!editNoteData) return;
+    setLoading(true);
+    const trimmedNote = formData.note ? formData.note.trim() : '';
+    const confidential_notes_val = formData.confidential_notes ? formData.confidential_notes : 0;
+    const userId = getUserId();
+    let putUrl = '', noteData = {};
+
+    if (entityType === 'lead') {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note';
+      noteData = {
+        note_id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    } else if (entityType === 'project') {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes';
+      noteData = {
+        id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    } else if (entityType === 'opportunity') {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes';
+      noteData = {
+        id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    } else {
+      putUrl = 'https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note';
+      noteData = {
+        note_id: editNoteData.id,
+        note: trimmedNote,
+        user_id: userId,
+        confidential_notes: confidential_notes_val
+      };
+    }
+
+    axios.put(putUrl, noteData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+      .then(response => {
+        Swal.fire({
+          title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+          html: `
+            <div class="text-center py-3">
+              <div class="mb-3">
+                <i class="fas fa-check-circle fa-3x text-success"></i>
+              </div>
+              <h1>Note updated successfully.</h1>
+            </div>
+          `,
+          timer: 2000,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+        closeEditNoteModal();
+        setTimeout(() => {
+          fetchNotes();
+          if (typeof onNotesUpdated === 'function') {
+            onNotesUpdated();
+          }
+        }, 2100);
+      })
+      .catch(err => {
+        Swal.fire({
+          title: `<span style=\"font-size: 1.2rem; color: #333;\">Error</span>`,
+          html: `
+            <div class=\"text-center py-3\">
+              <div class=\"mb-3\">
+                <i class=\"fas fa-exclamation-circle fa-3x text-danger\"></i>
+              </div>
+              <p class=\"text-muted\">There was a problem updating your note. Please try again.</p>
+              <p class=\"text-muted small\">${err.response ? `Error: ${err.response.status} - ${err.response.statusText}` : err.message}</p>
+            </div>
+          `,
+          confirmButtonText: 'OK',
+          customClass: {
+            popup: 'swal-popup-custom',
+            title: 'swal-title-custom'
+          }
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  // Function to handle deleting a note
+  const handleDeleteNote = (note) => {
+    Swal.fire({
+      title: 'Are you sure you want to delete this confidential note?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No',
+      customClass: {
+        popup: 'swal-popup-custom',
+        title: 'swal-title-custom'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let deleteUrl = '';
+        if (entityType === 'lead') {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note?id=${note.id}`;
+        } else if (entityType === 'project') {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-notes?id=${note.id}`;
+        } else if (entityType === 'opportunity') {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/opportunity-notes?id=${note.id}`;
+        } else {
+          deleteUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/lead-note?id=${note.id}`;
+        }
+        setLoading(true);
+        axios.delete(deleteUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+          .then(() => {
+            Swal.fire({
+              title: '<span style="font-size: 1.2rem; color: #333;">Success</span>',
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-check-circle fa-3x text-success"></i>
+                  </div>
+                  <p class="text-muted">Note deleted successfully.</p>
+                </div>
+              `,
+              timer: 2000,
+              showConfirmButton: false,
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+            // Remove note from listing
+            setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+          })
+          .catch((err) => {
+            Swal.fire({
+              title: '<span style="font-size: 1.2rem; color: #333;">Error</span>',
+              html: `
+                <div class="text-center py-3">
+                  <div class="mb-3">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+                  </div>
+                  <p class="text-muted">There was a problem deleting your note. Please try again.</p>
+                  <p class="text-muted small">${err.response ? `Error: ${err.response.status} - ${err.response.statusText}` : err.message}</p>
+                </div>
+              `,
+              confirmButtonText: 'OK',
+              customClass: {
+                popup: 'swal-popup-custom',
+                title: 'swal-title-custom'
+              }
+            });
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+      // else: do nothing, popup will close
+    });
+  };
+
   // Render the notes list
   const renderNotesList = () => {
     if (notes.length === 0) {
@@ -604,7 +945,7 @@ const Notes = ({
           </div>
           <p className="text-muted">No notes available</p>
           <button
-            className="btn add-note-btn mt-3"
+            className="add-note-btn"
             onClick={toggleAddNoteModal}
           >
             <span className="d-flex align-items-center">
@@ -640,11 +981,45 @@ const Notes = ({
           }
           scrollableTarget="scrollableNotesDiv"
         >
-          {notes.map((note) => (
-            <div
+          {notes.map((note) => {
+            
+             let main_background_cls = "note-item mb-3 p-3 rounded shadow-sm";
+             let edit_delete_btn = '';
+              if(confidence_users == 0 && note.confidential_notes == 1){
+                    // console.log('confidential notes true but user not confidential');
+              }else{
+              if (confidence_users == 1 && note.confidential_notes == 1 ) {
+                  main_background_cls += " confidential-notes-div";
+                    console.log('confidential notes');
+                  if(note.created_by== getUserId()){
+                      edit_delete_btn = 1;
+                  }
+              }else{
+                main_background_cls += " bg-white";
+                // console.log('no confidential notes');
+              }
+              
+              // if (confidence_users === 0 && note.confidential_notes === 1 ) {
+              //   console.log('yesss');
+              // }else{
+              //   console.log('noo');
+              // }
+
+              return (<div
               key={note.id}
-              className="note-item mb-3 p-3 bg-white rounded shadow-sm"
+              className={main_background_cls}
             >
+              {
+                (edit_delete_btn && (
+                  <div className="d-flex float-end">
+                        <a href="javascript:void(0)" title="Edit Notes" class="edit_self_notes" data-note_id={note.id} onClick={() => handleEditNote(note)}>
+                        <i class="fa-regular fa-pen-to-square"></i></a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <a href="javascript:void(0)" title="Delete Notes" class="delete_self_notes" data-note_id={note.id} onClick={() => handleDeleteNote(note)}>
+                        <i class="fa fa-trash" aria-hidden="true"></i></a>
+                   </div>     
+                ))}
+              
               <div className="d-flex justify-content-between">
                 <div className="note-date fw-bold">{note.formattedDate}</div>
               </div>
@@ -653,8 +1028,9 @@ const Notes = ({
                   <span className="note-text">{note.text}</span>
                 </div>
               </div>
-            </div>
-          ))}
+            </div>);
+          }
+  })}
         </InfiniteScroll>
       </div>
     );
@@ -711,15 +1087,25 @@ const Notes = ({
                 style={{ resize: 'vertical', minHeight: '100px' }}
                 {...register('note')}
                 maxLength={1000}
+                onChange={e => {
+                  setNoteCharCount(e.target.value.length);
+                  // Let react-hook-form handle the value
+                }}
               ></textarea>
               {errors.note && (
                 <div className="invalid-feedback">{errors.note.message}</div>
               )}
+              <div className="text-end text-muted small mt-1">
+                {1000 - noteCharCount}/{1000} characters remaining.
+              </div>
             </div>
             <div className="text-muted small">
-              <i className="fas fa-info-circle me-1"></i>
-              Your note will be saved with the current date and time.
-            </div>
+              {confidence_users === 1 && (
+                <div><i className="fas fa-info-circle me-1"></i>
+              Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
+              </div>
+              )}  
+              </div>
           </div>
           <div className="d-flex justify-content-center mt-4">
             <SaveButton
@@ -732,6 +1118,59 @@ const Notes = ({
         </form>
       </Modal>
 
+    );
+  };
+
+  // Render the edit note modal
+  const renderEditNoteModal = () => {
+    return (
+      <Modal
+        show={showEditNoteModal}
+        onClose={closeEditNoteModal}
+        title="Edit Note"
+        showFooter={false}
+      >
+        <form onSubmit={handleSubmit(handleEditNoteSubmit)}>
+          <div className="text-start">
+            <div className="mb-3">
+              <textarea
+                className={`form-control ${errors.note ? 'is-invalid' : ''}`}
+                id="edit-note-content"
+                rows="5"
+                placeholder="Edit your note here..."
+                style={{ resize: 'vertical', minHeight: '100px' }}
+                {...register('note')}
+                maxLength={1000}
+                onChange={e => {
+                  setNoteCharCount(e.target.value.length);
+                  // Let react-hook-form handle the value
+                }}
+              ></textarea>
+              {errors.note && (
+                <div className="invalid-feedback">{errors.note.message}</div>
+              )}
+              <div className="text-end text-muted small mt-1">
+                {1000 - noteCharCount}/{1000} characters remaining.
+              </div>
+            </div>
+            <div className="text-muted small">
+              {confidence_users === 1 && (
+                <div><i className="fas fa-info-circle me-1"></i>
+              Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
+              </div>
+              )}  
+              </div>
+          </div>
+          <div className="d-flex justify-content-center mt-4">
+            <SaveButton
+              type="submit"
+              text="Update Note"
+              disabled={loading}
+              loading={loading}
+            />
+          </div>
+        </form>
+      </Modal>
     );
   };
 
@@ -795,12 +1234,15 @@ const Notes = ({
           )}
         </div>
       )}
-
+      
       {/* View Notes Modal */}
       {showViewNotesModal && renderViewNotesModal()}
 
       {/* Add Note Modal */}
       {showAddNoteModal && renderAddNoteModal()}
+
+      {/* Edit Note Modal */}
+      {showEditNoteModal && renderEditNoteModal()}
     </div>
   );
 };

@@ -13,6 +13,17 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import Swal from 'sweetalert2';
 import Modal from './common/Modal';
 
+import ProjectTab from './tabs/ProjectTab';
+import FulfilmentTab from './tabs/FulfilmentTab';
+import BankInfoTab from './tabs/BankInfoTab';
+import IntakeTab from './tabs/IntakeTab';
+import FeesTab from './tabs/FeesTab';
+import DocumentsTab from './tabs/DocumentsTab';
+import InvoicesTab from './tabs/InvoicesTab';
+import AuditLogsTab from './tabs/AuditLogsTab';
+import ProjectSidebar from './ProjectSidebar';
+
+
 // Date utility functions
 const formatDateToMMDDYYYY = (date) => {
   if (!date) return '';
@@ -116,6 +127,19 @@ const ProjectDetail = () => {
   const [taxNowOnboardingStatus, setTaxNowOnboardingStatus] = useState('');
   const [companyFolderLink, setCompanyFolderLink] = useState('');
   const [documentFolderLink, setDocumentFolderLink] = useState('');
+  const [isProjectDetailssData, setIsProjectDetailssData] = useState(false);
+  const [isBankInfoData, setIsBankInfoData] = useState(false);
+  const [isIntakeData, setIsIntakeData] = useState(false);
+  const [isFeesData, setIsFeesData] = useState(false);
+  const [isFulFilmentData, setIsFulFilmentData] = useState(false);
+  const [isAuditData, setIsAuditData] = useState(false);
+  const [isCompanyDocData, setIsCompanyDocData] = useState(false);
+  const [isERCDocData, setIsERCDocData] = useState(false);
+  const [isOtherDocData, setIsOtherDocData] = useState(false);
+  const [isPayrollDocData, setIsPayrollDocData] = useState(false);
+  const [isSTCRDocData, setIsSTCRDocData] = useState(false);
+  const [isSTCIDocData, setIsSTCIDocData] = useState(false);
+  const [isInvoiceData, setIsInvoiceData] = useState(false);
 
   // State for bank information
   const [bankInfo, setBankInfo] = useState({
@@ -400,6 +424,7 @@ const ProjectDetail = () => {
   const [stcImpactedDays, setSTCImpactedDays] = useState(null);
 
   const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
 
 
     // validation 
@@ -445,6 +470,7 @@ const ProjectDetail = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
+        setIsERCDocData(true);
         setERCDocuments(response.data);
       } else {
         setError('Failed to fetch ERC documents.');
@@ -474,6 +500,7 @@ const ProjectDetail = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
+        setIsCompanyDocData(true);
         setCompanyDocuments(response.data);
       } else {
         setError('Failed to fetch company documents.');
@@ -503,6 +530,7 @@ const ProjectDetail = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
+        setIsOtherDocData(true);
         setOtherDocuments(response.data);
       } else {
         setError('Failed to fetch other documents.');
@@ -531,6 +559,7 @@ const ProjectDetail = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
+        setIsPayrollDocData(true);
         setPayrollDocuments(response.data);
       } else {
         setError('Failed to fetch payroll documents.');
@@ -559,6 +588,7 @@ const ProjectDetail = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
+        setIsSTCRDocData(true);
         setSTCRequiredDocuments(response.data);
       } else {
         setError('Failed to fetch STC Required documents.');
@@ -587,6 +617,7 @@ const ProjectDetail = () => {
       );
 
       if (response.status >= 200 && response.status < 300) {
+        setIsSTCIDocData(true);
         setSTCImpactedDays(response.data);
       } else {
         setError('Failed to fetch STC Impacted Days.');
@@ -645,7 +676,7 @@ const ProjectDetail = () => {
    // Log the updated invoiceActions when it changes
    useEffect(() => {
      // This effect will run when invoiceActions is updated
-     console.log(invoiceActions);
+     //console.log(invoiceActions);
    }, [invoiceActions]);  // The effect runs whenever invoiceActions is updated
 
    // Handle the change event when an action is selected
@@ -655,7 +686,7 @@ const ProjectDetail = () => {
      // Use the previous state to ensure the update is done properly
      setInvoiceActions(prev => {
        const updatedActions = { ...prev, [invoiceId]: value };
-       console.log(`Invoice ${invoiceId} action changed to: ${value}`);
+       //console.log(`Invoice ${invoiceId} action changed to: ${value}`);
        return updatedActions;
      });
    };
@@ -725,11 +756,14 @@ const ProjectDetail = () => {
   const [fulfilmentError, setFulfilmentError] = useState(null);
   useEffect(() => {
     document.title = `Project #${projectId} - Occams Portal`;
-    console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
-    console.log('Project ID type:', typeof projectId);
+    //console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
+    //console.log('Project ID type:', typeof projectId);
     fetchProjectDetails();
-
-    console.log('Initial useEffect - Fetching milestones for product ID 936');
+    // fetchBankInfo();
+    // fetchIntakeInfo();
+    // fetchFeesInfo();
+    // fetchFulfilmentInfo();
+    //console.log('Initial useEffect - Fetching milestones for product ID 936');
     // fetchMilestones();
   }, [projectId]);
 
@@ -752,13 +786,13 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     if (activeTab === 'documents') {
-      fetchERCDocuments(projectId, 3);
-      fetchCompanyDocuments(projectId, 1);
-      fetchOtherDocuments(projectId, 4);
-      fetchPayrollDocuments(projectId);
+      // fetchERCDocuments(projectId, 3);
+      // fetchCompanyDocuments(projectId, 1);
+      // fetchOtherDocuments(projectId, 4);
+      // fetchPayrollDocuments(projectId);
 
-      fetchSTCRequiredDocuments(projectId);
-      fetchSTCImpactedDays(projectId);
+      // fetchSTCRequiredDocuments(projectId);
+      // fetchSTCImpactedDays(projectId);
     }
   }, [activeTab]);
 
@@ -905,7 +939,7 @@ const ProjectDetail = () => {
             setSelectedDocLabel('');
         };
 
-        console.log('STCDocumentTable data:', stc_documents_groups);
+        //console.log('STCDocumentTable data:', stc_documents_groups);
 
         // If no data or empty groups array
         if (!stc_documents_groups || !stc_documents_groups.groups || stc_documents_groups.groups.length === 0) {
@@ -935,7 +969,7 @@ const ProjectDetail = () => {
                                     <tr>
                                         <th>Year</th>
                                         <th>Mandatory</th>
-                                        <th>Tax Returns - 1040(Mandatory)</th>
+                                        <th>Tax Returns - 1040 (Mandatory)</th>
                                         <th>Status</th>
                                         <th>Comments</th>
                                     </tr>
@@ -1565,6 +1599,7 @@ const ProjectDetail = () => {
         );
 
         if (response.data.status == 200) {
+          setIsInvoiceData(true);
           setInvoices(response.data.data || []);
         } else {
           setError(response.data.message || 'Failed to fetch invoices');
@@ -1593,7 +1628,7 @@ const ProjectDetail = () => {
       }, 400);
 
       fetchMilestones(selectedProductId);
-      console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
+      //console.log(`Tab visibility check: Product ID ${productId}, Active Tab: ${activeTab}`);
 
       // Check if current active tab should be hidden for this product
       const shouldHideBankInfo = (productId === '937' || productId === '932') && activeTab === 'bankInfo';
@@ -1601,11 +1636,11 @@ const ProjectDetail = () => {
       const shouldHideFees = (productId === '937' || productId === '932') && activeTab === 'fees';
       const shouldHideDocuments = productId === '932' && activeTab === 'documents';
 
-      console.log(`Tab visibility: BankInfo hidden: ${productId === '937' || productId === '932'}, Intake hidden: ${productId === '937' || productId === '932'}, Fees hidden: ${productId === '937' || productId === '932'}, Documents hidden: ${productId === '932'}`);
+      //console.log(`Tab visibility: BankInfo hidden: ${productId === '937' || productId === '932'}, Intake hidden: ${productId === '937' || productId === '932'}, Fees hidden: ${productId === '937' || productId === '932'}, Documents hidden: ${productId === '932'}`);
 
       // If current tab should be hidden, switch to project tab
       if (shouldHideBankInfo || shouldHideIntake || shouldHideFees || shouldHideDocuments) {
-        console.log(`Switching from hidden tab ${activeTab} to project tab for product ID ${productId}`);
+        //console.log(`Switching from hidden tab ${activeTab} to project tab for product ID ${productId}`);
         setActiveTab('project');
       }
     }
@@ -1615,29 +1650,29 @@ const ProjectDetail = () => {
   // Update folder links based on product ID and API response
   useEffect(() => {
     if (project) {
-      console.log('Project data for folder links:', project);
-      console.log('Product ID for folder links:', project.product_id);
+      //console.log('Project data for folder links:', project);
+      //console.log('Product ID for folder links:', project.product_id);
 
       // Log folder links from API
-      console.log('Company folder link from API:', project.company_folder_link);
-      console.log('ERC document folder from API:', project.erc_document_folder);
-      console.log('STC document folder from API:', project.stc_document_folder);
-      console.log('Agreement folder from API:', project.agreement_folder);
+      //console.log('Company folder link from API:', project.company_folder_link);
+      //console.log('ERC document folder from API:', project.erc_document_folder);
+      //console.log('STC document folder from API:', project.stc_document_folder);
+      //console.log('Agreement folder from API:', project.agreement_folder);
 
       if (project.product_id === "935") {
         // ERC product
-        console.log('Setting ERC folder links');
+        //console.log('Setting ERC folder links');
         // Use API values if available, otherwise use default values
         setCompanyFolderLink(project.company_folder_link || '');
         setDocumentFolderLink(project.erc_document_folder || '');
       } else if (project.product_id === "937") {
         // STC product
-        console.log('Setting STC folder links');
+        //console.log('Setting STC folder links');
         // Use API values if available, otherwise use default values
         setCompanyFolderLink(project.agreement_folder || '');
         setDocumentFolderLink(project.stc_document_folder || '');
       } else {
-        console.log('Product ID not recognized:', project.product_id);
+        //console.log('Product ID not recognized:', project.product_id);
         // Set default values if product ID is not recognized
         setCompanyFolderLink(project.company_folder_link || '');
         setDocumentFolderLink(project.erc_document_folder || project.stc_document_folder || '');
@@ -1675,12 +1710,12 @@ const ProjectDetail = () => {
   // Function to fetch collaborators
   const fetchCollaborators = async () => {
     try {
-      console.log('Fetching collaborators for project ID:', projectId);
+      //console.log('Fetching collaborators for project ID:', projectId);
       setCollaboratorLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-collaborators?project_id=${projectId}`);
 
-      console.log('Collaborators API response:', response);
+      //console.log('Collaborators API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Set available collaborators
@@ -1721,12 +1756,12 @@ const ProjectDetail = () => {
   // Function to fetch owners
   const fetchOwners = async () => {
     try {
-      console.log('Fetching owners for project ID:', projectId);
+      //console.log('Fetching owners for project ID:', projectId);
       setOwnerLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners?project_id=${projectId}`);
 
-      console.log('Owners API response:', response);
+      //console.log('Owners API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Set available owners
@@ -1782,12 +1817,12 @@ const ProjectDetail = () => {
   // Function to fetch contacts
   const fetchContacts = async () => {
     try {
-      console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
+      //console.log('Fetching contacts for project ID:', projectId, 'and lead ID:', project?.lead_id);
       setContactLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts?project_id=${projectId}&lead_id=${project?.lead_id}`);
 
-      console.log('Contacts API response:', response);
+      //console.log('Contacts API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Set available contacts
@@ -1843,15 +1878,15 @@ const ProjectDetail = () => {
   // Function to fetch project milestone and stage
   const fetchProjectMilestoneAndStage = async () => {
     try {
-      console.log('Fetching milestone and stage for project ID:', projectId);
+      //console.log('Fetching milestone and stage for project ID:', projectId);
       setIsLoadingMilestones(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-milestones?project_id=${projectId}`);
 
-      console.log('Milestone API response:', response);
+      //console.log('Milestone API response:', response);
 
       if (response.data && response.data.status === 1) {
-        console.log('Milestone data received:', response.data);
+        //console.log('Milestone data received:', response.data);
 
         // Set milestone
         if (response.data.milestone_id && response.data.milestone_name) {
@@ -1860,7 +1895,7 @@ const ProjectDetail = () => {
             label: response.data.milestone_name
           };
            setMilestone(milestoneData);
-          console.log('Setting milestone:', milestoneData);
+          //console.log('Setting milestone:', milestoneData);
           fetchMilestoneStages(response.data.milestone_id, true);
         }
 
@@ -1871,7 +1906,7 @@ const ProjectDetail = () => {
             label: response.data.milestone_stage_name
           };
            setProjectStage(stageData);
-          console.log('Setting stage:', stageData);
+          //console.log('Setting stage:', stageData);
 
           // Also update the milestoneStages array with this stage
           setMilestoneStages([stageData]);
@@ -1905,15 +1940,15 @@ const ProjectDetail = () => {
   // Function to fetch all available milestones for the dropdown
   const fetchAllMilestones = async (selectedProductId) => {
     try {
-      console.log('Fetching all available milestones');
+      //console.log('Fetching all available milestones');
 
       // Build the API URL with the product_id parameter
       const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
-      console.log('All milestones API URL:', apiUrl);
+      //console.log('All milestones API URL:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
-      console.log('All milestones API response:', response.data);
+      //console.log('All milestones API response:', response.data);
 
       // Process the response data based on the actual structure
       if (response.data) {
@@ -1935,7 +1970,7 @@ const ProjectDetail = () => {
         }
         // If we have a valid list of milestones
         // if (formattedMilestones.length > 0) {
-        //   console.log('Setting all available milestones:', formattedMilestones);
+        //   //console.log('Setting all available milestones:', formattedMilestones);
 
         //   // Preserve the currently selected milestone
         //   const currentMilestone = milestone;
@@ -1962,7 +1997,7 @@ const ProjectDetail = () => {
     try {
       // If we have project data passed from the report page, use it
       if (passedProjectData) {
-        console.log('Using passed project data:', passedProjectData);
+        //console.log('Using passed project data:', passedProjectData);
         setProject(passedProjectData);
 
         // Set TaxNow status if available
@@ -1976,20 +2011,21 @@ const ProjectDetail = () => {
         setLoading(false);
       } else {
         // Otherwise fetch from API
-        console.log('No passed data, fetching from API');
+        //console.log('No passed data, fetching from API');
 
         try {
           // Make a POST request to the project info API
           const projectIdToUse = projectId || "1700";
-          console.log('Making API request with project_id:', projectIdToUse);
+          //console.log('Making API request with project_id:', projectIdToUse);
 
-          console.log('Sending API request to:', 'http://localhost:3002/products-api/get-project-info');
-          console.log('Request body:', JSON.stringify({ project_id: projectIdToUse }));
+          //console.log('Sending API request to:', 'http://localhost:3002/products-api/get-project-info');
+          //console.log('Request body:', JSON.stringify({ project_id: projectIdToUse }));
 
           let response;
           try {
+            
             // First try the proxy server
-            response = await fetch('http://localhost:3002/products-api/get-project-info', {
+            response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -1999,7 +2035,7 @@ const ProjectDetail = () => {
               credentials: 'same-origin',
             });
 
-            console.log('API response status:', response.status);
+            console.log('API response status:', response.text);
 
             // Check if response is ok
             if (!response.ok) {
@@ -2008,7 +2044,7 @@ const ProjectDetail = () => {
 
             // Try to parse the response as JSON
             const responseText = await response.text();
-            console.log('API response text:', responseText);
+            //console.log('API response text:', responseText);
 
             try {
               // Try to parse the response as JSON
@@ -2034,7 +2070,7 @@ const ProjectDetail = () => {
 
             // If proxy server fails, try direct API
             try {
-              console.log('Trying direct API request');
+              //console.log('Trying direct API request');
               response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-info', {
                 method: 'POST',
                 headers: {
@@ -2044,7 +2080,7 @@ const ProjectDetail = () => {
                 mode: 'cors',
               });
 
-              console.log('Direct API response status:', response.status);
+              //console.log('Direct API response status:', response.status);
 
               // Check if response is ok
               if (!response.ok) {
@@ -2053,7 +2089,7 @@ const ProjectDetail = () => {
 
               // Try to parse the response as JSON
               const responseText = await response.text();
-              console.log('Direct API response text:', responseText);
+              //console.log('Direct API response text:', responseText);
 
               try {
                 // Try to parse the response as JSON
@@ -2081,50 +2117,51 @@ const ProjectDetail = () => {
           }
 
           const data = await response.json();
-          console.log('Project data from API:', data);
+          //console.log('Project data from API:', data);
 
           if (data && (data.success || data.status === 1)) {
             // Map the API response to our project structure
+            setIsProjectDetailssData(true);
             const projectData = data.data || data.result?.[0] || {};
 
-            console.log('Raw project data from API:', projectData);
+            //console.log('Raw project data from API:', projectData);
 
             // Log all available fields in the API response
-            console.log('Available fields in API response:', Object.keys(projectData));
+            //console.log('Available fields in API response:', Object.keys(projectData));
 
             // Check for lead ID field
-            console.log('Lead ID field:', {
-              lead_id: projectData.lead_id,
-              leadId: projectData.leadId,
-              lead: projectData.lead
-            });
+            // console.log('Lead ID field:', {
+            //   lead_id: projectData.lead_id,
+            //   leadId: projectData.leadId,
+            //   lead: projectData.lead
+            // });
 
             // Check for folder link fields
-            console.log('Folder link fields:', {
-              erc_document_folder: projectData.erc_document_folder,
-              company_folder: projectData.company_folder,
-              company_folder_link: projectData.company_folder_link
-            });
+            // console.log('Folder link fields:', {
+            //   erc_document_folder: projectData.erc_document_folder,
+            //   company_folder: projectData.company_folder,
+            //   company_folder_link: projectData.company_folder_link
+            // });
 
             // Check for document number related fields
-            console.log('Document number fields:', {
-              document_number: projectData.document_number,
-              identity_document_number: projectData.identity_document_number,
-              document_id: projectData.document_id,
-              id_number: projectData.id_number
-            });
+            // console.log('Document number fields:', {
+            //   document_number: projectData.document_number,
+            //   identity_document_number: projectData.identity_document_number,
+            //   document_id: projectData.document_id,
+            //   id_number: projectData.id_number
+            // });
 
             // Check for website and business entity type fields
-            console.log('Website and business entity type fields:', {
-              website_url: projectData.website_url,
-              business_website: projectData.business_website,
-              company_website: projectData.company_website,
-              business_type: projectData.business_type,
-              business_entity_type: projectData.business_entity_type
-            });
+            // console.log('Website and business entity type fields:', {
+            //   website_url: projectData.website_url,
+            //   business_website: projectData.business_website,
+            //   company_website: projectData.company_website,
+            //   business_type: projectData.business_type,
+            //   business_entity_type: projectData.business_entity_type
+            // });
 
             // Log the product_id from API
-            console.log('Product ID from API:', projectData.product_id);
+            //console.log('Product ID from API:', projectData.product_id);
 
             const mappedProject = {
               // Project details
@@ -2178,10 +2215,10 @@ const ProjectDetail = () => {
               agreement_folder: projectData.agreement_folder || ""
             };
 
-            console.log('Mapped project data:', mappedProject);
-            console.log('Website URL:', mappedProject.website_url);
-            console.log('Product ID:', mappedProject.product_id);
-            console.log('Project Fee:', mappedProject.project_fee); // Log the project fee for debugging
+            //console.log('Mapped project data:', mappedProject);
+            //console.log('Website URL:', mappedProject.website_url);
+            //console.log('Product ID:', mappedProject.product_id);
+            //console.log('Project Fee:', mappedProject.project_fee); // Log the project fee for debugging
             setProject(mappedProject);
           } else {
             throw new Error('Invalid data received from API');
@@ -2193,7 +2230,7 @@ const ProjectDetail = () => {
           setError(`The API is currently experiencing issues. Using mock data instead. Error: ${apiError.message}`);
 
           // Fallback to mock data if API fails
-          console.log('Falling back to mock data');
+          //console.log('Falling back to mock data');
           const mockProject = {
             project_id: projectId,
             product_id: projectId === "1700" ? "935" : "937", // Keep product ID for folder links to work
@@ -2239,13 +2276,14 @@ const ProjectDetail = () => {
 
   // Function to fetch bank information from the API
   const fetchBankInfo = async () => {
-    if (!project?.project_id) return;
+    //console.log('Fetching bank information for project IDs:', projectId);
+    if (!projectId) return;
 
     setBankInfoLoading(true);
     setBankInfoError(null);
 
     try {
-      console.log('Fetching bank information for project ID:', project.project_id);
+      //console.log('Fetching bank information for project ID:', projectId);
 
       // Make a POST request to the bank info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-bank-info', {
@@ -2253,23 +2291,24 @@ const ProjectDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ project_id: project.project_id }),
+        body: JSON.stringify({ project_id: projectId }),
       });
 
-      console.log('Bank info API response status:', response.status);
+      //console.log('Bank info API response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`Bank info API request failed with status ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Bank info data from API:', data);
+      //console.log('Bank info data from API:', data);
 
       if (data && data.status === 1) {
+        setIsBankInfoData(true);
         // Extract bank data from the response
         const bankData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
 
-        console.log('Bank data extracted from API response:', bankData);
+        //console.log('Bank data extracted from API response:', bankData);
 
         if (bankData) {
           // Update bank info state with the data from API
@@ -2323,13 +2362,13 @@ const ProjectDetail = () => {
 
   // Function to fetch intake information from the API
   const fetchIntakeInfo = async () => {
-    if (!project?.project_id) return;
+    if (!projectId) return;
 
     setIntakeInfoLoading(true);
     setIntakeInfoError(null);
 
     try {
-      console.log('Fetching intake information for project ID:', project.project_id);
+      //console.log('Fetching intake information for project ID:', projectId);
 
       // Make a POST request to the intake info API
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-intake', {
@@ -2337,23 +2376,24 @@ const ProjectDetail = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ project_id: project.project_id }),
+        body: JSON.stringify({ project_id: projectId }),
       });
 
-      console.log('Intake info API response status:', response.status);
+      //console.log('Intake info API response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`Intake info API request failed with status ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Intake info data from API:', data);
+      //console.log('Intake info data from API:', data);
 
       if (data && data.status === 1) {
         // Extract intake data from the response
+        setIsIntakeData(true);
         const intakeData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
 
-        console.log('Intake data extracted from API response:', intakeData);
+        //console.log('Intake data extracted from API response:', intakeData);
 
         if (intakeData) {
           // Update intake info state with the data from API
@@ -2517,8 +2557,8 @@ const ProjectDetail = () => {
 
   // Function to fetch fees information from the API
   const fetchFeesInfo = async () => {
-    if (!project?.project_id) {
-      console.log('No project ID available for fees API call');
+    if (!projectId) {
+      //console.log('No project ID available for fees API call');
       return;
     }
 
@@ -2526,12 +2566,12 @@ const ProjectDetail = () => {
     setFeesInfoError(null);
 
     try {
-      console.log('=== FEES API CALL START ===');
-      console.log('Project ID:', project.project_id);
-      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
+      //console.log('=== FEES API CALL START ===');
+      //console.log('Project ID:', projectId);
+      //console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees');
 
-      const requestBody = { project_id: project.project_id };
-      console.log('Request Body:', JSON.stringify(requestBody));
+      const requestBody = { project_id: projectId };
+      //console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fees', {
         method: 'POST',
@@ -2541,21 +2581,22 @@ const ProjectDetail = () => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('Response Status:', response.status);
-      console.log('Response OK:', response.ok);
+      //console.log('Response Status:', response.status);
+      //console.log('Response OK:', response.ok);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Fees info data from API:', data);
+      //console.log('Fees info data from API:', data);
 
       if (data && data.status === 1) {
+        setIsFeesData(true);
         // Extract fees data from the response - following intake API pattern
         const feesData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
 
-        console.log('Fees data extracted from API response:', feesData);
+        //console.log('Fees data extracted from API response:', feesData);
 
         if (feesData) {
           // Update fees info state with the data from API - following intake API pattern
@@ -2722,7 +2763,7 @@ const ProjectDetail = () => {
             iv_invoice_aff_ref_share: feesData.iv_invoice_aff_ref_share || ''
           });
 
-          console.log('✅ Fees data successfully loaded from API');
+          //console.log('✅ Fees data successfully loaded from API');
           setFeesInfoError(null); // Clear any previous errors
         } else {
           throw new Error('No fees data found in the API response');
@@ -2901,7 +2942,7 @@ const ProjectDetail = () => {
       });
     } finally {
       setFeesInfoLoading(false);
-      console.log('=== FEES API CALL END ===');
+      //console.log('=== FEES API CALL END ===');
     }
   };
 
@@ -2910,10 +2951,10 @@ const ProjectDetail = () => {
     try {
       setAuditLogsLoading(true);
       setAuditLogsError(null);
-      console.log('=== PROJECT AUDIT LOGS API CALL START ===');
-      console.log('Project ID:', projectId);
-      console.log('Lead ID:', project?.lead_id);
-      console.log('Product ID:', project?.product_id);
+      //console.log('=== PROJECT AUDIT LOGS API CALL START ===');
+      //console.log('Project ID:', projectId);
+      //console.log('Lead ID:', project?.lead_id);
+      //console.log('Product ID:', project?.product_id);
 
       // Validate required parameters
       if (!projectId) {
@@ -2932,14 +2973,15 @@ const ProjectDetail = () => {
       apiUrl.searchParams.append('lead_id', project.lead_id);
       apiUrl.searchParams.append('product_id', project.product_id);
 
-      console.log('API URL:', apiUrl.toString());
+      //console.log('API URL:', apiUrl.toString());
 
       // Make API call to fetch audit logs
       const response = await axios.get(apiUrl.toString());
 
-      console.log('Project Audit Logs API Response:', response.data);
+      //console.log('Project Audit Logs API Response:', response.data);
 
       if (response.data && response.data.status) {
+        setIsAuditData(true);
         // Set the audit logs data
         setAuditLogsData({
           project_fields: response.data.project_fields || [],
@@ -2947,7 +2989,7 @@ const ProjectDetail = () => {
           invoices: response.data.invoices || [],
           business_audit_log: response.data.business_audit_log || []
         });
-        console.log('Audit logs data set successfully');
+        //console.log('Audit logs data set successfully');
       } else {
         console.warn('Unexpected audit logs API response structure:', response.data);
         setAuditLogsError('Unexpected response format from audit logs API');
@@ -2957,13 +2999,13 @@ const ProjectDetail = () => {
       setAuditLogsError('Failed to fetch audit logs: ' + (error.response?.data?.message || error.message));
     } finally {
       setAuditLogsLoading(false);
-      console.log('=== PROJECT AUDIT LOGS API CALL END ===');
+      //console.log('=== PROJECT AUDIT LOGS API CALL END ===');
     }
   };
   // Function to fetch fulfilment information from the API
   const fetchFulfilmentInfo = async () => {
-    if (!project?.project_id) {
-      console.log('No project ID available for fulfilment API call');
+    if (!projectId) {
+      //console.log('No project ID available for fulfilment API call');
       return;
     }
 
@@ -2971,12 +3013,12 @@ const ProjectDetail = () => {
     setFulfilmentError(null);
 
     try {
-      console.log('=== FULFILMENT API CALL START ===');
-      console.log('Project ID:', project.project_id);
-      console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment');
+      //console.log('=== FULFILMENT API CALL START ===');
+      //console.log('Project ID:', projectId);
+      //console.log('API Endpoint: https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment');
 
-      const requestBody = { project_id: project.project_id };
-      console.log('Request Body:', JSON.stringify(requestBody));
+      const requestBody = { project_id: projectId };
+      //console.log('Request Body:', JSON.stringify(requestBody));
 
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/get-project-fulfilment', {
         method: 'POST',
@@ -2986,22 +3028,23 @@ const ProjectDetail = () => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('Response Status:', response.status);
-      console.log('Response OK:', response.ok);
+      //console.log('Response Status:', response.status);
+      //console.log('Response OK:', response.ok);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Raw API Response:', data);
-      console.log('Response Type:', typeof data);
-      console.log('Response Keys:', Object.keys(data));
+      //console.log('Raw API Response:', data);
+      //console.log('Response Type:', typeof data);
+      //console.log('Response Keys:', Object.keys(data));
 
       // Check if the API response has the expected structure
       if (data && data.result) {
+        setIsFulFilmentData(true);
         const apiData = data.result && Array.isArray(data.result) ? data.result[0] : data.result;
-        console.log('Fulfilment Data from API:', apiData);
+        //console.log('Fulfilment Data from API:', apiData);
 
         if (apiData) {
           // Update fulfilment info state with the data from API - following fees API pattern
@@ -3022,7 +3065,7 @@ const ProjectDetail = () => {
             years: apiData.years || ''
           });
 
-          console.log('✅ Fulfilment data successfully loaded from API');
+          //console.log('✅ Fulfilment data successfully loaded from API');
           setFulfilmentError(null); // Clear any previous errors
         } else {
           throw new Error('No fulfilment data found in the API response');
@@ -3054,7 +3097,7 @@ const ProjectDetail = () => {
       });
     } finally {
       setFulfilmentLoading(false);
-      console.log('=== FULFILMENT API CALL END ===');
+      //console.log('=== FULFILMENT API CALL END ===');
     }
   };
   // Helper function to format date for audit logs
@@ -3165,7 +3208,18 @@ const ProjectDetail = () => {
     if (totalPages <= 1) return null;
 
     const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
+    const pageLimit = 3;
+    let startPage = Math.max(1, currentPage - 1);
+    let endPage = Math.min(totalPages, currentPage + 1);
+
+    if (currentPage === 1) {
+      endPage = Math.min(totalPages, pageLimit);
+    }
+    if (currentPage === totalPages) {
+      startPage = Math.max(1, totalPages - 2);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
 
@@ -3176,36 +3230,61 @@ const ProjectDetail = () => {
           {Math.min(currentPage * auditLogsPagination[tableType].itemsPerPage, data.length)} of {data.length} entries
         </div>
         <nav>
-          <ul className="pagination pagination-sm mb-0">
-            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-              <button
-                className="page-link"
+          <div className="pagination-container">
+            <button
                 onClick={() => handleAuditLogsPagination(tableType, currentPage - 1)}
                 disabled={currentPage === 1}
+                className="pagination-button"
               >
                 Previous
               </button>
-            </li>
-            {pages.map(page => (
-              <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                <button
-                  className="page-link"
-                  onClick={() => handleAuditLogsPagination(tableType, page)}
-                >
-                  {page}
-                </button>
-              </li>
-            ))}
-            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+            {/* <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-button"
+            >
+              &lsaquo;
+            </button> */}
+
+            {pages.map(number => (
               <button
-                className="page-link"
-                onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
-                disabled={currentPage === totalPages}
+                key={number}
+                onClick={() => handleAuditLogsPagination(tableType, number)}
+                className={`pagination-button ${currentPage === number ? 'active' : ''}`}
               >
-                Next
+                {number}
               </button>
-            </li>
-          </ul>
+            ))}
+
+            <button
+              onClick={() => handleAuditLogsPagination(tableType, currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              Next
+            </button>
+            {/* <button
+              onClick={() => paginate(totalPages)}
+              disabled={currentPage === totalPages}
+              className="pagination-button"
+            >
+              &raquo;
+            </button> */}
+
+            {/* <div className="pagination-info">
+              <span>Page {currentPage} of {totalPages}</span>
+              <select
+                value={itemsPerPage}
+                onChange={handleItemsPerPageChange}
+                className="items-per-page"
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+                <option value={25}>25 per page</option>
+                <option value={50}>50 per page</option>
+              </select>
+            </div> */}
+          </div>
         </nav>
       </div>
     );
@@ -3224,32 +3303,78 @@ const ProjectDetail = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
 
+    if(tab === 'project'){
+      if(!isProjectDetailssData){
+        fetchProjectDetails();
+      }
+    }
+
     // If bank info tab is selected, fetch bank information
     if (tab === 'bankInfo') {
-      fetchBankInfo();
+      if(!isBankInfoData){
+        fetchBankInfo();
+      }
     }
 
     // If intake tab is selected, fetch intake information
     if (tab === 'intake') {
-      fetchIntakeInfo();
+      if(!isIntakeData){
+        fetchIntakeInfo();
+      }
     }
 
     // If fees tab is selected, fetch fees information
     if (tab === 'fees') {
-      fetchFeesInfo();
+      if(!isFeesData){
+        fetchFeesInfo(); 
+      }
     }
     // If fulfilment tab is selected, fetch fulfilment information
     if (tab === 'fulfilment') {
-      fetchFulfilmentInfo();
+      if(!isFulFilmentData){
+        fetchFulfilmentInfo();
+      }
     }
     // If audit logs tab is selected, fetch audit logs
     if (tab === 'auditLogs') {
       // Only fetch if project data is available
       if (project && project.lead_id && project.product_id) {
-        fetchProjectAuditLogs();
+        if(!isAuditData){
+          fetchProjectAuditLogs();
+        }
       } else {
         console.warn('Cannot fetch audit logs: project data not fully loaded');
         setAuditLogsError('Project data not fully loaded. Please wait and try again.');
+      }
+    }
+
+    if(tab === 'documents'){
+      if(!isSTCIDocData){
+        fetchSTCImpactedDays(projectId);
+      }
+      if(!isSTCRDocData){
+        fetchSTCRequiredDocuments(projectId);
+      }
+      if(!isPayrollDocData){
+        fetchPayrollDocuments(projectId);
+      }
+      if(!isOtherDocData){
+        fetchOtherDocuments(projectId, 4);
+      }
+      if(!isCompanyDocData){
+        fetchCompanyDocuments(projectId, 1);
+      }
+      if(!isERCDocData){
+        fetchERCDocuments(projectId, 3);
+      }
+    }
+
+    if(tab === 'invoices'){
+      if(!isInvoiceData){
+        setInvoiceLoading(true);
+        setTimeout(() => {
+          setInvoiceLoading(false);
+        }, 2500);
       }
     }
   };
@@ -3363,7 +3488,7 @@ const ProjectDetail = () => {
         );
 
         if (!isAlreadyAssigned) {
-          console.log('Assigning collaborator:', selectedCollaborator.collaborator);
+          //console.log('Assigning collaborator:', selectedCollaborator.collaborator);
 
           // Call the API to assign the collaborator
           const response = await axios.post(
@@ -3371,11 +3496,12 @@ const ProjectDetail = () => {
             {
               project_id: projectId,
               user_id: selectedCollaborator.collaborator.id,
-              operation: 'assign_collabs_user'
+              operation: 'assign_collabs_user',
+              current_user_id:getUserId(),
             }
           );
 
-          console.log('API response:', response);
+          //console.log('API response:', response);
 
           if (response.data && response.data.status === 200) {
             // Add the collaborator to the current collaborators list
@@ -3387,8 +3513,8 @@ const ProjectDetail = () => {
             const newCollaborators = [...currentCollaborators, newCollaborator];
             setCurrentCollaborators(newCollaborators);
 
-            console.log('Collaborator assigned successfully:', selectedCollaborator.collaborator);
-            console.log('Updated collaborators:', newCollaborators);
+            //console.log('Collaborator assigned successfully:', selectedCollaborator.collaborator);
+            //console.log('Updated collaborators:', newCollaborators);
 
             // Show success message
             Swal.fire({
@@ -3409,7 +3535,7 @@ const ProjectDetail = () => {
             });
           }
         } else {
-          console.log('Collaborator already assigned:', selectedCollaborator.collaborator);
+          //console.log('Collaborator already assigned:', selectedCollaborator.collaborator);
 
           // Show warning message
           Swal.fire({
@@ -3448,7 +3574,7 @@ const ProjectDetail = () => {
   const handleRemoveCollaborator = async (collaboratorId) => {
     try {
       setCollaboratorLoading(true);
-      console.log('Removing collaborator with ID:', collaboratorId);
+      //console.log('Removing collaborator with ID:', collaboratorId);
 
       // Call the API to unassign the collaborator
       const response = await axios.post(
@@ -3456,11 +3582,12 @@ const ProjectDetail = () => {
         {
           project_id: projectId,
           user_id: collaboratorId,
-          operation: 'unassign_collabs_user'
+          operation: 'unassign_collabs_user',
+          current_user_id:getUserId(),
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Remove the collaborator from the current collaborators list
@@ -3470,7 +3597,7 @@ const ProjectDetail = () => {
 
         setCurrentCollaborators(updatedCollaborators);
 
-        console.log('Collaborator removed successfully. Updated collaborators:', updatedCollaborators);
+        //console.log('Collaborator removed successfully. Updated collaborators:', updatedCollaborators);
 
         // Show success message
         Swal.fire({
@@ -3511,7 +3638,7 @@ const ProjectDetail = () => {
   // Functions for project group, campaign, and source
   const handleProjectGroupChange = (selectedOption) => {
     // This function is kept for compatibility with other parts of the code
-    console.log("Project group changed:", selectedOption);
+    //console.log("Project group changed:", selectedOption);
   };
 
   // Add state variables to store original values
@@ -3528,9 +3655,9 @@ const ProjectDetail = () => {
 
   // Function to cancel milestone and stage editing
   const cancelMilestoneStageEdit = () => {
-    console.log('Canceling milestone and stage edit');
-    console.log('Original milestone:', originalMilestone);
-    console.log('Original stage:', originalStage);
+    //console.log('Canceling milestone and stage edit');
+    //console.log('Original milestone:', originalMilestone);
+    //console.log('Original stage:', originalStage);
     
     // Restore the original milestone and stage
     if (originalMilestone) {
@@ -3578,7 +3705,7 @@ const ProjectDetail = () => {
 
   // Modify the cancel function to restore the original contact
   const cancelContactEdit = () => {
-    console.log('come here');
+    //console.log('come here');
     // Restore the original contact
     if (originalContact) {
       setSelectedContact(originalContact);
@@ -3588,7 +3715,7 @@ const ProjectDetail = () => {
 
   // Function to handle owner selection change (only updates state, doesn't call API)
   const handleOwnerChange = (selectedOption) => {
-    console.log('Owner selection changed to:', selectedOption);
+    //console.log('Owner selection changed to:', selectedOption);
     setOwner(selectedOption);
   };
 
@@ -3596,18 +3723,19 @@ const ProjectDetail = () => {
   const saveOwner = async () => {
     try {
       setOwnerLoading(true);
-      console.log('Saving owner:', owner);
+      //console.log('Saving owner:', owner);
 
       // Call the API to update the owner
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-owners',
         {
           project_id: projectId,
-          owner_id: owner.value
+          owner_id: owner.value,
+          current_user_id: getUserId(),
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Show success message
@@ -3648,7 +3776,7 @@ const ProjectDetail = () => {
 
   // Function to handle contact selection change (only updates state, doesn't call API)
   const handleContactChange = (selectedOption) => {
-    console.log('Contact selection changed to:', selectedOption);
+    //console.log('Contact selection changed to:', selectedOption);
     setSelectedContact(selectedOption);
   };
 
@@ -3656,18 +3784,19 @@ const ProjectDetail = () => {
   const saveContact = async () => {
     try {
       setContactLoading(true);
-      console.log('Saving contact:', selectedContact);
+      //console.log('Saving contact:', selectedContact);
 
       // Call the API to update the contact
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/project-contacts',
         {
           project_id: projectId,
-          contact_id: selectedContact.value
+          contact_id: selectedContact.value,
+          current_user_id: getUserId(),
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Show success message
@@ -3715,7 +3844,7 @@ const ProjectDetail = () => {
   };
 
   const handleProjectStageChange = (selectedOption) => {
-    console.log('Stage changed to:', selectedOption);
+    //console.log('Stage changed to:', selectedOption);
     setProjectStage(selectedOption);
   };
 
@@ -3723,35 +3852,35 @@ const ProjectDetail = () => {
   const fetchMilestones = async (selectedProductId) => {
     try {
       setIsLoadingMilestones(true);
-      console.log('Fetching milestones for product ID:', selectedProductId);
+      //console.log('Fetching milestones for product ID:', selectedProductId);
 
       // Build the API URL with the product_id parameter
       const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project&product_id=${selectedProductId}`;
-      console.log('Milestones API URL:', apiUrl);
+      //console.log('Milestones API URL:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
-      console.log('Milestones API response:', response.data);
+      //console.log('Milestones API response:', response.data);
 
       // Log the entire response for debugging
-      console.log('Complete API response:', response);
-      console.log('Response data type:', typeof response.data);
-      console.log('Response data structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Complete API response:', response);
+      //console.log('Response data type:', typeof response.data);
+      //console.log('Response data structure:', JSON.stringify(response.data, null, 2));
 
       // Process the response data based on the actual structure
       if (response.data) {
-        console.log('Response data exists');
+        //console.log('Response data exists');
 
         // Check if the response has a success property
         if ('success' in response.data) {
-          console.log('Response has success property:', response.data.success);
+          //console.log('Response has success property:', response.data.success);
         } else {
-          console.log('Response does not have a success property');
+          //console.log('Response does not have a success property');
         }
 
         // Check if the response is an array directly
         if (Array.isArray(response.data)) {
-          console.log('Response data is an array with length:', response.data.length);
+          //console.log('Response data is an array with length:', response.data.length);
 
           // Map the API response to the format needed for the dropdown
           const formattedMilestones = response.data.map(milestone => ({
@@ -3759,7 +3888,7 @@ const ProjectDetail = () => {
             label: milestone.milestone_name
           }));
 
-          console.log('Formatted milestones from array:', formattedMilestones);
+          //console.log('Formatted milestones from array:', formattedMilestones);
           setMilestones(formattedMilestones);
 
           // If we have milestones, fetch stages for the first milestone
@@ -3769,7 +3898,7 @@ const ProjectDetail = () => {
             // fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
-            console.log('No milestones found in array');
+            //console.log('No milestones found in array');
             setMilestone(null);
             setMilestoneStages([]);
             setProjectStage(null);
@@ -3777,7 +3906,7 @@ const ProjectDetail = () => {
         }
         // Check if the response has the expected nested structure
         else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
-          console.log('Response has the expected nested structure');
+          //console.log('Response has the expected nested structure');
 
           // Map the API response to the format needed for the dropdown
           const formattedMilestones = response.data.data.data.map(milestone => ({
@@ -3785,7 +3914,7 @@ const ProjectDetail = () => {
             label: milestone.milestone_name
           }));
 
-          console.log('Formatted milestones from nested structure:', formattedMilestones);
+          //console.log('Formatted milestones from nested structure:', formattedMilestones);
           setMilestones(formattedMilestones);
 
           // If we have milestones, fetch stages for the first milestone
@@ -3795,21 +3924,21 @@ const ProjectDetail = () => {
             // fetchMilestoneStages(firstMilestone.value);
           } else {
             // No milestones found
-            console.log('No milestones found in nested structure');
+            //console.log('No milestones found in nested structure');
             setMilestone(null);
             setMilestoneStages([]);
             setProjectStage(null);
           }
         } else {
           console.warn('Unexpected API response structure for milestones');
-          console.log('Response data structure details:', JSON.stringify(response.data, null, 2));
+          //console.log('Response data structure details:', JSON.stringify(response.data, null, 2));
 
           // Set default milestones for testing
           const defaultMilestones = [
             { value: '100', label: 'Default Milestone 1' },
             { value: '101', label: 'Default Milestone 2' }
           ];
-          console.log('Setting default milestones:', defaultMilestones);
+          //console.log('Setting default milestones:', defaultMilestones);
           setMilestones(defaultMilestones);
           setMilestone(defaultMilestones[0]);
         }
@@ -3828,7 +3957,7 @@ const ProjectDetail = () => {
         { value: '101', label: 'Default Milestone 2' },
         { value: '102', label: 'Default Milestone 3' }
       ];
-      console.log('Setting default milestones due to error:', defaultMilestones);
+      //console.log('Setting default milestones due to error:', defaultMilestones);
       setMilestones(defaultMilestones);
       setMilestone(defaultMilestones[0]);
 
@@ -3851,32 +3980,32 @@ const ProjectDetail = () => {
 
     try {
       setIsLoadingStages(true);
-      console.log('Fetching milestone stages for milestone ID:', milestoneId, 'isUserSelection:', isUserSelection);
+      //console.log('Fetching milestone stages for milestone ID:', milestoneId, 'isUserSelection:', isUserSelection);
 
       // Store the current stage if we need to preserve it
       const currentStage = !isUserSelection ? projectStage : null;
 
       // Build the API URL with the milestone_id parameter
       const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${milestoneId}`;
-      console.log('Milestone stages API URL:', apiUrl);
+      //console.log('Milestone stages API URL:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
-      console.log('Milestone stages API response:', response.data);
-      console.log('Milestone stages API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Milestone stages API response:', response.data);
+      //console.log('Milestone stages API response structure:', JSON.stringify(response.data, null, 2));
 
       // Log the entire response for debugging
-      console.log('Complete stages API response:', response);
-      console.log('Stages response data type:', typeof response.data);
-      console.log('Stages response data structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Complete stages API response:', response);
+      //console.log('Stages response data type:', typeof response.data);
+      //console.log('Stages response data structure:', JSON.stringify(response.data, null, 2));
 
       // Process the response data based on the actual structure
       if (response.data) {
-        console.log('Stages response data exists');
+        //console.log('Stages response data exists');
 
         // Check if the response is an array directly
         if (Array.isArray(response.data)) {
-          console.log('Stages response data is an array with length:', response.data.length);
+          //console.log('Stages response data is an array with length:', response.data.length);
 
           // Map the API response to the format needed for the dropdown
           const formattedStages = response.data.map(stage => ({
@@ -3884,7 +4013,7 @@ const ProjectDetail = () => {
             label: stage.stage_name
           }));
 
-          console.log('Formatted stages from array:', formattedStages);
+          //console.log('Formatted stages from array:', formattedStages);
           setMilestoneStages(formattedStages);
 
           // If this is a user selection, set the first stage as selected
@@ -3905,7 +4034,7 @@ const ProjectDetail = () => {
         }
         // Check if the response has the expected nested structure
         else if (response.data.success && response.data.data && response.data.data.data && Array.isArray(response.data.data.data)) {
-          console.log('Stages response has the expected nested structure');
+          //console.log('Stages response has the expected nested structure');
 
           // Map the API response to the format needed for the dropdown
           const formattedStages = response.data.data.data.map(stage => ({
@@ -3913,7 +4042,7 @@ const ProjectDetail = () => {
             label: stage.stage_name
           }));
 
-          console.log('Formatted stages from nested structure:', formattedStages);
+          //console.log('Formatted stages from nested structure:', formattedStages);
           setMilestoneStages(formattedStages);
 
           // If this is a user selection, set the first stage as selected
@@ -3933,7 +4062,7 @@ const ProjectDetail = () => {
           }
         } else {
           console.warn('Unexpected API response structure for milestone stages');
-          console.log('Stages response data structure details:', JSON.stringify(response.data, null, 2));
+          //console.log('Stages response data structure details:', JSON.stringify(response.data, null, 2));
 
           // Set default stages for testing
           const defaultStages = [
@@ -3941,7 +4070,7 @@ const ProjectDetail = () => {
             { value: '201', label: 'Default Stage 2' },
             { value: '202', label: 'Default Stage 3' }
           ];
-          console.log('Setting default stages:', defaultStages);
+          //console.log('Setting default stages:', defaultStages);
           setMilestoneStages(defaultStages);
           setProjectStage(defaultStages[0]);
         }
@@ -3960,7 +4089,7 @@ const ProjectDetail = () => {
         { value: '201', label: 'Default Stage 2' },
         { value: '202', label: 'Default Stage 3' }
       ];
-      console.log('Setting default stages due to error:', defaultStages);
+      //console.log('Setting default stages due to error:', defaultStages);
       setMilestoneStages(defaultStages);
       setProjectStage(defaultStages[0]);
     } finally {
@@ -3970,7 +4099,7 @@ const ProjectDetail = () => {
 
   // Function to handle milestone change
   const handleMilestoneChange = (selectedOption) => {
-    console.log('Milestone changed to:', selectedOption);
+    //console.log('Milestone changed to:', selectedOption);
     setMilestone(selectedOption);
     setProjectStage(null);
     // Fetch stages for the selected milestone
@@ -3987,9 +4116,9 @@ const ProjectDetail = () => {
   const saveMilestoneAndStage = async () => {
     try {
       setIsLoadingMilestones(true);
-      console.log('Saving milestone and stage changes:');
-      console.log('Milestone:', milestone);
-      console.log('Stage:', projectStage);
+      //console.log('Saving milestone and stage changes:');
+      //console.log('Milestone:', milestone);
+      //console.log('Stage:', projectStage);
 
       if (!milestone) {
         Swal.fire({
@@ -4017,11 +4146,12 @@ const ProjectDetail = () => {
         {
           project_id: projectId,
           milestone_id: milestone.value,
-          milestone_stage_id: projectStage.value
+          milestone_stage_id: projectStage.value,
+          user_id:getUserId(),
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.status === 1) {
         // Show success message
@@ -4155,7 +4285,7 @@ const ProjectDetail = () => {
       // Set loading state
       setIsUpdating(true);
 
-      console.log('Updating project with data:', data);
+      //console.log('Updating project with data:', data);
 
       // Always include project ID
       const baseData = {
@@ -4165,7 +4295,7 @@ const ProjectDetail = () => {
 
       // Combine the base data with the tab-specific data
       const combinedData = { ...baseData, ...data };
-      console.log('Combined data:', data);
+      //console.log('Combined data:', data);
 
       // Map the data to the correct database column names
       const mappedData = {
@@ -4475,7 +4605,7 @@ const ProjectDetail = () => {
         contact: selectedContact?.value || ''
       };
 
-      console.log('Mapped data for API:', mappedData);
+      //console.log('Mapped data for API:', mappedData);
 
       // Make a direct API call instead of form submission
       const response = await fetch('https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/update-project', {
@@ -4488,7 +4618,7 @@ const ProjectDetail = () => {
 
       // Parse the response
       const responseData = await response.json();
-      console.log('API response:', responseData);
+      //console.log('API response:', responseData);
 
       // Check if the response indicates success
       if (response.ok && (responseData.success || responseData.status === 1)) {
@@ -4496,7 +4626,7 @@ const ProjectDetail = () => {
         if (isEditMode) {
           setIsEditMode(false);
         }
-
+        fetchProjectAuditLogs();
         // Show SweetAlert success message
         Swal.fire({
           title: 'Success!',
@@ -4564,20 +4694,20 @@ const ProjectDetail = () => {
   };
 
   // Render loading state
-  if (loading) {
-    return (
-      <div className="container-fluid">
-        <div className="row justify-content-center mt-5">
-          <div className="col-md-8 text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-2">Loading project details...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="container-fluid">
+  //       <div className="row justify-content-center mt-5">
+  //         <div className="col-md-8 text-center">
+  //           <div className="spinner-border text-primary" role="status">
+  //             <span className="visually-hidden">Loading...</span>
+  //           </div>
+  //           <p className="mt-2">Loading project details...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Prepare error alert if there's an error but we're still showing mock data
   const errorAlert = error ? (
@@ -4594,5478 +4724,564 @@ const ProjectDetail = () => {
 
       <div className="row">
         <div className="col-12">
-          <div className="white_card card_height_100 mb_30">
-            <div className="white_card_header">
-              <div className="box_header m-0 justify-content-between">
-                <h4 className="iris-lead-name">{project?.project_name || "Project Details"}</h4>
-              </div>
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-project"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('project');
-                    }}
-                    href="#pills-project"
-                    role="tab"
-                    aria-controls="pills-project"
-                    aria-selected={activeTab === 'project'}
-                  >
-                    Project
-                  </a>
-                </li>
-                {/* Show Fulfilment tab only for STC (937) projects */}
-                {project?.product_id === '937' && (
-                  <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-fulfilment"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('fulfilment');
-                      }}
-                      href="#pills-fulfilment"
-                      role="tab"
-                      aria-controls="pills-fulfilment"
-                      aria-selected={activeTab === 'fulfilment'}
-                    >
-                      Fulfilment
-                    </a>
-                  </li>
-                )}
-
-                {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
-                {project?.product_id !== '937' && project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-bank-info"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('bankInfo');
-                      }}
-                      href="#pills-bank-info"
-                      role="tab"
-                      aria-controls="pills-bank-info"
-                      aria-selected={activeTab === 'bankInfo'}
-                    >
-                      Bank Info
-                    </a>
-                  </li>
-                )}
-                {/* Hide Intake tab for STC (937) and RDC (932) projects */}
-                {project?.product_id !== '937' && project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-intake"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('intake');
-                      }}
-                      href="#pills-intake"
-                      role="tab"
-                      aria-controls="pills-intake"
-                      aria-selected={activeTab === 'intake'}
-                    >
-                      Intake
-                    </a>
-                  </li>
-                )}
-                {/* Hide Fees tab for STC (937) and RDC (932) projects */}
-                {project?.product_id !== '937' && project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-fees"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('fees');
-                      }}
-                      href="#pills-fees"
-                      role="tab"
-                      aria-controls="pills-fees"
-                      aria-selected={activeTab === 'fees'}
-                    >
-                      Fees
-                    </a>
-                  </li>
-                )}
-                {/* Hide Documents tab for RDC (932) projects */}
-                {project?.product_id !== '932' && (
-                  <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
-                    <a
-                      className="nav-link"
-                      id="pills-documents"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleTabChange('documents');
-                      }}
-                      href="#pills-documents"
-                      role="tab"
-                      aria-controls="pills-documents"
-                      aria-selected={activeTab === 'documents'}
-                    >
-                      Documents
-                    </a>
-                  </li>
-                )}
-
-                <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-invoices"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('invoices');
-                    }}
-                    href="#pills-invoices"
-                    role="tab"
-                    aria-controls="pills-invoices"
-                    aria-selected={activeTab === 'invoices'}
-                  >
-                    Invoices
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-audit-logs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('auditLogs');
-                    }}
-                    href="#pills-logs"
-                    role="tab"
-                    aria-controls="pills-logs"
-                    aria-selected={activeTab === 'auditLogs'}
-                  >
-                    Audit Logs
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="white_card_body">
-              <div className="row">
-                {/* Left Content Area - Changes based on active tab */}
-                <div className="col-md-9">
-                  {/* Project Tab */}
-                  {activeTab === 'project' && (
-                    <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Project Details</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Name</label>
-                            <input type="text" className="form-control" defaultValue={project?.project_name || ""} readOnly />
-                            <input type="hidden" name="user_id" value={getUserId()} />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label d-flex align-items-center justify-content-between">
-                              <span>Business</span>
-                              <button
-                                className="btn btn-primary"
-                                style={{
-                                  fontSize: '11px',
-                                  padding: '2px 8px',
-                                  lineHeight: '1.2',
-                                  borderRadius: '3px'
-                                }}
-                                onClick={() => {
-                                  // Open lead detail page in a new tab using the lead ID from the API response
-                                  const leadId = project?.lead_id || "9020"; // Use the lead ID from the API or fallback to default
-                                  const leadDetailUrl = `/reporting/lead-detail/${leadId}`;
-                                  window.open(leadDetailUrl, '_blank');
-                                  console.log('Opening lead detail page:', leadDetailUrl, 'with lead ID:', leadId);
-                                }}
-                              >
-                                View
-                              </button>
-                            </label>
-                            <div className="d-flex">
-                              <input type="text" className="form-control" defaultValue={project?.business_legal_name || ""} readOnly />
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Products</label>
-                            <input type="text" className="form-control" defaultValue={project?.product_name || ""} readOnly />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Fee</label>
-                            <input type="text" className="form-control" defaultValue={project?.project_fee || ""} readOnly />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Account Info Section */}
-                      <div className='d-flex align-items-center justify-content-between'>
-                        <h5 className="section-title mt-4">Account Info</h5>
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={toggleEditMode}
-                          title={isEditMode ? "" : "Edit information"}
+          {loading &&(
+              <div className="white_card card_height_100 mb_30">
+                <div className="white_card_header">
+                  <div className="box_header m-0 justify-content-between">
+                    <h4 className="iris-lead-name">Project Details</h4>
+                    <div>
+                    </div>
+                  </div>
+                  <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                    <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-project"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('project');
+                        }}
+                        href="#pills-project"
+                        role="tab"
+                        aria-controls="pills-project"
+                        aria-selected={activeTab === 'project'}
+                      >
+                        Project
+                      </a>
+                    </li>
+                    {/* Show Fulfilment tab only for STC (937) projects */}
+                    {project?.product_id === '937' && (
+                      <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-fulfilment"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('fulfilment');
+                          }}
+                          href="#pills-fulfilment"
+                          role="tab"
+                          aria-controls="pills-fulfilment"
+                          aria-selected={activeTab === 'fulfilment'}
                         >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                      </div>
-
-                      {/* Personal Info Section */}
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                        Personal Info
-                      </h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Full Name</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.authorized_signatory_name ? 'is-invalid' : ''}`}
-                              {...register('authorized_signatory_name')}
-                              value={project.authorized_signatory_name}
-                              onChange={(e) => setProject({...project, authorized_signatory_name: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.authorized_signatory_name && (
-                                <div className="invalid-feedback">{errors.authorized_signatory_name.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Contact No.</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_phone ? 'is-invalid' : ''}`}
-                              {...register('business_phone')}
-                              value={project.business_phone}
-                              onChange={(e) => setProject({...project, business_phone: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.business_phone && (
-                                <div className="invalid-feedback">{errors.business_phone.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Email</label>
-                            <input
-                              type="email"
-                              className={`form-control ${errors.business_email ? 'is-invalid' : ''}`}
-                              {...register('business_email')}
-                              value={project.business_email}
-                              onChange={(e) => setProject({...project, business_email: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.business_email && (
-                                <div className="invalid-feedback">{errors.business_email.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Title</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_title ? 'is-invalid' : ''}`}
-                              {...register('business_title')}
-                              value={project.business_title}
-                              onChange={(e) => setProject({...project, business_title: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.business_title && (
-                                <div className="invalid-feedback">{errors.business_title.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Zip</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.zip ? 'is-invalid' : ''}`}
-                              {...register('zip')}
-                              value={project.zip}
-                              onChange={(e) => setProject({...project, zip: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.zip && (
-                                <div className="invalid-feedback">{errors.zip.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Street Address</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.street_address ? 'is-invalid' : ''}`}
-                              {...register('street_address')}
-                              value={project.street_address}
-                              onChange={(e) => setProject({...project, street_address: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.street_address && (
-                                <div className="invalid-feedback">{errors.street_address.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">City</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.city ? 'is-invalid' : ''}`}
-                              {...register('city')}
-                              value={project.city}
-                              onChange={(e) => setProject({...project, city: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.city && (
-                                <div className="invalid-feedback">{errors.city.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">State</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.state ? 'is-invalid' : ''}`}
-                              {...register('state')}
-                              value={project.state}
-                              onChange={(e) => setProject({...project, state: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.state && (
-                                <div className="invalid-feedback">{errors.state.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Identity Document Type</label>
-                            <select
-                              className={`form-select ${errors.identity_document_type ? 'is-invalid' : ''}`}
-                              {...register('identity_document_type')}
-
-                              value={project.identity_document_type || ""}
-                              onChange={(e) => setProject({...project, identity_document_type: e.target.value})}
-                              disabled={!isEditMode}
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="SSN">SSN</option>
-                              <option value="EIN">EIN</option>
-                              <option value="Driver's License">Driver's License</option>
-                              <option value="Passport">Passport</option>
-                              <option value="State ID">State ID</option>
-                              <option value="Others">Others</option>
-                            </select>
-                            {errors.identity_document_type && (
-                                <div className="invalid-feedback">{errors.identity_document_type.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Document Number</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.identity_document_number ? 'is-invalid' : ''}`}
-                              {...register('identity_document_number')}
-                              value={project.identity_document_number}
-                              onChange={(e) => setProject({...project, identity_document_number: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.identity_document_number && (
-                                <div className="invalid-feedback">{errors.identity_document_number.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Business Info Section */}
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                        Business Info
-                      </h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Business Legal Name</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
-                              {...register('business_legal_name')}
-                              value={project.business_legal_name}
-                              onChange={(e) => setProject({...project, business_legal_name: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.business_legal_name && (
-                                <div className="invalid-feedback">{errors.business_legal_name.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Doing Business As</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.doing_business_as ? 'is-invalid' : ''}`}
-                              {...register('doing_business_as')}
-                              value={project.doing_business_as}
-                              onChange={(e) => setProject({...project, doing_business_as: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.doing_business_as && (
-                                <div className="invalid-feedback">{errors.doing_business_as.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Business Category</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_category ? 'is-invalid' : ''}`}
-                              {...register('business_category')}
-                              value={project.business_category}
-                              onChange={(e) => setProject({...project, business_category: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.business_category && (
-                                <div className="invalid-feedback">{errors.business_category.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Website URL</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.website_url ? 'is-invalid' : ''}`}
-                              {...register('website_url')}
-                              value={project.website_url}
-                              onChange={(e) => setProject({...project, website_url: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.website_url && (
-                                <div className="invalid-feedback">{errors.website_url.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Business Legal Info Section */}
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                        Business Legal Info
-                      </h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Business Entity Type</label>
-                            <select
-                              className={`form-select ${errors.business_entity_type ? 'is-invalid' : ''}`}
-                              {...register('business_entity_type')}
-
-                              value={project.business_entity_type || ""}
-                              onChange={(e) => setProject({...project, business_entity_type: e.target.value})}
-                              disabled={!isEditMode}
-                            >
-                              <option value="1">N/A</option>
-                              <option value="4">Sole Proprietorship</option>
-                              <option value="3">Partnership</option>
-                              <option value="2">Limited Liability (LLC)</option>
-                              <option value="6">Corporation (S,C,B,etc)</option>
-                              <option value="7">Trust</option>
-                              <option value="5">Other</option>
-                            </select>
-                            {errors.business_entity_type && (
-                                <div className="invalid-feedback">{errors.business_entity_type.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Registration Number</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={project.registration_number}
-                              onChange={(e) => setProject({...project, registration_number: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Registration Date</label>
-                            {isEditMode ? (
-                              <DateInput
-                                value={project.registration_date}
-                                onChange={(value) => setProject({...project, registration_date: value})}
-                                placeholder="MM/DD/YYYY"
-                              />
-                            ) : (
-                              <input
-                                type="text"
-                                className="form-control"
-                                value={project.registration_date}
-                                readOnly
-                              />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">State of Registration</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.state_of_registration ? 'is-invalid' : ''}`}
-                              {...register('state_of_registration')}
-                              value={project.state_of_registration}
-                              onChange={(e) => setProject({...project, state_of_registration: e.target.value})}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.state_of_registration && (
-                                <div className="invalid-feedback">{errors.state_of_registration.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Folder Information</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label d-flex align-items-center">
-                              {project?.product_id === "937" ? "Agreement Folder Link" : "Company Folder Link"}
-                              {companyFolderLink  && (
-                              <a
-                                href={companyFolderLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ms-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
-                                </svg>
-                              </a>
-                              )}
-                            </label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.company_folder_link ? 'is-invalid' : ''}`}
-                              {...register('company_folder_link')}
-                              value={companyFolderLink}
-                              onChange={(e) => setCompanyFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.company_folder_link && (
-                                <div className="invalid-feedback">{errors.company_folder_link.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label d-flex align-items-center">
-                              {project?.product_id === "937" ? "STC Document Folder Link" : "ERC Document Folder Link"}
-                              {documentFolderLink  && (
-                              <a
-                                href={documentFolderLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ms-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
-                                </svg>
-                              </a>
-                              )}
-                            </label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.document_folder_link ? 'is-invalid' : ''}`}
-                              {...register('document_folder_link')}
-                              value={documentFolderLink}
-                              onChange={(e) => setDocumentFolderLink(e.target.value)}
-                              readOnly={!isEditMode}
-                            />
-                            {errors.document_folder_link && (
-                                <div className="invalid-feedback">{errors.document_folder_link.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-
-
-                    </div>
-                  )}
-                  {/* Fulfilment Tab Content */}
-                  {activeTab === 'fulfilment' && (
-                    <div className="mb-4 left-section-container">
-                      {/* Display loading state */}
-                      {fulfilmentLoading && (
-                        <div className="text-center mb-3">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading fulfilment information...</span>
-                          </div>
-                          <p className="mt-2">Loading fulfilment information...</p>
-                        </div>
-                      )}
-
-                      {/* Display error state */}
-                      {fulfilmentError && (
-                        <div className="alert alert-warning alert-dismissible fade show" role="alert">
-                          <strong>API Error:</strong> {fulfilmentError}
-                          <button type="button" className="btn-close" onClick={() => setFulfilmentError(null)} aria-label="Close"></button>
-                        </div>
-                      )}
-
-
-
-                          {/* Input Section */}
-                          <h5 className="section-title">Input</h5>
-
-                          {/* Annual Income Section */}
-                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                            Annual Income
-                          </h6>
-                          <div className="row mb-3">
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">2019 Income</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.income_2019}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2019: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">2020 Income</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.income_2020}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2020: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">2021 Income</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.income_2021}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, income_2021: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Bank Information Section */}
-                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                            Bank Information
-                          </h6>
-                          <div className="row mb-3">
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Bank Name</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.bank_name}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, bank_name: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Account Holder Name</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.account_holder_name}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, account_holder_name: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Account Number</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.account_number}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, account_number: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="row mb-3">
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Routing Number</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.aba_routing_no}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, aba_routing_no: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Output Section */}
-                          <h5 className="section-title mt-4">Output</h5>
-
-                          {/* STC Amount Section */}
-                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                            STC Amount
-                          </h6>
-                          <div className="row mb-3">
-                            <div className="col-md-6">
-                              <div className="form-group">
-                                <label className="form-label">2020 STC Amount</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.stc_amount_2020}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, stc_amount_2020: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-6">
-                              <div className="form-group">
-                                <label className="form-label">2021 STC Amount</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.stc_amount_2021}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, stc_amount_2021: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Credit Amount & Fee Section */}
-                          <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">
-                            Credit Amount & Fee
-                          </h6>
-                          <div className="row mb-3">
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Maximum Credit</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.maximum_credit}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, maximum_credit: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Actual Credit</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.actual_credit}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, actual_credit: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Estimated Fee</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.estimated_fee}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, estimated_fee: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="row mb-3">
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Actual Fee</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={fulfilmentData.actual_fee}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, actual_fee: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-4">
-                              <div className="form-group">
-                                <label className="form-label">Years</label>
-                                <select
-                                  className="form-select"
-                                  value={fulfilmentData.years}
-                                  onChange={(e) => setFulfilmentData({...fulfilmentData, years: e.target.value})}
-                                >
-                                  <option value="2020">2020</option>
-                                  <option value="2021">2021</option>
-                                  <option value="2020,2021">2020,2021</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                    </div>
-                  )}
-                  {/* Bank Info Tab */}
-                  {activeTab === 'bankInfo' && (
-                    <div className="mb-4 left-section-container">
-                      <h5 className="section-title mt-4">Bank Information</h5>
-
-                      {bankInfoLoading ? (
-                        <div className="text-center my-4">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </div>
-                          <p className="mt-2">Loading bank information...</p>
-                        </div>
-                      ) : bankInfoError ? (
-                        <div className="alert alert-warning" role="alert">
-                          {bankInfoError}
-                          <button
-                            className="btn btn-sm btn-primary ms-3"
-                            onClick={fetchBankInfo}
-                          >
-                            Retry
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="row mb-3">
-                            <div className="col-md-6">
-                              <div className="form-group">
-                                <label className="form-label">Bank Name</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Bank Name"
-                                  value={bankInfo.bank_name}
-                                  onChange={(e) => setBankInfo({...bankInfo, bank_name: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-6">
-                              <div className="form-group">
-                                <label className="form-label">Bank Mailing Address</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Bank Mailing Address"
-                                  value={bankInfo.bank_mailing_address}
-                                  onChange={(e) => setBankInfo({...bankInfo, bank_mailing_address: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="row mb-3">
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">City</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="City"
-                                  value={bankInfo.city}
-                                  onChange={(e) => setBankInfo({...bankInfo, city: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">State</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="State"
-                                  value={bankInfo.state}
-                                  onChange={(e) => setBankInfo({...bankInfo, state: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Zip</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Zip"
-                                  value={bankInfo.zip}
-                                  onChange={(e) => setBankInfo({...bankInfo, zip: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Country</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Country"
-                                  value={bankInfo.country}
-                                  onChange={(e) => setBankInfo({...bankInfo, country: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="row mb-3">
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Bank Phone</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Bank Phone"
-                                  value={bankInfo.bank_phone}
-                                  onChange={(e) => setBankInfo({...bankInfo, bank_phone: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Account Holder Name</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Account Holder Name"
-                                  value={bankInfo.account_holder_name}
-                                  onChange={(e) => setBankInfo({...bankInfo, account_holder_name: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Account Type</label>
-                                <select
-                                  className="form-select"
-                                  value={bankInfo.account_type}
-                                  onChange={(e) => setBankInfo({...bankInfo, account_type: e.target.value})}
-
-                                >
-                                  <option value="1">N/A</option>
-                                  <option value="2">Savings</option>
-                                  <option value="3">Checking</option>
-                                  <option value="4">Other</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Other</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Other"
-                                  value={bankInfo.other}
-                                  onChange={(e) => setBankInfo({...bankInfo, other: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="row mb-3">
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">ABA Routing Number</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="ABA Routing Number"
-                                  value={bankInfo.aba_routing_no}
-                                  onChange={(e) => setBankInfo({...bankInfo, aba_routing_no: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">Account Number</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="Account Number"
-                                  value={bankInfo.account_number}
-                                  onChange={(e) => setBankInfo({...bankInfo, account_number: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">SWIFT</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="SWIFT"
-                                  value={bankInfo.swift}
-                                  onChange={(e) => setBankInfo({...bankInfo, swift: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                            <div className="col-md-3">
-                              <div className="form-group">
-                                <label className="form-label">IBAN</label>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  placeholder="IBAN"
-                                  value={bankInfo.iban}
-                                  onChange={(e) => setBankInfo({...bankInfo, iban: e.target.value})}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Intake Tab Content */}
-                  {activeTab === 'intake' && (
-                    <div className="mb-4 left-section-container">
-                      <h5 className="section-title mt-4">ERC Basic Details</h5>
-
-                      {intakeInfoLoading ? (
-                        <div className="text-center my-4">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </div>
-                          <p className="mt-2">Loading intake information...</p>
-                        </div>
-                      ) : intakeInfoError ? (
-                        <div className="alert alert-warning" role="alert">
-                          {intakeInfoError}
-                          <button
-                            className="btn btn-sm btn-primary ms-3"
-                            onClick={fetchIntakeInfo}
-                          >
-                            Retry
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">W2 Employee Count</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="W2 Employee Count"
-                              value={intakeInfo.w2_employees_count}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, w2_employees_count: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Initial Retain Fee Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Initial Retain Fee Amount"
-                              value={intakeInfo.initial_retain_fee_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, initial_retain_fee_amount: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">W2 EE Difference Count</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="W2 EE Difference Count"
-                              value={intakeInfo.w2_ee_difference_count}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, w2_ee_difference_count: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Balance Retainer Fee</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Balance Retainer Fee"
-                              value={intakeInfo.balance_retainer_fee}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, balance_retainer_fee: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Max ERC Amount"
-                              value={intakeInfo.total_max_erc_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, total_max_erc_amount: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Estimated Fees</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Estimated Fees"
-                              value={intakeInfo.total_estimated_fees}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, total_estimated_fees: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Referral Fees</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Affiliate Referral Fees"
-                              value={intakeInfo.affiliate_referral_fees}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, affiliate_referral_fees: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                type="checkbox"
-                                className="form-check-input"
-                                id="sdgrCheck"
-                                checked={intakeInfo.sdgr === 'Yes' || intakeInfo.sdgr === true}
-                                onChange={(e) => setIntakeInfo({...intakeInfo, sdgr: e.target.checked ? 'Yes' : 'No'})}
-
-                              />
-                              <label className="form-check-label" htmlFor="sdgrCheck">SDGR</label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Average Employee Count in 2019</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.avg_emp_count_2019}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, avg_emp_count_2019: e.target.value})}
-
-                            >
-                              <option value="0">N/A</option>
-                              <option value="1">Less Than 100</option>
-                              <option value="2">Between 100-500</option>
-                              <option value="3">More Than 500</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Fee Type</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.fee_type}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, fee_type: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @15%">Retainer Fee @$90 Per EE + Success Fee @15%</option>
-                              <option value="Retainer Fee $10k + Upon Completion Fees @12%">Retainer Fee $10k + Upon Completion Fees @12%</option>
-                              <option value="Document Fee @$299 + Success Fee @18%">Document Fee @$299 + Success Fee @18%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @12.5%">Retainer Fee @$90 Per EE + Success Fee @12.5%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @12%">Retainer Fee @$90 Per EE + Success Fee @12%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @10%">Retainer Fee @$90 Per EE + Success Fee @10%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @13%">Retainer Fee @$90 Per EE + Success Fee @13%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @20%">Retainer Fee @$90 Per EE + Success Fee @20%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @9.75%">Retainer Fee @$90 Per EE + Success Fee @9.75%</option>
-                              <option value="Retainer Fee $10k + Upon Completion Fees @10%">Retainer Fee $10k + Upon Completion Fees @10%</option>
-                              <option value="Document Fee @$0 + Success Fee @12.5%">Document Fee @$0 + Success Fee @12.5%</option>
-                              <option value="Document Fee @$0 + Success Fee @14.5%">Document Fee @$0 + Success Fee @14.5%</option>
-                              <option value="Document Fee @$0 + Success Fee @15%">Document Fee @$0 + Success Fee @15%</option>
-                              <option value="Document Fee @$450 OT + Success Fee @12.5%">Document Fee @$450 OT + Success Fee @12.5%</option>
-                              <option value="Document Fee @$49 OT + Success Fee @15%">Document Fee @$49 OT + Success Fee @15%</option>
-                              <option value="Document Fee @$49 OT + Success Fee @17.5%">Document Fee @$49 OT + Success Fee @17.5%</option>
-                              <option value="Document Fee @$99 + Success Fee @18%">Document Fee @$99 + Success Fee @18%</option>
-                              <option value="Document Fee @$99 OT + Success Fee @15%">Document Fee @$99 OT + Success Fee @15%</option>
-                              <option value="Document Fee @$99 OT + Success Fee @15.75%">Document Fee @$99 OT + Success Fee @15.75%</option>
-                              <option value="Document Fee @$99 OT + Success Fee @20%">Document Fee @$99 OT + Success Fee @20%</option>
-                              <option value="Document Fee @$990 OT + Success Fee @15.75%">Document Fee @$990 OT + Success Fee @15.75%</option>
-                              <option value="Enrollment 5 EE or less $450 Flat Fee">Enrollment 5 EE or less $450 Flat Fee</option>
-                              <option value="Enrollment @$90 Per EE + Success Fee @10%">Enrollment @$90 Per EE + Success Fee @10%</option>
-                              <option value="Enrollment @$90 Per EE + Success Fee @12.5%">Enrollment @$90 Per EE + Success Fee @12.5%</option>
-                              <option value="Retainer @$90 Per EE - Service Fees @15%">Retainer @$90 Per EE - Service Fees @15%</option>
-                              <option value="Retainer @$90 Per EE+Upon Completion Fee @10%">Retainer @$90 Per EE+Upon Completion Fee @10%</option>
-                              <option value="Retainer @$90 Per EE+Upon Completion Fee @12%">Retainer @$90 Per EE+Upon Completion Fee @12%</option>
-                              <option value="Retainer Fee @ $90 Per EE+Success Fee @ 17.5%">Retainer Fee @ $90 Per EE+Success Fee @ 17.5%</option>
-                              <option value="Retainer @$0 Per EE + Service Fees @15%">Retainer @$0 Per EE + Service Fees @15%</option>
-                              <option value="Retainer Fee @$90 Per EE + Success Fee @6.25%">Retainer Fee @$90 Per EE + Success Fee @6.25%</option>
-                              <option value="Retainer Fee $100 + Success Fee @15%">Retainer Fee $100 + Success Fee @15%</option>
-                              <option value="Retainer Fee @$99 + Success Fee @10%">Retainer Fee @$99 + Success Fee @10%</option>
-                              <option value="Retainer Fee @$0 + Success Fee @18%">Retainer Fee @$0 + Success Fee @18%</option>
-                              <option value="Retainer Fee @$0 + Success Fee @10%">Retainer Fee @$0 + Success Fee @10%</option>
-                              <option value="Custom Fee - $37500 - $45000">Custom Fee - $37500 - $45000</option>
-                              <option value="Retainer Fee @$3000 + Success Fee @15%">Retainer Fee @$3000 + Success Fee @15%</option>
-                              <option value="Retainer Fee @$2000 + Success Fee @20%">Retainer Fee @$2000 + Success Fee @20%</option>
-                              <option value="Retainer Fee @$30 Per EE + Success Fee @15%">Retainer Fee @$30 Per EE + Success Fee @15%</option>
-                              <option value="Retainer Fee @$0 Per EE + Success Fee @12%">Retainer Fee @$0 Per EE + Success Fee @12%</option>
-                              <option value="Retainer Fee @$2500 + Success Fee @20%">Retainer Fee @$2500 + Success Fee @20%</option>
-                              <option value="Retainer Fee @$3000 + Success Fee @22%">Retainer Fee @$3000 + Success Fee @22%</option>
-                              <option value="Retainer Fee @$12500 + Success Fee @15%">Retainer Fee @$12500 + Success Fee @15%</option>
-                              <option value="$90 Per EE Min $2000 + Success Fee @20%">$90 Per EE Min $2000 + Success Fee @20%</option>
-                              <option value="Retainer Fee @$0 + Success Fee @20%">Retainer Fee @$0 + Success Fee @20%</option>
-                              <option value="Document Fee @$299 + Success Fee @20%">Document Fee @$299 + Success Fee @20%</option>
-                              <option value="Completion Fee @10%">Completion Fee @10%</option>
-                              <option value="Success Fee @10%">Success Fee @10%</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Custom Fee</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Custom Fee"
-                              value={intakeInfo.custom_fee}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, custom_fee: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Company Folder Link</label>
-                            {companyFolderLink  && (
-                              <a
-                                href={companyFolderLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ms-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
-                                </svg>
-                              </a>
-                              )}
-                              <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Company Folder Link"
-                              value={companyFolderLink}
-                              onChange={(e) => setCompanyFolderLink(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Document Folder Link</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Document Folder Link"
-                              value={documentFolderLink}
-                              onChange={(e) => setDocumentFolderLink(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Eligible Quarters</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Eligible Quarters"
-                              value={intakeInfo.eligible_quarters}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, eligible_quarters: e.target.value})}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Welcome Email</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Welcome Email"
-                              value={intakeInfo.welcome_email}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, welcome_email: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Invoice# Initial Retainer</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice# Initial Retainer"
-                              value={intakeInfo.retainer_invoice_no}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_invoice_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Payment Date</label>
-                            <DateInput
-                              value={intakeInfo.retainer_payment_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, retainer_payment_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Payment Cleared</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Retainer Payment Cleared"
-                              value={intakeInfo.retainer_payment_cleared}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_cleared: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Payment Returned</label>
-                            <DateInput
-                              value={intakeInfo.retainer_payment_returned}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, retainer_payment_returned: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Ret Payment Return Reason</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Ret Payment Return Reason"
-                              value={intakeInfo.retpayment_return_reason}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retpayment_return_reason: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Refund Date</label>
-                            <DateInput
-                              value={intakeInfo.retainer_refund_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, retainer_refund_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Refund Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Retainer Refund Amount"
-                              value={intakeInfo.retainer_refund_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_refund_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Payment Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Retainer Payment Amount"
-                              value={intakeInfo.retainer_payment_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retainer Payment Type</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.retainer_payment_type}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, retainer_payment_type: e.target.value})}
-
-                            >
-                              <option value="">Select Type</option>
-                              <option value="1">ACH</option>
-                              <option value="2">CC/DB Card</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retainer Invoice#</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Bal Retainer Invoice#"
-                              value={intakeInfo.bal_retainer_invoice_no}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, bal_retainer_invoice_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retainer Sent Date</label>
-                            <DateInput
-                              value={intakeInfo.bal_retainer_sent_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_sent_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retainer Pay Date</label>
-                            <DateInput
-                              value={intakeInfo.bal_retainer_pay_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_pay_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retainer Clear Date</label>
-                            <DateInput
-                              value={intakeInfo.bal_retainer_clear_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_clear_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retainer Return Date</label>
-                            <DateInput
-                              value={intakeInfo.bal_retainer_return_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, bal_retainer_return_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retainer Return Reason</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Bal Retainer Return Reason"
-                              value={intakeInfo.bal_retainer_return_reaso}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, bal_retainer_return_reaso: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Payment Terms</h5>
-
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Interest Percentage(%)</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Interest Percentage(%)"
-                              value={intakeInfo.interest_percentage}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, interest_percentage: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Net No.</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Net No"
-                              value={intakeInfo.net_no}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, net_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">ERC Documents</h5>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Business Docs</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">COI AOI</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.coi_aoi}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, coi_aoi: e.target.value})}
-
-                            >
-                              <option value="3">N/A</option>
-                              <option value="1">YES</option>
-                              <option value="2">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Voided Check</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.voided_check}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, voided_check: e.target.value})}
-
-                            >
-                              <option value="3">N/A</option>
-                              <option value="1">YES</option>
-                              <option value="2">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Business Financial Docs</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2019 Tax Return</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2019_tax_return']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2019_tax_return': e.target.value})}
-
-                            >
-                              <option value="3">N/A</option>
-                              <option value="1">YES</option>
-                              <option value="2">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2020 Tax Return</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_tax_return']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_tax_return': e.target.value})}
-
-                            >
-                              <option value="3">N/A</option>
-                              <option value="1">YES</option>
-                              <option value="2">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2021 Financials</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_financials']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_financials': e.target.value})}
-
-                            >
-                              <option value="3">N/A</option>
-                              <option value="1">YES</option>
-                              <option value="2">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">941's - 2020</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2020 Q1</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q1_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q1_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2020 Q2</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q2_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q2_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2020 Q3</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q3_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q3_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2020 Q4</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q4_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q4_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">941's - 2021</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2021 Q1</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_q1_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q1_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2021 Q2</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_q2_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q2_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">2021 Q3</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_q3_941']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q3_941': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Register - 2020</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2020 Q1</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q1_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q1_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2020 Q2</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q2_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q2_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2020 Q3</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q3_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q3_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2020 Q4</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2020_q4_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2020_q4_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">Payroll Register - 2021</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2021 Q1</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_q1_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q1_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2021 Q2</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_q2_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q2_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Payroll Register 2021 Q3</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo['2021_q3_payroll']}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, '2021_q3_payroll': e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">F911 Status</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.f911_status}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, f911_status: e.target.value})}
-
-                            >
-                              <option value="">N/A</option>
-                              <option value="F911 Sent">F911 Sent</option>
-                              <option value="F911 Signed">F911 Signed</option>
-                              <option value="F911 Faxed to TAS">F911 Faxed to TAS</option>
-                              <option value="In Progress with TAS">In Progress with TAS</option>
-                              <option value="Resolved">Resolved</option>
-                              <option value="Closed/Unresolved">Closed/Unresolved</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">PPP Details</h5>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">PPP 2020 Information</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2020 Applied</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.ppp_1_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_applied: e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2020 Start Date</label>
-                            <DateInput
-                              value={intakeInfo.ppp_1_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_1_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2020 Forgiveness Applied</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.ppp_1_forgiveness_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_forgiveness_applied: e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2020 End Date</label>
-                            <DateInput
-                              value={intakeInfo.ppp_1_forgive_app_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_1_forgive_app_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2020 Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="PPP 2020 Amount"
-                              value={intakeInfo.ppp_1_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2020 Wages Allocated</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="PPP 2020 Wages Allocated"
-                              value={intakeInfo.ppp_1_wages_allocated}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_1_wages_allocated: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">PPP 2021 Information</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2021 Applied</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.ppp_2_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_applied: e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2021 Start Date</label>
-                            <DateInput
-                              value={intakeInfo.ppp_2_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_2_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2021 Forgiveness Applied</label>
-                            <select
-                              className="form-select"
-                              value={intakeInfo.ppp_2_forgiveness_applied}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_forgiveness_applied: e.target.value})}
-
-                            >
-                              <option value="1">N/A</option>
-                              <option value="2">YES</option>
-                              <option value="3">NO</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2021 End Date</label>
-                            <DateInput
-                              value={intakeInfo.ppp_2_forgive_app_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, ppp_2_forgive_app_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2021 Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="PPP 2021 Amount"
-                              value={intakeInfo.ppp_2_amount}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">PPP 2021 Wages Allocated</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="PPP 2021 Wages Allocated"
-                              value={intakeInfo.ppp_2_wages_allocated}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, ppp_2_wages_allocated: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-12">
-                          <div className="form-group">
-                            <label className="form-label">Additional Comments</label>
-                            <textarea
-                              className="form-control"
-                              rows="3" style={{ resize: 'vertical', minHeight: '70px' }}
-                              placeholder="Additional Comments"
-                              value={intakeInfo.additional_comments}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, additional_comments: e.target.value})}
-
-                            ></textarea>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">FPSO Details</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Attorney Name</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Attorney Name"
-                              value={intakeInfo.attorney_name}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, attorney_name: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Call Date</label>
-                            <DateInput
-                              value={intakeInfo.call_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, call_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Call Time</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Call Time"
-                              value={intakeInfo.call_time}
-                              onChange={(e) => setIntakeInfo({...intakeInfo, call_time: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Memo Received Date</label>
-                            <DateInput
-                              value={intakeInfo.memo_received_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, memo_received_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Memo Cut Off Date</label>
-                            <DateInput
-                              value={intakeInfo.memo_cut_off_date}
-                              onChange={(value) => setIntakeInfo({...intakeInfo, memo_cut_off_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Fees Tab Content */}
-                  {activeTab === 'fees' && (
-                    <div className="mb-4 left-section-container">
-                      {/* Display loading state */}
-                      {feesInfoLoading && (
-                        <div className="text-center mb-3">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading fees information...</span>
-                          </div>
-                          <p className="mt-2">Loading fees information...</p>
-                        </div>
-                      )}
-
-                      {/* Display error state */}
-                      {feesInfoError && (
-                        <div className="alert alert-warning alert-dismissible fade show" role="alert">
-                          <strong>API Error:</strong> {feesInfoError}
-                          <button type="button" className="btn-close" onClick={() => setFeesInfoError(null)} aria-label="Close"></button>
-                        </div>
-                      )}
-
-                      <h5 className="section-title">941 Details</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Error Discovered Date</label>
-                            <DateInput
-                              value={feesInfo.error_discovered_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, error_discovered_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2020 941 Wages"
-                              value={feesInfo.q2_2020_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2020 941 Wages"
-                              value={feesInfo.q3_2020_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2020 941 Wages"
-                              value={feesInfo.q4_2020_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2021 941 Wages"
-                              value={feesInfo.q1_2021_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2021 941 Wages"
-                              value={feesInfo.q2_2021_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2021 941 Wages"
-                              value={feesInfo.q3_2021_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 941 Wages</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2021 941 Wages"
-                              value={feesInfo.q4_2021_941_wages}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_941_wages: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">TOTAL ERC AMOUNT AND FEES</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Internal Sales Agent</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Internal Sales Agent"
-                              value={feesInfo.internal_sales_agent}
-                              onChange={(e) => setFeesInfo({...feesInfo, internal_sales_agent: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Internal Sales Support</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Internal Sales Support"
-                              value={feesInfo.internal_sales_support}
-                              onChange={(e) => setFeesInfo({...feesInfo, internal_sales_support: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Name</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Affiliate Name"
-                              value={feesInfo.affiliate_name}
-                              onChange={(e) => setFeesInfo({...feesInfo, affiliate_name: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Percentage</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Affiliate Percentage"
-                              value={feesInfo.affiliate_percentage}
-                              onChange={(e) => setFeesInfo({...feesInfo, affiliate_percentage: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">ERC Claim Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="ERC Claim Filed"
-                              value={feesInfo.erc_claim_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, erc_claim_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">ERC Amount Received</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="ERC Amount Received"
-                              value={feesInfo.erc_amount_received}
-                              onChange={(e) => setFeesInfo({...feesInfo, erc_amount_received: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total ERC Fee</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total ERC Fee"
-                              value={feesInfo.total_erc_fees}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_erc_fees: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Legal Fees</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Legal Fees"
-                              value={feesInfo.legal_fees}
-                              onChange={(e) => setFeesInfo({...feesInfo, legal_fees: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total ERC Fees Paid</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total ERC Fees Paid"
-                              value={feesInfo.total_erc_fees_paid}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_erc_fees_paid: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total ERC Fees Pending</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total ERC Fees Pending"
-                              value={feesInfo.total_erc_fees_pending}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_erc_fees_pending: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Occams Share"
-                              value={feesInfo.total_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Aff/Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Aff/Ref Share"
-                              value={feesInfo.total_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retain Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Retain Occams Share"
-                              value={feesInfo.retain_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, retain_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Retain Aff/Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Retain Aff/Ref Share"
-                              value={feesInfo.retain_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, retain_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Bal Retain Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Bal Retain Occams Share"
-                              value={feesInfo.bal_retain_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, bal_retain_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">BAL Retain Aff_Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="BAL Retain Aff_Ref Share"
-                              value={feesInfo.bal_retain_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, bal_retain_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Occams Share Paid</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Occams Share Paid"
-                              value={feesInfo.total_occams_share_paid}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_occams_share_paid: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Aff/Ref Share Paid</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Aff/Ref Share Paid"
-                              value={feesInfo.total_aff_ref_share_paid}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share_paid: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Occams Share Pending</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Occams Share Pending"
-                              value={feesInfo.total_occams_share_pendin}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_occams_share_pendin: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Total Aff/Ref Share Pending</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Total Aff/Ref Share Pending"
-                              value={feesInfo.total_aff_ref_share_pend}
-                              onChange={(e) => setFeesInfo({...feesInfo, total_aff_ref_share_pend: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Total Max ERC Amount 2020</h5>
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2020 Max ERC Amount"
-                              value={feesInfo.q1_2020_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2020 Max ERC Amount"
-                              value={feesInfo.q2_2020_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2020 Max ERC Amount"
-                              value={feesInfo.q3_2020_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2020 Max ERC Amount"
-                              value={feesInfo.q4_2020_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Total Max ERC Amount 2021</h5>
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2021 Max ERC Amount"
-                              value={feesInfo.q1_2021_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2021 Max ERC Amount"
-                              value={feesInfo.q2_2021_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2021 Max ERC Amount"
-                              value={feesInfo.q3_2021_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Max ERC Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2021 Max ERC Amount"
-                              value={feesInfo.q4_2021_max_erc_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_max_erc_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">ERC Filed Quarter wise 2020</h5>
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q1-2020-filed-status"
-                                checked={feesInfo.q1_2020_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q1_2020_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q1-2020-filed-status">
-                                Q1 2020 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q1_2020_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q1_2020_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2020 Amount Filed"
-                              value={feesInfo.q1_2020_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2020 Benefits"
-                              value={feesInfo.q1_2020_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q1_2020_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q2-2020-filed-status"
-                                checked={feesInfo.q2_2020_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q2_2020_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q2-2020-filed-status">
-                                Q2 2020 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q2_2020_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q2_2020_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2020 Amount Filed"
-                              value={feesInfo.q2_2020_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2020 Benefits"
-                              value={feesInfo.q2_2020_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q2_2020_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q3-2020-filed-status"
-                                checked={feesInfo.q3_2020_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q3_2020_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q3-2020-filed-status">
-                                Q3 2020 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q3_2020_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q3_2020_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2020 Amount Filed"
-                              value={feesInfo.q3_2020_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2020 Benefits"
-                              value={feesInfo.q3_2020_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q3_2020_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q4-2020-filed-status"
-                                checked={feesInfo.q4_2020_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q4_2020_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q4-2020-filed-status">
-                                Q4 2020 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q4_2020_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q4_2020_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2020 Amount Filed"
-                              value={feesInfo.q4_2020_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2020 Benefits"
-                              value={feesInfo.q4_2020_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q4_2020_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q1-2021-filed-status"
-                                checked={feesInfo.q1_2021_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q1_2021_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q1-2021-filed-status">
-                                Q1 2021 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q1_2021_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q1_2021_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2021 Amount Filed"
-                              value={feesInfo.q1_2021_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2021 Benefits"
-                              value={feesInfo.q1_2021_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q1_2021_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q2-2021-filed-status"
-                                checked={feesInfo.q2_2021_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q2_2021_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q2-2021-filed-status">
-                                Q2 2021 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q2_2021_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q2_2021_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2021 Amount Filed"
-                              value={feesInfo.q2_2021_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2021 Benefits"
-                              value={feesInfo.q2_2021_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q2_2021_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q3-2021-filed-status"
-                                checked={feesInfo.q3_2021_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q3_2021_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q3-2021-filed-status">
-                                Q3 2021 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q3_2021_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q3_2021_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2021 Amount Filed"
-                              value={feesInfo.q3_2021_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2021 Benefits"
-                              value={feesInfo.q3_2021_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q3_2021_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <div className="form-check custom-checkbox">
-                              <input
-                                className="form-check-input"
-                                type="checkbox"
-                                id="q4-2021-filed-status"
-                                checked={feesInfo.q4_2021_filed_status}
-                                onChange={(e) => setFeesInfo({...feesInfo, q4_2021_filed_status: e.target.checked})}
-
-                              />
-                              <label className="form-check-label" htmlFor="q4-2021-filed-status">
-                                Q4 2021 Filed Status
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Filing Date</label>
-                            <DateInput
-                              value={feesInfo.q4_2021_filed_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, q4_2021_filed_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Amount Filed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2021 Amount Filed"
-                              value={feesInfo.q4_2021_amount_filed}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_amount_filed: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Benefits</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2021 Benefits"
-                              value={feesInfo.q4_2021_benefits}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_benefits: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Eligibility Basis</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.q4_2021_eligibility_basis}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_eligibility_basis: e.target.value})}
-
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="FPSO">FPSO</option>
-                              <option value="SDGR">SDGR</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">ERC Letter, Check & Amount</h5>
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2020</h6>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Loop</label>
-                            <DateInput
-                              value={feesInfo.q1_2020_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q1_2020_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q1-2020-letter"
-                              checked={feesInfo.q1_2020_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q1-2020-letter">
-                              Q1 2020 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q1-2020-check"
-                              checked={feesInfo.q1_2020_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q1-2020-check">
-                              Q1 2020 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2020 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2020 Chq Amt"
-                              value={feesInfo.q1_2020_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2020_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Loop</label>
-                            <DateInput
-                              value={feesInfo.q2_2020_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q2_2020_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q2-2020-letter"
-                              checked={feesInfo.q2_2020_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q2-2020-letter">
-                              Q2 2020 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q2-2020-check"
-                              checked={feesInfo.q2_2020_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q2-2020-check">
-                              Q2 2020 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2020 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2020 Chq Amt"
-                              value={feesInfo.q2_2020_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2020_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Loop</label>
-                            <DateInput
-                              value={feesInfo.q3_2020_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q3_2020_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q3-2020-letter"
-                              checked={feesInfo.q3_2020_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q3-2020-letter">
-                              Q3 2020 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q3-2020-check"
-                              checked={feesInfo.q3_2020_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q3-2020-check">
-                              Q3 2020 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2020 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2020 Chq Amt"
-                              value={feesInfo.q3_2020_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2020_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Loop</label>
-                            <DateInput
-                              value={feesInfo.q4_2020_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q4_2020_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q4-2020-letter"
-                              checked={feesInfo.q4_2020_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q4-2020-letter">
-                              Q4 2020 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q4-2020-check"
-                              checked={feesInfo.q4_2020_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q4-2020-check">
-                              Q4 2020 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2020 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2020 Chq Amt"
-                              value={feesInfo.q4_2020_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2020_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">2021</h6>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Loop</label>
-                            <DateInput
-                              value={feesInfo.q1_2021_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q1_2021_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q1-2021-letter"
-                              checked={feesInfo.q1_2021_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q1-2021-letter">
-                              Q1 2021 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q1-2021-check"
-                              checked={feesInfo.q1_2021_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q1-2021-check">
-                              Q1 2021 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q1 2021 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q1 2021 Chq Amt"
-                              value={feesInfo.q1_2021_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q1_2021_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Loop</label>
-                            <DateInput
-                              value={feesInfo.q2_2021_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q2_2021_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q2-2021-letter"
-                              checked={feesInfo.q2_2021_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q2-2021-letter">
-                              Q2 2021 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q2-2021-check"
-                              checked={feesInfo.q2_2021_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q2-2021-check">
-                              Q2 2021 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q2 2021 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q2 2021 Chq Amt"
-                              value={feesInfo.q2_2021_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q2_2021_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Loop</label>
-                            <DateInput
-                              value={feesInfo.q3_2021_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q3_2021_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q3-2021-letter"
-                              checked={feesInfo.q3_2021_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q3-2021-letter">
-                              Q3 2021 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q3-2021-check"
-                              checked={feesInfo.q3_2021_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q3-2021-check">
-                              Q3 2021 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q3 2021 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q3 2021 Chq Amt"
-                              value={feesInfo.q3_2021_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q3_2021_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Loop</label>
-                            <DateInput
-                              value={feesInfo.q4_2021_loop}
-                              onChange={(value) => setFeesInfo({...feesInfo, q4_2021_loop: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q4-2021-letter"
-                              checked={feesInfo.q4_2021_letter}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_letter: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q4-2021-letter">
-                              Q4 2021 Letter
-                            </label>
-                          </div>
-                        </div>
-                        <div className='col-md-3'>
-                          <div className="form-check custom-checkbox">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              id="q4-2021-check"
-                              checked={feesInfo.q4_2021_check}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_check: e.target.checked})}
-
-                            />
-                            <label className="form-check-label" htmlFor="q4-2021-check">
-                              Q4 2021 Check
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Q4 2021 Chq Amt</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Q4 2021 Chq Amt"
-                              value={feesInfo.q4_2021_chq_amt}
-                              onChange={(e) => setFeesInfo({...feesInfo, q4_2021_chq_amt: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Success Fee Invoice Details</h5>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">I - Invoice Details</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice number</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice number"
-                              value={feesInfo.i_invoice_no}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice Amount"
-                              value={feesInfo.i_invoice_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoiced Qtrs</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoiced Qtrs"
-                              value={feesInfo.i_invoiced_qtrs}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoiced_qtrs: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Sent Date</label>
-                            <DateInput
-                              value={feesInfo.i_invoice_sent_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_sent_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Payment Type</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.i_invoice_payment_type}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_payment_type: e.target.value})}
-
-                            >
-                              <option value="">Select payment type</option>
-                              <option value="occams_initiated_eCheck">Occams Initiated - eCheck</option>
-                              <option value="occams_initiated_ach">Occams Initiated - ACH</option>
-                              <option value="occams_initiated_wire">Client Initiated - Wire</option>
-                              <option value="client_initiated_ach">Client Initiated - ACH</option>
-                              <option value="client_initiated_check_mailed">Client Initiated - Check Mailed</option>
-                              <option value="credit_card_or_debit_card">Credit Card or Debit Card</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Payment Date</label>
-                            <DateInput
-                              value={feesInfo.i_invoice_payment_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_payment_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Pay Cleared</label>
-                            <DateInput
-                              value={feesInfo.i_invoice_pay_cleared}
-                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_pay_cleared: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Pay Returned</label>
-                            <DateInput
-                              value={feesInfo.i_invoice_pay_returned}
-                              onChange={(value) => setFeesInfo({...feesInfo, i_invoice_pay_returned: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Return Reason</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Return Reason"
-                              value={feesInfo.i_invoice_return_reason}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_return_reason: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Occams Share"
-                              value={feesInfo.i_invoice_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">I Invoice Aff/Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Aff/Ref Share"
-                              value={feesInfo.i_invoice_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, i_invoice_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">II - Invoice Details</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice number</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice number"
-                              value={feesInfo.ii_invoice_no}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice Amount"
-                              value={feesInfo.ii_invoice_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoiced Qtrs</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoiced Qtrs"
-                              value={feesInfo.ii_invoiced_qtrs}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoiced_qtrs: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Sent Date</label>
-                            <DateInput
-                              value={feesInfo.ii_invoice_sent_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_sent_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Payment Type</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.ii_invoice_payment_type}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_payment_type: e.target.value})}
-
-                            >
-                              <option value="">Select payment type</option>
-                              <option value="occams_initiated_eCheck">Occams Initiated - eCheck</option>
-                              <option value="occams_initiated_ach">Occams Initiated - ACH</option>
-                              <option value="occams_initiated_wire">Client Initiated - Wire</option>
-                              <option value="client_initiated_ach">Client Initiated - ACH</option>
-                              <option value="client_initiated_check_mailed">Client Initiated - Check Mailed</option>
-                              <option value="credit_card_or_debit_card">Credit Card or Debit Card</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Payment Date</label>
-                            <DateInput
-                              value={feesInfo.ii_invoice_payment_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_payment_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Pay Cleared</label>
-                            <DateInput
-                              value={feesInfo.ii_invoice_pay_cleared}
-                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_pay_cleared: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Pay Returned</label>
-                            <DateInput
-                              value={feesInfo.ii_invoice_pay_returned}
-                              onChange={(value) => setFeesInfo({...feesInfo, ii_invoice_pay_returned: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Return Reason</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Return Reason"
-                              value={feesInfo.ii_invoice_return_reason}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_return_reason: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Occams Share"
-                              value={feesInfo.ii_invoice_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">II Invoice Aff/Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Aff/Ref Share"
-                              value={feesInfo.ii_invoice_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, ii_invoice_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">III - Invoice Details</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice number</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice number"
-                              value={feesInfo.iii_invoice_no}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice Amount"
-                              value={feesInfo.iii_invoice_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoiced Qtrs</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoiced Qtrs"
-                              value={feesInfo.iii_invoiced_qtrs}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoiced_qtrs: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Sent Date</label>
-                            <DateInput
-                              value={feesInfo.iii_invoice_sent_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_sent_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Payment Type</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.iii_invoice_payment_type}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_payment_type: e.target.value})}
-
-                            >
-                              <option value="">Select payment type</option>
-                              <option value="occams_initiated_eCheck">Occams Initiated - eCheck</option>
-                              <option value="occams_initiated_ach">Occams Initiated - ACH</option>
-                              <option value="occams_initiated_wire">Client Initiated - Wire</option>
-                              <option value="client_initiated_ach">Client Initiated - ACH</option>
-                              <option value="client_initiated_check_mailed">Client Initiated - Check Mailed</option>
-                              <option value="credit_card_or_debit_card">Credit Card or Debit Card</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Payment Date</label>
-                            <DateInput
-                              value={feesInfo.iii_invoice_payment_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_payment_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Pay Cleared</label>
-                            <DateInput
-                              value={feesInfo.iii_invoice_pay_cleared}
-                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_pay_cleared: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Pay Returned</label>
-                            <DateInput
-                              value={feesInfo.iii_invoice_pay_returned}
-                              onChange={(value) => setFeesInfo({...feesInfo, iii_invoice_pay_returned: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Return Reason</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Return Reason"
-                              value={feesInfo.iii_invoice_return_reason}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_return_reason: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Occams Share"
-                              value={feesInfo.iii_invoice_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">III Invoice Aff/Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Aff/Ref Share"
-                              value={feesInfo.iii_invoice_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, iii_invoice_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">IV - Invoice Details</h6>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice number</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice number"
-                              value={feesInfo.iv_invoice_no}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_no: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoice Amount"
-                              value={feesInfo.iv_invoice_amount}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_amount: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoiced Qtrs</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Invoiced Qtrs"
-                              value={feesInfo.iv_invoiced_qtrs}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoiced_qtrs: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Sent Date</label>
-                            <DateInput
-                              value={feesInfo.iv_invoice_sent_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_sent_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Payment Type</label>
-                            <select
-                              className="form-select"
-                              value={feesInfo.iv_invoice_payment_type}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_payment_type: e.target.value})}
-
-                            >
-                              <option value="">Select payment type</option>
-                              <option value="occams_initiated_eCheck">Occams Initiated - eCheck</option>
-                              <option value="occams_initiated_ach">Occams Initiated - ACH</option>
-                              <option value="occams_initiated_wire">Client Initiated - Wire</option>
-                              <option value="client_initiated_ach">Client Initiated - ACH</option>
-                              <option value="client_initiated_check_mailed">Client Initiated - Check Mailed</option>
-                              <option value="credit_card_or_debit_card">Credit Card or Debit Card</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Payment Date</label>
-                            <DateInput
-                              value={feesInfo.iv_invoice_payment_date}
-                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_payment_date: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Pay Cleared</label>
-                            <DateInput
-                              value={feesInfo.iv_invoice_pay_cleared}
-                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_pay_cleared: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Pay Returned</label>
-                            <DateInput
-                              value={feesInfo.iv_invoice_pay_returned}
-                              onChange={(value) => setFeesInfo({...feesInfo, iv_invoice_pay_returned: value})}
-                              placeholder="MM/DD/YYYY"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Return Reason</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Return Reason"
-                              value={feesInfo.iv_invoice_return_reason}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_return_reason: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Occams Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Occams Share"
-                              value={feesInfo.iv_invoice_occams_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_occams_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">IV Invoice Aff/Ref Share</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Aff/Ref Share"
-                              value={feesInfo.iv_invoice_aff_ref_share}
-                              onChange={(e) => setFeesInfo({...feesInfo, iv_invoice_aff_ref_share: e.target.value})}
-
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Documents Tab Content */}
-                  {activeTab === 'documents' && (
-                    <div className="mb-4 left-section-container">
-                      {/* Centralized loading spinner for documents only */}
-                      {documentsLoading && (
-                        <div className="text-center mb-3">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading documents...</span>
-                          </div>
-                          <p className="mt-2">Loading documents...</p>
-                        </div>
-                      )}
-
-                      {/* Error message */}
-                      {error && !documentsLoading && (
-                        <p className="text-danger text-center">{error}</p>
-                      )}
-
-                      {!documentsLoading && ercDocuments?.product_id === "935" && (
-                        <>
-                          <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
-                            <h5 className="mb-0">ERC Documents</h5>
-                            {ercDocuments?.view_document && (
-                                <a
-                                    href={ercDocuments.view_document}
-                                    className="btn btn-primary"
-                                    title="View ERC Documents"
-                                    style={{ fontSize: '14px', lineHeight: '1.5' }}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                  View Documents
-                                </a>
-                            )}
-                          </div>
-                          <DocumentTable documents={ercDocuments?.documents} />
-                        </>
-                      )}
-
-                      {!documentsLoading && companyDocuments?.product_id === "935" && (
-                        <>
-                          <h5 className="section-title mt-5">Company Documents</h5>
-                          <DocumentTable documents={companyDocuments?.documents} />
-                        </>
-                      )}
-
-                      {!documentsLoading && payrollDocuments?.product_id === "935" && (
-                        <>
-                          <h5 className="section-title mt-5">Payroll Documents</h5>
-                          {payrollDocuments.groups?.length > 0 ? (
-                            payrollDocuments.groups.map((group, index) => (
-                              <div key={index} className="mb-4">
-                                <h6 className="section-subtitle d-flex align-items-center border-bottom pb-2 mb-3">{group.heading}</h6>
-                                <DocumentTable documents={group.documents} />
-                              </div>
-                            ))
-                          ) : (
-                            <p>No payroll documents found.</p>
-                          )}
-                        </>
-                      )}
-
-                      {!documentsLoading && otherDocuments?.product_id === "935" && (
-                        <>
-                          <h5 className="section-title mt-5">Other Documents</h5>
-                          <DocumentTable documents={otherDocuments?.documents} />
-                        </>
-                      )}
-
-                      {/* STC Documents */}
-                      {!documentsLoading && stcRequiredDocuments?.product_id === "937" && (
-                        <>
-                          <div className="d-flex justify-content-between align-items-center section-title" style={{ paddingRight: 0 }}>
-                            <h5 className="mb-0">Required Documents</h5>
-                            {stcRequiredDocuments?.view_document && (
-                                <a
-                                    href={stcRequiredDocuments.view_document}
-                                    className="btn btn-primary"
-                                    title="View ERC Documents"
-                                    style={{ fontSize: '14px', lineHeight: '1.5' }}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                  View Documents
-                                </a>
-                            )}
-                          </div>
-                          <STCDocumentTable stc_documents_groups={stcRequiredDocuments} />
-                        </>
-                      )}
-
-                      {/* STC Impacted Days */}
-                      {!documentsLoading && stcImpactedDays?.product_id === "937" && (
-                        <>
-                          <h5 className="section-title">Impacted Days</h5>
-                          <STCImpactedDaysTable impacted_days_groups={stcImpactedDays?.groups || []} />
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                   {/* Invoices Tab Content */}
-                    {activeTab === 'invoices' && (
-                      <div className="mb-4 left-section-container">
-                        {loading ? (
-                          <div className="text-center p-4">
-                            <div className="spinner-border text-primary" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </div>
-                          </div>
-                        ) : error ? (
-                          <div className="alert alert-danger" role="alert">
-                            {error}
-                            <button className="btn btn-sm btn-outline-danger ms-2" onClick={fetchInvoiceData}>Retry</button>
-                          </div>
-                        ) : invoices.length === 0 ? (
-                          <div className="text-center p-4">
-                            <p>No invoices found for this project.</p>
-                          </div>
-                        ) : (
-                          invoices.map((invoice, index) => (
-                            <div className="contact_tab_data" key={invoice.id || `invoice-${index}`}>
-                              <div className="row custom_opp_tab">
-                                <div className="col-sm-12">
-                                  <div className="custom_opp_tab_header">
-                                    <h5>
-                                      <a href={invoice.invoice_url} target="_blank" data-invoiceid={invoice.id}>
-                                        Invoice {invoice.customer_invoice_no || `ERC-${invoice.customer_invoice_no}`}</a> -
-                                      <span className={`status ${invoice.invoice_status_class}`} style={{marginLeft: '5px'}}>
-                                        {invoice.invoice_status}
-                                      </span>
-                                    </h5>
-                                    <div className="opp_edit_dlt_btn projects-iris">
-                                      {/* Condition to show dropdown if invoice.status is not 2, 3, or 6 */}
-                                        {invoice.status != 2 && invoice.status != 3 && invoice.status != 6 ? (
-                                          <select className="react-select__control" name="invoiceActions" value={invoiceActions[invoice.id] || ''} onChange={(e) => handleInvoiceActionChange(e, invoice.id)}>
-                                            <option value="">Action</option>
-                                              {/* Conditionally render options based on invoice status */}
-                                                {invoice.status == 1 || invoice.status == 5 ? (
-                                                  <>
-                                                    <option
-                                                      value="2"
-                                                      data-id={invoice.id}
-                                                      invoice-type={invoice.invoice_type}
-                                                      invoice-date={invoice.invoice_date}
-                                                      invoice-amount={invoice.total_amount}
-                                                    >
-                                                      Paid
-                                                    </option>
-                                                    <option
-                                                      value="3"
-                                                      data-id={invoice.id}
-                                                    >
-                                                      Void
-                                                    </option>
-                                                    <option
-                                                      value="6"
-                                                      data-id={invoice.id}
-                                                      invoice-type={invoice.invoice_type}
-                                                      invoice-date={invoice.invoice_date}
-                                                      invoice-amount={invoice.total_amount}
-                                                    >
-                                                      Payment in process
-                                                    </option>
-                                                    <option
-                                                      value="17"
-                                                      data-id={invoice.id}
-                                                      invoice-type={invoice.invoice_type}
-                                                      invoice-date={invoice.invoice_date}
-                                                      invoice-amount={invoice.total_amount}
-                                                    >
-                                                      Partially paid
-                                                    </option>
-                                                    <option
-                                                      value="share_invoice_link"
-                                                      data-id={invoice.id}
-                                                      invoice-type={invoice.invoice_type}
-                                                      invoice-date={invoice.invoice_date}
-                                                      invoice-amount={invoice.total_amount}
-                                                      invoice-url={invoice.invoice_url}
-                                                    >
-                                                      Share Invoice link
-                                                    </option>
-                                                  </>
-                                                ) : null}
-
-                                                {/* Condition for status 17 (Partially paid) */}
-                                                {invoice.status == 17 ? (
-                                                  <>
-                                                    <option
-                                                      value="17"
-                                                      data-id={invoice.id}
-                                                      invoice-type={invoice.invoice_type}
-                                                      invoice-date={invoice.invoice_date}
-                                                      invoice-amount={invoice.total_amount}
-                                                    >
-                                                      Partially paid
-                                                    </option>
-                                                  </>
-                                                ) : null}
-
-                                        </select>
-                                      ) : null}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="col-md-8 text-left">
-                                  <div className="lead_des">
-                                    <p><b>Invoice Amount:</b> ${invoice.total_amount}</p>
-                                    <p><b>Invoice Sent Date:</b> {invoice.invoice_date}</p>
-                                    <p><b>Invoice Due Date:</b> {invoice.due_date}</p>
-                                    <p><b>Service Name:</b> {invoice.product_names}</p>
-                                    <p><b>Created By: </b> {invoice.created_user}</p>
-                                  </div>
-                                </div>
-
-                                <div className="col-md-4">
-                                  <div className="lead_des">
-                                    <p><b>Payment Date:</b> {invoice.formatted_payment_date || 'N/A'}</p>
-                                    <p><b>Payment Cleared Date:</b> {invoice.formatted_payment_cleared_date || 'N/A'}</p>
-                                    <p><b>Payment Mode:</b> {invoice.payment_mode_string || 'N/A'}</p>
-                                  </div>
-                                </div>
-
-                                {invoice.status == 17 || (invoice.status == 2 && invoice.payment_count > 1) ? (
-                                  <a className="expand_pp_div" data-bs-toggle="collapse" href={`#invoice_pp_${invoice.id}`}
-                                    aria-expanded="false" aria-controls={`invoice_pp_${invoice.id}`}>
-                                    Payment History
-                                    <i className="fa-solid fa-chevron-down ms-1" style={{fontWeight: 700}}></i>
-                                  </a>
-                                ) : null}
-
-                                <div className="collapse" id={`invoice_pp_${invoice.id}`}>
-                                  <div className="card card-body" style={{ maxWidth: '100%', padding: '10px' }}>
-                                    <div className="row">
-                                      <div className="table-responsive view-partially">
-                                        <table className="table">
-                                          <thead>
-                                            <tr>
-                                              <th>Reference ID</th>
-                                              <th>Payment Date</th>
-                                              <th>Cleared Date</th>
-                                              <th>Payment Mode</th>
-                                              <th>Note</th>
-                                              <th>Payment Received</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                          {invoice.payment_history && invoice.payment_history.formatted_payment_history && invoice.payment_history.formatted_payment_history.length > 0 ? (
-                                              invoice.payment_history.formatted_payment_history.map((payment, idx) => (
-                                                <tr className="ppamt" key={`payment-${invoice.id}-${idx}`}>
-                                                  <td>{payment.payment_id || '-'}</td>
-                                                  <td>{payment.payment_date || '-'}</td>
-                                                  <td>{payment.payment_cleared_date || '-'}</td>
-                                                  <td>{payment.payment_mode || '-'}</td>
-                                                  <td>{payment.payment_note || ''}</td>
-                                                  <td className="ramt">${payment.received_amt || '0.00'}</td>
-                                                </tr>
-                                              ))
-                                            ) : (
-                                              <tr>
-                                                <td colSpan="6" className="text-center">No payment history available</td>
-                                              </tr>
-                                            )}
-
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    </div>
-
-                                    <div className="row m-0">
-                                      <div className="total-payment-invoice">
-                                        <h4>Total Partial Payment Amount</h4>
-                                        <p >${invoice.total_received || '0.00'}</p>
-                                      </div>
-                                      <div className="total-payment-invoice">
-                                        <h4>Overdue Amount</h4>
-                                        <p >${invoice.overdue_amount || '0.00'}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
+                          Fulfilment
+                        </a>
+                      </li>
                     )}
 
+                    {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
+                    {project?.product_id !== '937' && project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-bank-info"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('bankInfo');
+                          }}
+                          href="#pills-bank-info"
+                          role="tab"
+                          aria-controls="pills-bank-info"
+                          aria-selected={activeTab === 'bankInfo'}
+                        >
+                          Bank Info
+                        </a>
+                      </li>
+                    )}
+                    {/* Hide Intake tab for STC (937) and RDC (932) projects */}
+                    {project?.product_id !== '937' && project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-intake"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('intake');
+                          }}
+                          href="#pills-intake"
+                          role="tab"
+                          aria-controls="pills-intake"
+                          aria-selected={activeTab === 'intake'}
+                        >
+                          Intake
+                        </a>
+                      </li>
+                    )}
+                    {/* Hide Fees tab for STC (937) and RDC (932) projects */}
+                    {project?.product_id !== '937' && project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-fees"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('fees');
+                          }}
+                          href="#pills-fees"
+                          role="tab"
+                          aria-controls="pills-fees"
+                          aria-selected={activeTab === 'fees'}
+                        >
+                          Fees
+                        </a>
+                      </li>
+                    )}
+                    {/* Hide Documents tab for RDC (932) projects */}
+                    {project?.product_id !== '932' && (
+                      <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
+                        <a
+                          className="nav-link"
+                          id="pills-documents"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleTabChange('documents');
+                          }}
+                          href="#pills-documents"
+                          role="tab"
+                          aria-controls="pills-documents"
+                          aria-selected={activeTab === 'documents'}
+                        >
+                          Documents
+                        </a>
+                      </li>
+                    )}
 
-
-                  {/* Audit Logs Tab Content */}
-                  {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Audit Logs</h5>
-
-                      {auditLogsLoading ? (
-                        <div className="text-center my-4">
-                          <div className="spinner-border text-primary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </div>
-                          <p className="mt-2">Loading audit logs...</p>
+                    <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-invoices"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('invoices');
+                        }}
+                        href="#pills-invoices"
+                        role="tab"
+                        aria-controls="pills-invoices"
+                        aria-selected={activeTab === 'invoices'}
+                      >
+                        Invoices
+                      </a>
+                    </li>
+                    {project && project.lead_id &&  (
+                    <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-audit-logs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('auditLogs');
+                        }}
+                        href="#pills-logs"
+                        role="tab"
+                        aria-controls="pills-logs"
+                        aria-selected={activeTab === 'auditLogs'}
+                      >
+                        Audit Logs
+                      </a>
+                    </li>
+                    )}
+                  </ul>
+                </div>
+                <div className="white_card_body">
+                    <div className="row">
+                      <div className="col-md-12">
+                        <div className="text-center my-5">
+                          <svg class="loader" viewBox="0 0 200 100">
+                            <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#007bff" />
+                            <stop offset="100%" stop-color="#ff6600" />
+                            </linearGradient>
+                            </defs>
+                            <path class="infinity-shape"
+                                  d="M30,50
+                                    C30,20 70,20 100,50
+                                    C130,80 170,80 170,50
+                                    C170,20 130,20 100,50
+                                    C70,80 30,80 30,50"
+                                />
+                          </svg>
+                          <p style={{color: '#000'}}>Processing data...</p>
                         </div>
-                      ) : auditLogsError ? (
-                        <div className="alert alert-warning" role="alert">
-                          {auditLogsError}
-                          <button
-                            className="btn btn-sm btn-primary ms-3"
-                            onClick={fetchProjectAuditLogs}
-                          >
-                            Retry
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="audit-logs-container">
-
-                          {/* Project Fields Table */}
-                          <div className="mb-4">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                              <h6 className="section-subtitle mb-0">Project Fields</h6>
-                              <div className="search-box" style={{ width: '300px' }}>
-                                <input
-                                  type="text"
-                                  className="form-control form-control-sm"
-                                  placeholder="Search project fields..."
-                                  value={auditLogsSearch.project_fields}
-                                  onChange={(e) => handleAuditLogsSearch('project_fields', e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            {(() => {
-                              const filteredData = filterAndSortAuditData(auditLogsData.project_fields, 'project_fields');
-                              const paginatedData = getPaginatedData(filteredData, 'project_fields');
-
-                              return filteredData.length > 0 ? (
-                                <>
-                                  <div className="table-responsive">
-                                    <table className="table table-striped table-hover">
-                                      <thead>
-                                        <tr>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('project_fields', 'fieldname')}
-                                          >
-                                            Field Name {renderSortIcon('project_fields', 'fieldname')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('project_fields', 'from')}
-                                          >
-                                            From {renderSortIcon('project_fields', 'from')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('project_fields', 'to')}
-                                          >
-                                            To {renderSortIcon('project_fields', 'to')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('project_fields', 'change_date')}
-                                          >
-                                            Changed On {renderSortIcon('project_fields', 'change_date')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('project_fields', 'changed_by')}
-                                          >
-                                            Changed By {renderSortIcon('project_fields', 'changed_by')}
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {paginatedData.map((record, index) => (
-                                          <tr key={index}>
-                                            <td>{record.fieldname || 'N/A'}</td>
-                                            <td>{record.from || 'N/A'}</td>
-                                            <td>{record.to || 'N/A'}</td>
-                                            <td>{formatAuditDate(record.change_date)}</td>
-                                            <td>{record.changed_by || 'N/A'}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  {renderPaginationControls(filteredData, 'project_fields')}
-                                </>
-                              ) : (
-                                <div className="alert alert-info">
-                                  {auditLogsSearch.project_fields ? 'No project field records match your search.' : 'No project field audit records found.'}
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                          {/* Milestone & Stage Table */}
-                          <div className="mb-4">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                              <h6 className="section-subtitle mb-0">Milestone:</h6>
-                              <div className="search-box" style={{ width: '300px' }}>
-                                <input
-                                  type="text"
-                                  className="form-control form-control-sm"
-                                  placeholder="Search milestone & stage..."
-                                  value={auditLogsSearch.milestone_stage}
-                                  onChange={(e) => handleAuditLogsSearch('milestone_stage', e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            {(() => {
-                              const filteredData = filterAndSortAuditData(auditLogsData.milestone_stage, 'milestone_stage');
-                              const paginatedData = getPaginatedData(filteredData, 'milestone_stage');
-
-                              return filteredData.length > 0 ? (
-                                <>
-                                  <div className="table-responsive">
-                                    <table className="table table-striped table-hover">
-                                      <thead>
-                                        <tr>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'from_milestone_name')}
-                                          >
-                                            From Milestone {renderSortIcon('milestone_stage', 'from_milestone_name')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'milestone_name')}
-                                          >
-                                            To Milestone {renderSortIcon('milestone_stage', 'milestone_name')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'from_stage_name')}
-                                          >
-                                            From Stage {renderSortIcon('milestone_stage', 'from_stage_name')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'stage_name')}
-                                          >
-                                            To Stage {renderSortIcon('milestone_stage', 'stage_name')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'change_date')}
-                                          >
-                                            Changed On {renderSortIcon('milestone_stage', 'change_date')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('milestone_stage', 'changed_by')}
-                                          >
-                                            Changed By {renderSortIcon('milestone_stage', 'changed_by')}
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {paginatedData.map((record, index) => (
-                                          <tr key={index}>
-                                            <td>{record.from_milestone_name || 'N/A'}</td>
-                                            <td>{record.milestone_name || 'N/A'}</td>
-                                            <td>{record.from_stage_name || 'N/A'}</td>
-                                            <td>{record.stage_name || 'N/A'}</td>
-                                            <td>{formatAuditDate(record.change_date)}</td>
-                                            <td>{record.changed_by || 'N/A'}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  {renderPaginationControls(filteredData, 'milestone_stage')}
-                                </>
-                              ) : (
-                                <div className="alert alert-info">
-                                  {auditLogsSearch.milestone_stage ? 'No milestone & stage records match your search.' : 'No milestone & stage audit records found.'}
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                          {/* Invoice Changes Table */}
-                          <div className="mb-4">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                              <h6 className="section-subtitle mb-0">Invoice Changes</h6>
-                              <div className="search-box" style={{ width: '300px' }}>
-                                <input
-                                  type="text"
-                                  className="form-control form-control-sm"
-                                  placeholder="Search invoice changes..."
-                                  value={auditLogsSearch.invoices}
-                                  onChange={(e) => handleAuditLogsSearch('invoices', e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            {(() => {
-                              const filteredData = filterAndSortAuditData(auditLogsData.invoices, 'invoices');
-                              const paginatedData = getPaginatedData(filteredData, 'invoices');
-
-                              return filteredData.length > 0 ? (
-                                <>
-                                  <div className="table-responsive">
-                                    <table className="table table-striped table-hover">
-                                      <thead>
-                                        <tr>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('invoices', 'customer_invoice_no')}
-                                          >
-                                            Invoice No {renderSortIcon('invoices', 'customer_invoice_no')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('invoices', 'fieldname')}
-                                          >
-                                            Field Name {renderSortIcon('invoices', 'fieldname')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('invoices', 'from')}
-                                          >
-                                            From Value {renderSortIcon('invoices', 'from')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('invoices', 'to')}
-                                          >
-                                            To Value {renderSortIcon('invoices', 'to')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('invoices', 'changed_date')}
-                                          >
-                                            Changed On {renderSortIcon('invoices', 'changed_date')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('invoices', 'changed_by')}
-                                          >
-                                            Changed By {renderSortIcon('invoices', 'changed_by')}
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {paginatedData.map((record, index) => (
-                                          <tr key={index}>
-                                            <td>{record.customer_invoice_no || 'N/A'}</td>
-                                            <td>{record.fieldname || 'N/A'}</td>
-                                            <td>{record.from || 'N/A'}</td>
-                                            <td>{record.to || 'N/A'}</td>
-                                            <td>{formatAuditDate(record.changed_date)}</td>
-                                            <td>{record.changed_by || 'N/A'}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  {renderPaginationControls(filteredData, 'invoices')}
-                                </>
-                              ) : (
-                                <div className="alert alert-info">
-                                  {auditLogsSearch.invoices ? 'No invoice records match your search.' : 'No invoice audit records found.'}
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                          {/* Business Audit Log Table */}
-                          <div className="mb-4">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                              <h6 className="section-subtitle mb-0">Business Audit Log</h6>
-                              <div className="search-box" style={{ width: '300px' }}>
-                                <input
-                                  type="text"
-                                  className="form-control form-control-sm"
-                                  placeholder="Search business audit log..."
-                                  value={auditLogsSearch.business_audit_log}
-                                  onChange={(e) => handleAuditLogsSearch('business_audit_log', e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            {(() => {
-                              const filteredData = filterAndSortAuditData(auditLogsData.business_audit_log, 'business_audit_log');
-                              const paginatedData = getPaginatedData(filteredData, 'business_audit_log');
-
-                              return filteredData.length > 0 ? (
-                                <>
-                                  <div className="table-responsive">
-                                    <table className="table table-striped table-hover">
-                                      <thead>
-                                        <tr>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'fieldname')}
-                                          >
-                                            Field Name {renderSortIcon('business_audit_log', 'fieldname')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'from')}
-                                          >
-                                            From Value {renderSortIcon('business_audit_log', 'from')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'to')}
-                                          >
-                                            To Value {renderSortIcon('business_audit_log', 'to')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'note')}
-                                          >
-                                            Note {renderSortIcon('business_audit_log', 'note')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'change_date')}
-                                          >
-                                            Changed On {renderSortIcon('business_audit_log', 'change_date')}
-                                          </th>
-                                          <th
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => handleAuditLogsSorting('business_audit_log', 'changed_by')}
-                                          >
-                                            Changed By {renderSortIcon('business_audit_log', 'changed_by')}
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {paginatedData.map((record, index) => (
-                                          <tr key={index}>
-                                            <td>{record.fieldname || 'N/A'}</td>
-                                            <td>{record.from || 'N/A'}</td>
-                                            <td>{record.to || 'N/A'}</td>
-                                            <td>{record.note || 'N/A'}</td>
-                                            <td>{formatAuditDate(record.change_date)}</td>
-                                            <td>{record.changed_by || 'N/A'}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                  {renderPaginationControls(filteredData, 'business_audit_log')}
-                                </>
-                              ) : (
-                                <div className="alert alert-info">
-                                  {auditLogsSearch.business_audit_log ? 'No business audit records match your search.' : 'No business audit records found.'}
-                                </div>
-                              );
-                            })()}
-                          </div>
-
-                        </div>
-                      )}
+                      </div>
                     </div>
+                  </div>
+              </div>
+          )}
+          {isUpdating && (
+            <div className="overlay-loading d-flex flex-column justify-content-center align-items-center">
+              <svg class="loader" viewBox="0 0 200 100">
+                <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#007bff" />
+                <stop offset="100%" stop-color="#ff6600" />
+                </linearGradient>
+                </defs>
+                <path class="infinity-shape"
+                      d="M30,50
+                        C30,20 70,20 100,50
+                        C130,80 170,80 170,50
+                        C170,20 130,20 100,50
+                        C70,80 30,80 30,50"
+                    />
+              </svg>
+              <p className="mt-3 mb-0 text-muted">Processing data...</p>
+            </div>
+          )}
+          {!loading &&(
+            <div className="white_card card_height_100 mb_30">
+              <div className="white_card_header">
+                <div className="box_header m-0 justify-content-between">
+                  <h4 className="iris-lead-name">{project?.project_name || "Project Details"}</h4>
+                </div>
+                <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                  <li className={`nav-item ${activeTab === 'project' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-project"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('project');
+                      }}
+                      href="#pills-project"
+                      role="tab"
+                      aria-controls="pills-project"
+                      aria-selected={activeTab === 'project'}
+                    >
+                      Project
+                    </a>
+                  </li>
+                  {/* Show Fulfilment tab only for STC (937) projects */}
+                  {project?.product_id === '937' && (
+                    <li className={`nav-item ${activeTab === 'fulfilment' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-fulfilment"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('fulfilment');
+                        }}
+                        href="#pills-fulfilment"
+                        role="tab"
+                        aria-controls="pills-fulfilment"
+                        aria-selected={activeTab === 'fulfilment'}
+                      >
+                        Fulfilment
+                      </a>
+                    </li>
                   )}
 
-                  {activeTab !== 'documents' ? (
-                      <div className="mt-4">
-                        <div className="action-buttons d-flex align-items-center justify-content-center">
-                          {(!loading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
-                            <button
-                              className="btn save-btn"
-                              onClick={handleSubmit(handleUpdateProject)}
-                              disabled={isUpdating}
-                            >
-                              {isUpdating ? (
-                                <>
-                                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                  Updating...
-                                </>
-                              ) : 'Update'}
-                            </button>
-                          )}
-                        </div>
-
-                      </div>
-                  ) : null}
-
-                </div>
-
-                {/* Right Side Section - Same for all tabs */}
-                <div className="col-md-3">
-
-                  <div className="card mb-4 p-2">
-                    <div className="card-body p-2">
-
-
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="card-title mb-0">Milestone:</h5>
-                        {!isEditing && (
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            // onClick={() => setIsEditing(true)}
-                            onClick={startEditingMilestoneStage}
-                            style={{ fontSize: '16px' }}
-                          >
-                            <i className="fas fa-edit"></i>
-                          </button>
-                        )}
-                      </div>
-
-                      {!isEditing ? (
-                        <div className="milestone-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{milestone ? milestone.label : 'No milestone selected'}</span>
-                        </div>
-                      ) : (
-                        <div className="milestone-edit mb-4">
-                          <div className="form-group mb-3">
-                            <Select
-                              value={milestone}
-                              onChange={handleMilestoneChange}
-                              options={milestones}
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              isLoading={isLoadingMilestones}
-                              placeholder="Select Milestone"
-                              noOptionsMessage={() => "No milestones available"}
-                              styles={{
-                                control: (base) => ({
-                                  ...base,
-                                  borderRadius: '4px',
-                                  borderColor: '#ced4da',
-                                  boxShadow: 'none',
-                                  '&:hover': {
-                                    borderColor: '#adb5bd'
-                                  }
-                                })
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="card-title mb-0">Stage:</h5>
-                      </div>
-
-                      {!isEditing ? (
-                        <div className="stage-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{projectStage ? projectStage.label : 'No stage selected'}</span>
-                        </div>
-                      ) : (
-                        <div className="stage-edit mb-4">
-                          <div className="form-group mb-3">
-                            <Select
-                              value={projectStage}
-                              onChange={handleProjectStageChange}
-                              options={milestoneStages}
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              isLoading={isLoadingStages}
-                              placeholder={milestone ? "Select Stage" : "Select a milestone first"}
-                              noOptionsMessage={() => milestone ? "No stages available for this milestone" : "Select a milestone first"}
-                              isDisabled={!milestone || milestones.length === 0}
-                              styles={{
-                                control: (base) => ({
-                                  ...base,
-                                  borderRadius: '4px',
-                                  borderColor: '#ced4da',
-                                  boxShadow: 'none',
-                                  '&:hover': {
-                                    borderColor: '#adb5bd'
-                                  }
-                                })
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Update/cancel buttons */}
-                      {isEditing && (
-                        <div className="d-flex justify-content-between mt-3">
-                          <button
-                            className="btn btn-sm"
-                            onClick={saveMilestoneAndStage}
-                            disabled={!milestone || !projectStage || isLoadingMilestones || isLoadingStages}
-                            style={{
-                              backgroundColor: 'rgb(76, 175, 80)',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '20px',
-                              padding: '5px 25px'
-                            }}
-                          >
-                            {isLoadingMilestones ? 'Updating...' : 'Update'}
-                          </button>
-                          <button
-                            className="btn btn-sm"
-                            // onClick={() => setIsEditing(false)}
-                            onClick={cancelMilestoneStageEdit}
-                            disabled={isLoadingMilestones || isLoadingStages}
-                            style={{
-                              backgroundColor: 'white',
-                              color: '#ff6a00',
-                              border: '1px solid #ff6a00',
-                              borderRadius: '20px',
-                              padding: '5px 25px'
-                            }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="card mb-4 p-2">
-                    <div className="card-body p-2">
-                      <h5 className="card-title">Assigned Collaborators:</h5>
-
-                      {/* Display assigned collaborators above the dropdown */}
-                      <div className="assigned-users-list mb-4">
-                        {currentCollaborators.length === 0 ? (
-                          <p className="text-muted small">No collaborators assigned yet.</p>
-                        ) : (
-                          <div className="assigned-users-tags">
-                            {currentCollaborators.map(collaborator => (
-                              <div key={collaborator.collaborators_name_id} className="assigned-user-tag">
-                                <span className="user-name">{collaborator.collaborators_name}</span>
-                                <button
-                                  className="remove-tag-btn"
-                                  onClick={() => handleRemoveCollaborator(collaborator.collaborators_name_id)}
-                                  aria-label="Remove collaborator"
-                                  disabled={collaboratorLoading}
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      {/* Select dropdown for collaborator assignment */}
-                      <div className="form-group mb-3">
-                        <label htmlFor="collaboratorSelect" className="form-label">Add Collaborator:</label>
-                        <Select
-                          id="collaboratorSelect"
-                          value={selectedCollaborator}
-                          onChange={handleCollaboratorChange}
-                          options={collaboratorOptions.filter(option =>
-                            !currentCollaborators.some(collaborator =>
-                              collaborator.collaborators_name_id === option.collaborator.id
-                            )
-                          )}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          placeholder="Select collaborator to assign..."
-                          isClearable
-                          isSearchable
-                          isLoading={collaboratorLoading}
-                          noOptionsMessage={({ inputValue }) =>
-                            inputValue && inputValue.length > 0
-                              ? "No matching collaborators found"
-                              : collaboratorOptions.length === currentCollaborators.length
-                                ? "All collaborators have been assigned"
-                                : "No collaborators available"
-                          }
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            }),
-                            option: (base, state) => ({
-                              ...base,
-                              backgroundColor: state.isSelected
-                                ? '#6c63ff'
-                                : state.isFocused
-                                  ? '#f0f4ff'
-                                  : 'white',
-                              color: state.isSelected ? 'white' : '#333',
-                              padding: '10px 12px'
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              zIndex: 9999,
-                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                            })
-                          }}
-                        />
-                      </div>
-
-                      {/* Assign collaborator button */}
-                      <button
-                        className="btn assign-user-btn w-100"
-                        onClick={handleAssignCollaborator}
-                        disabled={!selectedCollaborator || collaboratorLoading}
+                  {/* Hide Bank Info tab for STC (937) and RDC (932) projects */}
+                  {project?.product_id !== '937' && project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'bankInfo' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-bank-info"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('bankInfo');
+                        }}
+                        href="#pills-bank-info"
+                        role="tab"
+                        aria-controls="pills-bank-info"
+                        aria-selected={activeTab === 'bankInfo'}
                       >
-                        {collaboratorLoading ? 'Assigning...' : 'Assign Collaborator'}
-                      </button>
-                    </div>
-                  </div>
+                        Bank Info
+                      </a>
+                    </li>
+                  )}
+                  {/* Hide Intake tab for STC (937) and RDC (932) projects */}
+                  {project?.product_id !== '937' && project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'intake' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-intake"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('intake');
+                        }}
+                        href="#pills-intake"
+                        role="tab"
+                        aria-controls="pills-intake"
+                        aria-selected={activeTab === 'intake'}
+                      >
+                        Intake
+                      </a>
+                    </li>
+                  )}
+                  {/* Hide Fees tab for STC (937) and RDC (932) projects */}
+                  {project?.product_id !== '937' && project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'fees' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-fees"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('fees');
+                        }}
+                        href="#pills-fees"
+                        role="tab"
+                        aria-controls="pills-fees"
+                        aria-selected={activeTab === 'fees'}
+                      >
+                        Fees
+                      </a>
+                    </li>
+                  )}
+                  {/* Hide Documents tab for RDC (932) projects */}
+                  {project?.product_id !== '932' && (
+                    <li className={`nav-item ${activeTab === 'documents' ? 'active' : ''}`}>
+                      <a
+                        className="nav-link"
+                        id="pills-documents"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleTabChange('documents');
+                        }}
+                        href="#pills-documents"
+                        role="tab"
+                        aria-controls="pills-documents"
+                        aria-selected={activeTab === 'documents'}
+                      >
+                        Documents
+                      </a>
+                    </li>
+                  )}
 
-                  <div className="card mb-4 p-2">
-                    <div className="card-body p-2">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="card-title mb-0">Select Owner:</h5>
-                        {!isEditingOwner && (
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={startEditingOwner}
-                            // onClick={() => setIsEditingOwner(true)}
-                            style={{ fontSize: '16px' }}
-                          >
-                            <i className="fas fa-edit"></i>
-                          </button>
-                        )}
-                      </div>
-
-                      {!isEditingOwner ? (
-                        <div className="owner-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>
-                            {owner && owner.label ? owner.label : 'No owner assigned'}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="owner-edit mb-4">
-                          <div className="form-group mb-3">
-                            <Select
-                              value={owner}
-                              onChange={handleOwnerChange}
-                              options={ownerOptions}
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              isLoading={ownerLoading}
-                              isDisabled={ownerLoading}
-                              isClearable
-                              isSearchable
-                              placeholder={ownerLoading ? "Loading owners..." : "Search or select owner..."}
-                              noOptionsMessage={() => "No matching owners found"}
-                              styles={{
-                                control: (base) => ({
-                                  ...base,
-                                  borderRadius: '4px',
-                                  borderColor: '#ced4da',
-                                  boxShadow: 'none',
-                                  '&:hover': {
-                                    borderColor: '#adb5bd'
-                                  }
-                                }),
-                                option: (base, state) => ({
-                                  ...base,
-                                  backgroundColor: state.isSelected
-                                    ? '#6c63ff'
-                                    : state.isFocused
-                                      ? '#f0f4ff'
-                                      : 'white',
-                                  color: state.isSelected ? 'white' : '#333',
-                                  padding: '10px 12px'
-                                }),
-                                menu: (base) => ({
-                                  ...base,
-                                  zIndex: 9999,
-                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                })
-                              }}
-                            />
-                          </div>
-                          <div className="d-flex justify-content-between mt-3">
-                            <button
-                              className="btn btn-sm"
-                              onClick={saveOwner}
-                              disabled={ownerLoading || !owner}
-                              style={{
-                                backgroundColor: '#4CAF50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '20px',
-                                padding: '5px 25px'
-                              }}
-                            >
-                              {ownerLoading ? 'Updating...' : 'Update'}
-                            </button>
-                            <button
-                              className="btn btn-sm"
-                              onClick={cancelOwnerEdit}
-                              // onClick={() => setIsEditingOwner(false)}
-                              disabled={ownerLoading}
-                              style={{
-                                backgroundColor: 'white',
-                                color: '#ff6a00',
-                                border: '1px solid #ff6a00',
-                                borderRadius: '20px',
-                                padding: '5px 25px'
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="card mb-4 p-2">
-                    <div className="card-body p-2">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="card-title mb-0">Select Contact:</h5>
-                        {!isEditingContact && (
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={startEditingContact}
-                            // onClick={() => setIsEditingContact(true)}
-                            style={{ fontSize: '16px' }}
-                          >
-                            <i className="fas fa-edit"></i>
-                          </button>
-                        )}
-                      </div>
-
-                      {!isEditingContact ? (
-                        <div className="contact-display mb-4 d-flex align-items-center">
-                          <span className="fw-medium" style={{ color: '#0000cc' }}>{selectedContact.label}</span>
-                        </div>
-                      ) : (
-                        <div className="contact-edit mb-4">
-                          <div className="form-group mb-3">
-                            <Select
-                              value={selectedContact}
-                              onChange={handleContactChange}
-                              options={contactOptions}
-                              className="react-select-container"
-                              classNamePrefix="react-select"
-                              isLoading={contactLoading}
-                              isDisabled={contactLoading}
-                              isClearable
-                              isSearchable
-                              placeholder={contactLoading ? "Loading contacts..." : "Search or select contact..."}
-                              noOptionsMessage={() => "No matching contacts found"}
-                              styles={{
-                                control: (base) => ({
-                                  ...base,
-                                  borderRadius: '4px',
-                                  borderColor: '#ced4da',
-                                  boxShadow: 'none',
-                                  '&:hover': {
-                                    borderColor: '#adb5bd'
-                                  }
-                                }),
-                                option: (base, state) => ({
-                                  ...base,
-                                  backgroundColor: state.isSelected
-                                    ? '#6c63ff'
-                                    : state.isFocused
-                                      ? '#f0f4ff'
-                                      : 'white',
-                                  color: state.isSelected ? 'white' : '#333',
-                                  padding: '10px 12px'
-                                }),
-                                menu: (base) => ({
-                                  ...base,
-                                  zIndex: 9999,
-                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                })
-                              }}
-                            />
-                          </div>
-                          <div className="d-flex justify-content-between mt-3">
-                            <button
-                              className="btn btn-sm"
-                              onClick={saveContact}
-                              disabled={!selectedContact || contactLoading}
-                              style={{
-                                backgroundColor: '#4CAF50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '20px',
-                                padding: '5px 25px'
-                              }}
-                            >
-                              {contactLoading ? 'Updating...' : 'Update'}
-                            </button>
-                            <button
-                              className="btn btn-sm"
-                              // onClick={() => setIsEditingContact(false)}
-                              onClick={cancelContactEdit}
-                              disabled={contactLoading}
-                              style={{
-                                backgroundColor: 'white',
-                                color: '#ff6a00',
-                                border: '1px solid #ff6a00',
-                                borderRadius: '20px',
-                                padding: '5px 25px'
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-
-                </div>
+                  <li className={`nav-item ${activeTab === 'invoices' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-invoices"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('invoices');
+                      }}
+                      href="#pills-invoices"
+                      role="tab"
+                      aria-controls="pills-invoices"
+                      aria-selected={activeTab === 'invoices'}
+                    >
+                      Invoices
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-audit-logs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('auditLogs');
+                      }}
+                      href="#pills-logs"
+                      role="tab"
+                      aria-controls="pills-logs"
+                      aria-selected={activeTab === 'auditLogs'}
+                    >
+                      Audit Logs
+                    </a>
+                  </li>
+                </ul>
               </div>
 
-              <div className='row mt-4'>
-                <div className='col-md-9'>
-                  {/* Notes Section */}
-                  <h5 className="section-title mt-4">Notes</h5>
-                  <Notes
-                    entityType="project"
-                    entityId={projectId}
-                    entityName={project?.business_legal_name || ''}
-                    showButtons={false}
-                    showNotes={true}
-                    maxHeight={300}
-                  />
+              <div className="white_card_body">
+                <div className="row">
+                  {/* Left Content Area - Changes based on active tab */}
+                  <div className="col-md-9">
+                    {/* Project Tab */}
+                    {activeTab === 'project' && (
+                      <ProjectTab
+                        project={project}
+                        isEditMode={isEditMode}
+                        errors={errors}
+                        register={register}
+                        setProject={setProject}
+                        DateInput={DateInput}
+                        companyFolderLink={companyFolderLink}
+                        documentFolderLink={documentFolderLink}
+                        toggleEditMode={toggleEditMode}
+                      />
+                    )}
+                    {/* Fulfilment Tab Content */}
+                    {activeTab === 'fulfilment' && (
+                      <FulfilmentTab
+                        fulfilmentError={fulfilmentError}
+                        fulfilmentLoading={fulfilmentLoading}
+                        fulfilmentData={fulfilmentData}
+                        setFulfilmentData={setFulfilmentData}
+                      />
+                    )}
+                    {/* Bank Info Tab */}
+                    {activeTab === 'bankInfo' && (
+                      <BankInfoTab
+                        bankInfo={bankInfo}
+                        setBankInfo={setBankInfo}
+                        bankInfoLoading={bankInfoLoading}
+                        bankInfoError={bankInfoError}
+                        fetchBankInfo={fetchBankInfo}
+                      />
+                    )}
+
+                    {/* Intake Tab Content */}
+                    {activeTab === 'intake' && (
+                      <IntakeTab
+                        intakeInfo={intakeInfo}
+                        setIntakeInfo={setIntakeInfo}
+                        companyFolderLink={companyFolderLink}
+                        documentFolderLink={documentFolderLink}
+                        intakeInfoLoading={intakeInfoLoading}
+                        intakeInfoError={intakeInfoError}
+                        DateInput={DateInput}
+                      />
+                    )}
+
+                    {/* Fees Tab Content */}
+                    {activeTab === 'fees' && (
+                      <FeesTab
+                        feesInfo={feesInfo}
+                        setFeesInfo={setFeesInfo}
+                        feesInfoLoading={feesInfoLoading}
+                        feesInfoError={feesInfoError}
+                        DateInput={DateInput}
+                      />
+                    )}
+
+                    {/* Documents Tab Content */}
+                    {activeTab === 'documents' && (
+                      <DocumentsTab
+                        ercDocuments={ercDocuments}
+                        companyDocuments={companyDocuments}
+                        otherDocuments={otherDocuments}
+                        payrollDocuments={payrollDocuments}
+                        stcRequiredDocuments={stcRequiredDocuments}
+                        stcImpactedDays={stcImpactedDays}
+                        documentsLoading={documentsLoading}
+                        STCDocumentTable={STCDocumentTable}
+                        STCImpactedDaysTable={STCImpactedDaysTable}
+                        DocumentTable={DocumentTable}
+                      />
+                    )}
+
+                    {/* Invoices Tab Content */}
+                      {activeTab === 'invoices' && (
+                        <InvoicesTab
+                          invoices={invoices}
+                          setInvoices={setInvoices}
+                          loading={loading}
+                          error={error}
+                          invoiceLoading={invoiceLoading}
+                        />
+                      )}
+
+
+
+                    {/* Audit Logs Tab Content */}
+                    {activeTab === 'auditLogs' && (
+                      <AuditLogsTab
+                        auditLogsData={auditLogsData}
+                        setAuditLogsData={setAuditLogsData}
+                        auditLogsLoading={auditLogsLoading}
+                        auditLogsError={auditLogsError}
+                        auditLogsSearch={auditLogsSearch}
+                        filterAndSortAuditData={filterAndSortAuditData}
+                        getPaginatedData={getPaginatedData}
+                        renderSortIcon={renderSortIcon}
+                        formatAuditDate={formatAuditDate}
+                        renderPaginationControls={renderPaginationControls}
+                        isAuditData={isAuditData}
+                        handleAuditLogsSearch={handleAuditLogsSearch}
+                        handleAuditLogsSorting={handleAuditLogsSorting}
+                      />
+                    )}
+
+                    {activeTab !== 'documents' ? (
+                        <div className="mt-4">
+                          <div className="action-buttons d-flex align-items-center justify-content-center">
+                            {(!loading && !invoiceLoading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 
+                              <button
+                                className="btn save-btn"
+                                onClick={handleSubmit(handleUpdateProject)}
+                                disabled={isUpdating}
+                              >
+                                {isUpdating ? (
+                                  <>
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Updating...
+                                  </>
+                                ) : 'Update'}
+                              </button>
+                            )}
+                          </div>
+
+                        </div>
+                    ) : null}
+
+                  </div>
+
+                  {/* Right Side Section - Same for all tabs */}
+                  <div className="col-md-3">
+                    <ProjectSidebar
+                      milestone={milestone}
+                      stage={projectStage}
+                      isEditing={isEditing}
+                      startEditingMilestoneStage={startEditingMilestoneStage}
+                      owner={owner}
+                      isEditingOwner={isEditingOwner}
+                      startEditingOwner={startEditingOwner}
+                      ownerOptions={ownerOptions}
+                      handleOwnerChange={handleOwnerChange}
+                      collaborators={collaborators}
+                      collaboratorOptions={collaboratorOptions}
+                      selectedCollaborator={selectedCollaborator}
+                      handleCollaboratorChange={handleCollaboratorChange}
+                      handleAssignCollaborator={handleAssignCollaborator}
+                      currentCollaborators={currentCollaborators}
+                      handleRemoveCollaborator={handleRemoveCollaborator}
+                      collaboratorLoading={collaboratorLoading}
+                      selectedContact={selectedContact}
+                      isEditingContact={isEditingContact}
+                      startEditingContact={startEditingContact}
+                      contactOptions={contactOptions}
+                      handleContactChange={handleContactChange}
+                      assignedCollaborators={currentCollaborators}
+                      isAssigningCollaborator={collaboratorLoading}
+                      saveMilestoneAndStage={saveMilestoneAndStage}
+                      cancelMilestoneStageEdit={cancelMilestoneStageEdit}
+                      milestones={milestones}
+                      milestoneStages={milestoneStages}
+                      handleMilestoneChange={handleMilestoneChange}
+                      handleProjectStageChange={handleProjectStageChange}
+                      isLoadingMilestones={isLoadingMilestones}
+                      isLoadingStages={isLoadingStages}
+                      saveOwner={saveOwner}
+                      cancelOwnerEdit={cancelOwnerEdit}
+                      ownerLoading={ownerLoading}
+                      saveContact={saveContact}
+                      cancelContactEdit={cancelContactEdit}
+                      contactLoading={contactLoading}
+                      projectStage={projectStage}
+                    />
+                  </div>
+                </div>
+
+                <div className='row mt-4'>
+                  <div className='col-md-9'>
+                    {/* Notes Section */}
+                    <h5 className="section-title mt-4">Notes</h5>
+                    <Notes
+                      entityType="project"
+                      entityId={projectId}
+                      entityName={project?.business_legal_name || ''}
+                      showButtons={false}
+                      showNotes={true}
+                      maxHeight={300}
+                    />
+                  </div>
+
                 </div>
 
               </div>
-
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -10111,6 +5327,10 @@ const ProjectDetail = () => {
 export default ProjectDetail;
 
 // Add custom CSS for DatePicker styling
+const existing = document.head.querySelector('style[data-datepicker-styles]');
+if (existing) {
+  existing.remove(); // Remove the old style tag
+}
 const style = document.createElement('style');
 style.textContent = `
   .react-datepicker-wrapper {
@@ -10187,9 +5407,83 @@ style.textContent = `
     background-color: #fff3cd;
     color: #856404;
   }
-`;
+  /* Loading Overlay Styles */
+  .loading-overlay {
+    animation: fadeIn 0.3s ease-in-out;
+  }
 
-if (!document.head.querySelector('style[data-datepicker-styles]')) {
-  style.setAttribute('data-datepicker-styles', 'true');
-  document.head.appendChild(style);
-}
+  .loading-content {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Custom PlaceholderLoading styles */
+  .react-placeholder-loading {
+    border-radius: 50%;
+  }
+  .overlay-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,0.6);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .loader {
+    width: 120px;
+    height: 100px;
+  }
+ 
+  .infinity-shape {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 220 60;
+    stroke-dashoffset: 0;
+    animation: dashMove 2s linear infinite;
+  }
+ 
+  @keyframes dashMove {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -280;
+    }
+  }
+`;
+style.setAttribute('data-datepicker-styles', 'true');
+document.head.appendChild(style);
+// const style = document.createElement('style');
+
+
+// if (!document.head.querySelector('style[data-datepicker-styles]')) {
+//   style.setAttribute('data-datepicker-styles', 'true');
+//   document.head.appendChild(style);
+// }

@@ -37,7 +37,7 @@ $("#wp-admin-bar-my-account").hover(
 $("#wp-admin-bar-my-account").hover(
   function () {
     $(this).removeClass("hover");
-   // console.log('sdfsdf');
+   // //console.log('sdfsdf');
   }
 );
 

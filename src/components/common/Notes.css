@@ -1,6 +1,9 @@
 /* Notes Component Styles */
 
 /* Notes container styles */
+.confidential-notes-div{
+  background-color: #FFA500;
+}
 .notes-container {
   padding: 20px;
 }

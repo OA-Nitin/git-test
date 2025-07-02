@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -17,6 +16,16 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 import { format } from 'date-fns';
+
+// Import tab components
+import BusinessInfoTab from './lead-tabs/BusinessInfoTab';
+import AffiliateCommissionTab from './lead-tabs/AffiliateCommissionTab';
+import ContactsTab from './lead-tabs/ContactsTab';
+import OpportunitiesTab from './lead-tabs/OpportunitiesTab';
+import ProjectsTab from './lead-tabs/ProjectsTab';
+import AuditLogsTab from './lead-tabs/AuditLogsTab';
+import LeadClassificationAndAssignment from './common/LeadClassificationAndAssignment';
+// ...import OpportunitiesTab and AuditLogsTab if you have them
 
 
 // Date utility functions
@@ -138,6 +147,12 @@ const LeadDetail = () => {
   const [userOptions, setUserOptions] = useState([]);
   const [unassignLoading, setUnassignLoading] = useState(false);
   const [isAssigningUser, setIsAssigningUser] = useState(false);
+  const [loadingContent, setLoadingContent] = useState(false);
+  const [tabLoading, setTabLoading] = useState(false);
+  const [isBusinessInfoData, setIsBusinessInfoData] = useState(false);
+  const [isContactsData, setIsContactsData] = useState(false);
+  const [isOpportunitiesData, setIsOpportunitiesData] = useState(false);
+  const [isProjectsData, setIsProjectsData] = useState(false);
 
 
   // Contacts related state
@@ -383,12 +398,12 @@ const LeadDetail = () => {
   const fetchGroups = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching groups...');
+      //console.log('Fetching groups...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-groups');
 
-      console.log('Groups API response:', response);
+      //console.log('Groups API response:', response);
 
-      console.log('Groups API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Groups API response structure:', JSON.stringify(response.data, null, 2));
 
       // Check if the response has data directly or nested under a data property
       if (response.data) {
@@ -412,13 +427,13 @@ const LeadDetail = () => {
             label: group.group_name || group.name || group.title || ''
           }));
 
-          console.log('Setting group options:', groups);
+          //console.log('Setting group options:', groups);
           setGroupOptions(groups);
 
           // Prevent other API calls from overwriting the state
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          console.log('Group options after setting:', groupOptions);
+          //console.log('Group options after setting:', groupOptions);
         } else {
           console.warn('No groups data found in response');
         }
@@ -470,7 +485,7 @@ const LeadDetail = () => {
         contact_id: selectedContact.value
       };
 
-      console.log('Linking contact with data:', requestData);
+      //console.log('Linking contact with data:', requestData);
 
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/link_contact_to_lead',
@@ -482,7 +497,7 @@ const LeadDetail = () => {
         }
       );
 
-      console.log('Link contact response:', response.data);
+      //console.log('Link contact response:', response.data);
 
       // Store the newly added contact ID to highlight it
       setNewContactId(selectedContact.value);
@@ -566,12 +581,12 @@ const LeadDetail = () => {
   const fetchCampaigns = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching campaigns...');
+      //console.log('Fetching campaigns...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/iris-campaigns');
 
-      console.log('Campaigns API response:', response);
+      //console.log('Campaigns API response:', response);
 
-      console.log('Campaigns API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Campaigns API response structure:', JSON.stringify(response.data, null, 2));
 
       // Check if the response has data directly or nested under a data property
       if (response.data) {
@@ -595,13 +610,13 @@ const LeadDetail = () => {
             label: campaign.campaign || campaign.name || campaign.title || ''
           }));
 
-          console.log('Setting campaign options:', campaigns);
+          //console.log('Setting campaign options:', campaigns);
           setCampaignOptions(campaigns);
 
           // Prevent other API calls from overwriting the state
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          console.log('Campaign options after setting:', campaignOptions);
+          //console.log('Campaign options after setting:', campaignOptions);
         } else {
           console.warn('No campaigns data found in response');
         }
@@ -619,12 +634,12 @@ const LeadDetail = () => {
   const fetchSources = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching sources...');
+      //console.log('Fetching sources...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/sources');
 
-      console.log('Sources API response:', response);
+      //console.log('Sources API response:', response);
 
-      console.log('Sources API response structure:', JSON.stringify(response.data, null, 2));
+      //console.log('Sources API response structure:', JSON.stringify(response.data, null, 2));
 
       // Check if the response has data directly or nested under a data property
       if (response.data) {
@@ -648,13 +663,13 @@ const LeadDetail = () => {
             label: source.source || source.name || source.title || ''
           }));
 
-          console.log('Setting source options:', sources);
+          //console.log('Setting source options:', sources);
           setSourceOptions(sources);
 
           // Prevent other API calls from overwriting the state
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          console.log('Source options after setting:', sourceOptions);
+          //console.log('Source options after setting:', sourceOptions);
         } else {
           console.warn('No sources data found in response');
         }
@@ -672,10 +687,10 @@ const LeadDetail = () => {
   const fetchBillingProfiles = async () => {
     try {
       setIsLoadingOptions(true);
-      console.log('Fetching billing profiles...');
+      //console.log('Fetching billing profiles...');
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/billing-profiles');
 
-      console.log('Billing Profiles API response:', response);
+      //console.log('Billing Profiles API response:', response);
 
       if (response.data && response.data.status === 'success' && Array.isArray(response.data.data)) {
         const profilesData = response.data.data;
@@ -687,7 +702,7 @@ const LeadDetail = () => {
             label: profile.profile_name
           }));
 
-          console.log('Setting billing profile options:', profiles);
+          //console.log('Setting billing profile options:', profiles);
           setBillingProfileOptions(profiles);
         } else {
           console.warn('No billing profiles found in response');
@@ -710,68 +725,70 @@ const LeadDetail = () => {
     // Fetch dropdown options first, then fetch lead details
     const fetchAllData = async () => {
       try {
-        console.log('Starting to fetch dropdown options...');
+        //console.log('Starting to fetch dropdown options...');
 
         // First fetch all dropdown options
         await fetchGroups();
-        console.log('Groups fetched, now fetching campaigns...');
+        //console.log('Groups fetched, now fetching campaigns...');
 
         await fetchCampaigns();
-        console.log('Campaigns fetched, now fetching sources...');
+        //console.log('Campaigns fetched, now fetching sources...');
 
         await fetchSources();
-        console.log('Sources fetched, now fetching billing profiles...');
+        //console.log('Sources fetched, now fetching billing profiles...');
 
         await fetchBillingProfiles();
-        console.log('All dropdown options fetched successfully');
+        //console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // await new Promise(resolve => setTimeout(resolve, 500));
 
-        console.log('Current dropdown options state:');
-        console.log('Group options:', groupOptions);
-        console.log('Campaign options:', campaignOptions);
-        console.log('Source options:', sourceOptions);
-        console.log('Billing profile options:', billingProfileOptions);
+        //console.log('Current dropdown options state:');
+        //console.log('Group options:', groupOptions);
+        //console.log('Campaign options:', campaignOptions);
+        //console.log('Source options:', sourceOptions);
+        //console.log('Billing profile options:', billingProfileOptions);
 
         // Then fetch lead details after dropdown options are loaded
-        console.log('Starting data fetch sequence for lead ID:', leadId);
+        //console.log('Starting data fetch sequence for lead ID:', leadId);
 
         // Fetch basic lead details
         await fetchLeadDetails();
-        console.log('Basic lead details fetched');
+        //console.log('Basic lead details fetched');
 
         // Then fetch business data to populate the form
+        
         await fetchBusinessData();
-        console.log('Business data fetched');
+        
+        //console.log('Business data fetched');
 
         // Fetch contact data
         await fetchContactData();
-        console.log('Contact data fetched');
+        //console.log('Contact data fetched');
 
         // Fetch project data
-        await fetchProjectData();
-        console.log('Project data fetched');
+        // await fetchProjectData();
+        //console.log('Project data fetched');
 
         // Also fetch affiliate commission data
-        await fetchAffiliateCommissionData();
-        console.log('Affiliate commission data fetched');
+        // await fetchAffiliateCommissionData();
+        //console.log('Affiliate commission data fetched');
 
         // Fetch opportunities data
-        await fetchOpportunities();
-        console.log('Opportunities data fetched');
+        // await fetchOpportunities();
+        //console.log('Opportunities data fetched');
 
         // Fetch milestones data with default product_id
-        await fetchOpportunityMilestones('');
-        console.log('Opportunity milestones data fetched');
+        // await fetchOpportunityMilestones('');
+        //console.log('Opportunity milestones data fetched');
 
-        console.log('All data fetched successfully for lead ID:', leadId);
+        //console.log('All data fetched successfully for lead ID:', leadId);
 
         // Check if the dropdown values are set correctly
-        console.log('Final state of dropdown values:');
-        console.log('SELECTED Lead Group:', leadGroup);
-        console.log('Lead Campaign:', leadCampaign);
-        console.log('Lead Source:', leadSource);
+        //console.log('Final state of dropdown values:');
+        //console.log('SELECTED Lead Group:', leadGroup);
+        //console.log('Lead Campaign:', leadCampaign);
+        //console.log('Lead Source:', leadSource);
       } catch (error) {
         console.error('Error in data fetch sequence:', error);
       }
@@ -784,15 +801,15 @@ const LeadDetail = () => {
   useEffect(() => {
     const loadGroupOptions = async () => {
       if (groupOptions.length === 0) {
-        console.log('Fetching group options separately...');
+        //console.log('Fetching group options separately...');
         try {
           await fetchGroups();
-          console.log('Group options loaded separately:', groupOptions);
+          //console.log('Group options loaded separately:', groupOptions);
         } catch (error) {
           console.error('Error loading group options separately:', error);
         }
       } else {
-        console.log('Group options already loaded:', groupOptions);
+        //console.log('Group options already loaded:', groupOptions);
       }
     };
 
@@ -801,10 +818,10 @@ const LeadDetail = () => {
 
   // Add a useEffect to log when dropdown values change
   useEffect(() => {
-    console.log('Dropdown values changed:');
-    console.log('Lead Group:', leadGroup);
-    console.log('Lead Campaign:', leadCampaign);
-    console.log('Lead Source:', leadSource);
+    //console.log('Dropdown values changed:');
+    //console.log('Lead Group:', leadGroup);
+    //console.log('Lead Campaign:', leadCampaign);
+    //console.log('Lead Source:', leadSource);
   }, [leadGroup, leadCampaign, leadSource]);
 
   // Add a cleanup function to prevent state updates after unmounting
@@ -873,12 +890,12 @@ const LeadDetail = () => {
   // Function to fetch assigned users
   const fetchAssignedUsers = async () => {
     try {
-      console.log('Fetching assigned users for lead ID:', leadId);
+      //console.log('Fetching assigned users for lead ID:', leadId);
       setUnassignLoading(true);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user?lead_id=${leadId}`);
 
-      console.log('Assigned users API response:', response);
+      //console.log('Assigned users API response:', response);
       //  && response.data.success && Array.isArray(response.data.data)
       if (response.data) {
         // Format the assigned users data
@@ -888,7 +905,7 @@ const LeadDetail = () => {
           role: user.role || 'User'
         }));
 
-        console.log('Setting assigned users:', assignedUsersData);
+        //console.log('Setting assigned users:', assignedUsersData);
         setAssignedUsers(assignedUsersData);
       } else {
         console.warn('No assigned users found or invalid response format');
@@ -905,13 +922,13 @@ const LeadDetail = () => {
   // Function to fetch user data
   const fetchUserData = async () => {
     try {
-      console.log('Fetching user data');
+      //console.log('Fetching user data');
       setIsLoadingOptions(true);
 
       // Use the same API endpoint as the sales team
       const response = await axios.get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/erc-sales-team');
 
-      console.log('User data API response:', response);
+      //console.log('User data API response:', response);
 
       if (response.data) {
         let userData = [];
@@ -941,11 +958,11 @@ const LeadDetail = () => {
             };
 
             // Log for debugging
-            console.log('Creating option for user:', {
-              userId,
-              displayName,
-              userObject
-            });
+            // console.log('Creating option for user:', {
+            //   userId,
+            //   displayName,
+            //   userObject
+            // });
 
             // Use plain text for label to make search work properly
             return {
@@ -955,7 +972,7 @@ const LeadDetail = () => {
             };
           });
 
-          console.log('Setting user options:', options);
+          //console.log('Setting user options:', options);
           setUserOptions(options);
 
           // Set assigned users if available in the lead data
@@ -982,13 +999,15 @@ const LeadDetail = () => {
   };
 
   const fetchBusinessData = async () => {
+
     try {
-      console.log('Fetching business data for lead ID:', leadId);
+      // console.log('Fetching business data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
-        console.log('Business data fetched successfully:', response.data);
-
+        // console.log('Business data fetched successfully:', response.data);
+        setIsBusinessInfoData(true);
+        // console.log(isBusinessInfoData);
         // Update lead state with business data
         const businessData = response.data.data;
 
@@ -1022,7 +1041,7 @@ const LeadDetail = () => {
             lead_id: leadId
           };
 
-          console.log('Mapped business data:', mappedData);
+          //console.log('Mapped business data:', mappedData);
 
           // Update lead state with mapped data
           setLead(prevLead => ({
@@ -1032,7 +1051,10 @@ const LeadDetail = () => {
 
           // Update specific state variables
           setTaxNowSignupStatus(businessData.taxnow_signup_status || '');
-          setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          setTimeout(() => {
+            setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          }, 100);
+          // setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
           setCompanyFolderLink(businessData.company_folder_link || '');
@@ -1054,7 +1076,7 @@ const LeadDetail = () => {
             setPrimaryContact(prevContact => ({
               ...prevContact,
               email: businessData.business_email || prevContact.email,
-              phone: businessData.business_phone || prevContact.phone
+              phone: businessData.business_phone || prevContact.phone,
             }));
           }
 
@@ -1069,7 +1091,7 @@ const LeadDetail = () => {
             }));
           }
 
-          console.log('Lead state updated with business data:', mappedData);
+          //console.log('Lead state updated with business data:', mappedData);
         }
       } else {
         console.warn('Failed to fetch business data:', response.data);
@@ -1094,11 +1116,11 @@ const LeadDetail = () => {
 
   const fetchAffiliateCommissionData = async () => {
     try {
-      console.log('Fetching affiliate commission data for lead ID:', leadId);
+      //console.log('Fetching affiliate commission data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-affiliate-commission-data/${leadId}`);
 
       if (response.data && (response.data.status === 'success' || response.data.success)) {
-        console.log('Affiliate commission data fetched successfully:', response.data);
+        //console.log('Affiliate commission data fetched successfully:', response.data);
 
         // Update affiliate commission state with data
         // Handle both array and object response formats
@@ -1106,7 +1128,7 @@ const LeadDetail = () => {
           ? response.data.data[0]
           : response.data.data;
 
-        console.log('Commission data to process:', commissionData);
+        //console.log('Commission data to process:', commissionData);
 
         if (commissionData) {
           // Update Tier 1 Commission data
@@ -1213,7 +1235,7 @@ const LeadDetail = () => {
           }
           setMasterCommissionValue(commissionData.master_referrer_fixed || commissionData.master_referrer_percentage || '');
 
-          console.log('Affiliate commission state updated with data');
+          //console.log('Affiliate commission state updated with data');
         }
       } else {
         console.warn('Failed to fetch affiliate commission data:', response.data);
@@ -1284,7 +1306,7 @@ const LeadDetail = () => {
       // Call the API to disable the contact
       const response = await axios.delete(`https://portal.occamsadvisory.com/portal/wp-json/eccom-op-contact/v1/contactinone/${contactId}`);
 
-      console.log('Disable contact API response:', response);
+      //console.log('Disable contact API response:', response);
 
       // Check if the API call was successful
       if (response.data && JSON.parse(response.data).code=="success") {
@@ -1322,7 +1344,7 @@ const LeadDetail = () => {
 
   const fetchContactData = async () => {
     try {
-      console.log('Fetching contact data for lead ID:', leadId);
+      //console.log('Fetching contact data for lead ID:', leadId);
       setContactsLoading(true);
 
       // Make the API call with a cache-busting parameter to ensure fresh data
@@ -1332,7 +1354,8 @@ const LeadDetail = () => {
       );
 
       if (response.data && response.data.status === 'success') {
-        console.log('Contact data fetched successfully:', response.data);
+        setIsContactsData(true);
+        //console.log('Contact data fetched successfully:', response.data);
 
         // Store all contacts in state
         if (response.data.contacts && Array.isArray(response.data.contacts)) {
@@ -1346,7 +1369,7 @@ const LeadDetail = () => {
             }
           }, []);
 
-          console.log('Filtered unique contacts:', uniqueContacts);
+          //console.log('Filtered unique contacts:', uniqueContacts);
 
           // Update the contacts state with the unique contacts
           setContacts(uniqueContacts);
@@ -1370,12 +1393,12 @@ const LeadDetail = () => {
               initials: primaryContactData.name ? primaryContactData.name.split(' ').map(n => n[0]).join('') : ''
             };
             
-            console.log('Updating primary contact to:', updatedPrimaryContact);
+            //console.log('Updating primary contact to:', updatedPrimaryContact);
             setPrimaryContact(updatedPrimaryContact);
             
             // Also update the ref
             contactDataRef.current.primary = updatedPrimaryContact;
-            console.log('Updated primary contact ref:', contactDataRef.current.primary);
+            //console.log('Updated primary contact ref:', contactDataRef.current.primary);
           }
 
           // Find secondary contact
@@ -1418,17 +1441,18 @@ const LeadDetail = () => {
 
   const fetchProjectData = async () => {
     try {
-      console.log('Fetching project data for lead ID:', leadId);
+      //console.log('Fetching project data for lead ID:', leadId);
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-project-data/${leadId}/0`);
 
-      console.log('Project API raw response:', response);
+      //console.log('Project API raw response:', response);
 
       // Check for success in different response formats
       if (response.data && (response.data.status === 'success' || response.data.success)) {
-        console.log('Project data fetched successfully');
+        setIsProjectsData(true);
+        //console.log('Project data fetched successfully');
 
         // Log the raw data structure to understand the API response format
-        console.log('Raw project data structure:', JSON.stringify(response.data, null, 2));
+        //console.log('Raw project data structure:', JSON.stringify(response.data, null, 2));
 
         // Get the data array from the response
         let projectsData = [];
@@ -1440,17 +1464,17 @@ const LeadDetail = () => {
 
         if (projectsData.length > 0) {
           // Log the first project to understand its structure
-          console.log('First project raw data:', JSON.stringify(projectsData[0], null, 2));
+          //console.log('First project raw data:', JSON.stringify(projectsData[0], null, 2));
 
           // Filter out projects with product IDs 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
           const filteredProjectsData = projectsData.filter(project => {
             const productId = project.product_id || project.productId;
-            console.log(productId);
+            //console.log(productId);
             // Hide projects with product ID 936 (Tax Amendment), 938 (Partnership), and 934 (Audit Advisory)
             return productId;
           });
 
-          console.log('Filtered projects (excluding 936, 934):', filteredProjectsData.length);
+          //console.log('Filtered projects (excluding 936, 934):', filteredProjectsData.length);
 
           // Map API response to our projects state format with careful field mapping
           const mappedProjects = filteredProjectsData.map(project => {
@@ -1474,12 +1498,12 @@ const LeadDetail = () => {
               contactId: project.contact_id || project.contactId || ''
             };
 
-            console.log('Mapped project:', mappedProject);
+            //console.log('Mapped project:', mappedProject);
             return mappedProject;
           });
 
           setProjects(mappedProjects);
-          console.log('Projects state updated with mapped data:', mappedProjects);
+          //console.log('Projects state updated with mapped data:', mappedProjects);
         } else {
           console.warn('No projects found in the response');
           setProjects([]);
@@ -1507,7 +1531,7 @@ const LeadDetail = () => {
     try {
       // If we have lead data passed from the report page, use it
       if (passedLeadData) {
-        console.log('Using passed lead data:', passedLeadData);
+        //console.log('Using passed lead data:', passedLeadData);
         setLead(passedLeadData);
 
         // Set TaxNow status if available
@@ -1537,14 +1561,14 @@ const LeadDetail = () => {
         setLoading(false);
       } else {
         // Fetch lead data from the API
-        console.log('Fetching lead data from API for lead ID:', leadId);
+        //console.log('Fetching lead data from API for lead ID:', leadId);
 
         try {
-          console.log('Fetching lead data from API with lead_id:', leadId);
+          //console.log('Fetching lead data from API with lead_id:', leadId);
 
           // Use a more direct approach with explicit configuration
           const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/v1/leads?lead_id=${leadId}`;
-          console.log('API URL:', apiUrl);
+          //console.log('API URL:', apiUrl);
 
           const response = await axios({
             method: 'GET',
@@ -1556,14 +1580,14 @@ const LeadDetail = () => {
             timeout: 10000 // 10 seconds timeout
           });
 
-          console.log('Lead API response status:', response.status);
-          console.log('Lead API response data:', response.data);
+          //console.log('Lead API response status:', response.status);
+          //console.log('Lead API response data:', response.data);
 
           if (response.data) {
             const leadData = Array.isArray(response.data.data) ? response.data.data[0] : response.data.data;
 
-            console.log('Lead data from API:', leadData);
-            console.log('Lead group from API:', leadData.lead_group);
+            //console.log('Lead data from API:', leadData);
+            //console.log('Lead group from API:', leadData.lead_group);
 
             // Create a lead object with the data from the API
             const apiLead = {
@@ -1575,12 +1599,12 @@ const LeadDetail = () => {
 
             // Extract product_id from the response
             if (leadData.product_id) {
-              console.log('Found product_id in lead data:', leadData.product_id);
+              //console.log('Found product_id in lead data:', leadData.product_id);
               setLeadProductId(leadData.product_id);
             }
 
             // DIRECT APPROACH: Get lead_group key value from API and set to dropdown
-            console.log('Setting lead_group value directly from API response');
+            //console.log('Setting lead_group value directly from API response');
 
             try {
               // For lead ID 9020, the API shows lead_group: "ERC - FPRS"
@@ -1589,10 +1613,10 @@ const LeadDetail = () => {
               // Get lead_group key value from API
               if (leadData.lead_group) {
                 const leadGroupValue = String(leadData.lead_group);
-                console.log('Lead group value from API:', leadGroupValue);
+                //console.log('Lead group value from API:', leadGroupValue);
 
                 // IMPORTANT: First check if groupOptions are loaded
-                console.log('Available group options:', groupOptions);
+                //console.log('Available group options:', groupOptions);
 
                 // Find matching option in groupOptions if available
                 if (groupOptions && groupOptions.length > 0) {
@@ -1609,7 +1633,7 @@ const LeadDetail = () => {
                   }
 
                   if (matchingOption) {
-                    console.log('Found matching option in groupOptions:', matchingOption);
+                    //console.log('Found matching option in groupOptions:', matchingOption);
                     setLeadGroup(matchingOption);
 
                     // Update form data
@@ -1618,18 +1642,18 @@ const LeadDetail = () => {
                         ...prevData,
                         lead_group: matchingOption.label
                       };
-                      console.log('Updated form data with matching lead_group:', newData);
+                      //console.log('Updated form data with matching lead_group:', newData);
                       return newData;
                     });
                   } else {
                     // If no match found, create a new option
-                    console.log('No matching option found, creating new one');
+                    //console.log('No matching option found, creating new one');
                     const newOption = {
                       value: leadGroupValue.toLowerCase().replace(/\s+/g, '-'),
                       label: leadGroupValue
                     };
 
-                    console.log('Created new lead group option:', newOption);
+                    //console.log('Created new lead group option:', newOption);
                     setLeadGroup(newOption);
 
                     // Update form data
@@ -1638,19 +1662,19 @@ const LeadDetail = () => {
                         ...prevData,
                         lead_group: leadGroupValue
                       };
-                      console.log('Updated form data with new lead_group:', newData);
+                      //console.log('Updated form data with new lead_group:', newData);
                       return newData;
                     });
                   }
                 } else {
                   // If groupOptions not loaded yet, create temporary option
-                  console.log('Group options not loaded yet, creating temporary option');
+                  //console.log('Group options not loaded yet, creating temporary option');
                   const tempOption = {
                     value: leadGroupValue.toLowerCase().replace(/\s+/g, '-'),
                     label: leadGroupValue
                   };
 
-                  console.log('Created temporary lead group option:', tempOption);
+                  //console.log('Created temporary lead group option:', tempOption);
                   setLeadGroup(tempOption);
 
                   // Update form data
@@ -1659,28 +1683,28 @@ const LeadDetail = () => {
                       ...prevData,
                       lead_group: leadGroupValue
                     };
-                    console.log('Updated form data with temporary lead_group:', newData);
+                    //console.log('Updated form data with temporary lead_group:', newData);
                     return newData;
                   });
                 }
 
                 // Log for confirmation
-                console.log('Lead group dropdown set with value from API:', leadGroupValue);
+                //console.log('Lead group dropdown set with value from API:', leadGroupValue);
               } else {
-                console.log('No lead_group key found in API response');
+                //console.log('No lead_group key found in API response');
               }
 
               // Set campaign from API
               if (leadData.campaign) {
                 const campaignValue = String(leadData.campaign);
-                console.log('Setting lead campaign from API to:', campaignValue);
+                //console.log('Setting lead campaign from API to:', campaignValue);
 
                 const campaignOption = {
                   value: campaignValue.toLowerCase().replace(/\s+/g, '-'),
                   label: campaignValue
                 };
 
-                console.log('Created campaign option:', campaignOption);
+                //console.log('Created campaign option:', campaignOption);
 
                 // Set the state directly with the campaign from API
                 setLeadCampaign(campaignOption);
@@ -1691,27 +1715,27 @@ const LeadDetail = () => {
                     ...prevData,
                     lead_campaign: campaignValue
                   };
-                  console.log('Updated form data with lead_campaign from API:', newData);
+                  //console.log('Updated form data with lead_campaign from API:', newData);
                   return newData;
                 });
 
                 // Log for debugging
-                console.log('Campaign value set from API:', campaignValue);
+                //console.log('Campaign value set from API:', campaignValue);
               } else {
-                console.log('No campaign value found in API response');
+                //console.log('No campaign value found in API response');
               }
 
               // Set source from API
               if (leadData.source) {
                 const sourceValue = String(leadData.source);
-                console.log('Setting lead source from API to:', sourceValue);
+                //console.log('Setting lead source from API to:', sourceValue);
 
                 const sourceOption = {
                   value: sourceValue.toLowerCase().replace(/\s+/g, '-'),
                   label: sourceValue
                 };
 
-                console.log('Created source option:', sourceOption);
+                //console.log('Created source option:', sourceOption);
 
                 // Set the state directly with the source from API
                 setLeadSource(sourceOption);
@@ -1722,29 +1746,29 @@ const LeadDetail = () => {
                     ...prevData,
                     lead_source: sourceValue
                   };
-                  console.log('Updated form data with lead_source from API:', newData);
+                  //console.log('Updated form data with lead_source from API:', newData);
                   return newData;
                 });
 
                 // Log for debugging
-                console.log('Source value set from API:', sourceValue);
+                //console.log('Source value set from API:', sourceValue);
               } else {
-                console.log('No source value found in API response');
+                //console.log('No source value found in API response');
               }
 
               // Log all values set from API
-              console.log('All values set from API:');
-              console.log('- lead_group:', leadData.lead_group || 'Not provided, defaulted to Reseller');
-              console.log('- campaign:', leadData.campaign || 'Not provided');
-              console.log('- source:', leadData.source || 'Not provided');
+              //console.log('All values set from API:');
+              //console.log('- lead_group:', leadData.lead_group || 'Not provided, defaulted to Reseller');
+              //console.log('- campaign:', leadData.campaign || 'Not provided');
+              //console.log('- source:', leadData.source || 'Not provided');
             } catch (error) {
               console.error('Error setting dropdown values:', error);
             }
 
             // Log available options for debugging
-            console.log('Available group options:', groupOptions);
-            console.log('Available campaign options:', campaignOptions);
-            console.log('Available source options:', sourceOptions);
+            //console.log('Available group options:', groupOptions);
+            //console.log('Available campaign options:', campaignOptions);
+            //console.log('Available source options:', sourceOptions);
 
             // We've already set the dropdown values directly above, so we don't need to do any matching here
           } else {
@@ -1765,7 +1789,7 @@ const LeadDetail = () => {
               label: "Canvassing"
             };
 
-            console.log('Setting default campaign to Canvassing');
+            //console.log('Setting default campaign to Canvassing');
             setLeadCampaign(defaultCampaignOption);
 
             // Set default source to Reseller
@@ -1774,7 +1798,7 @@ const LeadDetail = () => {
               label: "Reseller"
             };
 
-            console.log('Setting default source to Reseller');
+            //console.log('Setting default source to Reseller');
             setLeadSource(defaultSourceOption);
 
             // Update form data with default values
@@ -1784,7 +1808,7 @@ const LeadDetail = () => {
                 lead_campaign: "Canvassing",
                 lead_source: "Reseller"
               };
-              console.log('Updated form data with default values:', newData);
+              //console.log('Updated form data with default values:', newData);
               return newData;
             });
           }
@@ -1806,7 +1830,7 @@ const LeadDetail = () => {
             label: "Canvassing"
           };
 
-          console.log('Setting default campaign to Canvassing due to API error');
+          //console.log('Setting default campaign to Canvassing due to API error');
           setLeadCampaign(defaultCampaignOption);
 
           // Set default source to Reseller
@@ -1815,7 +1839,7 @@ const LeadDetail = () => {
             label: "Reseller"
           };
 
-          console.log('Setting default source to Reseller due to API error');
+          //console.log('Setting default source to Reseller due to API error');
           setLeadSource(defaultSourceOption);
 
           // Update form data with default values
@@ -1825,7 +1849,7 @@ const LeadDetail = () => {
               lead_campaign: "Canvassing",
               lead_source: "Reseller"
             };
-            console.log('Updated form data with default values due to API error:', newData);
+            //console.log('Updated form data with default values due to API error:', newData);
             return newData;
           });
         }
@@ -1839,9 +1863,45 @@ const LeadDetail = () => {
     }
   };
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = async (tab) => {
     // Store current primary contact state before tab change
     const currentPrimaryContact = { ...primaryContact };
+
+    if (tab === 'businessInfo') {
+      setTabLoading(true);
+      if(!isBusinessInfoData){
+        await fetchBusinessData();
+      }
+      setTabLoading(false);
+    } else if (tab === 'contacts') {
+      setTabLoading(true);
+      if(!isContactsData){
+        await fetchContactData();
+      }
+      setTabLoading(false);
+    } else if (tab === 'projects') {
+      setTabLoading(true);
+      if(!isProjectsData){
+        await fetchProjectData();
+      }
+      setTabLoading(false);
+    } else if (tab === 'affiliateCommission') {
+      setTabLoading(true);
+      await fetchAffiliateCommissionData();
+      setTabLoading(false);
+    } else if (tab === 'opportunities') {
+      setTabLoading(true);
+      if(!isOpportunitiesData){
+        await fetchOpportunities();
+      }
+      setTabLoading(false);
+    }else if (tab === 'auditLogs') {
+      setTabLoading(true);
+      setTimeout(() => {
+        setTabLoading(false);
+      }, 2500);
+      // setLoadingContent(false);
+    }
 
     setActiveTab(tab);
 
@@ -1857,13 +1917,13 @@ const LeadDetail = () => {
   // Function to fetch notes with pagination
   const fetchNotes = async () => {
     try {
-      console.log('Fetching notes for lead ID:', leadId);
+      //console.log('Fetching notes for lead ID:', leadId);
       setNotesLoading(true);
       setNotesError(null);
 
       // Fetch notes from the API
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`);
-      console.log('Notes API response:', response);
+      //console.log('Notes API response:', response);
 
       let notesData = [];
 
@@ -1877,7 +1937,7 @@ const LeadDetail = () => {
         notesData = [response.data];
       }
 
-      console.log('Processed notes data:', notesData);
+      //console.log('Processed notes data:', notesData);
 
       // Format dates in MM/DD/YYYY format (no time)
       const formattedNotes = notesData.map(note => ({
@@ -1888,7 +1948,7 @@ const LeadDetail = () => {
         formattedDate: formatDateToMMDDYYYY(note.created_at || note.date || new Date())
       }));
 
-      console.log('Formatted notes:', formattedNotes);
+      //console.log('Formatted notes:', formattedNotes);
 
       // If this is the first page, replace notes, otherwise append
       if (notesPage === 1) {
@@ -1927,11 +1987,11 @@ const LeadDetail = () => {
 
   // Function to handle adding a note
   const handleAddNote = () => {
-    console.log('handleAddNote called');
+    //console.log('handleAddNote called');
 
     // Use a flag to prevent multiple calls
     if (window.isAddingNote) {
-      console.log('Add note modal is already open, ignoring duplicate call');
+      //console.log('Add note modal is already open, ignoring duplicate call');
       return;
     }
 
@@ -1978,10 +2038,10 @@ const LeadDetail = () => {
       },
       preConfirm: async () => {
         const content = document.getElementById('note-content').value.trim();
-        console.log('content' + content);
+        //console.log('content' + content);
         try {
           const validated = await noteFormSchema.validate({ note: content });
-          console.log('validated' + validated);
+          //console.log('validated' + validated);
           return validated; // returns { note: "..." }
         } catch (err) {
           Swal.showValidationMessage(err.message);
@@ -2032,11 +2092,11 @@ const LeadDetail = () => {
         user_name: 'Current User' // Adding user_name parameter
       };
 
-      console.log('Sending note data:', noteData); // For debugging
+      //console.log('Sending note data:', noteData); // For debugging
 
       // Send the data to the API
       const response = await axios.post('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-notes', noteData);
-      console.log('Add note API response:', response);
+      //console.log('Add note API response:', response);
 
       // Show success message
       Swal.fire({
@@ -2117,7 +2177,7 @@ const LeadDetail = () => {
     axios.get(`https://portal.occamsadvisory.com/portal/wp-json/v1/lead-notes/${leadId}`)
       .then(response => {
         const notes = response.data || [];
-        console.log('Notes API response for modal:', notes);
+        //console.log('Notes API response for modal:', notes);
 
         let notesData = [];
 
@@ -2214,7 +2274,7 @@ const LeadDetail = () => {
 
               // Add event listener to the new button
               newAddNoteBtn.addEventListener('click', () => {
-                console.log('Add Note button clicked');
+                //console.log('Add Note button clicked');
                 Swal.close();
                 setTimeout(() => {
                   handleAddNote();
@@ -2229,7 +2289,7 @@ const LeadDetail = () => {
 
               // Add event listener to the new button
               newAddFirstNoteBtn.addEventListener('click', () => {
-                console.log('Add First Note button clicked');
+                //console.log('Add First Note button clicked');
                 Swal.close();
                 setTimeout(() => {
                   handleAddNote();
@@ -2279,10 +2339,10 @@ const LeadDetail = () => {
         const isAlreadyAssigned = assignedUsers.some(user => user.id === selectedUser.user.id);
 
         if (!isAlreadyAssigned) {
-          console.log('Assigning user:', selectedUser.user);
+          //console.log('Assigning user:', selectedUser.user);
 
           // Call the API to assign the user
-          console.log('Assigning user with user_id:', selectedUser.user.id);
+          //console.log('Assigning user with user_id:', selectedUser.user.id);
           const response = await axios.post(
             'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
             {
@@ -2292,7 +2352,7 @@ const LeadDetail = () => {
             }
           );
 
-          console.log('API response:', response);
+          //console.log('API response:', response);
 
           if (response.data && response.data.success) {
             // Add the selected user to the assigned users list
@@ -2305,11 +2365,11 @@ const LeadDetail = () => {
               assigned_users: newAssignedUsers.map(user => user.id)
             }));
 
-            console.log('User assigned successfully:', selectedUser.user);
-            console.log('Updated assigned users:', newAssignedUsers);
+            //console.log('User assigned successfully:', selectedUser.user);
+            //console.log('Updated assigned users:', newAssignedUsers);
 
             // Show success message in console
-            console.log('Success: User assigned successfully');
+            //console.log('Success: User assigned successfully');
           } else {
             console.error('Failed to assign user:', response.data?.message || 'Unknown error');
 
@@ -2326,7 +2386,7 @@ const LeadDetail = () => {
             console.warn('API response indicates failure, but user was assigned locally');
           }
         } else {
-          console.log('User already assigned:', selectedUser.user);
+          //console.log('User already assigned:', selectedUser.user);
           console.warn('User is already assigned to this lead');
         }
 
@@ -2361,10 +2421,10 @@ const LeadDetail = () => {
   const handleRemoveUser = async (userId) => {
     try {
       setUnassignLoading(true);
-      console.log('Removing user with ID:', userId);
+      //console.log('Removing user with ID:', userId);
 
       // Call the API to unassign the user
-      console.log('Unassigning user with user_id:', userId);
+      //console.log('Unassigning user with user_id:', userId);
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-assign-user',
         {
@@ -2374,7 +2434,7 @@ const LeadDetail = () => {
         }
       );
 
-      console.log('API response:', response);
+      //console.log('API response:', response);
 
       if (response.data && response.data.success) {
         // Remove the user from the assigned users list
@@ -2387,8 +2447,8 @@ const LeadDetail = () => {
           assigned_users: updatedUsers.map(user => user.id)
         }));
 
-        console.log('User removed successfully. Updated assigned users:', updatedUsers);
-        console.log('Success: User unassigned successfully');
+        //console.log('User removed successfully. Updated assigned users:', updatedUsers);
+        //console.log('Success: User unassigned successfully');
       } else {
         console.error('Failed to unassign user:', response.data?.message || 'Unknown error');
 
@@ -2427,7 +2487,7 @@ const LeadDetail = () => {
 
   // Functions to handle lead classification changes
   const handleLeadGroupChange = (selectedOption) => {
-    console.log('Lead group changed:', selectedOption);
+    //console.log('Lead group changed:', selectedOption);
     setLeadGroup(selectedOption);
     setFormData(prevData => ({
       ...prevData,
@@ -2436,7 +2496,7 @@ const LeadDetail = () => {
   };
 
   const handleLeadCampaignChange = (selectedOption) => {
-    console.log('Lead campaign changed:', selectedOption);
+    //console.log('Lead campaign changed:', selectedOption);
     setLeadCampaign(selectedOption);
     setFormData(prevData => ({
       ...prevData,
@@ -2445,7 +2505,7 @@ const LeadDetail = () => {
   };
 
   const handleLeadSourceChange = (selectedOption) => {
-    console.log('Lead source changed:', selectedOption);
+    //console.log('Lead source changed:', selectedOption);
     setLeadSource(selectedOption);
     setFormData(prevData => ({
       ...prevData,
@@ -2571,7 +2631,7 @@ const LeadDetail = () => {
   // Function to fetch milestone stages from API
   const fetchMilestoneStages = async (milestone_id = '', product_id = '') => {
     try {
-      console.log('Fetching milestone stages for milestone_id:', milestone_id, 'and product_id:', product_id);
+      //console.log('Fetching milestone stages for milestone_id:', milestone_id, 'and product_id:', product_id);
 
       // Set default milestone stages in case API fails
       const defaultMilestoneStages = [
@@ -2582,7 +2642,7 @@ const LeadDetail = () => {
 
       // If no milestone_id is provided, return default stages
       if (!milestone_id) {
-        console.log('No milestone_id provided, returning default milestone stages');
+        //console.log('No milestone_id provided, returning default milestone stages');
         return defaultMilestoneStages;
       }
 
@@ -2594,36 +2654,36 @@ const LeadDetail = () => {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
 
-      console.log('Calling milestone stages API with URL1:', apiUrl);
+      //console.log('Calling milestone stages API with URL1:', apiUrl);
 
       // Make the API call
       const response = await axios.get(apiUrl);
 
-      console.log('Milestone stages API response:', response);
-      console.log('Milestone stages API response data type:', typeof response.data);
-      console.log('Milestone stages API response data:', JSON.stringify(response.data, null, 2));
+      //console.log('Milestone stages API response:', response);
+      //console.log('Milestone stages API response data type:', typeof response.data);
+      //console.log('Milestone stages API response data:', JSON.stringify(response.data, null, 2));
 
       // Process the response similar to milestones
       let formattedStages = [];
 
       if (response.data && response.data.success && response.data.data && response.data.data.data) {
         // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
+        //console.log('Response has the expected format with data.data.data');
 
         const stagesData = response.data.data.data;
-        console.log('stagesData=');
-        console.log(stagesData);
+        //console.log('stagesData=');
+        //console.log(stagesData);
         if (Array.isArray(stagesData)) {
           formattedStages = stagesData.map(stage => ({
             id: stage.milestone_stage_id || stage.id || '',
             name: stage.stage_name || stage.name || ''
           })).filter(s => s.id && s.name);
 
-          console.log('Formatted milestone stages from API data:', formattedStages);
+          //console.log('Formatted milestone stages from API data:', formattedStages);
         }
       } else if (response.data && response.data.data) {
         // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
+        //console.log('Response has data in response.data.data');
 
         const stagesData = response.data.data;
         if (Array.isArray(stagesData)) {
@@ -2632,7 +2692,7 @@ const LeadDetail = () => {
             name: stage.stage_name || stage.name || ''
           })).filter(s => s.id && s.name);
 
-          console.log('Formatted milestone stages from data array:', formattedStages);
+          //console.log('Formatted milestone stages from data array:', formattedStages);
         } else if (typeof stagesData === 'object') {
           // Handle case where data is an object with stage objects
           formattedStages = Object.values(stagesData)
@@ -2643,21 +2703,21 @@ const LeadDetail = () => {
             }))
             .filter(s => s.id && s.name);
 
-          console.log('Formatted milestone stages from data object:', formattedStages);
+          //console.log('Formatted milestone stages from data object:', formattedStages);
         }
       } else if (Array.isArray(response.data)) {
         // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
+        //console.log('Response data is a direct array with length:', response.data.length);
 
         formattedStages = response.data.map(stage => ({
           id: stage.stage_id || stage.id || '',
           name: stage.stage_name || stage.name || ''
         })).filter(s => s.id && s.name);
 
-        console.log('Formatted milestone stages from direct array:', formattedStages);
+        //console.log('Formatted milestone stages from direct array:', formattedStages);
       } else if (typeof response.data === 'object') {
         // Response.data is an object, try to extract stages
-        console.log('Response data is an object, checking its properties');
+        //console.log('Response data is an object, checking its properties');
 
         formattedStages = Object.values(response.data)
           .filter(stage => stage && typeof stage === 'object')
@@ -2667,14 +2727,14 @@ const LeadDetail = () => {
           }))
           .filter(s => s.id && s.name);
 
-        console.log('Formatted milestone stages from object:', formattedStages);
+        //console.log('Formatted milestone stages from object:', formattedStages);
       }
 
-      console.log('Final formatted milestone stages:', formattedStages);
+      //console.log('Final formatted milestone stages:', formattedStages);
 
       // If we couldn't extract any valid stages, use the default ones
       if (formattedStages.length === 0) {
-        console.log('No valid milestone stages extracted, using default stages');
+        //console.log('No valid milestone stages extracted, using default stages');
         return defaultMilestoneStages;
       } else {
         return formattedStages;
@@ -2694,7 +2754,7 @@ const LeadDetail = () => {
   // Function to fetch project milestones from API
   const fetchProjectMilestones = async (product_id = '') => {
     try {
-      console.log('Fetching milestones for projects with product_id:', product_id);
+      //console.log('Fetching milestones for projects with product_id:', product_id);
 
       // Set default milestones in case API fails
       const defaultMilestones = [
@@ -2703,7 +2763,7 @@ const LeadDetail = () => {
         { id: '3', name: 'R&D Onboarding' }
       ];
 
-      console.log('product_id====='+product_id);
+      //console.log('product_id====='+product_id);
       
       // Build the API URL with the product_id parameter if provided
       let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestones?type=project';
@@ -2711,21 +2771,21 @@ const LeadDetail = () => {
         apiUrl += `&product_id=${encodeURIComponent(product_id)}`;
       }
 
-      console.log('Calling project milestones API with URL:', apiUrl);
+      //console.log('Calling project milestones API with URL:', apiUrl);
 
       // Make the API call with the project-specific endpoint
       const response = await axios.get(apiUrl);
 
-      console.log('Project milestones API response:', response);
-      console.log('Project milestones API response data type:', typeof response.data);
-      console.log('Project milestones API response data:', JSON.stringify(response.data, null, 2));
+      //console.log('Project milestones API response:', response);
+      //console.log('Project milestones API response data type:', typeof response.data);
+      //console.log('Project milestones API response data:', JSON.stringify(response.data, null, 2));
 
       // Direct approach - assume the API returns an array of objects with milestone_id and milestone_name
       let formattedMilestones = [];
 
       if (response.data && response.data.success && response.data.data && response.data.data.data) {
         // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
+        //console.log('Response has the expected format with data.data.data');
 
         const milestonesData = response.data.data.data;
         if (Array.isArray(milestonesData)) {
@@ -2734,11 +2794,11 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted project milestones from API data:', formattedMilestones);
+          //console.log('Formatted project milestones from API data:', formattedMilestones);
         }
       } else if (response.data && response.data.data) {
         // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
+        //console.log('Response has data in response.data.data');
 
         const milestonesData = response.data.data;
         if (Array.isArray(milestonesData)) {
@@ -2747,7 +2807,7 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted project milestones from data array:', formattedMilestones);
+          //console.log('Formatted project milestones from data array:', formattedMilestones);
         } else if (typeof milestonesData === 'object') {
           // Handle case where data is an object with milestone objects
           formattedMilestones = Object.values(milestonesData)
@@ -2758,21 +2818,21 @@ const LeadDetail = () => {
             }))
             .filter(m => m.id && m.name);
 
-          console.log('Formatted project milestones from data object:', formattedMilestones);
+          //console.log('Formatted project milestones from data object:', formattedMilestones);
         }
       } else if (Array.isArray(response.data)) {
         // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
+        //console.log('Response data is a direct array with length:', response.data.length);
 
         formattedMilestones = response.data.map(milestone => ({
           id: milestone.milestone_id || milestone.id || '',
           name: milestone.milestone_name || milestone.name || ''
         })).filter(m => m.id && m.name);
 
-        console.log('Formatted project milestones from direct array:', formattedMilestones);
+        //console.log('Formatted project milestones from direct array:', formattedMilestones);
       } else if (typeof response.data === 'object') {
         // Response.data is an object, try to extract milestones
-        console.log('Response data is an object, checking its properties');
+        //console.log('Response data is an object, checking its properties');
 
         formattedMilestones = Object.values(response.data)
           .filter(milestone => milestone && typeof milestone === 'object')
@@ -2782,14 +2842,14 @@ const LeadDetail = () => {
           }))
           .filter(m => m.id && m.name);
 
-        console.log('Formatted project milestones from object:', formattedMilestones);
+        //console.log('Formatted project milestones from object:', formattedMilestones);
       }
 
-      console.log('Final formatted project milestones:', formattedMilestones);
+      //console.log('Final formatted project milestones:', formattedMilestones);
 
       // If we couldn't extract any valid milestones, use the default ones
       if (formattedMilestones.length === 0) {
-        console.log('No valid project milestones extracted, using default milestones');
+        //console.log('No valid project milestones extracted, using default milestones');
         setMilestones(defaultMilestones);
       } else {
         setMilestones(formattedMilestones);
@@ -2808,7 +2868,7 @@ const LeadDetail = () => {
 
   // Function to open the edit project modal
   const handleEditProject = async (project) => {
-    console.log('Opening edit project modal for project:', project);
+    //console.log('Opening edit project modal for project:', project);
 
     // Set loading state immediately when edit icon is clicked
     setProjectUpdateLoading(true);
@@ -2817,7 +2877,7 @@ const LeadDetail = () => {
     setShowEditProjectModal(true);
 
     // Log the project object to see its structure
-    console.log('Project object structure:', JSON.stringify(project, null, 2));
+    //console.log('Project object structure:', JSON.stringify(project, null, 2));
 
     // Always fetch fresh milestones when opening the modal
     try {
@@ -2838,21 +2898,21 @@ const LeadDetail = () => {
       
       // If no product_id is available, try to map from the product name
       
-      console.log('Fetching fresh milestones for project modal with product_id:', product_id);
+      //console.log('Fetching fresh milestones for project modal with product_id:', product_id);
 
       // Pass the product_id to the fetchProjectMilestones function
       await fetchProjectMilestones(product_id);
-      console.log('Project milestones fetched successfully for project modal');
+      //console.log('Project milestones fetched successfully for project modal');
 
       // If the project has a milestone_id, fetch the milestone stages
       if (project.milestone_id || project.milestoneId) {
         const milestone_id = project.milestone_id || project.milestoneId;
-        console.log('Fetching milestone stages for project modal with milestone_id:', milestone_id, 'and product_id:', product_id);
+        //console.log('Fetching milestone stages for project modal with milestone_id:', milestone_id, 'and product_id:', product_id);
 
         // Fetch milestone stages
         const stages = await fetchMilestoneStages(milestone_id, product_id);
         setMilestoneStages(stages);
-        console.log('Milestone stages fetched successfully for project modal:', stages);
+        //console.log('Milestone stages fetched successfully for project modal:', stages);
       }
     } catch (error) {
       console.error('Error fetching data for project modal:', error);
@@ -2883,6 +2943,7 @@ const LeadDetail = () => {
     setCurrentProject(null);
     setProjectUpdateSuccess(false);
     setProjectUpdateError(null);
+    resetProjectForm();
   };
 
   // All input change handlers have been replaced with inline functions
@@ -2894,7 +2955,7 @@ const LeadDetail = () => {
       setProjectUpdateError(null);
       setProjectUpdateSuccess(false);
 
-      console.log('Updating project with data:', projectFormData);
+      //console.log('Updating project with data:', projectFormData);
 
       // Make the API call
       const response = await axios.post(
@@ -2902,10 +2963,12 @@ const LeadDetail = () => {
         projectFormData
       );
 
-      console.log('Project update API response:', response);
+      //console.log('Project update API response:', response);
 
       if (response.data && response.data.status) {
         // Update the project in the projects array
+        const selectedMilestone = milestones.find(m => m.name === projectFormData.Milestone);
+        const selectedStage = milestoneStages.find(s => s.name === projectFormData.MilestoneStage);
         const updatedProjects = projects.map(project => {
           if (project.id === projectFormData.projectID) {
             return {
@@ -2915,7 +2978,9 @@ const LeadDetail = () => {
               maxCredit: projectFormData.maximum_credit,
               estFee: projectFormData.estimated_fee,
               milestone: projectFormData.Milestone,
+              milestoneId: selectedMilestone ? selectedMilestone.id : project.milestoneId,
               stage: projectFormData.MilestoneStage,
+              stageId: selectedStage ? selectedStage.id : project.stageId,
               contactId: projectFormData.ContactList,
               collaborator: projectFormData.collaborators.length > 0 ? projectFormData.collaborators[0] : ''
             };
@@ -2929,6 +2994,7 @@ const LeadDetail = () => {
         // Close the modal after a delay
         setTimeout(() => {
           handleCloseEditProjectModal();
+          fetchProjectData();
         }, 2000);
       } else {
         setProjectUpdateError(response.data?.message || 'Failed to update project');
@@ -2946,15 +3012,16 @@ const LeadDetail = () => {
   // Function to fetch opportunities
   const fetchOpportunities = async () => {
     try {
-      console.log('Fetching opportunities for lead ID:', leadId);
+      //console.log('Fetching opportunities for lead ID:', leadId);
 
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-opportunity-data/${leadId}/0`);
 
-      console.log('Opportunities API response:', response);
+      //console.log('Opportunities API response:', response);
 
       if (response.data && response.data.status == 'success' && Array.isArray(response.data.data)) {
+        setIsOpportunitiesData(true);
         setOpportunities(response.data.data);
-        console.log('Opportunities set:', response.data.data);
+        //console.log('Opportunities set:', response.data.data);
       } else {
         console.warn('No opportunities found or invalid response format');
         setOpportunities([]);
@@ -2968,7 +3035,7 @@ const LeadDetail = () => {
   // Function to fetch opportunity milestones from API
   const fetchOpportunityMilestones = async (product_id = '') => {
     try {
-      console.log('Fetching milestones for opportunities with product_id:', product_id);
+      //console.log('Fetching milestones for opportunities with product_id:', product_id);
 
       // Set default milestones in case API fails
       const defaultMilestones = [
@@ -2986,21 +3053,21 @@ const LeadDetail = () => {
       }
 
 
-      console.log('Calling opportunity milestones API with URL:', apiUrl);
+      //console.log('Calling opportunity milestones API with URL:', apiUrl);
 
       // Make the API call with the opportunity-specific endpoint
       const response = await axios.get(apiUrl);
 
-      console.log('Opportunity milestones API response:', response);
-      console.log('Opportunity milestones API response data type:', typeof response.data);
-      console.log('Opportunity milestones API response data:', JSON.stringify(response.data, null, 2));
+      //console.log('Opportunity milestones API response:', response);
+      //console.log('Opportunity milestones API response data type:', typeof response.data);
+      //console.log('Opportunity milestones API response data:', JSON.stringify(response.data, null, 2));
 
       // Direct approach - assume the API returns an array of objects with milestone_id and milestone_name
       let formattedMilestones = [];
 
       if (response.data && response.data.success && response.data.data && response.data.data.data) {
         // This is the expected format from the API
-        console.log('Response has the expected format with data.data.data');
+        //console.log('Response has the expected format with data.data.data');
 
         const milestonesData = response.data.data.data;
         if (Array.isArray(milestonesData)) {
@@ -3009,11 +3076,11 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted opportunity milestones from API data:', formattedMilestones);
+          //console.log('Formatted opportunity milestones from API data:', formattedMilestones);
         }
       } else if (response.data && response.data.data) {
         // Alternative format where data is directly in response.data.data
-        console.log('Response has data in response.data.data');
+        //console.log('Response has data in response.data.data');
 
         const milestonesData = response.data.data;
         if (Array.isArray(milestonesData)) {
@@ -3022,7 +3089,7 @@ const LeadDetail = () => {
             name: milestone.milestone_name || milestone.name || ''
           })).filter(m => m.id && m.name);
 
-          console.log('Formatted opportunity milestones from data array:', formattedMilestones);
+          //console.log('Formatted opportunity milestones from data array:', formattedMilestones);
         } else if (typeof milestonesData === 'object') {
           // Handle case where data is an object with milestone objects
           formattedMilestones = Object.values(milestonesData)
@@ -3033,21 +3100,21 @@ const LeadDetail = () => {
             }))
             .filter(m => m.id && m.name);
 
-          console.log('Formatted opportunity milestones from data object:', formattedMilestones);
+          //console.log('Formatted opportunity milestones from data object:', formattedMilestones);
         }
       } else if (Array.isArray(response.data)) {
         // Direct array in response.data
-        console.log('Response data is a direct array with length:', response.data.length);
+        //console.log('Response data is a direct array with length:', response.data.length);
 
         formattedMilestones = response.data.map(milestone => ({
           id: milestone.milestone_id || milestone.id || '',
           name: milestone.milestone_name || milestone.name || ''
         })).filter(m => m.id && m.name);
 
-        console.log('Formatted opportunity milestones from direct array:', formattedMilestones);
+        //console.log('Formatted opportunity milestones from direct array:', formattedMilestones);
       } else if (typeof response.data === 'object') {
         // Response.data is an object, try to extract milestones
-        console.log('Response data is an object, checking its properties');
+        //console.log('Response data is an object, checking its properties');
 
         formattedMilestones = Object.values(response.data)
           .filter(milestone => milestone && typeof milestone === 'object')
@@ -3057,14 +3124,14 @@ const LeadDetail = () => {
           }))
           .filter(m => m.id && m.name);
 
-        console.log('Formatted opportunity milestones from object:', formattedMilestones);
+        //console.log('Formatted opportunity milestones from object:', formattedMilestones);
       }
 
-      console.log('Final formatted opportunity milestones:', formattedMilestones);
+      //console.log('Final formatted opportunity milestones:', formattedMilestones);
 
       // If we couldn't extract any valid milestones, use the default ones
       if (formattedMilestones.length === 0) {
-        console.log('No valid opportunity milestones extracted, using default milestones');
+        //console.log('No valid opportunity milestones extracted, using default milestones');
         setMilestones(defaultMilestones);
       } else {
         setMilestones(formattedMilestones);
@@ -3083,7 +3150,7 @@ const LeadDetail = () => {
 
   // Function to open the edit opportunity modal
   const handleEditOpportunity = async (opportunity) => {
-    console.log('Opening edit opportunity modal for opportunity:', opportunity);
+    //console.log('Opening edit opportunity modal for opportunity:', opportunity);
 
     // Set loading state immediately when edit icon is clicked
     setOpportunityUpdateLoading(true);
@@ -3092,7 +3159,7 @@ const LeadDetail = () => {
     setShowEditOpportunityModal(true);
 
     // Log the opportunity object to see its structure
-    console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
+    //console.log('Opportunity object structure:', JSON.stringify(opportunity, null, 2));
 
     // Always fetch fresh milestones when opening the modal
     try {
@@ -3114,26 +3181,26 @@ const LeadDetail = () => {
       // If no product_id is available, try to map from the product name
       if (!product_id && opportunity.product) {
         product_id = productIdMap[opportunity.product] || '936'; // Use 936 (ERC) as a fallback
-        console.log('Mapped product name', opportunity.product, 'to product_id:', product_id);
+        //console.log('Mapped product name', opportunity.product, 'to product_id:', product_id);
       } else {
         product_id = '936'; // Default fallback to ERC product ID
       }
 
-      console.log('Fetching fresh milestones for opportunity modal with product_id:', product_id);
+      //console.log('Fetching fresh milestones for opportunity modal with product_id:', product_id);
 
       // Pass the product_id to the fetchOpportunityMilestones function
       await fetchOpportunityMilestones(product_id);
-      console.log('Opportunity milestones fetched successfully for opportunity modal');
+      //console.log('Opportunity milestones fetched successfully for opportunity modal');
 
       // If the opportunity has a milestone_id, fetch the milestone stages
       if (opportunity.milestone_id || opportunity.milestoneId) {
         const milestone_id = opportunity.milestone_id || opportunity.milestoneId;
-        console.log('Fetching milestone stages for opportunity modal with milestone_id:', milestone_id, 'and product_id:', product_id);
+        //console.log('Fetching milestone stages for opportunity modal with milestone_id:', milestone_id, 'and product_id:', product_id);
 
         // Fetch milestone stages
         const stages = await fetchMilestoneStages(milestone_id, product_id);
         setMilestoneStages(stages);
-        console.log('Milestone stages fetched successfully for opportunity modal:', stages);
+        //console.log('Milestone stages fetched successfully for opportunity modal:', stages);
       }
     } catch (error) {
       console.error('Error fetching data for opportunity modal:', error);
@@ -3145,8 +3212,8 @@ const LeadDetail = () => {
     // Use the milestone name directly
     const milestoneName = opportunity.milestone || '';
 
-    console.log('Original opportunity milestone name:', milestoneName);
-    console.log('Available milestones:', milestones);
+    //console.log('Original opportunity milestone name:', milestoneName);
+    //console.log('Available milestones:', milestones);
 
     setOpportunityFormData({
       id: opportunity.id || '',
@@ -3184,14 +3251,14 @@ const LeadDetail = () => {
       setOpportunityUpdateError(null);
       setOpportunityUpdateSuccess(false);
 
-      console.log('Updating opportunity with data:', opportunityFormData);
+      //console.log('Updating opportunity with data:', opportunityFormData);
 
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/update-opportunity',
         opportunityFormData
       );
 
-      console.log('Opportunity update API response:', response);
+      //console.log('Opportunity update API response:', response);
 
       if (response.data && response.data.success) {
         // Update the opportunity in the opportunities array
@@ -3251,7 +3318,7 @@ const LeadDetail = () => {
   // Function to handle deleting an opportunity
   const deleteOpportunity = async (opportunityId) => {
     try {
-      console.log('Deleting opportunity with ID:', opportunityId);
+      //console.log('Deleting opportunity with ID:', opportunityId);
       setDeleteOpportunityLoading(true);
 
       // Show loading indicator with SweetAlert
@@ -3269,11 +3336,11 @@ const LeadDetail = () => {
         data: { id: opportunityId }
       });
 
-      console.log('Delete opportunity API response:', response);
+      //console.log('Delete opportunity API response:', response);
 
       // Check if the deletion was successful
       if (response.data && response.data.success) {
-        console.log('Opportunity deleted successfully');
+        //console.log('Opportunity deleted successfully');
 
         // Remove the deleted opportunity from the state
         const updatedOpportunities = opportunities.filter(opp => opp.id !== opportunityId);
@@ -3349,7 +3416,7 @@ const LeadDetail = () => {
         ...prevLead,
         [name]: value
       }));
-      console.log(`Updated lead.${name} to:`, value);
+      //console.log(`Updated lead.${name} to:`, value);
     }
 
     // Update primary contact fields
@@ -3377,9 +3444,10 @@ const LeadDetail = () => {
 
   // Handle form submission
   const handleSave = async () => {
-    setLoading(true);
+    // setLoading(true);
     setError(null);
     setUpdateSuccess(false);
+    setLoadingContent(true); 
 
     try {
       // Collect all field values from all tabs regardless of which tab is active
@@ -3516,7 +3584,7 @@ const LeadDetail = () => {
         lead_source: leadSource ? leadSource.label : ''
       };
 
-      console.log('Lead classification data (using names):', classificationData);
+      //console.log('Lead classification data (using names):', classificationData);
 
       // Combine all data from all tabs
       const allTabsData = {
@@ -3540,10 +3608,10 @@ const LeadDetail = () => {
       };
 
       // Log user_id for debugging
-      console.log('Current user_id being sent:', getUserId());
+      //console.log('Current user_id being sent:', getUserId());
 
       // Make API call to update the lead
-      console.log('Sending data to API:', mergedData);
+      //console.log('Sending data to API:', mergedData);
       const response = await axios.post(
         'https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/leads',
         mergedData,
@@ -3564,7 +3632,7 @@ const LeadDetail = () => {
         }));
 
         // Show success message in the UI
-        console.log('Lead updated successfully!');
+        //console.log('Lead updated successfully!');
 
         // Scroll to the success message if the element exists
         const actionButtons = document.querySelector('.action-buttons');
@@ -3594,7 +3662,8 @@ const LeadDetail = () => {
       setError(`Failed to update lead: ${errorMessage}`);
       console.error(`API Error: ${errorMessage}`);
     } finally {
-      setLoading(false);
+      // setLoading(false);
+      setLoadingContent(false); 
     }
   };
 
@@ -3626,20 +3695,20 @@ const LeadDetail = () => {
 
   const shouldShowAffiliateTab = hasRoleAccess(['administrator', 'echeck_client']);
 
-  if (loading) {
-    return (
-      <div className="container-fluid">
-        <div className="row justify-content-center mt-5">
-          <div className="col-md-8 text-center">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-2">Loading lead details...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="container-fluid">
+  //       <div className="row justify-content-center mt-5">
+  //         <div className="col-md-8 text-center">
+  //           <div className="spinner-border text-primary" role="status">
+  //             <span className="visually-hidden">Loading...</span>
+  //           </div>
+  //           <p className="mt-2">Loading lead details...</p>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return (
@@ -3660,2565 +3729,552 @@ const LeadDetail = () => {
     );
   }
 
-  if (!lead) {
-    return (
-      <div className="container-fluid">
-        <div className="row justify-content-center mt-5">
-          <div className="col-md-8 text-center">
-            <div className="alert alert-warning" role="alert">
-              <h4 className="alert-heading">Lead Not Found</h4>
-              <p>The lead with ID {leadId} could not be found.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // if (!lead) {
+  //   return (
+  //     <div className="container-fluid">
+  //       <div className="row justify-content-center mt-5">
+  //         <div className="col-md-8 text-center">
+  //           <div className="alert alert-warning" role="alert">
+  //             <h4 className="alert-heading">Lead Not Found</h4>
+  //             <p>The lead with ID {leadId} could not be found.</p>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Add debugging to see what data we have
-  console.log('Current lead state:', lead);
-  console.log('Primary contact:', primaryContact);
-  console.log('Tier1CommissionBasis:', tier1CommissionBasis);
+  //console.log('Current lead state:', lead);
+  // console.log('Primary contact:', primaryContact);
+  //console.log('Tier1CommissionBasis:', tier1CommissionBasis);
 
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-12">
-          <div className="white_card card_height_100 mb_30">
-            <div className="white_card_header">
-              <div className="box_header m-0 justify-content-between">
-                <h4 className="iris-lead-name">{lead.lead_id} - {lead.business_legal_name}</h4>
-                <div>
-                </div>
-                {/* <h4 className="lead_status">ERC Onboarding - <span>Prospecting</span></h4> */}
-              </div>
-              <ul className="nav nav-pills" id="pills-tab" role="tablist">
-                <li className={`nav-item ${activeTab === 'businessInfo' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-erc-bus-info"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('businessInfo');
-                    }}
-                    href="#pills-home"
-                    role="tab"
-                    aria-controls="pills-home"
-                    aria-selected={activeTab === 'businessInfo'}
-                  >
-                    Business Info
-                  </a>
-                </li>
-                {shouldShowAffiliateTab && (
-                <li className={`nav-item ${activeTab === 'affiliateCommission' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-affiliate-commission"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('affiliateCommission');
-                    }}
-                    href="#pills-commission"
-                    role="tab"
-                    aria-controls="pills-commission"
-                    aria-selected={activeTab === 'affiliateCommission'}
-                  >
-                    Affiliate Commission
-                  </a>
-                </li>
-                )}
-
-                <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-affiliate-contacts"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('contacts');
-                    }}
-                    href="#pills-contacts"
-                    role="tab"
-                    aria-controls="pills-contacts"
-                    aria-selected={activeTab === 'contacts'}
-                  >
-                    Contacts
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-opportunities"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('opportunities');
-                    }}
-                    href="#pills-opportunities"
-                    role="tab"
-                    aria-controls="pills-opportunities"
-                    aria-selected={activeTab === 'opportunities'}
-                  >
-                    Opportunities
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-affiliate-projects"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('projects');
-                    }}
-                    href="#pills-projects"
-                    role="tab"
-                    aria-controls="pills-projects"
-                    aria-selected={activeTab === 'projects'}
-                  >
-                    Projects
-                  </a>
-                </li>
-                <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
-                  <a
-                    className="nav-link"
-                    id="pills-audit-logs"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTabChange('auditLogs');
-                    }}
-                    href="#pills-logs"
-                    role="tab"
-                    aria-controls="pills-logs"
-                    aria-selected={activeTab === 'auditLogs'}
-                  >
-                    Audit Logs
-                  </a>
-                </li>
-
-              </ul>
+          {/* Overlay */}
+          {loadingContent && (
+            <div className="overlay-loading d-flex flex-column justify-content-center align-items-center">
+              <svg class="loader" viewBox="0 0 200 100">
+                <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#007bff" />
+                <stop offset="100%" stop-color="#ff6600" />
+                </linearGradient>
+                </defs>
+                <path class="infinity-shape"
+                      d="M30,50
+                        C30,20 70,20 100,50
+                        C130,80 170,80 170,50
+                        C170,20 130,20 100,50
+                        C70,80 30,80 30,50"
+                    />
+              </svg>
+              <p className="mt-3 mb-0 text-muted">Processing data...</p>
             </div>
+          )}
+          {loading &&(
+            <div className="white_card card_height_100 mb_30">
+              <div className="white_card_header">
+                <div className="box_header m-0 justify-content-between">
+                  <h4 className="iris-lead-name">Lead Details</h4>
+                  <div>
+                  </div>
+                </div>
+                <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                  <li className={`nav-item ${activeTab === 'businessInfo' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-erc-bus-info"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('businessInfo');
+                      }}
+                      href="#pills-home"
+                      role="tab"
+                      aria-controls="pills-home"
+                      aria-selected={activeTab === 'businessInfo'}
+                    >
+                      Business Info
+                    </a>
+                  </li>
+                  {shouldShowAffiliateTab && (
+                  <li className={`nav-item ${activeTab === 'affiliateCommission' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-affiliate-commission"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('affiliateCommission');
+                      }}
+                      href="#pills-commission"
+                      role="tab"
+                      aria-controls="pills-commission"
+                      aria-selected={activeTab === 'affiliateCommission'}
+                    >
+                      Affiliate Commission
+                    </a>
+                  </li>
+                  )}
 
-            <div className="white_card_body">
-              <div className="row">
-                {/* Left Content Area - Changes based on active tab */}
-                <div className="col-md-8">
-                  {/* Business Info Tab Content */}
-                  {activeTab === 'businessInfo' && (
-                    <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Business Identity</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Legal Name*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_legal_name ? 'is-invalid' : ''}`}
-                              {...register('business_legal_name')}
-                              name="business_legal_name"
-                              value={lead.business_legal_name || ''}
-                              onChange={handleInputChange}
-                            />
-                             {errors.business_legal_name && (
-                                <div className="invalid-feedback">{errors.business_legal_name.message}</div>
-                              )}
-                            <input
-                              type="hidden"
-                              name="user_id"
-                              value={getUserId()}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Doing Business As</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.doing_business_as ? 'is-invalid' : ''}`}
-                              {...register('doing_business_as')}
-                              name="doing_business_as"
-                              value={lead.doing_business_as || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.doing_business_as && (
-                                <div className="invalid-feedback">{errors.doing_business_as.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Category*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.category ? 'is-invalid' : ''}`}
-                              {...register('category')}
-                              name="category"
-                              value={lead.category || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.category && (
-                                <div className="invalid-feedback">{errors.category.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Website URL*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.website ? 'is-invalid' : ''}`}
-                              {...register('website')}
-                              name="website"
-                              value={lead.website || ''}
-                              onChange={handleInputChange}
-                            />
-                              {errors.website && (
-                                <div className="invalid-feedback">{errors.website.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
+                  <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-affiliate-contacts"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('contacts');
+                      }}
+                      href="#pills-contacts"
+                      role="tab"
+                      aria-controls="pills-contacts"
+                      aria-selected={activeTab === 'contacts'}
+                    >
+                      Contacts
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-opportunities"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('opportunities');
+                      }}
+                      href="#pills-opportunities"
+                      role="tab"
+                      aria-controls="pills-opportunities"
+                      aria-selected={activeTab === 'opportunities'}
+                    >
+                      Opportunities
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-affiliate-projects"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('projects');
+                      }}
+                      href="#pills-projects"
+                      role="tab"
+                      aria-controls="pills-projects"
+                      aria-selected={activeTab === 'projects'}
+                    >
+                      Projects
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-audit-logs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('auditLogs');
+                      }}
+                      href="#pills-logs"
+                      role="tab"
+                      aria-controls="pills-logs"
+                      aria-selected={activeTab === 'auditLogs'}
+                    >
+                      Audit Logs
+                    </a>
+                  </li>
 
-                      <h5 className="section-title mt-4">Business Contact Info</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Authorized Signatory Name</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.authorized_signatory_name ? 'is-invalid' : ''}`}
-                              {...register('authorized_signatory_name')}
-                              name="authorized_signatory_name"
-                              value={lead.authorized_signatory_name || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.authorized_signatory_name && (
-                                <div className="invalid-feedback">{errors.authorized_signatory_name.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Phone*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_phone ? 'is-invalid' : ''}`}
-                              {...register('business_phone')}
-                              name="business_phone"
-                              value={lead.business_phone || ''}
-                              onChange={handleInputChange}
-                            />
-                             {errors.business_phone && (
-                                <div className="invalid-feedback">{errors.business_phone.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Email*</label>
-                            <input
-                              type="email"
-                              className={`form-control ${errors.business_email ? 'is-invalid' : ''}`}
-                              {...register('business_email')}
-                              name="business_email"
-                              value={lead.business_email || ''}
-                              onChange={handleInputChange}
-                            />
-                              {errors.business_email && (
-                                <div className="invalid-feedback">{errors.business_email.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Business Title*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_title ? 'is-invalid' : ''}`}
-                              {...register('business_title')}
-                              name="business_title"
-                              value={lead.business_title || ''}
-                              onChange={handleInputChange}
-                            />
-                              {errors.business_title && (
-                                <div className="invalid-feedback">{errors.business_title.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Street Address*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_address ? 'is-invalid' : ''}`}
-                              {...register('business_address')}
-                              name="business_address"
-                              value={lead.business_address || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.business_address && (
-                              <div className="invalid-feedback">{errors.business_address.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">City*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.city ? 'is-invalid' : ''}`}
-                               {...register('city')}
-                              name="city"
-                              value={lead.city || ''}
-                              onChange={handleInputChange}
-                            />
-                              {errors.city && (
-                                <div className="invalid-feedback">{errors.city.message}</div>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">State*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.state ? 'is-invalid' : ''}`}
-                              {...register('state')}
-                              name="state"
-                              value={lead.state || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.state && (
-                              <div className="invalid-feedback">{errors.state.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">ZIP*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.zip ? 'is-invalid' : ''}`}
-                              {...register('zip')}
-                              name="zip"
-                              value={lead.zip || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.zip && (
-                              <div className="invalid-feedback">{errors.zip.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Primary Contact Info</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Email</label>
-                            <input
-                              type="email"
-                              className={`form-control ${errors.primary_contact_email ? 'is-invalid' : ''}`}
-                              name="primary_contact_email"
-                              value={primaryContact.email || ''}
-                              onChange={handleInputChange}
-                              disabled
-                            />
-                              {errors.primary_contact_email && (
-                                <div className="invalid-feedback">{errors.primary_contact_email.message}</div>
-                              )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Phone</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.primary_contact_phone ? 'is-invalid' : ''}`}
-                              name="primary_contact_phone"
-                              value={primaryContact.phone || ''}
-                              onChange={handleInputChange}
-                              disabled
-                            />
-                            {errors.primary_contact_phone && (
-                              <div className="invalid-feedback">{errors.primary_contact_phone.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-2">
-                          <div className="form-group">
-                            <label className="form-label">Contact Ext</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.primary_contact_ext ? 'is-invalid' : ''}`}
-                              name="primary_contact_ext"
-                              value={primaryContact.ext || ''}
-                              onChange={handleInputChange}
-                              disabled
-                            />
-                            {errors.primary_contact_ext && (
-                              <div className="invalid-feedback">{errors.primary_contact_ext.message}</div>
-                            )}
-
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Contact Phone Type</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.contact_phone_type ? 'is-invalid' : ''}`}
-                              name="contact_phone_type"
-                              value={primaryContact.phoneType || ''}
-                              onChange={handleInputChange}
-                              disabled
-                            />
-                            {errors.contact_phone_type && (
-                              <div className="invalid-feedback">{errors.contact_phone_type.message}</div>
-                            )}
-
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Billing Profile</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-12">
-                          <div className="form-group">
-                            <label className="form-label">Select Billing Profile</label>
-                            <select
-                              className={`form-select ${errors.billing_profile ? 'is-invalid' : ''}`}
-                              {...register('billing_profile')}
-                              name="billing_profile"
-                              value={lead.billing_profile || ''}
-                              onChange={handleInputChange}
-                            >
-                              <option value="">Select Billing Profile</option>
-                              {billingProfileOptions.map(profile => (
-                                <option key={profile.value} value={profile.value}>
-                                  {profile.label}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.billing_profile && (
-                              <div className="invalid-feedback">{errors.billing_profile.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">TaxNow</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Select TaxNow Signup Status</label>
-                            <select
-                              className={`form-select ${errors.taxnow_signup_status ? 'is-invalid' : ''}`}
-                              {...register('taxnow_signup_status')}
-                              name="taxnow_signup_status"
-                              value={taxNowSignupStatus}
-                              onChange={handleInputChange}
-                            >
-                              <option value="">Select TaxNow Signup Status</option>
-                              <option value="Complete">Complete</option>
-                              <option value="Incomplete">Incomplete</option>
-                            </select>
-                            {errors.taxnow_signup_status && (
-                              <div className="invalid-feedback">{errors.taxnow_signup_status.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Select TaxNow Onboarding Status</label>
-                            <select
-                              className={`form-select ${errors.taxnow_onboarding_status ? 'is-invalid' : ''}`}
-                              {...register('taxnow_onboarding_status')}
-                              name="taxnow_onboarding_status"
-                              value={taxNowOnboardingStatus}
-                              onChange={handleInputChange}
-                            >
-                              <option value="">Select TaxNow Onboarding Status</option>
-                              {taxNowSignupStatus === 'Complete' ? (
-                                <>
-                                  <option value="Awaiting IRS">Awaiting IRS</option>
-                                  <option value="Active">Active</option>
-                                </>
-                              ) : taxNowSignupStatus === 'Incomplete' ? (
-                                <>
-                                  <option value="Invite Sent">Invite Sent</option>
-                                  <option value="KYC Verification">KYC Verification</option>
-                                  <option value="KYB Verification">KYB Verification</option>
-                                  <option value="TIA Unsigned">TIA Unsigned</option>
-                                  <option value="Blank">Blank</option>
-                                </>
-                              ) : null}
-                            </select>
-                            {errors.taxnow_onboarding_status && (
-                              <div className="invalid-feedback">{errors.taxnow_onboarding_status.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Business Legal Info</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Business Entity Type*</label>
-                            <select
-                              className={`form-select ${errors.business_type ? 'is-invalid' : ''}`}
-                              {...register('business_type')}
-                              name="business_type"
-                              value={lead.business_type || 'N/A'}
-                              onChange={handleInputChange}
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="Sole Proprietorship">Sole Proprietorship</option>
-                              <option value="Partnership">Partnership</option>
-                              <option value="Limited Liability (LLC)">Limited Liability (LLC)</option>
-                              <option value="Corporation (S,C,B,etc)">Corporation (S,C,B,etc)</option>
-                              <option value="Trust">Trust</option>
-                              <option value="Other">Other</option>
-                            </select>
-                            {errors.business_type && (
-                              <div className="invalid-feedback">{errors.business_type.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">If Other*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.business_type_other ? 'is-invalid' : ''}`}
-                              {...register('business_type_other')}
-                              name="business_type_other"
-                              value={lead.business_type_other || ''}
-                              onChange={handleInputChange}
-                              placeholder="If other, specify type"
-                            />
-                            {errors.business_type_other && (
-                              <div className="invalid-feedback">{errors.business_type_other.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Registration Number*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.registration_number ? 'is-invalid' : ''}`}
-                              {...register('registration_number')}
-                              name="registration_number"
-                              value={lead.registration_number || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.registration_number && (
-                              <div className="invalid-feedback">{errors.registration_number.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="row mb-3">
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Registration Date*</label>
-                            <div className="input-group">
-                              {/* <DateInput
-                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
-                                onChange={handleInputChange}
-                                placeholder="MM/DD/YYYY"
-                              /> */}
-                              <DatePicker
-                                selected={formData.registration_date ? new Date(formData.registration_date) : null}
-                                name="registration_date"
-                                id="registration_date"
-                                onChange={(date) => {
-                                  const formatted = date ? date.toISOString().split('T')[0] : '';
-                                  setFormData(prev => ({ ...prev, registration_date: formatted }));
-                                  const error = validateField('registration_date', formatted);
-                                  setErrors(prev => ({ ...prev, registration_date: error }));
-                                }}
-                                onBlur={() => {
-                                  setTouched(prev => ({ ...prev, registration_date: true }));
-                                }}
-                                dateFormat="MM/dd/yyyy"
-                                showMonthDropdown
-                                showYearDropdown
-                                dropdownMode="scroll"
-                                scrollableYearDropdown    
-                                yearDropdownItemNumber={120}  
-                                minDate={new Date('1900-01-01')}
-                                maxDate={new Date()}
-                                customInput={<ReadOnlyDateInput />}
+                </ul>
+              </div>
+              <div className="white_card_body">
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="text-center my-5">
+                        <svg class="loader" viewBox="0 0 200 100">
+                          <defs>
+                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#007bff" />
+                          <stop offset="100%" stop-color="#ff6600" />
+                          </linearGradient>
+                          </defs>
+                          <path class="infinity-shape"
+                                d="M30,50
+                                  C30,20 70,20 100,50
+                                  C130,80 170,80 170,50
+                                  C170,20 130,20 100,50
+                                  C70,80 30,80 30,50"
                               />
-                              {errors.registration_date && (
-                                <div className="invalid-feedback">
-                                  {errors.registration_date.message}
-                                </div>
-                              )}
-                              {/* <input
-                                type="text"
-                                className={`form-control ${errors.registration_date ? 'is-invalid' : ''}`}
-                                {...register('registration_date')}
-                                name="registration_date"
-                                value={lead.registration_date ? formatDateToMMDDYYYY(lead.registration_date) : ''}
-                                onChange={handleInputChange}
-                                placeholder="MM/DD/YYYY"
-                                maxLength="10"
-                                onInput={(e) => {
-                                  // Auto-format as user types MM/DD/YYYY
-                                  let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                                  if (value.length >= 2) {
-                                    value = value.substring(0, 2) + '/' + value.substring(2);
-                                  }
-                                  if (value.length >= 5) {
-                                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
-                                  }
-                                  e.target.value = value;
-                                }}
-                              /> */}
-                              {/* <span className="input-group-text">
-                                <i className="fas fa-calendar-alt"></i>
-                              </span> */}
-                            </div>
-                            {errors.registration_date && (
-                              <div className="invalid-feedback">{errors.registration_date.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">State of Registration*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.state_of_registration ? 'is-invalid' : ''}`}
-                              {...register('state_of_registration')}
-                              name="state_of_registration"
-                              value={lead.state_of_registration || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.state_of_registration && (
-                              <div className="invalid-feedback">{errors.state_of_registration.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">EIN*</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.ein ? 'is-invalid' : ''}`}
-                              {...register('ein')}
-                              name="ein"
-                              value={lead.ein || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.ein && (
-                              <div className="invalid-feedback">{errors.ein.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="form-group">
-                            <label className="form-label">Tax ID Type*</label>
-                            <select
-                              className={`form-select ${errors.tax_id_type ? 'is-invalid' : ''}`}
-                              {...register('tax_id_type')}
-                              name="tax_id_type"
-                              value={lead.tax_id_type || 'N/A'}
-                              onChange={handleInputChange}
-                            >
-                              <option value="N/A">N/A</option>
-                              <option value="EIN">EIN</option>
-                              <option value="TIN">TIN</option>
-                              <option value="SSN">SSN</option>
-                            </select>
-                            {errors.tax_id_type && (
-                              <div className="invalid-feedback">{errors.tax_id_type.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-
-                      <h5 className="section-title mt-4">Sales User</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Internal Sales Agent</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.internal_sales_agent ? 'is-invalid' : ''}`}
-                              {...register('internal_sales_agent')}
-                              name="internal_sales_agent"
-                              value={lead.internal_sales_agent || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.internal_sales_agent && (
-                              <div className="invalid-feedback">{errors.internal_sales_agent.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Internal Sales Support</label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.internal_sales_support ? 'is-invalid' : ''}`}
-                              {...register('internal_sales_support')}
-                              name="internal_sales_support"
-                              value={lead.internal_sales_support || ''}
-                              onChange={handleInputChange}
-                            />
-                            {errors.internal_sales_support && (
-                              <div className="invalid-feedback">{errors.internal_sales_support.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Folder Information</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label d-flex align-items-center">
-                              Company Folder Link
-                              {companyFolderLink  && (
-                              <a
-                                href={companyFolderLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ms-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
-                                </svg>
-                              </a>
-                            )}
-                            </label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.company_folder_link ? 'is-invalid' : ''}`}
-                              name="company_folder_link"
-                              value={companyFolderLink}
-                              onChange={handleInputChange}
-                            />
-                            {errors.company_folder_link && (
-                              <div className="invalid-feedback">{errors.company_folder_link.message}</div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label d-flex align-items-center">
-                              Document Folder Link
-                              {documentFolderLink && (
-                              <a
-                                href={documentFolderLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="ms-2"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" className="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                                  <path fillRule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
-                                  <path fillRule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
-                                </svg>
-                              </a>
-                              )}
-                            </label>
-                            <input
-                              type="text"
-                              className={`form-control ${errors.document_folder_link ? 'is-invalid' : ''}`}
-                              name="document_folder_link"
-                              value={documentFolderLink}
-                              onChange={handleInputChange}
-                            />
-                            {errors.document_folder_link && (
-                              <div className="invalid-feedback">{errors.document_folder_link.message}</div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Notes Section */}
-                      <h5 className="section-title mt-4">Notes</h5>
-                      <Notes
-                        entityType="lead"
-                        entityId={leadId}
-                        entityName={lead?.business_legal_name || ''}
-                        showButtons={false}
-                        showNotes={true}
-                        maxHeight={300}
-                      />
-                    </div>
-                  )}
-
-
-
-                  {/* Affiliate Commission Tab Content */}
-{shouldShowAffiliateTab && activeTab === 'affiliateCommission' ? (
-                    <div className="mb-4 left-section-container">
-                      <h5 className="section-title">Tier 1 Affiliate Commission</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Commission Basis</label>
-                            <select
-                              className="form-select"
-                              name="affiliate_commision_basis"
-                              value={tier1CommissionBasis?.value || ''}
-                              onChange={(e) => handleTier1CommissionBasisChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Affiliate Commission Basis</option>
-                              <option value="erc-chq-received">ERC Chq Received</option>
-                              <option value="erc-invoice-amount">ERC Invoice Amount</option>
-                              <option value="lower-of-both">Lower of Both</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="affiliate_commision_type"
-                              value={tier1ReferrerType?.value || ''}
-                              onChange={(e) => handleTier1ReferrerTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Affiliate Commission Type</option>
-                              <option value="referrer-fixed">Referrer Fixed</option>
-                              <option value="referrer-percentage">Referrer Percentage</option>
-                              <option value="fixed-percentage">Fixed + Percentage</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Referrer Fixed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="referrer_fixed"
-                              value={tier1ReferrerFixed}
-                              onChange={handleTier1ReferrerFixedChange}
-                              placeholder="Enter amount"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">% On ERC Chg Received</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="referrer_percentage"
-                              value={referrer_percentage}
-                              onChange={handlereferrer_percentageChange}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">% On Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="referrer_percentage2"
-                              value={tier1InvoiceAmount}
-                              onChange={handleTier1InvoiceAmountChange}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Tier 2 Affiliate Commission</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Commission Basis</label>
-                            <select
-                              className="form-select"
-                              name="tier2_commission_basis"
-                              value={tier2CommissionBasis?.value || ''}
-                              onChange={(e) => handleTier2CommissionBasisChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Affiliate Commission Basis</option>
-                              <option value="affiliate-commission-basis">Affiliate Commission Basis</option>
-                              <option value="erc-chq-received">ERC Chq Received</option>
-                              <option value="erc-invoice-amount">ERC Invoice Amount</option>
-                              <option value="lower-of-both">Lower of Both</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="tier2_commission_type"
-                              value={tier2CommissionType?.value || ''}
-                              onChange={(e) => handleTier2CommissionTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Affiliate Commission Type</option>
-                              <option value="affiliate-commission-type">Affiliate Commission Type</option>
-                              <option value="referrer-fixed">Referrer Fixed</option>
-                              <option value="referrer-percentage">Referrer Percentage</option>
-                              <option value="fixed-percentage">Fixed + Percentage</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Referrer Fixed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="tier2_referrer_fixed"
-                              value={tier2ReferrerFixed}
-                              onChange={handleTier2ReferrerFixedChange}
-                              placeholder="Enter amount"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">% On ERC Chg Received</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="tier2_erc_chg_received"
-                              value={tier2ErcChgReceived}
-                              onChange={handleTier2ErcChgReceivedChange}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">% On Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="tier2_invoice_amount"
-                              value={tier2InvoiceAmount}
-                              onChange={handleTier2InvoiceAmountChange}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Tier 3 Affiliate Commission</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Commission Basis</label>
-                            <select
-                              className="form-select"
-                              name="tier3_affiliate_commision_basis"
-                              value={tier3CommissionBasis?.value || ''}
-                              onChange={(e) => handleTier3CommissionBasisChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Affiliate Commission Basis</option>
-                              <option value="affiliate-commission-basis">Affiliate Commission Basis</option>
-                              <option value="erc-chq-received">ERC Chq Received</option>
-                              <option value="erc-invoice-amount">ERC Invoice Amount</option>
-                              <option value="lower-of-both">Lower of Both</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Affiliate Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="tier3_commission_type"
-                              value={tier3CommissionType?.value || ''}
-                              onChange={(e) => handleTier3CommissionTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Affiliate Commission Type</option>
-                              <option value="affiliate-commission-type">Affiliate Commission Type</option>
-                              <option value="referrer-fixed">Referrer Fixed</option>
-                              <option value="referrer-percentage">Referrer Percentage</option>
-                              <option value="fixed-percentage">Fixed + Percentage</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Referrer Fixed</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="tier3_referrer_fixed"
-                              value={tier3ReferrerFixed}
-                              onChange={handleTier3ReferrerFixedChange}
-                              placeholder="Enter amount"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">% On ERC Chg Received</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="tier3_erc_chg_received"
-                              value={tier3ErcChgReceived}
-                              onChange={handleTier3ErcChgReceivedChange}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">% On Invoice Amount</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="tier3_invoice_amount"
-                              value={tier3InvoiceAmount}
-                              onChange={handleTier3InvoiceAmountChange}
-                              placeholder="Enter percentage"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Current Tier</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <select
-                              className="form-select"
-                              name="current_tier"
-                              value={currentTier?.value || ''}
-                              onChange={(e) => handleCurrentTierChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Select Current Tier</option>
-                              <option value="Tier1">Tier 1</option>
-                              <option value="Tier2">Tier 2</option>
-                              <option value="Tier3">Tier 3</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Affiliate Slab Commission</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-1 Applied On</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="slab1_applied_on"
-                              value={slab1AppliedOn}
-                              onChange={handleSlab1AppliedOnChange}
-                              placeholder="Slab-1 Applied On"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-1 Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="slab1_commision_type"
-                              value={slab1CommissionType?.value || ''}
-                              onChange={(e) => handleSlab1CommissionTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Slab-1 Commission Type</option>
-                              <option value="percentage">Percentage</option>
-                              <option value="fixed">Fixed</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-1 Commission Value</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="slab1_commision_value"
-                              value={slab1CommissionValue}
-                              onChange={handleSlab1CommissionValueChange}
-                              placeholder="Slab-1 Commission Value"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-2 Applied On</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="slab2_applied_on"
-                              value={slab2AppliedOn}
-                              onChange={handleSlab2AppliedOnChange}
-                              placeholder="Slab-2 Applied On"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-2 Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="slab2_commision_type"
-                              value={slab2CommissionType?.value || ''}
-                              onChange={(e) => handleSlab2CommissionTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Slab-2 Commission Type</option>
-                              <option value="percentage">Percentage</option>
-                              <option value="fixed">Fixed</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-2 Commission Value</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="slab2_commision_value"
-                              value={slab2CommissionValue}
-                              onChange={handleSlab2CommissionValueChange}
-                              placeholder="Slab-2 Commission Value"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-3 Applied On</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="slab3_applied_on"
-                              value={slab3AppliedOn}
-                              onChange={handleSlab3AppliedOnChange}
-                              placeholder="Slab-3 Applied On"
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-3 Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="slab3_commision_type"
-                              value={slab3CommissionType?.value || ''}
-                              onChange={(e) => handleSlab3CommissionTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Slab-3 Commission Type</option>
-                              <option value="percentage">Percentage</option>
-                              <option value="fixed">Fixed</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="form-group">
-                            <label className="form-label">Slab-3 Commission Value</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="slab3_commision_value"
-                              value={slab3CommissionValue}
-                              onChange={handleSlab3CommissionValueChange}
-                              placeholder="Slab-3 Commission Value"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <h5 className="section-title mt-4">Master Affiliate Commission</h5>
-                      <div className="row mb-3">
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Master Commission Type</label>
-                            <select
-                              className="form-select"
-                              name="master_commision_type"
-                              value={masterCommissionType?.value || ''}
-                              onChange={(e) => handleMasterCommissionTypeChange({
-                                value: e.target.value,
-                                label: e.target.options[e.target.selectedIndex].text
-                              })}
-                            >
-                              <option value="">Master Commission Type</option>
-                              <option value="master-commission-type">Master Commission Type</option>
-                              <option value="affiliate-fixed">Affiliate Fixed</option>
-                              <option value="percentage-of-subaffiliate-commission">Percentage Of Subaffiliate Commission</option>
-                              <option value="percentage-of-affiliate-invoice">Percentage Of Affiliate Invoice</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-group">
-                            <label className="form-label">Master Commission Value</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="master_commision_value"
-                              value={masterCommissionValue}
-                              onChange={handleMasterCommissionValueChange}
-                              placeholder="Master Commission Value"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  
-) : null}
-                  {/* Contacts Tab Content */}
-                  {activeTab === 'contacts' && (
-                    <div className="mb-4 left-section-container">
-                      <div className="row custom_opp_create_btn">
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            window.open(`/reporting/create-contact?lead_id=${leadId}`, '_blank');
-                          }}
-                        >
-                            <i className="fa-solid fa-plus"></i> New Contact
-                        </a>
-                        <a
-                          className="link_contact"
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleOpenLinkContactModal();
-                          }}
-                          title="Link a contact"
-                        >
-                          <i className="fa-solid fa-plus"></i> Link a Contact
-                        </a>
-                      </div>
-
-                      <div className="row contact_tab_data mt-4">
-                        {contactsLoading ? (
-                          <div className="col-12 text-center">
-                            <div className="spinner-border text-primary" role="status">
-                              <span className="visually-hidden">Loading...</span>
-                            </div>
-                            <p className="mt-2">Loading contacts...</p>
-                          </div>
-                        ) : contacts.length === 0 ? (
-                          <div className="col-12 text-center">
-                            <p>No contacts found for this lead.</p>
-                          </div>
-                        ) : (
-                          contacts.map((contact, index) => (
-                            <div
-                              key={`contact-${contact.contact_id}-${index}`}
-                              className={`col-md-6 col-sm-12 mb-4 contact-card ${contact.contact_id === newContactId ? 'new-contact' : ''}`}
-                              ref={el => {
-                                // Auto-scroll to the newly added contact
-                                if (contact.contact_id === newContactId && el) {
-                                  setTimeout(() => {
-                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                    // Clear the newContactId after scrolling to prevent highlighting on future renders
-                                    setTimeout(() => setNewContactId(null), 2000);
-                                  }, 500);
-                                }
-                              }}
-                            >
-                              <div className={`card-exam shadow ${contact.trash == 0 ?'':'card_trashed'}`}>
-                                <div className="custom_opp_tab_header">
-                                  <h5>
-                                    <i className="fas fa-star"></i> {contact.contact_type === 'primary' ? 'Primary' : 'Secondary'}
-                                  </h5>
-                                  <div className="opp_edit_dlt_btn">
-                                    <a
-                                      className="edit_contact"
-                                      href="javascript:void(0)"
-                                      title="Edit"
-                                      onClick={() => handleEditContact(contact.contact_id)}
-                                    >
-                                      <i className="fas fa-pen"></i>
-                                    </a>
-
-                                    {contact.trash == 0 && (
-                                      <a
-                                        className="delete_contact"
-                                        href="javascript:void(0)"
-                                        title="Disable"
-                                        onClick={() => handleDisableContact(contact.contact_id, contact.name)}
-                                      >
-                                        <i className="fas fa-ban"></i>
-                                      </a>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="d-flex w-100 mt-3 align-items-center">
-                                  <div className="circle">
-                                    {contact.name ? contact.name.split(' ').map(n => n[0]).join('') : ''}
-                                  </div>
-                                  <div className="card-exam-title">
-                                    <p><a>{contact.name || ''}</a></p>
-                                    <p>{contact.title ? `${contact.title}` : ''} {contact.middle_name ? `${contact.middle_name}` : ''}</p>
-                                    <p>{contact.email || ''}</p>
-                                    <p>{contact.phone || ''} {contact.ph_extension ? `Ext: ${contact.ph_extension}` : ''}</p>
-                                    <p>{contact.phone_type ? `Phone Type: ${contact.phone_type}` : ''}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Projects Tab Content */}
-                  {activeTab === 'projects' && (
-                    <div className="mb-4 left-section-container">
-                      {projects.length === 0 ? (
-                        <div className="text-center mt-4">
-                          <p>No projects found for this lead.</p>
-                        </div>
-                      ) : (
-                        projects.map(project => (
-                          <div key={project.id} className="row custom_opp_tab">
-                            <div className="col-sm-12">
-                              <div className="custom_opp_tab_header">
-                                <h5><a href={`/reporting/project-detail/${project.id}`}>{project.projectName}</a></h5>
-                                <div className="opp_edit_dlt_btn projects-iris">
-                                  <a
-                                    className="edit_project"
-                                    data-projid={project.id}
-                                    data-projname={project.projectName}
-                                    data-businessname={project.businessName}
-                                    data-productname={project.productName}
-                                    data-productid={project.productId}
-                                    data-milestone={project.milestone}
-                                    data-milestoneid={project.milestoneId}
-                                    data-stage={project.stage}
-                                    data-stageid={project.stageId}
-                                    data-fee={project.fee}
-                                    data-max_credit={project.maxCredit}
-                                    data-est_fee={project.estFee}
-                                    data-collab={project.collaboratorId}
-                                    data-contact={project.contactId}
-                                    href="javascript:void(0)"
-                                    title="Edit"
-                                    onClick={() => handleEditProject(project)}
-                                  >
-                                    <i className="fas fa-pen"></i>
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="col-md-7 text-left">
-                              <div className="lead_des">
-                                <p><b>Business Name:</b> {project.businessName}</p>
-                                <p><b>Project Name:</b> {project.projectName}</p>
-                                <p><b>Product Name:</b> {project.productName || 'N/A'}</p>
-                              </div>
-                            </div>
-                            <div className="col-md-5">
-                              <div className="lead_des">
-                                <p><b>Milestone:</b> {project.milestone || 'N/A'}</p>
-                                <p><b>Stage:</b> {project.stage || 'N/A'}</p>
-                                <p><b>Collaborator:</b> {project.collaborator || 'N/A'}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-
-      {/* Edit Project Modal */}
-                      {showEditProjectModal && (
-                        <>
-                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                          {/* Loading overlay when fetching or updating */}
-                          {projectUpdateLoading && (
-                            <div className="loading-overlay">
-                              <div className="loading-spinner-container">
-                                <div className="loading-spinner"></div>
-                                {/* <p className="loading-text">Updating project...</p> */}
-                              </div>
-                            </div>
-                          )}
-                          <div className={`modal ${showEditProjectModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div className="modal-content" style={{ borderRadius: '8px' }}>
-                                <div className="modal-header pb-2">
-                                  <h5 className="modal-title">Edit Project</h5>
-                                  <button type="button" className="btn-close" onClick={handleCloseEditProjectModal}></button>
-                                </div>
-                                <div className="modal-body">
-                                  {/* <form onSubmit={(e) => { e.preventDefault(); handleUpdateProject(); }}> */}
-                                  <form onSubmit={handleSubmitProject(handleUpdateProject)}>
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Project Name:*</label>
-                                          <input
-                                            type="text"
-                                            className={`form-control ${projectErrors.project_name ? 'is-invalid' : ''}`}
-                                            {...registerProject("project_name")}
-                                            name="project_name"
-                                            value={projectFormData.project_name}
-                                            onChange={(e) => setProjectFormData(prev => ({
-                                              ...prev,
-                                              project_name: e.target.value
-                                            }))}
-                                            placeholder="Enter project name"
-                                            readonly="true"
-                                          />
-                                          {projectErrors.project_name && (
-                                            <div className="invalid-feedback">
-                                              {projectErrors.project_name.message}
-                                            </div>
-                                          )}
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Business Name:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={currentProject?.businessName || ''}
-                                            readonly="true"
-                                            name="business_legal_name"
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Product Name:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={currentProject?.productName || ''}
-                                            disabled
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Fee:</label>
-                                          <input
-                                            type="text"
-                                            className={`form-control ${projectErrors.project_fee ? 'is-invalid' : ''}`}
-                                            {...registerProject("project_fee")}
-                                            name="project_fee"
-                                            value={projectFormData.project_fee}
-                                            onChange={(e) => setProjectFormData(prev => ({
-                                              ...prev,
-                                              project_fee: e.target.value
-                                            }))}
-                                            placeholder="Enter fee"
-                                          />
-                                            {projectErrors.project_fee && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.project_fee.message}
-                                              </div>
-                                            )}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Maximum Credit:</label>
-                                          <input
-                                            type="text"
-                                            className={`form-control ${projectErrors.maximum_credit ? 'is-invalid' : ''}`}
-                                            {...registerProject("maximum_credit")}
-                                            name="maximum_credit"
-                                            value={projectFormData.maximum_credit}
-                                            onChange={(e) => setProjectFormData(prev => ({
-                                              ...prev,
-                                              maximum_credit: e.target.value
-                                            }))}
-                                            placeholder="Enter maximum credit"
-                                          />
-                                            {projectErrors.maximum_credit && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.maximum_credit.message}
-                                              </div>
-                                            )}
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Estimated Fee:</label>
-                                          <input
-                                            type="text"
-                                            className={`form-control ${projectErrors.estimated_fee ? 'is-invalid' : ''}`}
-                                            {...registerProject("estimated_fee")}
-                                            name="estimated_fee"
-                                            value={projectFormData.estimated_fee}
-                                            onChange={(e) => setProjectFormData(prev => ({
-                                              ...prev,
-                                              estimated_fee: e.target.value
-                                            }))}
-                                            placeholder="Enter estimated fee"
-                                          />
-                                          {projectErrors.estimated_fee && (
-                                            <div className="invalid-feedback">
-                                              {projectErrors.estimated_fee.message}
-                                            </div>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Milestone:*</label>
-                                          {console.log('Project milestone dropdown - current value:', projectFormData.Milestone)}
-                                          {console.log('Project milestone dropdown - available milestones:', milestones)}
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className={`form-select ${projectErrors.Milestone ? 'is-invalid' : ''}`}
-                                              {...registerProject("Milestone")}
-                                              name="Milestone"
-                                              data-label="1"
-                                              value={projectFormData.Milestone}
-                                              onChange={async (e) => {
-                                                console.log('Project milestone selected:', e.target.value);
-
-                                                // Find the selected milestone to get its ID
-                                                const selectedMilestone = milestones.find(m => m.name === e.target.value);
-                                                console.log('Selected milestone object:', selectedMilestone);
-
-                                                // Update the form data with the selected milestone
-                                                setProjectFormData(prev => ({
-                                                  ...prev,
-                                                  Milestone: e.target.value,
-                                                  // Clear the milestone stage when milestone changes
-                                                  MilestoneStage: ''
-                                                }));
-
-                                                // If a milestone is selected, fetch its stages
-                                                if (selectedMilestone && selectedMilestone.id) {
-                                                  try {
-                                                    // Map product names to product IDs
-                                                    const productIdMap = {
-                                                      'ERC': '935',
-                                                      'STC': '937',
-                                                      'RDC': '932',
-                                                      'TAX': '936',
-                                                      'AA':'934'
-                                                    };
-
-                                                    // Get the product_id from the current project
-                                                    let product_id = currentProject?.product_id || currentProject?.productId;
-
-                                                    // If no product_id is available, try to map from the product name
-                                                    if (!product_id && currentProject?.productName) {
-                                                      product_id = productIdMap[currentProject.productName] || '936';
-                                                      console.log('Mapped product name', currentProject.productName, 'to product_id:', product_id);
-                                                    } else {
-                                                      product_id = '936'; // Default fallback to ERC product ID
-                                                    }
-
-                                                    console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
-
-                                                    // Fetch milestone stages using the API endpoint with milestone_id
-                                                    const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL2:', apiUrl);
-
-                                                    const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response11:', response.data);
-
-                                                    // Process the response
-                                                    let stages = [];
-                                                    if (response.data && response.data.success) {
-                                                      const stagesData = response.data.data.data;
-                                                      console.log('sdsdsd');
-                                                      if (Array.isArray(stagesData)) {
-                                                        stages = stagesData.map(stage => ({
-                                                          id: stage.milestone_stage_id || stage.id || '',
-                                                          name: stage.stage_name || stage.name || ''
-                                                        })).filter(s => s.id && s.name);
-                                                      }
-                                                    }
-
-                                                    if (stages.length === 0) {
-                                                      // Fallback to the fetchMilestoneStages function if direct API call fails
-                                                      stages = await fetchMilestoneStages(selectedMilestone.id, product_id);
-                                                    }
-
-                                                    setMilestoneStages(stages);
-                                                    console.log('Milestone stages fetched successfully for project:', stages);
-                                                  } catch (error) {
-                                                    console.error('Error fetching milestone stages for project:', error);
-                                                    setMilestoneStages([]);
-                                                  }
-                                                } else {
-                                                  // Clear milestone stages if no milestone is selected
-                                                  setMilestoneStages([]);
-                                                }
-                                              }}
-
-                                            >
-
-                                              <option value="">Select Milestone</option>
-                                              {milestones.map((milestone, index) => (
-                                                <option key={`project-milestone-${index}-${milestone.id}`} value={milestone.name}>
-                                                  {milestone.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                            {projectErrors.Milestone && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.Milestone.message}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Stage:*</label>
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className={`form-select ${projectErrors.MilestoneStage ? 'is-invalid' : ''}`}
-                                              {...registerProject("MilestoneStage")}
-                                              name="MilestoneStage"
-                                              value={projectFormData.MilestoneStage}
-                                              onChange={(e) => {
-                                                console.log('Project milestone stage selected:', e.target.value);
-                                                setProjectFormData(prev => ({
-                                                  ...prev,
-                                                  MilestoneStage: e.target.value
-                                                }));
-                                              }}
-
-                                            >
-                                              <option value="">Select Stage</option>
-                                              {milestoneStages.map((stage, index) => (
-                                                <option key={`project-stage-${index}-${stage.id}`} value={stage.name}>
-                                                  {stage.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                            {projectErrors.MilestoneStage && (
-                                              <div className="invalid-feedback">
-                                                {projectErrors.MilestoneStage.message}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6" style={{display:'none'}}>
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Collaborator:</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            name="collaborators"
-                                            value={projectFormData.collaborators[0] || ''}
-                                            onChange={(e) => setProjectFormData(prev => ({
-                                              ...prev,
-                                              collaborators: e.target.value ? [e.target.value] : []
-                                            }))}
-                                            placeholder="Enter collaborator"
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Contact:</label>
-                                          <select
-                                            className="form-select"
-                                            name="ContactList"
-                                            value={projectFormData.ContactList}
-                                            onChange={(e) => setProjectFormData(prev => ({
-                                              ...prev,
-                                              ContactList: e.target.value
-                                            }))}
-                                          >
-                                            <option value="">Select Contact</option>
-                                            {contacts.map((contact, index) => (
-                                              <option key={`project-contact-${contact.contact_id}-${index}`} value={contact.contact_id}>
-                                                {contact.name || 'Unnamed Contact'}
-                                              </option>
-                                            ))}
-                                          </select>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {projectUpdateSuccess && (
-                                      <div className="alert alert-success" role="alert">
-                                        <strong><i className="fas fa-check-circle me-2"></i>Project updated successfully!</strong>
-                                      </div>
-                                    )}
-
-                                    {projectUpdateError && (
-                                      <div className="alert alert-danger" role="alert">
-                                        <strong><i className="fas fa-exclamation-triangle me-2"></i>Error!</strong>
-                                        <p className="mb-0 mt-1">{projectUpdateError}</p>
-                                      </div>
-                                    )}
-
-                                    <div className="d-flex justify-content-center gap-3 mt-4">
-                                      <button
-                                        type="submit"
-                                        className="btn save-btn"
-                                        disabled={projectUpdateLoading}
-                                      >
-                                        {projectUpdateLoading ? (
-                                          <>
-                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                            Updating...
-                                          </>
-                                        ) : 'Update'}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="btn cancel-btn"
-                                        onClick={handleCloseEditProjectModal}
-                                        disabled={projectUpdateLoading}
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Opportunities Tab Content */}
-                  {activeTab === 'opportunities' && (
-                    <div className="mb-4 left-section-container">
-                      <div className="row custom_opp_create_btn">
-                          {/* <a href='javaascript:void(0)'>
-                            <i className="fa-solid fa-plus"></i> New Opportunity
-                          </a> */}
-                      </div>
-
-                      {opportunities.length === 0 ? (
-                        <div className="text-center mt-4">
-                          <p>No opportunities found for this lead.</p>
-                        </div>
-                      ) : (
-                        opportunities.map((opportunity) => (
-                          <div key={opportunity.id} className="row custom_opp_tab">
-                            <div className="col-sm-12">
-                              <div className="custom_opp_tab_header">
-                                <h5>{opportunity.OpportunityName}</h5>
-                                <div className="opp_edit_dlt_btn projects-iris">
-                                  <a
-                                    className="edit_project"
-                                    href="javascript:void(0)"
-                                    title="Edit"
-                                    onClick={() => handleEditOpportunity(opportunity)}
-                                    style={{display:'none'}} >
-                                    <i className="fas fa-pen"></i>
-                                  </a>
-                                  {/* <a
-                                    className="delete_project"
-                                    href="javascript:void(0)"
-                                    title="Delete"
-                                    onClick={() => showDeleteConfirmation(opportunity)}
-                                  >
-                                    <i className="fas fa-trash"></i>
-                                  </a> */}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="col-md-7 text-left">
-                              <div className="lead_des">
-                                <p>
-                                  <b>Created Date:</b>
-                                  {opportunity.CreatedAt ? format(new Date(opportunity.CreatedAt), 'MM/dd/yyyy') : '-'}
-                                </p>
-                                <p><b>Current Stage:</b> {opportunity.milestoneStatus}</p>
-                                <p><b>Next Step:</b> {opportunity.NextStep || ''}</p>
-                              </div>
-                            </div>
-                            <div className="col-md-5">
-                              <div className="lead_des">
-                                <p><b>Opportunity Owner:</b> {opportunity.CreatedBy}</p>
-                                <p><b>Opportunity Amount:</b> {opportunity.currencyName} {opportunity.OpportunityAmount}</p>
-                                <p><b>Expected Close date:</b> {formatDateToMMDDYYYY(opportunity.ExpectedCloseDate)}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-
-                      {/* Edit Opportunity Modal */}
-                      {showEditOpportunityModal && (
-                        <>
-                          <div className="modal-backdrop show" style={{ display: 'block' }}></div>
-                          {/* Loading overlay when fetching or updating */}
-                          {opportunityUpdateLoading && (
-                            <div className="loading-overlay">
-                              <div className="loading-spinner-container">
-                                <div className="loading-spinner"></div>
-                                <p className="loading-text">Updating opportunity...</p>
-                              </div>
-                            </div>
-                          )}
-                          <div className={`modal ${showEditOpportunityModal ? 'show' : ''}`} style={{ display: 'block' }}>
-                            <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '800px' }}>
-                              <div
-                                className="modal-content"
-                                style={{ borderRadius: '8px', marginTop: '6%' }}
-                              >
-                                <div className="modal-header pb-2">
-                                  <h5 className="modal-title">Edit - {currentOpportunity?.opportunity_name}</h5>
-                                  <button type="button" className="btn-close" onClick={handleCloseEditOpportunityModal}></button>
-                                </div>
-                                <div className="modal-body">
-                                  {/* Form fields for Edit Opportunity */}
-                                  <form onSubmit={(e) => { e.preventDefault(); handleUpdateOpportunity(); }}>
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Opportunity Name:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.opportunity_name}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              opportunity_name: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Lead Name:</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.lead_name}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              lead_name: e.target.value
-                                            }))}
-                                            disabled
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Products:*</label>
-                                          <select
-                                            className="form-select"
-                                            value={opportunityFormData.product}
-                                            onChange={(e) => {
-                                              const selectedProduct = e.target.value;
-                                              setOpportunityFormData(prev => ({
-                                                ...prev,
-                                                product: selectedProduct,
-                                                milestone: '' // Reset milestone when product changes
-                                              }));
-
-                                              // Update product selection
-                                              console.log('Product selected:', selectedProduct);
-                                            }}
-                                            required
-                                          >
-                                            <option value="">Select Product</option>
-                                            <option value="ERC">ERC</option>
-                                            <option value="STC">STC</option>
-                                            <option value="R&D">R&D</option>
-                                          </select>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Milestone:*</label>
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className="form-select milestone-select"
-                                              value={opportunityFormData.milestone}
-                                              data-label="2"
-                                              onChange={async (e) => {
-                                                console.log('Opportunity milestone selected:', e.target.value);
-
-                                                // Find the selected milestone to get its ID
-                                                const selectedMilestone = milestones.find(m => m.name === e.target.value);
-                                                console.log('Selected opportunity milestone object:', selectedMilestone);
-
-                                                // Update the form data with the selected milestone
-                                                setOpportunityFormData(prev => ({
-                                                  ...prev,
-                                                  milestone: e.target.value,
-                                                  // Clear the stage when milestone changes
-                                                  stage: ''
-                                                }));
-
-                                                // If a milestone is selected, fetch its stages
-                                                if (selectedMilestone && selectedMilestone.id) {
-                                                  try {
-                                                    // Map product names to product IDs
-                                                    const productIdMap = {
-                                                      'ERC': '935',
-                                                      'STC': '937',
-                                                      'RDC': '932',
-                                                      'TAX': '936',
-                                                      'AA':'934'
-                                                    };
-
-                                                    // Get the product_id from the current opportunity
-                                                    let product_id = currentOpportunity?.product_id || currentOpportunity?.productId;
-
-                                                    // If no product_id is available, try to map from the product name
-                                                    if (!product_id && currentOpportunity?.product) {
-                                                      product_id = productIdMap[currentOpportunity.product] || '936';
-                                                      console.log('Mapped product name', currentOpportunity.product, 'to product_id:', product_id);
-                                                    } else {
-                                                      product_id = '936'; // Default fallback to ERC product ID
-                                                    }
-
-                                                    console.log('Fetching milestone stages for milestone_id:', selectedMilestone.id, 'and product_id:', product_id);
-
-                                                    // Fetch milestone stages using the API endpoint with milestone_id
-                                                    const apiUrl = `https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/milestone-stages?milestone_id=${selectedMilestone.id}`;
-                                                    console.log('Calling milestone stages API with URL3:', apiUrl);
-
-                                                    const response = await axios.get(apiUrl);
-                                                    console.log('Milestone stages API response:', response);
-
-                                                    // Process the response
-                                                    let stages = [];
-                                                    if (response.data && response.data.success && response.data.data && response.data.data.data) {
-                                                      const stagesData = response.data.data.data;
-                                                      if (Array.isArray(stagesData)) {
-                                                        stages = stagesData.map(stage => ({
-                                                          id: stage.milestone_stage_id || stage.id || '',
-                                                          name: stage.stage_name || stage.name || ''
-                                                        })).filter(s => s.id && s.name);
-                                                      }
-                                                    }
-
-                                                    if (stages.length === 0) {
-                                                      // Fallback to the fetchMilestoneStages function if direct API call fails
-                                                      stages = await fetchMilestoneStages(selectedMilestone.id, product_id);
-                                                    }
-
-                                                    setMilestoneStages(stages);
-                                                    console.log('Milestone stages fetched successfully for opportunity:', stages);
-                                                  } catch (error) {
-                                                    console.error('Error fetching milestone stages for opportunity:', error);
-                                                    setMilestoneStages([]);
-                                                  }
-                                                } else {
-                                                  // Clear milestone stages if no milestone is selected
-                                                  setMilestoneStages([]);
-                                                }
-                                              }}
-                                              required
-                                            >
-                                              <option value="">Select Milestone</option>
-                                              {milestones.map((milestone, index) => (
-                                                <option key={`opportunity-milestone-${index}-${milestone.id}`} value={milestone.name}>
-                                                  {milestone.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Created Date:*</label>
-                                          <div className="input-group">
-                                            <input
-                                              type="text"
-                                              className="form-control"
-                                              value={opportunityFormData.created_date ? formatDateToMMDDYYYY(opportunityFormData.created_date) : ''}
-                                              onChange={(e) => setOpportunityFormData(prev => ({
-                                                ...prev,
-                                                created_date: e.target.value
-                                              }))}
-                                              placeholder="MM/DD/YYYY"
-                                              maxLength="10"
-                                              onInput={(e) => {
-                                                // Auto-format as user types MM/DD/YYYY
-                                                let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-                                                if (value.length >= 2) {
-                                                  value = value.substring(0, 2) + '/' + value.substring(2);
-                                                }
-                                                if (value.length >= 5) {
-                                                  value = value.substring(0, 5) + '/' + value.substring(5, 9);
-                                                }
-                                                e.target.value = value;
-                                              }}
-                                              required
-                                            />
-                                            <span className="input-group-text">
-                                              <i className="fas fa-calendar-alt"></i>
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Created By:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.created_by}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              created_by: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Stage:*</label>
-                                          <div className="milestone-select-wrapper">
-                                            <select
-                                              className="form-select"
-                                              value={opportunityFormData.stage}
-                                              onChange={(e) => {
-                                                console.log('Opportunity stage selected:', e.target.value);
-                                                setOpportunityFormData(prev => ({
-                                                  ...prev,
-                                                  stage: e.target.value
-                                                }));
-                                              }}
-                                              required
-                                            >
-                                              <option value="">Select Stage</option>
-                                              {milestoneStages.map((stage, index) => (
-                                                <option key={`opportunity-stage-${index}-${stage.id}`} value={stage.name}>
-                                                  {stage.name}
-                                                </option>
-                                              ))}
-                                            </select>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Currency:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.currency}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              currency: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Opportunity Amount:*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.opportunity_amount}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              opportunity_amount: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Probability (%):*</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.probability}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              probability: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Expected Close Date:*</label>
-                                          <input
-                                            type="date"
-                                            className="form-control"
-                                            value={opportunityFormData.expected_close_date}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              expected_close_date: e.target.value
-                                            }))}
-                                            required
-                                          />
-                                        </div>
-                                      </div>
-                                      <div className="col-md-6">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Next Step:</label>
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            value={opportunityFormData.next_step}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              next_step: e.target.value
-                                            }))}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="row mb-3">
-                                      <div className="col-md-12">
-                                        <div className="form-group mb-3">
-                                          <label className="form-label">Description:</label>
-                                          <textarea
-                                            className="form-control"
-                                            rows="3"
-                                            value={opportunityFormData.description}
-                                            onChange={(e) => setOpportunityFormData(prev => ({
-                                              ...prev,
-                                              description: e.target.value
-                                            }))}
-                                          ></textarea>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {opportunityUpdateSuccess && (
-                                      <div className="alert alert-success" role="alert">
-                                        <strong><i className="fas fa-check-circle me-2"></i>Opportunity updated successfully!</strong>
-                                      </div>
-                                    )}
-
-                                    {opportunityUpdateError && (
-                                      <div className="alert alert-danger" role="alert">
-                                        <strong><i className="fas fa-exclamation-triangle me-2"></i>Error!</strong>
-                                        <p className="mb-0 mt-1">{opportunityUpdateError}</p>
-                                      </div>
-                                    )}
-
-                                    <div className="d-flex justify-content-center gap-3 mt-4">
-                                      <button
-                                        type="submit"
-                                        className="btn save-btn"
-                                        disabled={opportunityUpdateLoading}
-                                      >
-                                        {opportunityUpdateLoading ? (
-                                          <>
-                                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                            Updating...
-                                          </>
-                                        ) : 'Update'}
-                                      </button>
-                                      <button
-                                        type="button"
-                                        className="btn cancel-btn"
-                                        onClick={handleCloseEditOpportunityModal}
-                                        disabled={opportunityUpdateLoading}
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Audit Logs Tab Content */}
-                  {activeTab === 'auditLogs' && (
-                    <div className="mb-4 left-section-container">
-                      <AuditLogsMultiSection leadId={leadId || '9020'} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Side Section - Same for all tabs */}
-                <div className="col-md-4">
-                  <div className="card mb-4">
-                    <div className="card-body">
-                      <h5 className="card-title">Assigned Users:</h5>
-
-                      {/* Display assigned users above the dropdown */}
-                      <div className="assigned-users-list mb-4">
-                        {assignedUsers.length === 0 ? (
-                          <p className="text-muted small">No users assigned yet.</p>
-                        ) : (
-                          <div className="assigned-users-tags">
-                            {assignedUsers.map(user => (
-                              <div key={user.id} className="assigned-user-tag">
-                                <span className="user-name">{user.name}</span>
-                                <button
-                                  className="remove-tag-btn"
-                                  onClick={() => handleRemoveUser(user.id)}
-                                  aria-label="Remove user"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Select dropdown for user assignment */}
-                      <div className="form-group mb-3">
-                        <label htmlFor="userSelect" className="form-label">Add User:</label>
-                        <Select
-                          id="userSelect"
-                          value={selectedUser}
-                          onChange={handleUserChange}
-                          options={userOptions.filter(option =>
-                            !assignedUsers.some(user => user.id === option.user.id)
-                          )}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          placeholder="Select user to assign..."
-                          isClearable
-                          isSearchable
-                          isLoading={isLoadingOptions}
-                          noOptionsMessage={({ inputValue }) =>
-                            inputValue && inputValue.length > 0
-                              ? "No matching users found"
-                              : userOptions.length === assignedUsers.length
-                                ? "All users have been assigned"
-                                : "No users available"
-                          }
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            }),
-                            option: (base, state) => ({
-                              ...base,
-                              backgroundColor: state.isSelected
-                                ? '#6c63ff'
-                                : state.isFocused
-                                  ? '#f0f4ff'
-                                  : 'white',
-                              color: state.isSelected ? 'white' : '#333',
-                              padding: '10px 12px'
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              zIndex: 9999,
-                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                            })
-                          }}
-                        />
-                      </div>
-
-                      {/* Assign user button */}
-                      <button
-                        className="btn assign-user-btn w-100"
-                        onClick={handleAssignUser}
-                        disabled={!selectedUser || isAssigningUser}
-                      >
-                        {isAssigningUser ? 'Assigning...' : 'Assign User'}
-                      </button>
-
-                      {/* Add custom CSS for the assigned user tags */}
-                      <style>{`
-                        .assigned-users-tags {
-                          display: flex;
-                          flex-wrap: wrap;
-                          gap: 8px;
-                          margin-bottom: 15px;
-                        }
-                        .assigned-user-tag {
-                          display: inline-flex;
-                          align-items: center;
-                          background-color: #f0f4ff;
-                          border: 1px solid #d1d9ff;
-                          border-radius: 4px;
-                          padding: 4px 8px;
-                          font-size: 14px;
-                        }
-                        .user-name {
-                          margin-right: 6px;
-                        }
-                        .remove-tag-btn {
-                          background: none;
-                          border: none;
-                          color: #6c757d;
-                          font-size: 16px;
-                          line-height: 1;
-                          padding: 0 2px;
-                          cursor: pointer;
-                        }
-                        .remove-tag-btn:hover {
-                          color: #dc3545;
-                        }
-                          .card_trashed{
-                            background:#efefef;
-                          }
-                            .modal-backdrop{
-                              opacity:1!important;
-                            }
-                      `}</style>
-                    </div>
-                  </div>
-
-                  <div className="card mb-4">
-                    <div className="card-body">
-                      <h5 className="card-title">Lead Group:</h5>
-                      <div className="form-group mb-4">
-                        <Select
-                          value={leadGroup}
-                          onChange={handleLeadGroupChange}
-                          options={groupOptions}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          isSearchable
-                          isLoading={isLoadingOptions}
-                          placeholder={isLoadingOptions ? "Loading groups..." : "Search or select group..."}
-                          noOptionsMessage={() => "No matching groups found"}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              zIndex: 9999
-                            })
-                          }}
-                        />
-                      </div>
-
-                      <h5 className="card-title">Lead Campaign:</h5>
-                      <div className="form-group mb-4">
-                        <Select
-                          value={leadCampaign}
-                          onChange={handleLeadCampaignChange}
-                          options={campaignOptions}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          isSearchable
-                          isLoading={isLoadingOptions}
-                          placeholder={isLoadingOptions ? "Loading campaigns..." : "Search or select campaign..."}
-                          noOptionsMessage={() => "No matching campaigns found"}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              zIndex: 9999
-                            })
-                          }}
-                        />
-                      </div>
-
-                      <h5 className="card-title">Lead Source:</h5>
-                      <div className="form-group">
-                        <Select
-                          value={leadSource}
-                          onChange={handleLeadSourceChange}
-                          options={sourceOptions}
-                          className="react-select-container"
-                          classNamePrefix="react-select"
-                          isClearable
-                          isSearchable
-                          isLoading={isLoadingOptions}
-                          placeholder={isLoadingOptions ? "Loading sources..." : "Search or select source..."}
-                          noOptionsMessage={() => "No matching sources found"}
-                          styles={{
-                            control: (base) => ({
-                              ...base,
-                              borderRadius: '4px',
-                              borderColor: '#ced4da',
-                              boxShadow: 'none',
-                              '&:hover': {
-                                borderColor: '#adb5bd'
-                              }
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              zIndex: 9999
-                            })
-                          }}
-                        />
+                        </svg>
+                        <p style={{color: '#000'}}>Processing data...</p>
                       </div>
                     </div>
                   </div>
-
-                  <div className=" mt-4">
-                      <div className="action-buttons">
-                        <button
-                          className="btn save-btn"
-                          onClick={handleSubmit(handleSave)}
-                          disabled={loading}
-                        >
-                          {loading ? (
-                            <>
-                              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                              Saving...
-                            </>
-                          ) : 'Save'}
-                        </button>
-                        <a
-                          className="btn cancel-btn"
-                          href="../reports/leads/all"
-                          disabled={loading}
-                        >
-                          Cancel
-                        </a>
-                      </div>
-                      {updateSuccess && (
-                        <div className="alert alert-success mt-3" role="alert">
-                          <strong><i className="fas fa-check-circle me-2"></i>Lead updated successfully!</strong>
-                        </div>
-                      )}
-                      {error && (
-                        <div className="alert alert-danger mt-3" role="alert">
-                          <strong><i className="fas fa-exclamation-triangle me-2"></i>Error!</strong>
-                          <p className="mb-0 mt-1">{error}</p>
-                        </div>
-                      )}
-                  </div>
-                </div>
-              </div>
-
-                {/* Debug Panel */}
-                <div style={{
-                  position: 'fixed',
-                  bottom: '10px',
-                  right: '10px',
-                  background: 'rgba(0,0,0,0.7)',
-                  color: 'white',
-                  padding: '10px',
-                  borderRadius: '5px',
-                  fontSize: '12px',
-                  maxWidth: '300px',
-                  maxHeight: '200px',
-                  overflow: 'auto',
-                  zIndex: 9999,
-                  display: 'none' // Set to 'block' to show
-                }}>
-                  <h6>Debug Info</h6>
-                  <p>Active Tab: {activeTab}</p>
-                  <p>Primary Contact Email: {primaryContact.email}</p>
-                  <p>Primary Contact Phone: {primaryContact.phone}</p>
-                  <p>Ref Primary Email: {contactDataRef.current.primary.email}</p>
-                  <p>Ref Primary Phone: {contactDataRef.current.primary.phone}</p>
                 </div>
             </div>
-          </div>
+          )}
+          {lead && (
+            <div className="white_card card_height_100 mb_30">
+              <div className="white_card_header">
+                <div className="box_header m-0 justify-content-between">
+                  <h4 className="iris-lead-name">{lead.lead_id} - {lead.business_legal_name}</h4>
+                  <div>
+                  </div>
+                  {/* <h4 className="lead_status">ERC Onboarding - <span>Prospecting</span></h4> */}
+                </div>
+                <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                  <li className={`nav-item ${activeTab === 'businessInfo' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-erc-bus-info"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('businessInfo');
+                      }}
+                      href="#pills-home"
+                      role="tab"
+                      aria-controls="pills-home"
+                      aria-selected={activeTab === 'businessInfo'}
+                    >
+                      Business Info
+                    </a>
+                  </li>
+                  {shouldShowAffiliateTab && (
+                  <li className={`nav-item ${activeTab === 'affiliateCommission' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-affiliate-commission"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('affiliateCommission');
+                      }}
+                      href="#pills-commission"
+                      role="tab"
+                      aria-controls="pills-commission"
+                      aria-selected={activeTab === 'affiliateCommission'}
+                    >
+                      Affiliate Commission
+                    </a>
+                  </li>
+                  )}
+
+                  <li className={`nav-item ${activeTab === 'contacts' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-affiliate-contacts"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('contacts');
+                      }}
+                      href="#pills-contacts"
+                      role="tab"
+                      aria-controls="pills-contacts"
+                      aria-selected={activeTab === 'contacts'}
+                    >
+                      Contacts
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'opportunities' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-opportunities"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('opportunities');
+                      }}
+                      href="#pills-opportunities"
+                      role="tab"
+                      aria-controls="pills-opportunities"
+                      aria-selected={activeTab === 'opportunities'}
+                    >
+                      Opportunities
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'projects' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-affiliate-projects"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('projects');
+                      }}
+                      href="#pills-projects"
+                      role="tab"
+                      aria-controls="pills-projects"
+                      aria-selected={activeTab === 'projects'}
+                    >
+                      Projects
+                    </a>
+                  </li>
+                  <li className={`nav-item ${activeTab === 'auditLogs' ? 'active' : ''}`}>
+                    <a
+                      className="nav-link"
+                      id="pills-audit-logs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleTabChange('auditLogs');
+                      }}
+                      href="#pills-logs"
+                      role="tab"
+                      aria-controls="pills-logs"
+                      aria-selected={activeTab === 'auditLogs'}
+                    >
+                      Audit Logs
+                    </a>
+                  </li>
+
+                </ul>
+              </div>
+              <div className="white_card_body">
+                <div className="row">
+                  {/* Left Content Area - Changes based on active tab */}
+                  {tabLoading && (
+                    <div className="col-md-8">
+                      <div className="text-center my-5">
+                        <svg class="loader" viewBox="0 0 200 100">
+                          <defs>
+                          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#007bff" />
+                          <stop offset="100%" stop-color="#ff6600" />
+                          </linearGradient>
+                          </defs>
+                          <path class="infinity-shape"
+                                d="M30,50
+                                  C30,20 70,20 100,50
+                                  C130,80 170,80 170,50
+                                  C170,20 130,20 100,50
+                                  C70,80 30,80 30,50"
+                              />
+                        </svg>
+                        <p style={{color: '#000'}}>Processing data...</p>
+                      </div>
+                    </div>
+                  )}
+                  {!tabLoading && (
+                    <div className="col-md-8">
+                      {/* Business Info Tab Content */}
+                      {activeTab === 'businessInfo' && (
+                        <BusinessInfoTab
+                          lead={lead}
+                          errors={errors}
+                          register={register}
+                          handleInputChange={handleInputChange}
+                          taxNowSignupStatus={taxNowSignupStatus}
+                          taxNowOnboardingStatus={taxNowOnboardingStatus}
+                          companyFolderLink={companyFolderLink}
+                          documentFolderLink={documentFolderLink}
+                          primaryContact={primaryContact}
+                          billingProfileOptions={billingProfileOptions}
+                          leadId={leadId}
+                          formData={formData}
+                          setFormData={setFormData}
+                        />
+                      )}
+
+                      {shouldShowAffiliateTab && activeTab === 'affiliateCommission' && (
+                        <AffiliateCommissionTab
+                          tier1CommissionBasis={tier1CommissionBasis}
+                          tier1ReferrerType={tier1ReferrerType}
+                          tier1ReferrerFixed={tier1ReferrerFixed}
+                          referrer_percentage={referrer_percentage}
+                          tier1InvoiceAmount={tier1InvoiceAmount}
+                          tier2CommissionBasis={tier2CommissionBasis}
+                          tier2CommissionType={tier2CommissionType}
+                          tier2ReferrerFixed={tier2ReferrerFixed}
+                          tier2ErcChgReceived={tier2ErcChgReceived}
+                          tier2InvoiceAmount={tier2InvoiceAmount}
+                          tier3CommissionBasis={tier3CommissionBasis}
+                          tier3CommissionType={tier3CommissionType}
+                          tier3ReferrerFixed={tier3ReferrerFixed}
+                          tier3ErcChgReceived={tier3ErcChgReceived}
+                          tier3InvoiceAmount={tier3InvoiceAmount}
+                          currentTier={currentTier}
+                          slab1AppliedOn={slab1AppliedOn}
+                          slab1CommissionType={slab1CommissionType}
+                          slab1CommissionValue={slab1CommissionValue}
+                          slab2AppliedOn={slab2AppliedOn}
+                          slab2CommissionType={slab2CommissionType}
+                          slab2CommissionValue={slab2CommissionValue}
+                          slab3AppliedOn={slab3AppliedOn}
+                          slab3CommissionType={slab3CommissionType}
+                          slab3CommissionValue={slab3CommissionValue}
+                          masterCommissionType={masterCommissionType}
+                          masterCommissionValue={masterCommissionValue}
+                          handleTier1CommissionBasisChange={handleTier1CommissionBasisChange}
+                          handleTier1ReferrerTypeChange={handleTier1ReferrerTypeChange}
+                          handleTier1ReferrerFixedChange={handleTier1ReferrerFixedChange}
+                          handlereferrer_percentageChange={handlereferrer_percentageChange}
+                          handleTier1InvoiceAmountChange={handleTier1InvoiceAmountChange}
+                          handleTier2CommissionBasisChange={handleTier2CommissionBasisChange}
+                          handleTier2CommissionTypeChange={handleTier2CommissionTypeChange}
+                          handleTier2ReferrerFixedChange={handleTier2ReferrerFixedChange}
+                          handleTier2ErcChgReceivedChange={handleTier2ErcChgReceivedChange}
+                          handleTier2InvoiceAmountChange={handleTier2InvoiceAmountChange}
+                          handleTier3CommissionBasisChange={handleTier3CommissionBasisChange}
+                          handleTier3CommissionTypeChange={handleTier3CommissionTypeChange}
+                          handleTier3ReferrerFixedChange={handleTier3ReferrerFixedChange}
+                          handleTier3ErcChgReceivedChange={handleTier3ErcChgReceivedChange}
+                          handleTier3InvoiceAmountChange={handleTier3InvoiceAmountChange}
+                          handleCurrentTierChange={handleCurrentTierChange}
+                          handleSlab1AppliedOnChange={handleSlab1AppliedOnChange}
+                          handleSlab1CommissionTypeChange={handleSlab1CommissionTypeChange}
+                          handleSlab1CommissionValueChange={handleSlab1CommissionValueChange}
+                          handleSlab2AppliedOnChange={handleSlab2AppliedOnChange}
+                          handleSlab2CommissionTypeChange={handleSlab2CommissionTypeChange}
+                          handleSlab2CommissionValueChange={handleSlab2CommissionValueChange}
+                          handleSlab3AppliedOnChange={handleSlab3AppliedOnChange}
+                          handleSlab3CommissionTypeChange={handleSlab3CommissionTypeChange}
+                          handleSlab3CommissionValueChange={handleSlab3CommissionValueChange}
+                          handleMasterCommissionTypeChange={handleMasterCommissionTypeChange}
+                          handleMasterCommissionValueChange={handleMasterCommissionValueChange}
+                        />
+                      )}
+                        
+                        {/* Contacts Tab Content */}
+                      {activeTab === 'contacts' && (
+                        <ContactsTab
+                          leadId={leadId}
+                          handleOpenLinkContactModal={handleOpenLinkContactModal}
+                          contacts={contacts}
+                          handleEditContact={handleEditContact}
+                          handleDisableContact={handleDisableContact}
+                          contactsLoading={contactsLoading}
+                          newContactId={newContactId}
+                        />
+                      )}
+
+                      {activeTab === 'projects' && (
+                        <ProjectsTab
+                          projects={projects}
+                          showEditProjectModal={showEditProjectModal}
+                          projectUpdateLoading={projectUpdateLoading}
+                          projectUpdateSuccess={projectUpdateSuccess}
+                          projectUpdateError={projectUpdateError}
+                          projectFormData={projectFormData}
+                          currentProject={currentProject}
+                          projectErrors={projectErrors}
+                          milestones={milestones}
+                          milestoneStages={milestoneStages}
+                          contacts={contacts}
+                          handleEditProject={handleEditProject}
+                          handleCloseEditProjectModal={handleCloseEditProjectModal}
+                          handleUpdateProject={handleUpdateProject}
+                          handleSubmitProject={handleSubmitProject}
+                          registerProject={registerProject}
+                          setProjectFormData={setProjectFormData}
+                          setMilestoneStages={setMilestoneStages}
+                          fetchMilestoneStages={fetchMilestoneStages}
+                        />
+                      )}
+
+                      {/* Opportunities Tab Content */}
+                      {activeTab === 'opportunities' && (
+                        <OpportunitiesTab
+                          opportunities={opportunities}
+                          handleEditOpportunity={handleEditOpportunity}
+                          showDeleteConfirmation={showDeleteConfirmation}
+                          showEditOpportunityModal={showEditOpportunityModal}
+                          opportunityUpdateLoading={opportunityUpdateLoading}
+                          opportunityUpdateSuccess={opportunityUpdateSuccess}
+                          opportunityUpdateError={opportunityUpdateError}
+                          opportunityFormData={opportunityFormData}
+                          currentOpportunity={currentOpportunity}
+                          milestones={milestones}
+                          milestoneStages={milestoneStages}
+                          handleCloseEditOpportunityModal={handleCloseEditOpportunityModal}
+                          handleUpdateOpportunity={handleUpdateOpportunity}
+                          setOpportunityFormData={setOpportunityFormData}
+                          setMilestoneStages={setMilestoneStages}
+                          fetchMilestoneStages={fetchMilestoneStages}
+                        />
+                      )}
+
+                      {/* Audit Logs Tab Content */}
+                      {activeTab === 'auditLogs' && (
+                        <div className="mb-4 left-section-container">
+                          <AuditLogsMultiSection leadId={leadId || '9020'} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Right Side Section - Same for all tabs */}
+                  <div className="col-md-4">
+                    <LeadClassificationAndAssignment
+                        leadId={leadId}
+                        setFormData={setFormData}
+                        leadGroup={leadGroup}
+                        leadCampaign={leadCampaign}
+                        leadSource={leadSource}
+                        groupOptions={groupOptions}
+                        campaignOptions={campaignOptions}
+                        sourceOptions={sourceOptions}
+                        isLoadingOptions={isLoadingOptions}
+                        onLeadGroupChange={handleLeadGroupChange}
+                        onLeadCampaignChange={handleLeadCampaignChange}
+                        onLeadSourceChange={handleLeadSourceChange}
+                      />
+
+                    <div className=" mt-4">
+                        <div className="action-buttons">
+                          <button
+                            className="btn save-btn"
+                            onClick={handleSubmit(handleSave)}
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Saving...
+                              </>
+                            ) : 'Save'}
+                          </button>
+                          <a
+                            className="btn cancel-btn"
+                            href="../reports/leads/all"
+                            disabled={loading}
+                          >
+                            Cancel
+                          </a>
+                        </div>
+                        {updateSuccess && (
+                          <div className="alert alert-success mt-3" role="alert">
+                            <strong><i className="fas fa-check-circle me-2"></i>Lead updated successfully!</strong>
+                          </div>
+                        )}
+                        {error && (
+                          <div className="alert alert-danger mt-3" role="alert">
+                            <strong><i className="fas fa-exclamation-triangle me-2"></i>Error!</strong>
+                            <p className="mb-0 mt-1">{error}</p>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                </div>
+
+                  {/* Debug Panel */}
+                  <div style={{
+                    position: 'fixed',
+                    bottom: '10px',
+                    right: '10px',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    fontSize: '12px',
+                    maxWidth: '300px',
+                    maxHeight: '200px',
+                    overflow: 'auto',
+                    zIndex: 9999,
+                    display: 'none' // Set to 'block' to show
+                  }}>
+                    <h6>Debug Info</h6>
+                    <p>Active Tab: {activeTab}</p>
+                    <p>Primary Contact Email: {primaryContact.email}</p>
+                    <p>Primary Contact Phone: {primaryContact.phone}</p>
+                    <p>Ref Primary Email: {contactDataRef.current.primary.email}</p>
+                    <p>Ref Primary Phone: {contactDataRef.current.primary.phone}</p>
+                  </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -6398,6 +4454,80 @@ style.textContent = `
   .react-datepicker__day--today {
     background-color: #fff3cd;
     color: #856404;
+  }
+
+  /* Loading Overlay Styles */
+  .loading-overlay {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .loading-content {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Custom PlaceholderLoading styles */
+  .react-placeholder-loading {
+    border-radius: 50%;
+  }
+  .overlay-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.6);
+    z-index: 10;
+  }
+  .overlay-loading-2 {
+    position: absolute;
+    top: 200px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
+  .loader {
+    width: 120px;
+    height: 100px;
+  }
+ 
+  .infinity-shape {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-dasharray: 220 60;
+    stroke-dashoffset: 0;
+    animation: dashMove 2s linear infinite;
+  }
+ 
+  @keyframes dashMove {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -280;
+    }
   }
 `;
 

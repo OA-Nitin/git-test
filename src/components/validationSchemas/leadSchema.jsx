@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 export const noteFormSchema = yup.object().shape({
-  note: yup.string().required('Note is required').min(10, 'Note must be at least 10 characters').max(1000, 'Note cannot exceed 1000 characters'),
+  note: yup.string().required('Note is required').transform(value => value.trim()).min(10, 'Note must be at least 10 characters').max(1000, 'Note cannot exceed 1000 characters').test('not-only-spaces', 'Note cannot be only spaces', value => !!value && value.trim().length > 0),
 });
 
 
@@ -15,38 +15,44 @@ const dateRegex = /^(?:(\d{2})[\/\-](\d{2})[\/\-](\d{4})|(\d{4})[\/\-](\d{2})[\/
 export const leadDetailSchema = yup.object().shape({
   business_legal_name: yup
     .string()
-    .required('Please enter a valid business legal name.')
     .max(60, 'Maximum 60 characters allowed')
-    .matches(businessNameRegex, 'Please enter a valid business legal name.'),
+    .notRequired()
+    .test('is-valid', 'Please enter a valid business legal name.', value => !value || businessNameRegex.test(value)),
+
 
   doing_business_as: yup
     .string()
     .max(60, 'Maximum 60 characters allowed')
-    .test('is-valid', 'Please enter a valid business name.', value => !value || businessNameRegex.test(value)),
+    .test('is-valid', 'Please enter a valid business name.', value => !value || businessNameRegex.test(value)), // ✅ No required
 
   category: yup
     .string()
-    .required('Please enter a valid business category.')
-    .max(60, 'Maximum 60 characters allowed')
-    .matches(businessNameRegex, 'Please enter a valid business category.'),
-
-website: yup
-  .string()
-  .required('Website URL is required')
-  .test(
-    'is-valid-domain',
-    'Please enter a valid domain or URL (example.com or https://example.com)',
-    value => {
-      const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
-      return domainRegex.test(value);
-    }
-  ),
-
-  authorized_signatory_name: yup
-    .string()
     .notRequired()
     .max(60, 'Maximum 60 characters allowed')
-    .test('is-valid', 'Please enter a valid name.', value => !value || nameRegex.test(value)),
+    .test(
+      'is-valid-category',
+      'Please enter a valid business category.',
+      value => !value || businessNameRegex.test(value)
+  ),
+
+  website: yup
+    .string()
+    .notRequired()
+    .test(
+      'is-valid-domain',
+      'Please enter a valid domain or URL (example.com or https://example.com)',
+      value => {
+        if (!value) return true;
+        const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
+        return domainRegex.test(value);
+      }
+    ),
+
+authorized_signatory_name: yup
+  .string()
+  .notRequired()
+  .max(60, 'Maximum 60 characters allowed')
+  .test('is-valid', 'Please enter a valid name.', value => !value || nameRegex.test(value)),
 
   business_phone: yup
     .string()
@@ -61,9 +67,10 @@ website: yup
 
   business_title: yup
     .string()
-    .required('Please enter a valid business title.')
     .max(60, 'Maximum 60 characters allowed')
+    .notRequired()
     .test('is-valid', 'Please enter a valid title.', value => !value || nameRegex.test(value)),
+
 
   business_address: yup
     .string()
@@ -85,6 +92,7 @@ website: yup
 
   zip: yup
     .string()
+    .required('ZIP code is required')
     .max(10, 'Maximum 10 characters allowed')
     .matches(/^\d{5}(-\d{4})?$/, 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789).'),
 
@@ -125,18 +133,23 @@ website: yup
 
   business_type: yup
     .string()
-    .required('Please select a valid business type.')
+    .notRequired()
     .max(30, 'Maximum 30 characters allowed'),
 
   business_type_other: yup
     .string()
-    .required('Please enter a valid  other business type.')
+    .notRequired()
     .max(60, 'Maximum 60 characters allowed'),
 
   registration_number: yup
-  .string()
-  .required('Please enter a valid registration number.')
-  .max(30, 'Maximum 30 characters allowed'),
+    .string()
+    .notRequired()
+    .max(30, 'Maximum 30 characters allowed')
+    .test(
+      'is-valid-registration-number',
+      'Please enter a valid registration number.',
+      value => !value || /^[A-Za-z0-9\-]+$/.test(value)
+    ),
   // registration_number: yup
   //   .string()
   //   .required('Please enter a valid registration number.')
@@ -153,19 +166,19 @@ website: yup
 
   state_of_registration: yup
     .string()
-    .required('Please enter a valid state of registration.')
+    .notRequired()
     .max(60, 'Maximum 60 characters allowed')
     .test('is-valid', 'Please enter a valid state name.', value => !value || nameRegex.test(value)),
 
   ein: yup
     .string()
-    .required('Please enter a valid EIN.')
+    .notRequired()
     .max(10, 'Maximum 10 characters allowed'),
     // .test('is-valid-ein', 'Please enter a valid EIN (e.g., 12-3456789).', value => !value || /^\d{2}-\d{7}$/.test(value)),
 
   tax_id_type: yup
     .string()
-    .required('Please select a valid tax ID type.')
+    .notRequired()
     .max(30, 'Maximum 30 characters allowed'),
 
   internal_sales_agent: yup

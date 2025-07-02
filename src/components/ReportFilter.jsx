@@ -3,7 +3,7 @@
 
 // In the DateRangePicker component or its wrapper
 const handleDateChange = (dates) => {
-  console.log('Date picker changed:', dates);
+  //console.log('Date picker changed:', dates);
   
   // Extract start and end dates
   const [start, end] = dates;

@@ -23,15 +23,15 @@ const UserInfoExample = () => {
     setUserInfo(info);
     
     // Log individual values for debugging
-    console.log('=== USER SESSION DATA ===');
-    console.log('User ID:', getUserId());
-    console.log('Username:', getUsername());
-    console.log('Display Name:', getDisplayName());
-    console.log('Email:', getUserEmail());
-    console.log('Role:', getUserRole());
-    console.log('Is Logged In:', isUserLoggedIn());
-    console.log('Raw User Data:', getUserData());
-    console.log('========================');
+    //console.log('=== USER SESSION DATA ===');
+    //console.log('User ID:', getUserId());
+    //console.log('Username:', getUsername());
+    //console.log('Display Name:', getDisplayName());
+    //console.log('Email:', getUserEmail());
+    //console.log('Role:', getUserRole());
+    //console.log('Is Logged In:', isUserLoggedIn());
+    //console.log('Raw User Data:', getUserData());
+    //console.log('========================');
   }, []);
 
   if (!userInfo.isLoggedIn) {

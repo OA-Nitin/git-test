@@ -51,7 +51,7 @@ const OpportunityReport = ({ projectType }) => {
 
     document.title = reportTitle;
 
-    console.log('OpportunityReport useEffect triggered with product:', product, 'productId:', productId);
+    //console.log('OpportunityReport useEffect triggered with product:', product, 'productId:', productId);
     setSearchTerm('');
     setEndDate('');
     setStartDate('');
@@ -91,7 +91,7 @@ const OpportunityReport = ({ projectType }) => {
 
     // Log the first opportunity data for debugging
     if (data.length > 0) {
-      console.log('Sample opportunity data from API:', data[0]);
+      //console.log('Sample opportunity data from API:', data[0]);
     }
 
     return data.map(opp => {
@@ -234,19 +234,19 @@ const OpportunityReport = ({ projectType }) => {
     }
 
     try {
-      console.log(`Fetching opportunities from API (attempt ${retryAttempt + 1} of ${maxRetries + 1})...`);
+      //console.log(`Fetching opportunities from API (attempt ${retryAttempt + 1} of ${maxRetries + 1})...`);
 
       // Log which type of opportunities we're fetching (from URL param or prop)
       const reportType = product || projectType;
-      console.log(`Fetching ${reportType ? reportType + ' ' : ''}opportunities from API...`);
-      console.log('Using product ID:', productId);
+      //console.log(`Fetching ${reportType ? reportType + ' ' : ''}opportunities from API...`);
+      //console.log('Using product ID:', productId);
 
       // Construct API URL with product_id parameter if available
       let apiUrl = 'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/opportunities';
       if (productId) {
         apiUrl += `?product_id=${productId}`;
       }
-      console.log(`Requesting opportunities from API endpoint: ${apiUrl}`);
+      //console.log(`Requesting opportunities from API endpoint: ${apiUrl}`);
 
       // Create a controller for aborting the request if needed
       const controller = new AbortController();
@@ -255,7 +255,7 @@ const OpportunityReport = ({ projectType }) => {
       const timeout = 10000 + (retryAttempt * 5000); // 10s, 15s, 20s, 25s
       const timeoutId = setTimeout(() => {
         controller.abort();
-        console.log(`Request timed out after ${timeout/1000} seconds`);
+        //console.log(`Request timed out after ${timeout/1000} seconds`);
       }, timeout);
 
       // Make the API request with abort controller
@@ -280,15 +280,15 @@ const OpportunityReport = ({ projectType }) => {
 
       if (response && response.data) {
         if (Array.isArray(response.data)) {
-          console.log('Response.data is an array with', response.data.length, 'items');
+          //console.log('Response.data is an array with', response.data.length, 'items');
           apiOpportunities = processOpportunityData(response.data);
         } else if (response.data.data && Array.isArray(response.data.data)) {
-          console.log('Response.data.data is an array with', response.data.data.length, 'items');
+          //console.log('Response.data.data is an array with', response.data.data.length, 'items');
           apiOpportunities = processOpportunityData(response.data.data);
         }
       }
 
-      console.log('Processed API Opportunities:', apiOpportunities.length);
+      //console.log('Processed API Opportunities:', apiOpportunities.length);
 
       if (apiOpportunities.length > 0) {
         setOpportunities(apiOpportunities);
@@ -296,7 +296,7 @@ const OpportunityReport = ({ projectType }) => {
         setRetryCount(0); // Reset retry count on success
         setAllRecordsLoaded(true);
       } else {
-        console.log('No opportunities found in API response');
+        //console.log('No opportunities found in API response');
         const reportType = product || projectType;
         // Show no data available message
         if (reportType && reportType.toLowerCase() === 'all') {
@@ -317,7 +317,7 @@ const OpportunityReport = ({ projectType }) => {
       // If we haven't reached max retries, try again with exponential backoff
       if (retryAttempt < maxRetries) {
         const nextRetryDelay = 1000 * Math.pow(2, retryAttempt); // 1s, 2s, 4s
-        console.log(`Retrying in ${nextRetryDelay/1000} seconds...`);
+        //console.log(`Retrying in ${nextRetryDelay/1000} seconds...`);
 
         // Show retry message to user
         setError(`API request failed. Retrying (${retryAttempt + 1}/${maxRetries})...`);
