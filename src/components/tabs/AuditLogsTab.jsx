@@ -3,7 +3,11 @@ import React from 'react';
 function decodeHtmlEntities(str) {
   const parser = new DOMParser();
   const decoded = parser.parseFromString(str, 'text/html');
-  return decoded.body.textContent || "";
+  if(decoded.body.textContent && decoded.body.textContent !== 'null' && decoded.body.textContent !== 'undefined' && decoded.body.textContent !== ''){
+      return decoded.body.textContent || ""; 
+   }else{ 
+      return "N/A"; 
+   }
 } 
 
 const AuditLogsTab = ({ 
