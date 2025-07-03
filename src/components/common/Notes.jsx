@@ -673,13 +673,13 @@ const ConfidentialUser = () => {
 
         // Show success message
         Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;font-weight:bold;">Success</span>`,
+          title: `<h1>Success</h1>`,
           html: `
             <div class="text-center py-3">
               <div class="mb-3">
                 <i class="fas fa-check-circle fa-3x text-success"></i>
               </div>
-              <h1>Note added successfully.</h1>
+              <span style="font-size: 1.2rem; color: #333;font-weight:bold;">Note added successfully.</span>
             </div>
           `,
           timer: 2000,
@@ -809,13 +809,13 @@ const ConfidentialUser = () => {
     })
       .then(response => {
         Swal.fire({
-          title: `<span style="font-size: 1.2rem; color: #333;">Success</span>`,
+          title: `<h1>Success</h1>`,
           html: `
             <div class="text-center py-3">
               <div class="mb-3">
                 <i class="fas fa-check-circle fa-3x text-success"></i>
               </div>
-              <h1>Note updated successfully.</h1>
+              <span style="font-size: 1.2rem; color: #333;">Note updated successfully.</span>
             </div>
           `,
           timer: 2000,
@@ -890,13 +890,13 @@ const ConfidentialUser = () => {
         })
           .then(() => {
             Swal.fire({
-              title: '<span style="font-size: 1.2rem; color: #333;">Success</span>',
+              title: '<h1>Success</h1>',
               html: `
                 <div class="text-center py-3">
                   <div class="mb-3">
                     <i class="fas fa-check-circle fa-3x text-success"></i>
                   </div>
-                  <p class="text-muted">Note deleted successfully.</p>
+                  <span style="font-size: 1.2rem; color: #333;">Note deleted successfully.</span>
                 </div>
               `,
               timer: 2000,
