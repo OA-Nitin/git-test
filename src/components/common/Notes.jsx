@@ -673,7 +673,7 @@ const ConfidentialUser = () => {
 
         // Show success message
         Swal.fire({
-          title: `<span style="font-size: 3.2rem; color: #333;font-weight:bold;">Success</span>`,
+          title: `<span style="font-size: 1.2rem; color: #333;font-weight:bold;">Success</span>`,
           html: `
             <div class="text-center py-3">
               <div class="mb-3">
