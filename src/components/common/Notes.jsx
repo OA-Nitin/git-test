@@ -558,6 +558,7 @@ const ConfidentialUser = () => {
     // setNewNote('');
     if (!showAddNoteModal) {
       // Only reset when opening
+      setNoteCharCount(0);
       reset({ note: '', confidential_notes: 0 });
     }
     setShowAddNoteModal(!showAddNoteModal);
@@ -990,7 +991,7 @@ const ConfidentialUser = () => {
               }else{
               if (confidence_users == 1 && note.confidential_notes == 1 ) {
                   main_background_cls += " confidential-notes-div";
-                    console.log('confidential notes');
+                    // console.log('confidential notes');
                   if(note.created_by== getUserId()){
                       edit_delete_btn = 1;
                   }

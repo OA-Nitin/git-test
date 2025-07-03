@@ -8,7 +8,7 @@ function decodeHtmlEntities(str) {
    }else{ 
       return "N/A"; 
    }
-} 
+}  
 
 const AuditLogsTab = ({ 
   auditLogsData, 
