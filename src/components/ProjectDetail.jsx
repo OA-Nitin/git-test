@@ -12,6 +12,7 @@ import Notes from './common/Notes';
 import { getAssetPath, getUserId } from '../utils/assetUtils';
 import Swal from 'sweetalert2';
 import Modal from './common/Modal';
+import useConfidentialUser from '../hooks/useConfidentialUser';
 
 import ProjectTab from './tabs/ProjectTab';
 import FulfilmentTab from './tabs/FulfilmentTab';
@@ -96,6 +97,7 @@ const ProjectDetail = () => {
   const { projectId } = useParams();
   const location = useLocation();
   const passedProjectData = location.state?.projectData;
+  const { confidenceUser } = useConfidentialUser();
 
   const [project, setProject] = useState({
     project_id: '',
@@ -3504,6 +3506,7 @@ const ProjectDetail = () => {
           //console.log('API response:', response);
 
           if (response.data && response.data.status === 200) {
+            fetchProjectAuditLogs();
             // Add the collaborator to the current collaborators list
             const newCollaborator = {
               collaborators_name_id: selectedCollaborator.collaborator.id,
@@ -5274,6 +5277,7 @@ const ProjectDetail = () => {
                       showButtons={false}
                       showNotes={true}
                       maxHeight={300}
+                      confidenceUser={confidenceUser}
                     />
                   </div>
 

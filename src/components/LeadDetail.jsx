@@ -16,6 +16,7 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 import { format } from 'date-fns';
+import useConfidentialUser from '../hooks/useConfidentialUser';
 
 // Import tab components
 import BusinessInfoTab from './lead-tabs/BusinessInfoTab';
@@ -153,6 +154,8 @@ const LeadDetail = () => {
   const [isContactsData, setIsContactsData] = useState(false);
   const [isOpportunitiesData, setIsOpportunitiesData] = useState(false);
   const [isProjectsData, setIsProjectsData] = useState(false);
+
+  const { confidenceUser } = useConfidentialUser();
 
 
   // Contacts related state
