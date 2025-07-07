@@ -16,6 +16,7 @@ import ReportFilter from './common/ReportFilter';
 import ReportPagination from './common/ReportPagination';
 import PageContainer from './common/PageContainer';
 import { getFormattedUserData } from '../utils/userUtils';
+import useConfidentialUser from '../hooks/useConfidentialUser';
 
 // Product ID mapping
 const productIdMap = {
@@ -33,6 +34,7 @@ const user = getFormattedUserData();
 const OpportunityReport = ({ projectType }) => {
   // Get product from URL params
   const { product } = useParams();
+  const { confidenceUser } = useConfidentialUser();
 
   // State for API data
   const [opportunities, setOpportunities] = useState([]);
@@ -1033,6 +1035,7 @@ const OpportunityReport = ({ projectType }) => {
                                           entityType="opportunity"
                                           entityId={opportunity.id || ''}
                                           entityName={opportunity.opportunity_name || opportunity.business_name || ''}
+                                          confidenceUser={confidenceUser}
                                         />
                                       </td>
                                     );

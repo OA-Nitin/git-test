@@ -15,6 +15,7 @@ import ReportFilter from './common/ReportFilter';
 import ReportPagination from './common/ReportPagination';
 import PageContainer from './common/PageContainer';
 import { getFormattedUserData } from '../utils/userUtils';
+import useConfidentialUser from '../hooks/useConfidentialUser';
 
 
 // Map product names to their respective IDs
@@ -56,6 +57,7 @@ const formatDate = (dateString) => {
 const AllProjectsReport = () => {
   // Get product parameter from URL
   const { product } = useParams();
+  const { confidenceUser } = useConfidentialUser();
 
   // State for API data
   const [projects, setProjects] = useState([]);
@@ -78,7 +80,7 @@ const AllProjectsReport = () => {
     setDatePickerKey(prev => prev + 1);
     // Fetch projects from API
     fetchProjects();
-  }, [product, productId]);
+  }, [product, productId, confidenceUser]);
 
   // Function to fetch projects from API
   const fetchProjects = async () => {
@@ -947,6 +949,7 @@ const AllProjectsReport = () => {
                                 entityType="project"
                                 entityId={project.project_id || ''}
                                 entityName={project.business_legal_name || ''}
+                                confidenceUser={confidenceUser}
                               />
                             </td>
                           );

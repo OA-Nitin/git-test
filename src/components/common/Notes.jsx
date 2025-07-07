@@ -212,7 +212,8 @@ const Notes = ({
   showButtons = true,
   showNotes = false,
   maxHeight = 550,
-  onNotesUpdated = () => {}
+  onNotesUpdated = () => {},
+  confidenceUser
 }) => {
   // State for notes data
   const [notes, setNotes] = useState([]);
@@ -237,7 +238,8 @@ const Notes = ({
     reset
   } = useForm({
     resolver: yupResolver(noteFormSchema),
-    mode: 'onTouched'
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
   });
 
   const [retryCount, setRetryCount] = useState(0);
@@ -291,31 +293,32 @@ const Notes = ({
   }, [entityId, showNotes, showViewNotesModal]);
 
 
-const ConfidentialUser = () => {  
-  useEffect(() => {
-    axios
-      .get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/confidential-user?user_id='+getUserId())
-      .then((response) => {
-        setUserData(response.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []); 
-  var confidence_user = '';
-  if(userData.status==1){
-    // console.log('confidence_user=');
-    // console.log(userData.confidence_user);
-    confidence_user = userData.confidence_user;
-  }
-  // confidence_user = 0;
-  return confidence_user;
-};  
+// const ConfidentialUser = () => {  
+//   useEffect(() => {
+//     console.log('how many times run this API');
+//     axios
+//       .get('https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/confidential-user?user_id='+getUserId())
+//       .then((response) => {
+//         setUserData(response.data);
+//         setLoading(false);
+//       })
+//       .catch((err) => {
+//         setError(err.message);
+//         setLoading(false);
+//       });
+//   }, []); 
+//   var confidence_user = '';
+//   if(userData.status==1){
+//     // console.log('confidence_user=');
+//     // console.log(userData.confidence_user);
+//     confidence_user = userData.confidence_user;
+//   }
+//   // confidence_user = 0;
+//   return confidence_user;
+// };  
 
 
-  var confidence_users = ConfidentialUser();
+  // var confidence_users = ConfidentialUser();
   // console.log('confidence_users='+ confidence_users);
   // Function to fetch notes from API
   const fetchNotes = (page = 1, isRetry = false) => {
@@ -986,10 +989,10 @@ const ConfidentialUser = () => {
             
              let main_background_cls = "note-item mb-3 p-3 rounded shadow-sm";
              let edit_delete_btn = '';
-              if(confidence_users == 0 && note.confidential_notes == 1){
+              if(confidenceUser == 0 && note.confidential_notes == 1){
                     // console.log('confidential notes true but user not confidential');
               }else{
-              if (confidence_users == 1 && note.confidential_notes == 1 ) {
+              if (confidenceUser == 1 && note.confidential_notes == 1 ) {
                   main_background_cls += " confidential-notes-div";
                     // console.log('confidential notes');
                   if(note.created_by== getUserId()){
@@ -1101,7 +1104,7 @@ const ConfidentialUser = () => {
               </div>
             </div>
             <div className="text-muted small">
-              {confidence_users === 1 && (
+              {confidenceUser === 1 && (
                 <div><i className="fas fa-info-circle me-1"></i>
               Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
               </div>
@@ -1155,7 +1158,7 @@ const ConfidentialUser = () => {
               </div>
             </div>
             <div className="text-muted small">
-              {confidence_users === 1 && (
+              {confidenceUser === 1 && (
                 <div><i className="fas fa-info-circle me-1"></i>
               Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
               </div>
