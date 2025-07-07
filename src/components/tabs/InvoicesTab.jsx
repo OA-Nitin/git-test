@@ -1,7 +1,7 @@
 import React from 'react';
 
 const InvoicesTab = ({ invoices, setInvoices, loading, error, invoiceLoading,invoiceActions,
-  handleInvoiceActionChange }) => { 
+  handleInvoiceActionChange }) => {  
   return (
     <div className="mb-4 left-section-container">
       {loading ? (

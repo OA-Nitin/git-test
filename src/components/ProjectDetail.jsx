@@ -5162,7 +5162,7 @@ const ProjectDetail = () => {
                         STCImpactedDaysTable={STCImpactedDaysTable}
                         DocumentTable={DocumentTable} 
                       />
-                    )}
+                    )} 
 
                     {/* Invoices Tab Content */}
                       {activeTab === 'invoices' && (
