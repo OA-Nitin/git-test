@@ -63,8 +63,13 @@ const DataTable = ({
     }
 
     setFilteredData(filtered);
-    setCurrentPage(1); // Reset to first page when filter/sort changes
+    // setCurrentPage(1); // Reset to first page when filter/sort changes
   }, [data, searchTerm, sortConfig, columns]);
+
+  // Reset to page 1 only when filter/sort/search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortConfig]);
 
   // Handle sort request
   const requestSort = (key) => {

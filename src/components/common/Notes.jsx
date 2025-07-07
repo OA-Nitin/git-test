@@ -293,6 +293,7 @@ const Notes = ({
   }, [entityId, showNotes, showViewNotesModal]);
 
 
+
 // const ConfidentialUser = () => {  
 //   useEffect(() => {
 //     console.log('how many times run this API');
@@ -319,6 +320,7 @@ const Notes = ({
 
 
   // var confidence_users = ConfidentialUser();
+
   // console.log('confidence_users='+ confidence_users);
   // Function to fetch notes from API
   const fetchNotes = (page = 1, isRetry = false) => {
@@ -989,10 +991,12 @@ const Notes = ({
             
              let main_background_cls = "note-item mb-3 p-3 rounded shadow-sm";
              let edit_delete_btn = '';
+
               if(confidenceUser == 0 && note.confidential_notes == 1){
                     // console.log('confidential notes true but user not confidential');
               }else{
               if (confidenceUser == 1 && note.confidential_notes == 1 ) {
+
                   main_background_cls += " confidential-notes-div";
                     // console.log('confidential notes');
                   if(note.created_by== getUserId()){
@@ -1104,6 +1108,7 @@ const Notes = ({
               </div>
             </div>
             <div className="text-muted small">
+
               {confidenceUser === 1 && (
                 <div><i className="fas fa-info-circle me-1"></i>
               Mark As Confidential &nbsp;<input type="checkbox" {...register('confidential_notes')} value="1"></input>
