@@ -2925,6 +2925,7 @@ const LeadDetail = () => {
 
     // Set the project form data with proper field mapping
     setProjectFormData({
+      user_id:getUserId(),
       projectID: project.id || '',
       project_name: project.projectName || '',
       project_fee: project.fee || '',
@@ -2962,7 +2963,7 @@ const LeadDetail = () => {
 
       // Make the API call
       const response = await axios.post(
-        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field-v1',
         projectFormData
       );
 
