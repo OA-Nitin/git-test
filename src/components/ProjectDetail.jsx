@@ -5172,6 +5172,8 @@ const ProjectDetail = () => {
                           loading={loading}
                           error={error}
                           invoiceLoading={invoiceLoading}
+                          invoiceActions={invoiceActions}
+                          handleInvoiceActionChange={handleInvoiceActionChange}
                         />
                       )}
 
