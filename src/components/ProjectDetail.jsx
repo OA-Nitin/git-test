@@ -5160,7 +5160,7 @@ const ProjectDetail = () => {
                         documentsLoading={documentsLoading}
                         STCDocumentTable={STCDocumentTable}
                         STCImpactedDaysTable={STCImpactedDaysTable}
-                        DocumentTable={DocumentTable}
+                        DocumentTable={DocumentTable} 
                       />
                     )}
 
