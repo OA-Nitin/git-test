@@ -314,7 +314,7 @@ const InvoiceReport = () => {
 
         return (
           <div className="tooltip-wrapper amount-tooltip">
-            <span className="amount-link">{total}</span>
+            <a href="#" className="amount-link">{total}</a>
             <div className="custom-tooltip top">
               <span className="tooltip-label">Service:</span> <span className="tooltip-value">{service}</span>
               {" | "}
@@ -426,25 +426,45 @@ const InvoiceReport = () => {
   }, []);
 
   const generateExportData = () => {
-    const headers = columnDefinitions
-      .filter((col) => visibleColumns.includes(col.id))
-      .map((col) => col.label);
+    const exportColumns = columnDefinitions.filter(
+      (col) => col.id !== "actions" && visibleColumns.includes(col.id)
+    );
+
+    const headers = exportColumns.map((col) => col.label);
+
     const data = sortedInvoices.map((inv) => {
-      return columnDefinitions
-        .filter((col) => visibleColumns.includes(col.id))
-        .map((col) => {
-          if (col.id === "status_id") {
-            const status = statusMap[inv[col.id]];
-            return status ? status.text : "-";
-          }
-          const renderedValue = col.render(inv[col.id]);
-          return typeof renderedValue === "string"
-            ? renderedValue.replace(/<[^>]*>?/gm, "")
-            : renderedValue;
-        });
+      return exportColumns.map((col) => {
+        const rawValue = inv[col.id];
+
+        // Handle special formats
+        if (col.id === "total_amount") {
+          const formatCurrency = (val) => {
+            const num = parseFloat(val);
+            return isNaN(num) ? "$0.00" : `$${num.toFixed(2)}`;
+          };
+          const total = formatCurrency(rawValue);
+          const service = formatCurrency(inv?.service_amount);
+          const charge = formatCurrency(inv?.chargeable_amount);
+          return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
+        }
+
+        if (col.id === "status_id") {
+          const status = statusMap[rawValue];
+          return status ? status.text : "-";
+        }
+
+        // Basic fallback handling
+        if (typeof rawValue === "string" || typeof rawValue === "number") {
+          return rawValue;
+        }
+
+        return "-";
+      });
     });
+
     return { headers, data };
   };
+
 
   const fetchInvoices = async (start = startDate, end = endDate) => {
     setLoading(true);
@@ -538,16 +558,26 @@ const InvoiceReport = () => {
     }-${today.getDate()}-${today.getFullYear()}`;
     return `Invoice_Report_${date}.${format}`;
   };
+  
   const exportToCSV = () => {
     const { headers, data } = generateExportData();
     if (data.length === 0) {
       Swal.fire("No Data", "No invoices to export.", "info");
       return;
     }
+
+    // Escape commas and quotes
+    const escapeCSV = (value) => {
+      if (value == null) return "";
+      const str = String(value).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
     const csvContent = [
-      headers.join(","),
-      ...data.map((row) => row.join(",")),
+      headers.map(escapeCSV).join(","), // header row
+      ...data.map((row) => row.map(escapeCSV).join(",")),
     ].join("\n");
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -559,6 +589,7 @@ const InvoiceReport = () => {
     document.body.removeChild(link);
     Swal.fire("Success", "Invoice data exported to CSV!", "success");
   };
+
   const exportToPDF = () => {
     const { headers, data } = generateExportData();
     if (data.length === 0) {
