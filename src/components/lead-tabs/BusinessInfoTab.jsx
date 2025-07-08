@@ -4,6 +4,7 @@ import Notes from '../common/Notes';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { forwardRef } from "react";
+import useConfidentialUser from '../../hooks/useConfidentialUser';
 
 // Date utility functions
 const formatDateToMMDDYYYY = (date) => {
@@ -65,6 +66,7 @@ const BusinessInfoTab = ({
   formData,
   setFormData
 }) => {
+  const { confidenceUser } = useConfidentialUser();
   return (
     <div className="mb-4 left-section-container">
       <h5 className="section-title">Business Identity</h5>
@@ -722,6 +724,7 @@ const BusinessInfoTab = ({
         showButtons={false}
         showNotes={true}
         maxHeight={300}
+        confidenceUser={confidenceUser}
       />
     </div>
   );

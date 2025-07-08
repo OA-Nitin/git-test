@@ -16,6 +16,7 @@ import { getAssetPath, getUserId } from '../utils/assetUtils';
 import EditContactModal from './EditContactModal';
 import AuditLogsMultiSection from './AuditLogsMultiSection';
 import { format } from 'date-fns';
+import useConfidentialUser from '../hooks/useConfidentialUser';
 
 // Import tab components
 import BusinessInfoTab from './lead-tabs/BusinessInfoTab';
@@ -153,6 +154,8 @@ const LeadDetail = () => {
   const [isContactsData, setIsContactsData] = useState(false);
   const [isOpportunitiesData, setIsOpportunitiesData] = useState(false);
   const [isProjectsData, setIsProjectsData] = useState(false);
+
+  const { confidenceUser } = useConfidentialUser();
 
 
   // Contacts related state
@@ -741,7 +744,7 @@ const LeadDetail = () => {
         //console.log('All dropdown options fetched successfully');
 
         // Add a small delay to ensure state updates have completed
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // await new Promise(resolve => setTimeout(resolve, 500));
 
         //console.log('Current dropdown options state:');
         //console.log('Group options:', groupOptions);
@@ -757,13 +760,13 @@ const LeadDetail = () => {
         //console.log('Basic lead details fetched');
 
         // Then fetch business data to populate the form
-        if(!isBusinessInfoData){
-          await fetchBusinessData();
-        }
+        
+        await fetchBusinessData();
+        
         //console.log('Business data fetched');
 
         // Fetch contact data
-        // await fetchContactData();
+        await fetchContactData();
         //console.log('Contact data fetched');
 
         // Fetch project data
@@ -1005,7 +1008,7 @@ const LeadDetail = () => {
       const response = await axios.get(`https://portal.occamsadvisory.com/portal/wp-json/portalapi/v1/lead-business-data/${leadId}`);
 
       if (response.data && (response.data.success || response.data.status === 'success')) {
-        //console.log('Business data fetched successfully:', response.data);
+        // console.log('Business data fetched successfully:', response.data);
         setIsBusinessInfoData(true);
         // console.log(isBusinessInfoData);
         // Update lead state with business data
@@ -1051,7 +1054,10 @@ const LeadDetail = () => {
 
           // Update specific state variables
           setTaxNowSignupStatus(businessData.taxnow_signup_status || '');
-          setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          setTimeout(() => {
+            setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
+          }, 100);
+          // setTaxNowOnboardingStatus(businessData.taxnow_onboarding_status || '');
 
           // Update folder links if available
           setCompanyFolderLink(businessData.company_folder_link || '');
@@ -2919,6 +2925,7 @@ const LeadDetail = () => {
 
     // Set the project form data with proper field mapping
     setProjectFormData({
+      user_id:getUserId(),
       projectID: project.id || '',
       project_name: project.projectName || '',
       project_fee: project.fee || '',
@@ -2956,7 +2963,7 @@ const LeadDetail = () => {
 
       // Make the API call
       const response = await axios.post(
-        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field',
+        'https://portal.occamsadvisory.com/portal/wp-json/productsplugin/v1/edit-project-optional-field-v1',
         projectFormData
       );
 
@@ -3884,7 +3891,7 @@ const LeadDetail = () => {
               </div>
               <div className="white_card_body">
                   <div className="row">
-                    <div className="col-md-8">
+                    <div className="col-md-12">
                       <div className="text-center my-5">
                         <svg class="loader" viewBox="0 0 200 100">
                           <defs>

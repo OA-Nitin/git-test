@@ -16,6 +16,7 @@ import ReportPagination from './common/ReportPagination';
 import { sortArrayByKey } from '../utils/sortUtils';
 import PageContainer from './common/PageContainer';
 import { getFormattedUserData } from '../utils/userUtils';
+import useConfidentialUser from '../hooks/useConfidentialUser';
 
 const user = getFormattedUserData();
 // Function to format date as MM/DD/YYYY
@@ -56,6 +57,7 @@ const LeadReport = ({ projectType }) => {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { confidenceUser } = useConfidentialUser();
 
    const productId = productIdMap[product?.toLowerCase()] ?? null;
 
@@ -1301,6 +1303,7 @@ const LeadReport = ({ projectType }) => {
                                           entityType="lead"
                                           entityId={lead.lead_id || lead.id || ''}
                                           entityName={lead.business_legal_name || ''}
+                                          confidenceUser={confidenceUser}
                                         />
                                       </td>
                                     );
