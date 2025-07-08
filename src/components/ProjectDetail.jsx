@@ -1369,7 +1369,7 @@ const ProjectDetail = () => {
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
                                     <br /><br />
-                                    <strong>{comment.comments}</strong>
+                                    <strong className='doc-comments'>{comment.comments}</strong>
                                     <br />
                                     <small>Date & Time - {comment.update_datetime}</small>
                                 </li>
