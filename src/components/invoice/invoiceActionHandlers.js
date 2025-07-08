@@ -1,221 +1,58 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { ENDPOINTS } from './invoice-settings';
 
 // API base URL
-const API_BASE_URL = 'https://play.occamsadvisory.com/portal/wp-json/invoices/v1';
+// const API_BASE_URL = 'https://play.occamsadvisory.com/portal/wp-json/invoices/v1';
 
 // Action Handlers for Invoice Status Updates
-export const handleUnpaidAction = async (invoiceId, merchantId, fetchInvoices) => {
+export const handlePartialPaidSave = async (params) => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/update-status`,
-      {
-        invoice_id: invoiceId,
-        status_id: 1, // Unpaid status
-        merchant_id: merchantId
-      }
+      ENDPOINTS.SEND_PARTIALLY_PAID,
+      params
     );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice status updated to Unpaid', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to update status');
-    }
+    return response.data;
   } catch (error) {
-    Swal.fire('Error', 'Failed to update invoice status', 'error');
+    return { result: 'error', msg: error.message || 'Failed to save partial payment' };
   }
 };
 
-export const handlePaidAction = async (invoiceId, merchantId, fetchInvoices) => {
+
+//--== Common send invoice action reusable function ==--//
+const sendInvoiceStatusUpdate = async (params, actionType) => {
+  const payload = { ...params, action_type: actionType };
+
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/update-status`,
-      {
-        invoice_id: invoiceId,
-        status_id: 2, // Paid status
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice marked as Paid', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to update status');
-    }
+    const response = await axios.post(`${ENDPOINTS.GET_INVOICE_ACTION.replace('get-invoice-action','send-invoice-action')}`, payload);
+    return response.data;
   } catch (error) {
-    Swal.fire('Error', 'Failed to update invoice status', 'error');
+    return {
+      success: false,
+      message: error.message || `Failed to perform "${actionType}" action.`,
+    };
   }
 };
 
-export const handleCancelledAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/update-status`,
-      {
-        invoice_id: invoiceId,
-        status_id: 3, // Cancelled status
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice has been cancelled', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to cancel invoice');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to cancel invoice', 'error');
-  }
-};
+// Wrapper exports that reuse common function
+export const handlePaidInvoiceSave = (params) => sendInvoiceStatusUpdate(params, 'paid');
+export const handleCancelInvoiceSave = (params) => sendInvoiceStatusUpdate(params, 'cancel');
+export const handlePaymentProcessSave = (params) => sendInvoiceStatusUpdate(params, 'payment in process');
 
-export const handleDraftAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/update-status`,
-      {
-        invoice_id: invoiceId,
-        status_id: 4, // Draft status
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice saved as draft', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to save as draft');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to save invoice as draft', 'error');
-  }
-};
+//--== Common send invoice action reusable function ==--//
 
-export const handleReminderAction = async (invoiceId, merchantId) => {
+// Send Reminder
+export const handleSendReminderSave = async (params) => {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/send-reminder`,
-      {
-        invoice_id: invoiceId,
-        merchant_id: merchantId
-      }
+    const res = await axios.post(
+      ENDPOINTS.SEND_REMINDER_MAIL_ACTION,
+      params
     );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Reminder sent successfully', 'success');
-    } else {
-      throw new Error(response.data.message || 'Failed to send reminder');
-    }
+    return res.data;
   } catch (error) {
-    Swal.fire('Error', 'Failed to send reminder', 'error');
-  }
-};
-
-export const handlePaymentProcessAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/update-status`,
-      {
-        invoice_id: invoiceId,
-        status_id: 6, // Payment in process status
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Payment process initiated', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to initiate payment process');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to initiate payment process', 'error');
-  }
-};
-
-export const handleVoidAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/void-invoice`,
-      {
-        invoice_id: invoiceId,
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice has been voided', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to void invoice');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to void invoice', 'error');
-  }
-};
-
-export const handlePartialPaidAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/update-status`,
-      {
-        invoice_id: invoiceId,
-        status_id: 17, // Partial paid status
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice marked as partially paid', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to update status');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to update invoice status', 'error');
-  }
-};
-
-export const handlePaymentPlanAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/create-payment-plan`,
-      {
-        invoice_id: invoiceId,
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Payment plan created successfully', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to create payment plan');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to create payment plan', 'error');
-  }
-};
-
-export const handleCancelReminderAction = async (invoiceId, merchantId, fetchInvoices) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/cancel-reminder`,
-      {
-        invoice_id: invoiceId,
-        merchant_id: merchantId
-      }
-    );
-    
-    if (response.data.success) {
-      Swal.fire('Success', 'Invoice reminder cancelled', 'success');
-      fetchInvoices();
-    } else {
-      throw new Error(response.data.message || 'Failed to cancel reminder');
-    }
-  } catch (error) {
-    Swal.fire('Error', 'Failed to cancel reminder', 'error');
+    return {
+      success: false,
+      message: error.message || "Failed to send reminder.",
+    };
   }
 };

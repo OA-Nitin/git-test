@@ -3,6 +3,7 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import RichTextEditor from './RichTextEditorTiny';
+import { PAYMENT_MODES } from './invoice-settings';
 
 //import parse from 'html-react-parser'; // To parse `payment_table_html` if needed
 
@@ -51,13 +52,9 @@ export const PaidModalContent = ({ modalData }) => {
       <div className="form-group">
         <label>Payment mode/invoice payment type*</label>
         <select className="form-select">
-          <option value="">Select payment mode</option>
-          <option value="occams_initiated_eCheck">Occams Initiated - eCheck</option>
-          <option value="occams_initiated_ach">Occams Initiated - ACH</option>
-          <option value="occams_initiated_wire">Client Initiated - Wire</option>
-          <option value="client_initiated_ach">Client Initiated - ACH</option>
-          <option value="client_initiated_check_mailed">Client Initiated - Check Mailed</option>
-          <option value="credit_card_or_debit_card">Credit Card or Debit Card</option>
+          {PAYMENT_MODES.map((mode) => (
+            <option key={mode.value} value={mode.value}>{mode.label}</option>
+          ))}
         </select>
       </div>
 
@@ -484,13 +481,9 @@ export const PartialPaidModalContent = ({ modalData }) => {
                       handleChange(index, 'paymentMode', e.target.value)
                     }
                   >
-                    <option value="">Select payment mode</option>
-                    <option value="occams_initiated_eCheck">Occams Initiated - eCheck</option>
-                    <option value="occams_initiated_ach">Occams Initiated - ACH</option> 
-                    <option value="occams_initiated_wire">Client Initiated - Wire</option>
-                    <option value="client_initiated_ach">Client Initiated - ACH</option>
-                    <option value="client_initiated_check_mailed">Client Initiated - Check Mailed</option>
-                    <option value="credit_card_or_debit_card">Credit Card or Debit Card</option>
+                    {PAYMENT_MODES.map((mode) => (
+                      <option key={mode.value} value={mode.value}>{mode.label}</option>
+                    ))}
                   </select>
                 </td>
                 <td>

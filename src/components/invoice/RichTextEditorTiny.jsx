@@ -20,13 +20,12 @@ const RichTextEditor = ({ value, onChange }) => {
           'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
           'image', 'link', 'lists', 'media', 'searchreplace', 'table',
           'visualblocks', 'wordcount', 'advlist', 'code', 'fullscreen',
-          'insertdatetime', 'typograph', 'spellcheck', 'a11ychecker'
+          'insertdatetime', 'a11ychecker'
         ],
         toolbar: `
           blocks fontfamily fontsize | 
           bold italic underline strikethrough | addcomment showcomments |
-          link image media table mergetags | spellcheckdialog a11ycheck typograph |
-          align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat | code
+          link image media table mergetags | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat | code
         `,
         block_formats:
           'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Blockquote=blockquote',

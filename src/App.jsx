@@ -54,8 +54,8 @@ import CreateContact from "./components/CreateContact";
 
 /****** Code by Sanjay ********/
 import InvoiceReport from "./components/invoice/InvoiceReport";
-//import InvoiceCreate from "./components/invoice/InvoiceCreate";
-//import InvoiceSetting from "./components/invoice/InvoiceSetting";
+import InvoiceView from "./components/invoice/view";
+import InvoiceEdit from "./components/invoice/edit";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -404,6 +404,27 @@ const App = () => {
             </Layout>
           </ProtectedRoute>
         } />
+        <Route
+          path="/invoices/view/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InvoiceView />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/invoices/edit/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InvoiceEdit />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </Router>
   );
