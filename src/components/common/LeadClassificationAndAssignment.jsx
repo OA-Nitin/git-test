@@ -185,7 +185,8 @@ const LeadClassificationAndAssignment = ({
           {
             lead_id: leadId,
             user_id: selectedUser.user.id,
-            operation: 'assign_user'
+            operation: 'assign_user',
+            current_user_id: getUserId() 
           }
         );
 
@@ -233,7 +234,8 @@ const LeadClassificationAndAssignment = ({
         {
           lead_id: leadId,
           user_id: userId,
-          operation: 'unassign_user'
+          operation: 'unassign_user',
+          current_user_id: getUserId()
         }
       );
 
