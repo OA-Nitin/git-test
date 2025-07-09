@@ -266,7 +266,7 @@ export const contactSchema = yup.object().shape({
   ph_extension: yup
     .string()
     .notRequired()
-    .max(10, 'Maximum 10 characters allowed'),
+    .max(3, 'Maximum 03 characters allowed'),
     
   phone_type: yup
     .string()

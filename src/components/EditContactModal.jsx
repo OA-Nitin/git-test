@@ -69,6 +69,7 @@ const EditContactModal = ({
   // State to store business options from the API
   const [businessOptions, setBusinessOptions] = useState([]);
 const parseToDateString = (rawDate) => {
+  if (!rawDate) return ""; // Defensive: handle null/undefined/empty
   if (rawDate.includes('T')) {
     try {
       const date = new Date(rawDate);
@@ -196,6 +197,11 @@ const parseToDateString = (rawDate) => {
       setLoading(true);
       setError(null);
 
+
+      // Defensive: Check required parameters
+      if (!leadId || !contactId) {
+        throw new Error(`Missing required parameter: leadId (${leadId}), contactId (${contactId})`);
+      }
       // Use the specified API endpoint for contact data
       // console.log(
       //   "Fetching contact data with leadId:",
@@ -213,8 +219,8 @@ const parseToDateString = (rawDate) => {
         }
       );
 
-      //console.log("Contact API response:", response.data);
-
+      // Log the full response for debugging
+      // console.log("Raw API response:", response);
       if (response.data) {
         // Log the entire response structure to understand its format
         // console.log(
@@ -269,6 +275,20 @@ const parseToDateString = (rawDate) => {
 
         //console.log("Extracted contact data:", contactData);
 
+        // Defensive: Check if parseToDateString is defined
+        let parsedBirthdate = '';
+        if (typeof parseToDateString === 'function') {
+          try {
+            parsedBirthdate = parseToDateString(contactData.birthdate);
+          } catch (err) {
+            console.error('Error parsing birthdate:', err);
+            parsedBirthdate = '';
+          }
+        } else {
+          console.warn('parseToDateString is not defined');
+          parsedBirthdate = '';
+        }
+
         // Extract business information from the response
         let businessInfo = [];
         let selectedBusinesses = [];
@@ -305,13 +325,13 @@ const parseToDateString = (rawDate) => {
 
         selectedBusinesses = [leadId];
         // Set form data with values from API response
-        setFormData({
+        setFormData && setFormData({
           first_name: contactData.first_name || "",
           middle_name: contactData.middle_name || "",
           last_name: contactData.last_name || "",
           name_alias: contactData.name_alias || "",
           title: contactData.title || "",
-          birthdate: parseToDateString(contactData.birthdate),
+          birthdate: parsedBirthdate,
           job_title: contactData.department || "",
           report_to_id: contactData.report_to_id || "", // Keep report_to_id for reference
           dnd: contactData.dnd === "1" ? "Yes" : "No",
@@ -350,27 +370,41 @@ const parseToDateString = (rawDate) => {
           }
 
           if (referralTypeParam) {
-            // console.log(
-            //   "Fetching contact referrals for type:",
-            //   referralTypeParam
-            // );
-            fetchContactReferrals(referralTypeParam);
+            // Defensive: Check if fetchContactReferrals is defined
+            if (typeof fetchContactReferrals === 'function') {
+              try {
+                fetchContactReferrals(referralTypeParam);
+              } catch (err) {
+                console.error('Error in fetchContactReferrals:', err);
+              }
+            } else {
+              console.warn('fetchContactReferrals is not defined');
+            }
           }
         } else {
           // Default to affiliate_referral if no referral type is specified
           // console.log(
           //   "No referral type specified, using default: affiliate_referral"
           // );
-          fetchContactReferrals("affiliate_referral");
+          if (typeof fetchContactReferrals === 'function') {
+            try {
+              fetchContactReferrals("affiliate_referral");
+            } catch (err) {
+              console.error('Error in fetchContactReferrals:', err);
+            }
+          } else {
+            console.warn('fetchContactReferrals is not defined');
+          }
         }
       } else {
         setError("Failed to load contact data. Invalid response format.");
       }
-    } catch (err) {
-      console.error("Error fetching contact data:", err);
-      setError("Failed to load contact data. Please try again.");
-    } finally {
+    } catch (error) {
+      console.error("Error in fetching contact data:", error);
+      setError(error.message || "Unknown error");
       setLoading(false);
+    } finally {
+      setLoading(false); // <-- Always stop loading, success or error
     }
   };
 
