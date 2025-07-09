@@ -34,7 +34,9 @@ const formatDate = (dateString) => {
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
 
-    return `${month}/${day}/${year}`;
+    const newDate =  " "+`${month}/${day}/${year}`;
+    return newDate;
+
   } catch (error) {
     console.error('Error formatting date:', error);
     return dateString;
