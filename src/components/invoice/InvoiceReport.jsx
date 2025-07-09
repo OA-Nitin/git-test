@@ -10,6 +10,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import Swal from "sweetalert2";
 import Modal from "../common/Modal";
+import { formatUSD } from "./Helpers/CurrencyFormat.js";
 import "../common/Modal.css";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
@@ -303,22 +304,15 @@ const InvoiceReport = () => {
       label: "Amount",
       sortable: true,
       render: (value, row) => {
-        const formatCurrency = (val) => {
-          const num = parseFloat(val);
-          return isNaN(num) ? "$0.00" : `$${num.toFixed(2)}`;
-        };
-
-        const total = formatCurrency(value);
-        const service = formatCurrency(row?.service_amount);
-        const charge = formatCurrency(row?.chargeable_amount);
-
         return (
           <div className="tooltip-wrapper amount-tooltip">
-            <a href="#" className="amount-link">{total}</a>
+            <a href="#" className="amount-link">{formatUSD(value)}</a>
             <div className="custom-tooltip top">
-              <span className="tooltip-label">Service:</span> <span className="tooltip-value">{service}</span>
+              <span className="tooltip-label">Service:</span>{" "}
+              <span className="tooltip-value">{formatUSD(row?.service_amount)}</span>
               {" | "}
-              <span className="tooltip-label">Charge:</span> <span className="tooltip-value">{charge}</span>
+              <span className="tooltip-label">Charge:</span>{" "}
+              <span className="tooltip-value">{formatUSD(row?.chargeable_amount)}</span>
             </div>
           </div>
         );
@@ -353,7 +347,6 @@ const InvoiceReport = () => {
           <span
             style={{
               color: status.color,
-              fontWeight: "bold",
               padding: "4px 8px",
               borderRadius: "4px",
               backgroundColor: `${status.color}20`,
@@ -370,6 +363,10 @@ const InvoiceReport = () => {
       label: "Type",
       sortable: false,
       render: (value) => value || "-",
+      cellStyle: () => ({
+        width: "100%",
+        maxWidth: "max-content",
+      }),  
     },
     {
       id: "product_title",
@@ -398,6 +395,11 @@ const InvoiceReport = () => {
       label: "Action",
       sortable: false,
       render: (value, row) => <ActionDropdown inv={row} />,
+      cellStyle: () => ({
+        width: "100%",
+        maxWidth: "max-content",
+        minWidth: "108px",
+      }),      
     },
   ];
 
@@ -438,13 +440,9 @@ const InvoiceReport = () => {
 
         // Handle special formats
         if (col.id === "total_amount") {
-          const formatCurrency = (val) => {
-            const num = parseFloat(val);
-            return isNaN(num) ? "$0.00" : `$${num.toFixed(2)}`;
-          };
-          const total = formatCurrency(rawValue);
-          const service = formatCurrency(inv?.service_amount);
-          const charge = formatCurrency(inv?.chargeable_amount);
+          const total = formatUSD(rawValue);
+          const service = formatUSD(inv?.service_amount);
+          const charge = formatUSD(inv?.chargeable_amount);
           return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
         }
 
@@ -558,7 +556,7 @@ const InvoiceReport = () => {
     }-${today.getDate()}-${today.getFullYear()}`;
     return `Invoice_Report_${date}.${format}`;
   };
-  
+
   const exportToCSV = () => {
     const { headers, data } = generateExportData();
     if (data.length === 0) {
@@ -810,7 +808,12 @@ const InvoiceReport = () => {
                   {columnDefinitions
                     .filter((col) => visibleColumns.includes(col.id))
                     .map((col) => (
-                      <td key={col.id}>{col.render(inv[col.id], inv)}</td>
+                      <td 
+                      key={col.id}
+                      style={typeof col.cellStyle === "function" ? col.cellStyle(inv[col.id], inv) : {}}
+                      >
+                        {col.render(inv[col.id], inv)}
+                      </td>
                     ))}
                 </tr>
               ))}
@@ -818,21 +821,24 @@ const InvoiceReport = () => {
           </table>
         )}
       </div>
-      <ReportPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        paginate={setCurrentPage}
-        goToPreviousPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-        goToNextPage={() =>
-          setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-        }
-        indexOfFirstItem={indexOfFirstItem}
-        indexOfLastItem={indexOfLastItem}
-        totalFilteredItems={filteredInvoices.length}
-        totalItems={invoices.length}
-        itemName="invoices"
-        loading={loading}
-      />
+      {!loading && !error && filteredInvoices.length > 0 && (
+        <ReportPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          paginate={setCurrentPage}
+          goToPreviousPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          goToNextPage={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          indexOfFirstItem={indexOfFirstItem}
+          indexOfLastItem={indexOfLastItem}
+          totalFilteredItems={filteredInvoices.length}
+          totalItems={invoices.length}
+          itemName="invoices"
+          loading={loading}
+        />
+      )}
+
       <Modal
         show={showModal}
         onClose={() => setShowModal(false)}

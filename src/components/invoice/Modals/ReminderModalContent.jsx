@@ -150,7 +150,7 @@ const ReminderModalContent = ({ modalData }) => {
   }
 
   return (
-    <div className="modal-body">
+    <div className="">
       <h5 className="section-title">Send Payment Reminder</h5>
 
       <div className="form-group mb-3">

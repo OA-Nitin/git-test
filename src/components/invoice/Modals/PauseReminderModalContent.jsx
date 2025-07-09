@@ -1,5 +1,5 @@
 const PauseReminderModalContent = ({ modalData }) => (
-  <div className="modal-body">
+  <div className="">
     <h5 className="section-title">Pause Invoice Reminder</h5>
     <div className="confirmation-message mt-3">
       <p className="text-muted">

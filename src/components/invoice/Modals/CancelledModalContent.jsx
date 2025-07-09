@@ -129,7 +129,7 @@ const CancelledModalContent = ({ modalData }) => {
   }
 
   return (
-    <div className="modal-body">
+    <div className="">
       <h5 className="section-title">Cancel Invoice</h5>
 
       {/* Payment Mode */}

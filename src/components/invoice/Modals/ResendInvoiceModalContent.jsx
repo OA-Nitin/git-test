@@ -58,7 +58,7 @@ const ResendInvoiceModalContent = ({ modalData }) => {
   }
 
   return (
-    <div className="modal-body">
+    <div className="">
       <EmailReviewPane
         sendEmail={sendEmail}
         setSendEmail={setSendEmail}
