@@ -333,7 +333,7 @@ const LeadDetail = () => {
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
-        setValue(key, lead[key], { shouldValidate: false });
+        setValue(key, lead[key], { shouldValidate: true });
       });
 
       // Also set primary contact form values if they exist
