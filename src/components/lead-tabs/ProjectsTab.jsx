@@ -20,7 +20,8 @@ const ProjectsTab = ({
   registerProject,
   setProjectFormData,
   setMilestoneStages,
-  fetchMilestoneStages
+  fetchMilestoneStages,
+  setProjectValue // <-- Add this prop
 }) => {
   return (
     <div className="mb-4 left-section-container">
@@ -250,6 +251,8 @@ const ProjectsTab = ({
                                   // Clear the milestone stage when milestone changes
                                   MilestoneStage: ''
                                 }));
+                                setProjectValue && setProjectValue('Milestone', e.target.value); // <-- Add this line
+                                setProjectValue && setProjectValue('MilestoneStage', ''); // <-- Clear stage in form state
 
                                 // If a milestone is selected, fetch its stages
                                 if (selectedMilestone && selectedMilestone.id) {
@@ -345,6 +348,7 @@ const ProjectsTab = ({
                                   ...prev,
                                   MilestoneStage: e.target.value
                                 }));
+                                setProjectValue && setProjectValue('MilestoneStage', e.target.value); // <-- Add this line
                               }}
 
                             >

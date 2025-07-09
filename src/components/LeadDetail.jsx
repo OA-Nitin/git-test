@@ -333,21 +333,21 @@ const LeadDetail = () => {
   useEffect(() => {
     if (lead) {
       Object.keys(lead).forEach((key) => {
-        setValue(key, lead[key], { shouldValidate: true });
+        setValue(key, lead[key], { shouldValidate: false });
       });
 
       // Also set primary contact form values if they exist
       if (primaryContact.email) {
-        setValue('primary_contact_email', primaryContact.email);
+        setValue('primary_contact_email', primaryContact.email, { shouldValidate: false });
       }
       if (primaryContact.phone) {
-        setValue('primary_contact_phone', primaryContact.phone);
+        setValue('primary_contact_phone', primaryContact.phone, { shouldValidate: false });
       }
       if (primaryContact.ext) {
-        setValue('primary_contact_ext', primaryContact.ext);
+        setValue('primary_contact_ext', primaryContact.ext, { shouldValidate: false });
       }
       if (primaryContact.phoneType) {
-        setValue('contact_phone_type', primaryContact.phoneType);
+        setValue('contact_phone_type', primaryContact.phoneType, { shouldValidate: false });
       }
       if (lead) {
         setFormData({
@@ -4166,6 +4166,7 @@ const LeadDetail = () => {
                           setProjectFormData={setProjectFormData}
                           setMilestoneStages={setMilestoneStages}
                           fetchMilestoneStages={fetchMilestoneStages}
+                          setProjectValue={setProjectValue}
                         />
                       )}
 
