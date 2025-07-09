@@ -31,7 +31,7 @@ const ReportPagination = ({
     <div className="row mt-3">
       <div className="col-md-6">
         <p>
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalFilteredItems)} of {totalFilteredItems} {itemName} 
+          Showing {totalPages > 0 ? indexOfFirstItem + 1 : '' } to {Math.min(indexOfLastItem, totalFilteredItems)} of {totalFilteredItems} {itemName} 
           {totalFilteredItems !== totalItems && ` (filtered from ${totalItems} total)`}
         </p>
       </div>
