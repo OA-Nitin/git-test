@@ -1,0 +1,179 @@
+.modal-body .modalTitle{
+    font-size: 18px;
+    font-weight: 500;
+    border-bottom: 1px dashed grey;
+    padding-bottom: 8px;
+    margin: auto auto 15px auto;
+}
+.custom-inv-table table th, .custom-inv-table table td{
+    font-size:14px;
+}
+/* -- Rich text editor start -- */
+
+/* -- Rich text editor end -- */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.react-datepicker__header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.react-datepicker__day--selected {
+  background-color: #007bff;
+  border-radius: 4px;
+}
+
+.react-datepicker__day:hover {
+  background-color: #e9ecef;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: #007bff;
+  color: white;
+}
+.react-datepicker__input-container input {
+  cursor: pointer;
+}
+
+.react-datepicker__month-dropdown,
+.react-datepicker__year-dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 14px;
+  scrollbar-width: thin;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar,
+.react-datepicker__month-dropdown::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb,
+.react-datepicker__month-dropdown::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 6px;
+}
+
+.info-setup{
+  border: 1px solid #b1c9db;
+  background: rgba(220, 233, 244, 0.50);
+  padding: 12px 10px;
+  justify-content: space-between;
+}
+
+.invoicePartialInputs .field-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.invoicePartialInputs .form-control,
+.invoicePartialInputs .form-select {
+  width: 100%;
+}
+
+.invoicePartialInputs .is-invalid {
+  border-color: #d63638 !important;
+}
+
+.invoicePartialInputs .invalid-feedback {
+  font-size: 12px;
+  color: #d63638;
+  min-height: 16px;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.invoicePartialInputs td {
+  vertical-align: top;
+}
+
+.invoicePartialInputs .remove-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invalid-feedback.d-block {
+  font-size: 12px;
+  color: #d63638;
+  min-height: 16px;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.text-danger.fw-semibold {
+  font-size: 14px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sts{
+  margin:0 auto;
+  animation: fadeIn 0.4s ease-in-out;
+}
+/* Tooltip */
+.tooltip-wrapper.amount-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.custom-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  z-index: 999;
+  background-color: #0a75b6;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: normal;
+  font-size: 13px;
+  text-align: center;
+  /* min-width: 180px;
+  max-width: 30px; */
+  width: max-content;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-wrapper:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Position above the amount */
+.custom-tooltip.top {
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Tooltip arrow (optional) */
+.custom-tooltip.top::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #007bff transparent transparent transparent;
+}

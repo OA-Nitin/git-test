@@ -52,6 +52,11 @@ import PageContainerExample from "./components/common/PageContainerExample";
 
 import CreateContact from "./components/CreateContact";
 
+/****** Code by Sanjay ********/
+import InvoiceReport from "./components/invoice/InvoiceReport";
+import InvoiceView from "./components/invoice/view";
+import InvoiceEdit from "./components/invoice/edit";
+
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
   // Check if user is logged in by looking for user data in localStorage
@@ -391,6 +396,35 @@ const App = () => {
             </Layout>
           </ProtectedRoute>
         } />
+         {/* Invoice Report */}
+        <Route path="/invoice/report/" element={
+          <ProtectedRoute>
+            <Layout>
+              <InvoiceReport />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route
+          path="/invoices/view/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InvoiceView />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/invoices/edit/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <InvoiceEdit />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </Router>
   );

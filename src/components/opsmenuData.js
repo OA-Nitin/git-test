@@ -87,6 +87,17 @@ const opsMenuData = [
       { key: 'rdcProjects', name: 'RDC Projects', path: '/reports/projects/rdc' },
     ],
   },
+  {
+      key: 'finance',
+      name: 'Finance',
+      icon: 'dashicons-image-filter',
+      children: [
+        { key: 'manageInvoice', name: 'Manage Invoices', path: '/invoice/report' },
+        //{ key: 'createInvoice', name: 'Create Invoice', path: '/invoice/create-invoice' },
+        //{ key: 'pastDueInvoices', name: 'Past Due Invoices', path: '/invoice/past-due-invoices' },
+        //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/invoice/invoice-settings' },
+      ],
+    },
   // {
   //   key: 'leadCommunication',
   //   name: 'Lead Communication',
