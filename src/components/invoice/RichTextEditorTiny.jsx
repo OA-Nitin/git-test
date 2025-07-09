@@ -6,7 +6,7 @@ const RichTextEditor = ({ value, onChange }) => {
 
   return (
     <Editor
-      apiKey='biwia3pyzexp5tljmz9mi5py8t24zolf9yjckgp7rszamg1u'
+      apiKey='ibxipec548un9t8jbbghd57jsu7lnuk2k9f237075k5k5qm4'
       onInit={(evt, editor) => (editorRef.current = editor)}
       value={value}
       init={{
