@@ -761,10 +761,10 @@ const ProjectDetail = () => {
     //console.log('ProjectDetail component mounted, fetching project details for ID:', projectId);
     //console.log('Project ID type:', typeof projectId);
     fetchProjectDetails();
-    // fetchBankInfo();
-    // fetchIntakeInfo();
-    // fetchFeesInfo();
-    // fetchFulfilmentInfo();
+    fetchBankInfo();
+    fetchIntakeInfo();
+    fetchFeesInfo();
+    fetchFulfilmentInfo();
     //console.log('Initial useEffect - Fetching milestones for product ID 936');
     // fetchMilestones();
   }, [projectId]);
@@ -1369,7 +1369,7 @@ const ProjectDetail = () => {
                                 <li key={index} className="list-group-item">
                                     <small>Username - {comment.username}</small>
                                     <br /><br />
-                                    <strong>{comment.comments}</strong>
+                                    <strong className='doc-comments'>{comment.comments}</strong>
                                     <br />
                                     <small>Date & Time - {comment.update_datetime}</small>
                                 </li>
@@ -4299,7 +4299,13 @@ const ProjectDetail = () => {
       // Combine the base data with the tab-specific data
       const combinedData = { ...baseData, ...data };
       //console.log('Combined data:', data);
+      // console.log('bankInfo=');
+      // console.log(bankInfo);
+      // console.log(fulfilmentData);
 
+      console.log('Intake Data=');
+      console.log(intakeInfo);
+      
       // Map the data to the correct database column names
       const mappedData = {
         project_id: combinedData.project_id,
@@ -4336,18 +4342,18 @@ const ProjectDetail = () => {
         // agreement_folder: combinedData.agreement_folder,
 
         // Bank Info - Always include bank info regardless of active tab
-        bank_name: combinedData.tab === "fulfilment" ? fulfilmentData.bank_name : bankInfo.bank_name,
+        bank_name: project.product_id === "937" ? fulfilmentData.bank_name : bankInfo.bank_name,
         bank_mailing_address: bankInfo.bank_mailing_address,
         bank_city: bankInfo.city,
         bank_state: bankInfo.state,
         bank_zip: bankInfo.zip,
         country: bankInfo.country,
         bank_phone: bankInfo.bank_phone,
-        account_holder_name: combinedData.tab === "fulfilment" ? fulfilmentData.account_holder_name : bankInfo.account_holder_name,
+        account_holder_name: project.product_id === "937" ? fulfilmentData.account_holder_name : bankInfo.account_holder_name,
         account_type: bankInfo.account_type,
         other: bankInfo.other,
-        aba_routing_no: combinedData.tab === "fulfilment" ? fulfilmentData.aba_routing_no : bankInfo.aba_routing_no,
-        account_number: combinedData.tab === "fulfilment" ? fulfilmentData.account_number : bankInfo.account_number,
+        aba_routing_no: project.product_id === "937" ? fulfilmentData.aba_routing_no : bankInfo.aba_routing_no,
+        account_number: project.product_id === "937" ? fulfilmentData.account_number : bankInfo.account_number,
         swift: bankInfo.swift,
         iban: bankInfo.iban,
 
@@ -5198,7 +5204,7 @@ const ProjectDetail = () => {
                       />
                     )}
 
-                    {activeTab !== 'documents' ? (
+                    {activeTab !== 'documents' && activeTab !== 'auditLogs'? (
                         <div className="mt-4">
                           <div className="action-buttons d-flex align-items-center justify-content-center">
                             {(!loading && !invoiceLoading && !intakeInfoLoading && !fulfilmentLoading && !auditLogsLoading && !feesInfoLoading && !bankInfoLoading) && ( 

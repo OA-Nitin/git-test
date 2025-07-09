@@ -1,6 +1,19 @@
 import React from 'react';
 
+function decodeHtmlEntities(str) {
+  const parser = new DOMParser();
+  const decoded = parser.parseFromString(str, 'text/html');
+  if(decoded.body.textContent && decoded.body.textContent !== 'null' && decoded.body.textContent !== 'undefined' && decoded.body.textContent !== ''){
+      return decoded.body.textContent || ""; 
+   }else{ 
+      return "N/A"; 
+   }
+}
+
 const ProjectTab = ({ project, isEditMode, errors, register, setProject, DateInput, companyFolderLink, documentFolderLink, toggleEditMode }) => {
+  
+  var identity_document_type_val = decodeHtmlEntities(project.identity_document_type);
+  
   return (
     <div className="mb-4 left-section-container">
       <h5 className="section-title">Project Details</h5>
@@ -43,45 +56,6 @@ const ProjectTab = ({ project, isEditMode, errors, register, setProject, DateInp
           <div className="form-group">
             <label className="form-label">Fee</label>
             <input type="text" className="form-control" defaultValue={project?.project_fee || ""} readOnly />
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="form-group">
-            <label className="form-label">Identity Document Type</label>
-            <select
-              className={`form-select ${errors?.identity_document_type ? 'is-invalid' : ''}`}
-              {...register('identity_document_type')}
-              value={project.identity_document_type || ""}
-              onChange={(e) => setProject({ ...project, identity_document_type: e.target.value })}
-              disabled={!isEditMode}
-            >
-              <option value="N/A">N/A</option>
-              <option value="SSN">SSN</option>
-              <option value="EIN">EIN</option>
-              <option value="Driver's License">Driver's License</option>
-              <option value="Passport">Passport</option>
-              <option value="State ID">State ID</option>
-              <option value="Others">Others</option>
-            </select>
-            {errors?.identity_document_type && (
-              <div className="invalid-feedback">{errors.identity_document_type.message}</div>
-            )}
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="form-group">
-            <label className="form-label">Document Number</label>
-            <input
-              type="text"
-              className={`form-control ${errors?.identity_document_number ? 'is-invalid' : ''}`}
-              {...register('identity_document_number')}
-              value={project.identity_document_number}
-              onChange={(e) => setProject({ ...project, identity_document_number: e.target.value })}
-              readOnly={!isEditMode}
-            />
-            {errors?.identity_document_number && (
-              <div className="invalid-feedback">{errors.identity_document_number.message}</div>
-            )}
           </div>
         </div>
       </div>
@@ -241,7 +215,7 @@ const ProjectTab = ({ project, isEditMode, errors, register, setProject, DateInp
               className={`form-select ${errors.identity_document_type ? 'is-invalid' : ''}`}
               {...register('identity_document_type')}
 
-              value={project.identity_document_type || ""}
+              value={identity_document_type_val || ""}
               onChange={(e) => setProject({...project, identity_document_type: e.target.value})}
               disabled={!isEditMode}
             >
