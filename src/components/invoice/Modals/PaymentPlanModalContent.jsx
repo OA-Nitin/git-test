@@ -1,5 +1,5 @@
 const PaymentPlanModalContent = ({ modalData }) => (
-  <div className="modal-body">
+  <div className="">
     <h5 className="section-title">Create Payment Plan</h5>
     <div className="form-group">
       <label>Number of Installments</label>

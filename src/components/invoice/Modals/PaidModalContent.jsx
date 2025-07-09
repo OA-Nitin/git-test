@@ -158,7 +158,7 @@ const PaidModalContent = ({ modalData }) => {
 
   // Step 9: Render the form UI
   return (
-    <div className="modal-body">
+    <div className="">
       <h5 className="section-title">User Input Section</h5>
 
       {/* Payment Mode */}

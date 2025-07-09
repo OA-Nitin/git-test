@@ -257,7 +257,7 @@ const PartialPaidModalContent = ({ modalData }) => {
   }
   // Step 10: Render the full modal content
   return (
-    <div className="modal-body">
+    <div className=""> 
       <h5 className="section-title">User Input Section</h5>
 
       <div className="table-responsive custom-inv-table">
