@@ -31,9 +31,6 @@ const DateRangePicker = ({
   
   // Refs
   const calendarRef = useRef(null);
-  const validYears = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i);
-  const minYear = Math.min(...validYears);
-  const maxYear = Math.max(...validYears);
   
   // Initialize with current dates if provided
   useEffect(() => {
@@ -69,14 +66,6 @@ const DateRangePicker = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const isOutOfBounds = (day) => {
-    const current = new Date(day.year, day.month, day.day);
-    const minDate = new Date(minYear, 0, 1);     // Jan 1, minYear
-    const maxDate = new Date(maxYear, 11, 31);   // Dec 31, maxYear
-    return current < minDate || current > maxDate;
-  };
-  
   
   // Format date as YYYY-MM-DD
   const formatDate = (date) => {
@@ -375,17 +364,12 @@ const DateRangePicker = ({
                   />
                 </div>
               </div>
+              
               <div className="calendars">
                 {/* Start Month Calendar */}
                 <div className="calendar">
                   <div className="calendar-header">
-                    <button 
-                      className="nav-button" 
-                      onClick={() => navigateMonth('start', -1)}
-                      disabled={
-                        new Date(startMonth.getFullYear(), startMonth.getMonth() - 1).getFullYear() < minYear
-                      }
-                    >
+                    <button className="nav-button" onClick={() => navigateMonth('start', -1)}>
                       <span>‹</span>
                     </button>
                     <div className="month-year">
@@ -399,13 +383,7 @@ const DateRangePicker = ({
                         ))}
                       </select>
                     </div>
-                    <button 
-                      className="nav-button" 
-                      onClick={() => navigateMonth('start', 1)}
-                      disabled={
-                        new Date(startMonth.getFullYear(), startMonth.getMonth() + 1).getFullYear() > maxYear
-                      }
-                    >
+                    <button className="nav-button" onClick={() => navigateMonth('start', 1)}>
                       <span>›</span>
                     </button>
                   </div>
@@ -425,25 +403,13 @@ const DateRangePicker = ({
                       {generateCalendarDays(startMonth.getFullYear(), startMonth.getMonth()).map((day, index) => (
                         <div
                           key={index}
-                          className={`day 
-                            ${isOutOfBounds(day) ? 'disabled' : ''}
-                            ${!day.isCurrentMonth ? 'other-month' : ''} 
-                            ${isDateSelected(day.day, day.month, day.year) ? 'selected' : ''}
-                            ${isStartDate(day.day, day.month, day.year) ? 'start-date' : ''}
-                            ${isEndDate(day.day, day.month, day.year) ? 'end-date' : ''}
-                            ${isInHoverRange(day.day, day.month, day.year) ? 'hover-range' : ''}`}
-                          // onClick={() => handleDateClick(day.day, day.month, day.year)}
-                          onClick={() => {
-                            if (!isOutOfBounds(day)) {
-                              handleDateClick(day.day, day.month, day.year);
-                            }
-                          }}
-                          onMouseEnter={() => {
-                            if (!isOutOfBounds(day)) {
-                              handleDateHover(day.day, day.month, day.year);
-                            }
-                          }}
-                          // onMouseEnter={() => handleDateHover(day.day, day.month, day.year)}
+                          className={`day ${!day.isCurrentMonth ? 'other-month' : ''} ${
+                            isDateSelected(day.day, day.month, day.year) ? 'selected' : ''
+                          } ${isStartDate(day.day, day.month, day.year) ? 'start-date' : ''} ${
+                            isEndDate(day.day, day.month, day.year) ? 'end-date' : ''
+                          } ${isInHoverRange(day.day, day.month, day.year) ? 'hover-range' : ''}`}
+                          onClick={() => handleDateClick(day.day, day.month, day.year)}
+                          onMouseEnter={() => handleDateHover(day.day, day.month, day.year)}
                         >
                           {day.day}
                         </div>
@@ -455,13 +421,7 @@ const DateRangePicker = ({
                 {/* End Month Calendar */}
                 <div className="calendar">
                   <div className="calendar-header">
-                    <button 
-                      className="nav-button" 
-                      onClick={() => navigateMonth('end', -1)}
-                      disabled={
-                        new Date(endMonth.getFullYear(), endMonth.getMonth() - 1).getFullYear() < minYear
-                      }
-                    >
+                    <button className="nav-button" onClick={() => navigateMonth('end', -1)}>
                       <span>‹</span>
                     </button>
                     <div className="month-year">
@@ -475,13 +435,7 @@ const DateRangePicker = ({
                         ))}
                       </select>
                     </div>
-                    <button 
-                      className="nav-button" 
-                      onClick={() => navigateMonth('end', 1)}
-                      disabled={
-                        new Date(endMonth.getFullYear(), endMonth.getMonth() + 1).getFullYear() > maxYear
-                      }
-                    >
+                    <button className="nav-button" onClick={() => navigateMonth('end', 1)}>
                       <span>›</span>
                     </button>
                   </div>
@@ -505,21 +459,9 @@ const DateRangePicker = ({
                             isDateSelected(day.day, day.month, day.year) ? 'selected' : ''
                           } ${isStartDate(day.day, day.month, day.year) ? 'start-date' : ''} ${
                             isEndDate(day.day, day.month, day.year) ? 'end-date' : ''
-                          } ${isInHoverRange(day.day, day.month, day.year) ? 'hover-range' : ''}
-                          ${(day.year < minYear || day.year > maxYear) ? 'disabled' : ''}
-                          `}
-                          // onClick={() => handleDateClick(day.day, day.month, day.year)}
-                          onClick={() => {
-                            if (day.year >= minYear && day.year <= maxYear) {
-                              handleDateClick(day.day, day.month, day.year);
-                            }
-                          }}
-                          onMouseEnter={() => {
-                            if (day.year >= minYear && day.year <= maxYear) {
-                              handleDateHover(day.day, day.month, day.year);
-                            }
-                          }}
-                          // onMouseEnter={() => handleDateHover(day.day, day.month, day.year)}
+                          } ${isInHoverRange(day.day, day.month, day.year) ? 'hover-range' : ''}`}
+                          onClick={() => handleDateClick(day.day, day.month, day.year)}
+                          onMouseEnter={() => handleDateHover(day.day, day.month, day.year)}
                         >
                           {day.day}
                         </div>
@@ -537,14 +479,6 @@ const DateRangePicker = ({
           </div>
         </div>
       )}
-      <style>{`
-        .day.disabled {
-          pointer-events: none;
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
-      `}
-    </style>
     </div>
   );
 };
