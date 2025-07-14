@@ -108,6 +108,10 @@ const CreateContact = () => {
         return !value ? "Referral Type is required" : "";
       case "contact_referral":
         return !value ? "Contact Referral is required" : "";
+      case "ph_extension":
+        return value && (value.length < 3 || value.length > 5)
+          ? "Extension must be between 3 and 5 digits"
+          : "";        
       default:
         return "";
     }
@@ -816,18 +820,22 @@ const CreateContact = () => {
                         </div>
                         <div className="floating col-sm-4">
                           <label>Ext.</label>
-                          <input
-                            type="text"
-                            className={`form-control ${
-                              touched.ph_extension && errors.ph_extension
-                                ? "is-invalid"
-                                : ""
-                            }`}
-                            name="ph_extension"
-                            value={formData.ph_extension}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
+<input
+  type="text"
+  className={`form-control ${
+    touched.ph_extension && errors.ph_extension ? "is-invalid" : ""
+  }`}
+  name="ph_extension"
+  value={formData.ph_extension}
+  onChange={(e) => {
+    const val = e.target.value;
+    // Allow only digits, max 5 characters
+    if (/^\d{0,5}$/.test(val)) {
+      handleChange(e);
+    }
+  }}
+  onBlur={handleBlur}
+/>
                           {touched.ph_extension && errors.ph_extension && (
                             <div className="errorMsz">
                               {errors.ph_extension}
@@ -1094,7 +1102,7 @@ const CreateContact = () => {
                                 ? "select-error"
                                 : ""
                             }
-                            isSearchable={false}
+                            isSearchable={true}
                             placeholder="Select Contact Referral"
                             isDisabled={userData?.disabled}
                             isLoading={isLoadingUsers}
