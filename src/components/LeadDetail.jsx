@@ -3763,8 +3763,8 @@ const LeadDetail = () => {
               <svg class="loader" viewBox="0 0 200 100">
                 <defs>
                 <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#007bff" />
-                <stop offset="100%" stop-color="#ff6600" />
+                <stop offset="0%" stopColor="#007bff" />
+                <stop offset="100%" stopColor="#ff6600" />
                 </linearGradient>
                 </defs>
                 <path class="infinity-shape"
@@ -3896,8 +3896,8 @@ const LeadDetail = () => {
                         <svg class="loader" viewBox="0 0 200 100">
                           <defs>
                           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stop-color="#007bff" />
-                          <stop offset="100%" stop-color="#ff6600" />
+                          <stop offset="0%" stopColor="#007bff" />
+                          <stop offset="100%" stopColor="#ff6600" />
                           </linearGradient>
                           </defs>
                           <path class="infinity-shape"
@@ -4036,8 +4036,8 @@ const LeadDetail = () => {
                         <svg class="loader" viewBox="0 0 200 100">
                           <defs>
                           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stop-color="#007bff" />
-                          <stop offset="100%" stop-color="#ff6600" />
+                          <stop offset="0%" stopColor="#007bff" />
+                          <stop offset="100%" stopColor="#ff6600" />
                           </linearGradient>
                           </defs>
                           <path class="infinity-shape"

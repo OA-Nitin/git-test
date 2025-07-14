@@ -80,6 +80,12 @@ const CreateContact = () => {
           : "";
       case "secondary_phone":
         return value && !phoneRegex.test(value) ? "Invalid phone" : "";
+      case "ph_extension":
+        if (value === "") return ""; // Allow blank input
+        if (!/^\d+$/.test(value)) return "Only digits allowed";
+        if (value.length < 3) return "Extension must be at least 3 digits";
+        if (value.length > 5) return "Extension must not exceed 5 digits";
+        return "";
 
       // Remove birthdate validation
       case "birthdate":
@@ -107,7 +113,7 @@ const CreateContact = () => {
       case "referral_type":
         return !value ? "Referral Type is required" : "";
       case "contact_referral":
-        return !value ? "Contact Referral is required" : "";
+        return !value ? "Contact Referral is required" : "";      
       default:
         return "";
     }
@@ -333,6 +339,11 @@ const CreateContact = () => {
       newTouched[key] = true;
     });
 
+    const extensionError = validateField("ph_extension", formData.ph_extension);
+    if (extensionError) {
+      newErrors["ph_extension"] = extensionError;
+      newTouched["ph_extension"] = true;
+    }
     setErrors(newErrors);
     setTouched(newTouched);
 
@@ -816,18 +827,24 @@ const CreateContact = () => {
                         </div>
                         <div className="floating col-sm-4">
                           <label>Ext.</label>
-                          <input
-                            type="text"
-                            className={`form-control ${
-                              touched.ph_extension && errors.ph_extension
-                                ? "is-invalid"
-                                : ""
-                            }`}
-                            name="ph_extension"
-                            value={formData.ph_extension}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
+<input
+  type="text"
+  className={`form-control ${
+    touched.ph_extension && errors.ph_extension ? "is-invalid" : ""
+  }`}
+  name="ph_extension"
+  value={formData.ph_extension}
+onChange={(e) => {
+  const val = e.target.value;
+  if (/^\d{0,5}$/.test(val)) {
+    setFormData((prev) => ({ ...prev, ph_extension: val }));
+    const error = validateField("ph_extension", val);
+    setErrors((prev) => ({ ...prev, ph_extension: error }));
+    setTouched((prev) => ({ ...prev, ph_extension: true }));
+  }
+}}
+  onBlur={handleBlur}
+/>
                           {touched.ph_extension && errors.ph_extension && (
                             <div className="errorMsz">
                               {errors.ph_extension}
@@ -1094,7 +1111,7 @@ const CreateContact = () => {
                                 ? "select-error"
                                 : ""
                             }
-                            isSearchable={false}
+                            isSearchable={true}
                             placeholder="Select Contact Referral"
                             isDisabled={userData?.disabled}
                             isLoading={isLoadingUsers}

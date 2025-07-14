@@ -3,7 +3,7 @@ import axios from "axios";
 import "./EditContactModal.css";
 import LoadingOverlay from "./common/LoadingOverlay";
 import Swal from 'sweetalert2';
-
+import Select from 'react-select';
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -141,7 +141,7 @@ const parseToDateString = (rawDate) => {
     watch
   } = useForm({
     resolver: yupResolver(contactSchema),
-    mode: "onTouched",
+    mode: 'onTouched',
   });
 
 
@@ -663,6 +663,11 @@ const parseToDateString = (rawDate) => {
 
   if (!isOpen) return null;
 
+  const contactReferralOptions = contactReferrals.map((referral, index) => ({
+    value: referral.user_id || referral.userid || "",
+    label: referral.name || referral.label || referral.full_name || "",
+  }));
+
   return (
     <>
       {/* Loading overlay */}
@@ -1005,8 +1010,13 @@ selected={
                             className={`form-control ${errors.ph_extension ? 'is-invalid' : ''}`}
                             {...register("ph_extension")}
                             value={formData.ph_extension}
-                            onChange={handleInputChange}
+                            onChange={e => {
+                              const sanitized = e.target.value.replace(/\D/g, '').slice(0, 5);
+                              handleInputChange({ target: { name: 'ph_extension', value: sanitized } });
+                              setValue('ph_extension', sanitized, { shouldValidate: true });
+                            }}
                           />
+                          
                           {errors.ph_extension && (
                             <div className="invalid-feedback">
                               {errors.ph_extension.message}
@@ -1309,52 +1319,23 @@ selected={
                           <label htmlFor="contact_referral">
                             Contact Referral:*
                           </label>
-                          <select
+                          <Select
                             id="contact_referral"
                             name="contact_referral"
-                            className={`form-select ${errors.contact_referral ? 'is-invalid' : ''}`}
-                            {...register("contact_referral")}
-                            value={formData.contact_referral || ""}
-                            onChange={handleContactReferralChange}
-                            
-                          >
-                            <option key="default" value="">
-                              Select Contact Referral
-                            </option>
-                            {contactReferrals.length > 0 ? (
-                              contactReferrals.map((referral, index) => {
-                                // Extract user_id specifically for the value attribute
-                                const userId =
-                                  referral.user_id || referral.userid || "";
-
-                                // Extract name for display
-                                const name =
-                                  referral.name ||
-                                  referral.label ||
-                                  referral.full_name ||
-                                  "";
-
-                                // Generate a unique key using index as fallback if userId is empty
-                                const uniqueKey = userId
-                                  ? `referral-${userId}`
-                                  : `referral-index-${index}`;
-
-                                ////console.log(`Rendering option: key=${uniqueKey}, userId=${userId}, name=${name}`);
-
-                                return (
-                                  <option key={uniqueKey} value={userId}>
-                                    {name}
-                                  </option>
-                                );
-                              })
-                            ) : (
-                              <option key="no-referrals" value="" disabled>
-                                No referrals available
-                              </option>
-                            )}
-                          </select>
+                            classNamePrefix="react-select"
+                            options={contactReferralOptions}
+                            value={contactReferralOptions.find(opt => opt.value === formData.contact_referral) || null}
+                            onChange={selected => {
+                              const value = selected ? selected.value : "";
+                              handleContactReferralChange({ target: { name: "contact_referral", value } });
+                            }}
+                            isClearable={false}
+                            isSearchable
+                            placeholder="Select Contact Referral"
+                            isDisabled={contactReferralOptions.length === 0}
+                          />
                           {errors.contact_referral && (
-                            <div className="invalid-feedback">
+                            <div className="invalid-feedback d-block">
                               {errors.contact_referral.message}
                             </div>
                           )}
