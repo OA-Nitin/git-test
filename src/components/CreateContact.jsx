@@ -36,7 +36,6 @@ const dndOptions = [
 ];
 
 const referralTypeOptions = [
-  { value: "", label: "Select Referral Type" },
   { value: "1", label: "Internal Users" },
   { value: "2", label: "Affiliate Referral" },
 ];
@@ -282,22 +281,18 @@ const CreateContact = () => {
     }));
   };
 
-const handleSelectChange = (option, { name }) => {
-  const value = Array.isArray(option)
-    ? option.map((opt) => opt.value)
-    : option?.value || "";
+  const handleSelectChange = (option, { name }) => {
+    const value = Array.isArray(option)
+      ? option.map((opt) => opt.value)
+      : option?.value || "";
 
-  const updates = { [name]: value };
-  if (name === "referral_type") {
-    updates.contact_referral = "";
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-  setFormData((prev) => ({
-    ...prev,
-    ...updates,
-  }));
-};
-
+    // Set touched and validate
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
 
   const ReadOnlyDateInput = forwardRef(({ value, onClick, onBlur }, ref) => (
     <input
@@ -1057,61 +1052,70 @@ onChange={(e) => {
                       <div className="row">
                         <div className="floating col-sm-4">
                           <label>Referral Type*</label>
-<Select
-  name="referral_type"
-  options={referralTypeOptions}
-  value={referralTypeOptions.find(
-    (opt) => opt.value === formData.referral_type
-  ) || null}
-  onChange={handleSelectChange}
-  classNamePrefix="select"
-  className={errors.referral_type ? "select-error" : ""}
-  isSearchable={false}
-  isDisabled={userData?.disabled}
-  placeholder="Select Referral Type"
-/>
-{errors.referral_type && (
-  <div className="errorMsz">{errors.referral_type}</div>
-)}
+                          <Select
+                            name="referral_type"
+                            options={referralTypeOptions}
+                            value={referralTypeOptions.find(
+                              (opt) => opt.value === formData.referral_type
+                            )}
+                            onChange={handleSelectChange}
+                            classNamePrefix="select"
+                            className={
+                              touched.referral_type && errors.referral_type
+                                ? "select-error"
+                                : ""
+                            }
+                            isSearchable={false}
+                            isDisabled={userData?.disabled}
+                            placeholder="Select Referral Type"
+                          />
+                          {touched.referral_type && errors.referral_type && (
+                            <div className="errorMsz">
+                              {errors.referral_type}
+                            </div>
+                          )}
                         </div>
 
                         <div className="floating col-sm-4">
                           <label>Contact Referral*</label>
-<Select
-  name="contact_referral"
-  options={(formData.referral_type === "1"
-    ? salesUsers
-    : formData.referral_type === "2"
-    ? affiliateUsers
-    : []
-  ).map((user) => ({
-    value: user.userid || user.id,
-    label: user.name || user.display_name,
-  }))}
-  value={(() => {
-    const options = (formData.referral_type === "1"
-      ? salesUsers
-      : formData.referral_type === "2"
-      ? affiliateUsers
-      : []
-    ).map((user) => ({
-      value: user.userid || user.id,
-      label: user.name || user.display_name,
-    }));
-    return options.find((opt) => opt.value === formData.contact_referral) || null;
-  })()}
-  onChange={(selected) =>
-    handleSelectChange(selected, { name: "contact_referral" })
-  }
-  classNamePrefix="select"
-  className={
-    touched.contact_referral && errors.contact_referral ? "select-error" : ""
-  }
-  isSearchable={true}
-  placeholder="Select Contact Referral"
-  isDisabled={userData?.disabled}
-  isLoading={isLoadingUsers}
-/>
+                          <Select
+                            name="contact_referral"
+                            options={(formData.referral_type === "1"
+                              ? salesUsers
+                              : affiliateUsers
+                            ).map((user) => ({
+                              value: user.userid || user.id,
+                              label: user.name || user.display_name,
+                            }))}
+                            value={(formData.referral_type === "1"
+                              ? salesUsers
+                              : affiliateUsers
+                            )
+                              .map((user) => ({
+                                value: user.userid || user.id,
+                                label: user.name || user.display_name,
+                              }))
+                              .find(
+                                (option) =>
+                                  option.value === formData.contact_referral
+                              )}
+                            onChange={(selected) =>
+                              handleSelectChange(selected, {
+                                name: "contact_referral",
+                              })
+                            }
+                            classNamePrefix="select"
+                            className={
+                              touched.contact_referral &&
+                              errors.contact_referral
+                                ? "select-error"
+                                : ""
+                            }
+                            isSearchable={true}
+                            placeholder="Select Contact Referral"
+                            isDisabled={userData?.disabled}
+                            isLoading={isLoadingUsers}
+                          />
                           {touched.contact_referral &&
                             errors.contact_referral && (
                               <div className="errorMsz">
