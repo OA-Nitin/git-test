@@ -141,7 +141,7 @@ const parseToDateString = (rawDate) => {
     watch
   } = useForm({
     resolver: yupResolver(contactSchema),
-    mode: 'onSubmit',
+    mode: 'onTouched',
   });
 
 
