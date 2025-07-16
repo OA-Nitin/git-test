@@ -37,12 +37,12 @@
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-  line-height: 36px;
+  line-height: 38px;
   padding-left: 12px;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow {
-  height: 36px;
+  height: 38px;
 }
 
 /* Multiple Select2 styles */
@@ -156,4 +156,7 @@
 .react-datepicker__month-dropdown::-webkit-scrollbar-thumb {
   background-color: #aaa;
   border-radius: 6px;
+}
+.select__control{
+  min-height: 45px !important;
 }
