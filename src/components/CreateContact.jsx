@@ -84,8 +84,8 @@ const CreateContact = () => {
       case "ph_extension":
         if (value === "") return ""; // Allow blank input
         if (!/^\d+$/.test(value)) return "Only digits allowed";
-        if (value.length < 3) return "Extension must be at least 3 digits";
-        if (value.length > 5) return "Extension must not exceed 5 digits";
+        if (value.length < 3) return "Invalid input";
+        if (value.length > 5) return "Invalid input";
         return "";
 
       // Remove birthdate validation

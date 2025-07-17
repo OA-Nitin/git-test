@@ -89,3 +89,11 @@
     max-height: 95vh;
   }
 }
+
+.react-select__control{
+  border:1px solid #7e8993 !important;
+}
+.css-tj5bde-Svg {
+    display: inline-block;
+    fill: rgb(52 58 64 / 57%)!important;
+  }
