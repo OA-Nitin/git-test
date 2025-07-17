@@ -266,7 +266,7 @@ export const contactSchema = yup.object().shape({
   ph_extension: yup
     .string()
     .notRequired()
-    .test('is-valid-ph_extension', 'Invalid value', value => {
+    .test('is-valid-ph_extension', 'Extension must be 3 to 5 digits', value => {
       if (!value) return true; // allow empty
       return /^\d{3,5}$/.test(value);
     }),
