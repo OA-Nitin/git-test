@@ -1358,7 +1358,7 @@ const LeadDetail = () => {
 
       if (response.data && response.data.status === 'success') {
         setIsContactsData(true);
-        //console.log('Contact data fetched successfully:', response.data);
+        console.log('Contact data fetched successfully satya:', response.data);
 
         // Store all contacts in state
         if (response.data.contacts && Array.isArray(response.data.contacts)) {
@@ -1381,7 +1381,7 @@ const LeadDetail = () => {
           const primaryContactData = uniqueContacts.find(contact =>
             contact.contact_type === 'primary');
 
-          console.log('Found primary contact data:', primaryContactData);
+          //console.log('Found primary contact data:', primaryContactData);
 
           // Update primary contact state if found
           if (primaryContactData) {

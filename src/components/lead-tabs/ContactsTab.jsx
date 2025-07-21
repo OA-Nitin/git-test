@@ -9,6 +9,27 @@ const ContactsTab = ({
   contactsLoading,
   newContactId
 }) => {
+  const contactTypeOrder = [
+  'primary',
+  'secondary',
+  'tertiary',
+  'quaternary',
+  'quinary',
+  'senary',
+  'septenary',
+  'octonary',
+  'nonary',
+  'denary'
+];
+const sortedContacts = contacts.slice().sort((a, b) => {
+  const aIndex = contactTypeOrder.indexOf((a.contact_type || '').toLowerCase());
+  const bIndex = contactTypeOrder.indexOf((b.contact_type || '').toLowerCase());
+  if (aIndex === -1 && bIndex === -1) return 0;
+  if (aIndex === -1) return 1;
+  if (bIndex === -1) return -1;
+  return aIndex - bIndex;
+});
+
   return (
     <div className="mb-4 left-section-container">
       <div className="row custom_opp_create_btn">
@@ -54,12 +75,12 @@ const ContactsTab = ({
               </svg>
               <p style={{color: '#000'}}>Processing data...</p>
           </div>
-        ) : contacts.length === 0 ? (
+        ) : sortedContacts.length === 0 ? (
           <div className="col-12 text-center">
             <p>No contacts found for this lead.</p>
           </div>
         ) : (
-          contacts.map((contact, index) => (
+          sortedContacts.map((contact, index) => (
             <div
               key={`contact-${contact.id}-${index}`}
               className={`col-md-6 col-sm-12 mb-4 contact-card ${contact.contact_id === newContactId ? 'new-contact' : ''}`}
@@ -77,7 +98,10 @@ const ContactsTab = ({
               <div className={`card-exam shadow ${contact.trash == 0 ?'':'card_trashed'}`}>
                 <div className="custom_opp_tab_header">
                   <h5>
-                    <i className="fas fa-star"></i> {contact.contact_type === 'primary' ? 'Primary' : 'Secondary'}
+                    <i className="fas fa-star"></i>{" "}
+                    {contact.contact_type
+                      ? contact.contact_type.charAt(0).toUpperCase() + contact.contact_type.slice(1)
+                      : "Unknown"}
                   </h5>
                   <div className="opp_edit_dlt_btn">
                     <a
