@@ -241,7 +241,7 @@ const InvoiceReport = () => {
 
   // utility function for view/edit
   const renderViewEditLinks = (row) => {
-
+  //console.log(userRoles);
     const canEdit = row.can_edit && userRoles.some(role => 
       role === "echeck_client" || role === "echeck_bingo"
     );
@@ -263,7 +263,7 @@ const InvoiceReport = () => {
         )}
       {canEdit && (
         <Link
-          to={`/invoices/edit/${row.invoice_id}`}
+          to={`/invoices/edit-invoice/${row.invoice_id}`}
           style={{ color: "#007bff", textDecoration: "none" }}
         >
           <i className="bi bi-pencil"></i> Edit
@@ -420,6 +420,7 @@ const InvoiceReport = () => {
   useEffect(() => {
 
     const currentUser = getCurrentUserInvoice();
+    //console.log(currentUser);
     if (currentUser && Array.isArray(currentUser.roles)) {
       setUserRoles(currentUser.roles);
     }  

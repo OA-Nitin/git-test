@@ -12,6 +12,8 @@ export const ENDPOINTS = {
   SEND_REMINDER_MAIL_ACTION: `${INVOICE_V1}/send-reminder-mail-action`,
   SEND_ADD_INTEREST: `${INVOICE_V1}/send-add-interest-action`,
   INVOICE_LISTING: `${INVOICE_V1}/invoice-listing`,
+  CREATE_INVOICE: `${INVOICE_V1}/create_custom_invoice_quickbook`,
+  
   // Add more as needed
 };
 
