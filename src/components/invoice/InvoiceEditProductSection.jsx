@@ -361,6 +361,18 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                     onChange={e => handleChange(idx, 'quantity', e.target.value)}
                     onFocus={handleFieldFocus}
                     onBlur={handleFieldBlur}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                   {showError(`services.${idx}.quantity`) && <span className="error-message">{formErrors[`services.${idx}.quantity`]}</span>}
                   <select
@@ -389,6 +401,18 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                     onChange={e => handleChange(idx, 'price', e.target.value)}
                     onFocus={handleFieldFocus}
                     onBlur={handleFieldBlur}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                   {showError(`services.${idx}.price`) && <span className="error-message">{formErrors[`services.${idx}.price`]}</span>}
                 </td>
@@ -404,7 +428,14 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                     value={row.discount}
                     onChange={e => handleChange(idx, 'discount', e.target.value)}
                     onKeyDown={e => {
-                      if (e.key === 'e' || e.key === '+' || e.key === '-') {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
                         e.preventDefault();
                       }
                     }}
@@ -432,6 +463,18 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                     name="tax"
                     value={row.tax || ''}
                     onChange={e => handleChange(idx, 'tax', e.target.value)}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </td>
                 <td>
@@ -448,6 +491,18 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                         handleChange(idx, 'amount', Number(val).toFixed(2));
                       } else {
                         handleFieldBlur && handleFieldBlur(e);
+                      }
+                    }}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
                       }
                     }}
                   />

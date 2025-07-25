@@ -233,23 +233,7 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                   </select>
                   {showError(`services.${idx}.product_id`) && <span className="error-message">{formErrors[`services.${idx}.product_id`]}</span>}
                   {loadingProductIdx === idx && (
-                    <div className="text-left">
-                    <svg className="loader_small" viewBox="0 0 200 100">
-                    <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#007bff" />
-                    <stop offset="100%" stop-color="#ff6600" />
-                    </linearGradient>
-                    </defs>
-                    <path className="infinity-shape"
-                        d="M30,50
-                        C30,20 70,20 100,50
-                        C130,80 170,80 170,50
-                        C170,20 130,20 100,50
-                        C70,80 30,80 30,50"
-                      />
-                    </svg>
-                  </div>
+                    <p className="pname_fetch_loader loading__bar small_loading_bar"></p>
                   )}
                 </td>
                 <td>
@@ -272,6 +256,18 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                     onChange={e => handleChange(idx, 'quantity', e.target.value)}
                     onFocus={handleFieldFocus}
                     onBlur={handleFieldBlur}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                   {showError(`services.${idx}.quantity`) && <span className="error-message">{formErrors[`services.${idx}.quantity`]}</span>}
                   <select
@@ -300,6 +296,18 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                     onChange={e => handleChange(idx, 'price', e.target.value)}
                     onFocus={handleFieldFocus}
                     onBlur={handleFieldBlur}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                   {showError(`services.${idx}.price`) && <span className="error-message">{formErrors[`services.${idx}.price`]}</span>}
                 </td>
@@ -315,7 +323,14 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                     value={row.discount}
                     onChange={e => handleChange(idx, 'discount', e.target.value)}
                     onKeyDown={e => {
-                      if (e.key === 'e' || e.key === '+' || e.key === '-') {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
                         e.preventDefault();
                       }
                     }}
@@ -341,6 +356,18 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                     name="tax"
                     value={row.tax}
                     onChange={e => handleChange(idx, 'tax', e.target.value)}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </td>
                 <td>
@@ -357,6 +384,18 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                         handleChange(idx, 'amount', Number(val).toFixed(2));
                       } else {
                         handleFieldBlur && handleFieldBlur(e);
+                      }
+                    }}
+                    onKeyDown={e => {
+                      // Allow: backspace, delete, tab, escape, enter, arrows, dot
+                      if (
+                        ["Backspace", "Delete", "Tab", "Escape", "Enter", "ArrowLeft", "ArrowRight", "."].includes(e.key)
+                      ) {
+                        return;
+                      }
+                      // Prevent: anything that's not a number
+                      if (!/^[0-9]$/.test(e.key)) {
+                        e.preventDefault();
                       }
                     }}
                   />
