@@ -11,11 +11,9 @@ export const ENDPOINTS = {
   SEND_REMINDER_ACTION: `${INVOICE_V1}/send-reminder-action`,
   SEND_REMINDER_MAIL_ACTION: `${INVOICE_V1}/send-reminder-mail-action`,
   SEND_ADD_INTEREST: `${INVOICE_V1}/send-add-interest-action`,
-  INVOICE_LISTING: `${INVOICE_V1}/invoice-listing`,
-  MARK_DELETE_INVOICE_ACTION: `${INVOICE_V1}/mark-delete-action`,
-  SEND_PAUSE_REMINDER_ACTION: `${INVOICE_V1}/send-pause-invoice-reminder-action`,
-  SEND_RESUME_REMINDER_ACTION: `${INVOICE_V1}/send-resume-invoice-reminder-action`,
-
+  INVOICE_LISTING: `${INVOICE_V1}/past-due-invoices`,
+  PAUSE_INVOICE_REMINDER: `${INVOICE_V1}/send-pause-invoice-reminder-action`,
+  RESUME_INVOICE_REMINDER: `${INVOICE_V1}/send-resume-invoice-reminder-action`,
   // Add more as needed
 };
 
@@ -40,7 +38,7 @@ export const STATUS_MAP = {
 };
 
 // Centralized merchant ID (update as needed)
-export const MERCHANT_ID = '1';
+export const MERCHANT_ID = '45117';
 
 // Centralized status map for invoices
 export const STATUS_MAP_FULL = {

@@ -58,6 +58,9 @@ import InvoiceCreate from "./components/invoice/InvoiceCreate";
 import InvoiceView from "./components/invoice/view";
 import InvoiceEdit from "./components/invoice/EditInvoice.jsx";
 
+/****** Code By Ashish ******/
+import PastDueInvoiceReport from "./components/past-due-invoice/PastDueInvoiceReport";
+
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
   // Check if user is logged in by looking for user data in localStorage
@@ -432,7 +435,16 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
+      <Route
+          path="/past-due-invoice/report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PastDueInvoiceReport />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

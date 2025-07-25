@@ -12,7 +12,6 @@ import { getCurrentUserInvoice, ENDPOINTS, PAYMENT_MODES } from '../invoice-sett
 import EmailReviewPane from '../Helpers/EmailReviewPane';
 import ReadOnlyDateInput from '../Helpers/ReadOnlyDateInput';
 
-
 const CancelledModalContent = ({ modalData }) => {
   const [inputRows, setInputRows] = useState([{
     paymentDate: null,
