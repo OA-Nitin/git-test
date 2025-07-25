@@ -245,28 +245,29 @@ const EditInvoice = () => {
   };
 
   const handlePaymentMethodDetails = (selectedMethod) => {
-    // Support both string and object input
-    let methodString = selectedMethod;
-    let paymentInstruction = '';
     if (typeof selectedMethod === 'object' && selectedMethod !== null) {
-      methodString = selectedMethod.method || '';
-      paymentInstruction = selectedMethod.payment_instruction || '';
+      setPaymentMethod(selectedMethod.method || '');
+      setPaymentMethodType(selectedMethod.payment_method_type || '');
+      setPaymentInstruction(selectedMethod.payment_instruction || '');
+      // If you want to store invoice_url, add a state for it and set here
+      // setInvoiceUrl(selectedMethod.invoice_url || '');
+    } else {
+      // fallback for string (legacy)
+      let methodString = selectedMethod;
+      let paymentInstruction = '';
+      const typeMatch = methodString.split('-')[0];
+      const paymentType = typeMatch ? typeMatch.trim() : '';
+      const methodsMatch = methodString.split('-')[1];
+      const paymentMethods = methodsMatch ? methodsMatch.split('(')[0].trim() : '';
+      let instructions = paymentInstruction;
+      if (!instructions) {
+        const instructionMatch = methodString.match(/Instructions:\s*([^)]+)/);
+        instructions = instructionMatch ? instructionMatch[1].trim() : '';
+      }
+      setPaymentMethod(paymentMethods);
+      setPaymentMethodType(paymentType);
+      setPaymentInstruction(instructions);
     }
-    // Extract payment method type (e.g., "Quickbook")
-    const typeMatch = methodString.split('-')[0];
-    const paymentType = typeMatch ? typeMatch.trim() : '';
-    // Extract payment methods (e.g., "Credit/Debit Card, Bank Transfer")
-    const methodsMatch = methodString.split('-')[1];
-    const paymentMethods = methodsMatch ? methodsMatch.split('(')[0].trim() : '';
-    // Use paymentInstruction if present, otherwise try to extract from string
-    let instructions = paymentInstruction;
-    if (!instructions) {
-      const instructionMatch = methodString.match(/Instructions:\s*([^)]+)/);
-      instructions = instructionMatch ? instructionMatch[1].trim() : '';
-    }
-    setPaymentMethod(paymentMethods);
-    setPaymentMethodType(paymentType);
-    setPaymentInstruction(instructions);
   };
 
   const handleEmailTemplateDetails = (data) => {
@@ -566,7 +567,20 @@ const EditInvoice = () => {
               subtotal={subtotal}
               discountValue={discountValue}
               discountType={discountType}
-              onDiscountValueChange={e => setDiscountValue(e.target.value)}
+              onDiscountValueChange={e => {
+                let value = e.target.value;
+                if (discountType === '%') {
+                  const parsed = parseFloat(value);
+                  if (value === '' || isNaN(parsed)) {
+                    value = '';
+                  } else if (parsed > 100) {
+                    value = 100;
+                  } else if (parsed < 0) {
+                    value = '';
+                  }
+                }
+                setDiscountValue(value);
+              }}
               onDiscountTypeChange={e => setDiscountType(e.target.value)}
               total={total}
             />

@@ -92,25 +92,51 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
 
   // Handle field change
   const handleChange = (idx, field, value) => {
+    let newValue = value;
+    if (field === 'discount') {
+      // Get the discount type for this row
+      const discountType = services[idx]?.discount_type;
+      if (discountType === 1 || discountType === '1') {
+        const parsed = parseFloat(value);
+        if (value === '' || isNaN(parsed)) {
+          newValue = '';
+        } else if (parsed > 100) {
+          newValue = 100;
+        } else if (parsed < 0) {
+          newValue = '';
+        }
+      }
+    }
+    if (field === 'tax') {
+      const parsed = parseFloat(value);
+      if (value === '' || isNaN(parsed)) {
+        newValue = '';
+      } else if (parsed < 0) {
+        newValue = '';
+      }
+    }
     const updatedRows = services.map((row, i) => {
       if (i === idx) {
-        const updatedRow = { ...row, [field]: value };
-        // Calculate amount
+        let updatedRow = { ...row, [field]: newValue };
+        if (field === 'amount') {
+          updatedRow.quantity = 1;
+          updatedRow.price = newValue;
+          updatedRow.discount = '';
+          updatedRow.tax = '';
+          // Store raw value for now, format on blur
+          updatedRow.amount = newValue;
+          return updatedRow;
+        }
+        // Calculate amount for other fields
         const qty = parseFloat(updatedRow.quantity) || 0;
         const rate = parseFloat(updatedRow.price) || 0;
         const discount = parseFloat(updatedRow.discount) || 0;
         const tax = parseFloat(updatedRow.tax) || 0;
-
         const subtotal = qty * rate;
-
-        const discountValue =
-          Number(updatedRow.discount_type) === 1 ? subtotal * (discount / 100) : discount;
-
+        const discountValue = Number(updatedRow.discount_type) === 1 ? subtotal * (discount / 100) : discount;
         const totalAfterDiscount = subtotal - discountValue;
         const taxValue = totalAfterDiscount * (tax / 100);
-
         updatedRow.amount = parseFloat((totalAfterDiscount + taxValue).toFixed(2));
-        
         return updatedRow;
       }
       return row;
@@ -370,14 +396,21 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                   <input
                     type="number"
                     min="0"
-                    className="form-control"
+                    max="100"
+                    step="0.001"
+                    className="form-control discountinput"
                     style={{ width: 60 }}
                     name="discount"
                     value={row.discount}
                     onChange={e => handleChange(idx, 'discount', e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'e' || e.key === '+' || e.key === '-') {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                   <select
-                    className="form-select"
+                    className="form-select right-summary-discount"
                     style={{ width: 55 }}
                     name="discount_type"
                     value={row.discount_type || ''}
@@ -392,7 +425,9 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                   <input
                     type="number"
                     min="0"
-                    className="form-control"
+                    max="100"
+                    step="0.001"
+                    className="form-control line_tax  "
                     style={{ width: 70 }}
                     name="tax"
                     value={row.tax || ''}
@@ -403,11 +438,18 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                   <input
                     className="form-control"
                     name="amount"
-                    value={row.amount !== undefined && row.amount !== '' ? Number(row.amount).toFixed(2) : ''}
+                    value={row.amount !== undefined && row.amount !== '' ? row.amount : ''}
                     onChange={e => handleChange(idx, 'amount', e.target.value)}
                     placeholder="0.00"
                     onFocus={handleFieldFocus}
-                    onBlur={handleFieldBlur}
+                    onBlur={e => {
+                      let val = e.target.value;
+                      if (val !== '' && !isNaN(val)) {
+                        handleChange(idx, 'amount', Number(val).toFixed(2));
+                      } else {
+                        handleFieldBlur && handleFieldBlur(e);
+                      }
+                    }}
                   />
                   {showError(`services.${idx}.amount`) && <span className="error-message">{formErrors[`services.${idx}.amount`]}</span>}
                 </td>

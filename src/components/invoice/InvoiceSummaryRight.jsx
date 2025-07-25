@@ -34,11 +34,32 @@ const InvoiceSummaryRight = ({
         <div className="input-group" style={{ width: 120 }}>
           <input
             type="number"
-            className="form-control"
+            className="form-control other_discountinput"
             value={discountValue}
-            onChange={onDiscountValueChange}
+            onChange={e => {
+              let value = e.target.value;
+              // If discountType is percentage (either '1' or '%'), apply restriction
+              if (discountType === '%' || discountType === 1 || discountType === '1') {
+                const parsed = parseFloat(value);
+                if (value === '' || isNaN(parsed)) {
+                  value = '';
+                } else if (parsed > 100) {
+                  value = 100;
+                } else if (parsed < 0) {
+                  value = '';
+                }
+              }
+              onDiscountValueChange({ target: { value } });
+            }}
             min="0"
+            max="100"
+            step="0.001"
             style={{ background: '#fff' }}
+            onKeyDown={e => {
+              if (e.key === 'e' || e.key === '+' || e.key === '-') {
+                e.preventDefault();
+              }
+            }}
           />
           <select
             className="form-select right-summary-discount"

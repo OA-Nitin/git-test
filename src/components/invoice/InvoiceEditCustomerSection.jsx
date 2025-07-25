@@ -405,7 +405,13 @@ const InvoiceEditCustomerSection = forwardRef(({
         </div>
         <div className="col-md-3">
           <label className="form-label">Zip Code*</label>
-          <input className="form-control" name="zip" value={formData.zip || ''} onChange={handleZipChange} onKeyUp={handleZipChange} onFocus={handleFieldFocus} onBlur={handleFieldBlur} />
+          <input className="form-control" name="zip" value={formData.zip || ''} onChange={handleZipChange} onKeyUp={handleZipChange} onFocus={handleFieldFocus} onBlur={handleFieldBlur}
+            onKeyPress={e => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+          />
           {showError('zip') && <span className="error-message">{formErrors.zip}</span>}
         </div>
         <div className="col-md-3">
@@ -436,7 +442,13 @@ const InvoiceEditCustomerSection = forwardRef(({
         </div>
         <div className="col-md-3">
           <label className="form-label">Phone Number*</label>
-          <input className="form-control" name="phone_no" value={formData.phone_no || ''} onChange={handleChange} onFocus={handleFieldFocus} onBlur={handleFieldBlur} />
+          <input className="form-control" name="phone_no" value={formData.phone_no || ''} onChange={handleChange} onFocus={handleFieldFocus} onBlur={handleFieldBlur}
+            onKeyPress={e => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+          />
           {showError('phone_no') && <span className="error-message">{formErrors.phone_no}</span>}
         </div>
         </div>

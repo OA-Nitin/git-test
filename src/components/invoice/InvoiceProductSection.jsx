@@ -39,10 +39,44 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
 
   // Handle field change
   const handleChange = (idx, field, value) => {
+    let newValue = value;
+    if (field === 'discount') {
+      // Get the discount type for this row
+      const discountType = services[idx]?.discount_type;
+      if (discountType === 1 || discountType === '1') {
+        const parsed = parseFloat(value);
+        if (value === '' || isNaN(parsed)) {
+          newValue = '';
+        } else if (parsed > 100) {
+          newValue = 100;
+        } else if (parsed < 0) {
+          newValue = '';
+        }
+      }
+    }
+    if (field === 'tax') {
+      const parsed = parseFloat(value);
+      if (value === '' || isNaN(parsed)) {
+        newValue = '';
+      } else if (parsed > 100) {
+        newValue = 100;
+      } else if (parsed < 0) {
+        newValue = '';
+      }
+    }
     const updatedRows = services.map((row, i) => {
       if (i === idx) {
-        const updatedRow = { ...row, [field]: value };
-        // Calculate amount
+        let updatedRow = { ...row, [field]: newValue };
+        if (field === 'amount') {
+          updatedRow.quantity = 1;
+          updatedRow.price = newValue;
+          updatedRow.discount = '';
+          updatedRow.tax = '';
+          // Store raw value for now, format on blur
+          updatedRow.amount = newValue;
+          return updatedRow;
+        }
+        // Calculate amount for other fields
         let qty = parseFloat(updatedRow.quantity) || 0;
         let rate = parseFloat(updatedRow.price) || 0;
         let discount = parseFloat(updatedRow.discount) || 0;
@@ -273,14 +307,21 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                   <input
                     type="number"
                     min="0"
-                    className="form-control"
+                    max="100"
+                    step="0.001"
+                    className="form-control discountinput"
                     style={{ width: 60 }}
                     name="discount"
                     value={row.discount}
                     onChange={e => handleChange(idx, 'discount', e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'e' || e.key === '+' || e.key === '-') {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                   <select
-                    className="form-select"
+                    className="form-select discount_type"
                     style={{ width: 55 }}
                     name="discount_type"
                     value={row.discount_type}
@@ -295,7 +336,7 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                   <input
                     type="number"
                     min="0"
-                    className="form-control"
+                    className="form-control line_tax"
                     style={{ width: 70 }}
                     name="tax"
                     value={row.tax}
@@ -306,11 +347,18 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                   <input
                     className="form-control"
                     name="amount"
-                    value={row.amount !== undefined && row.amount !== '' ? Number(row.amount).toFixed(2) : ''}
+                    value={row.amount !== undefined && row.amount !== '' ? row.amount : ''}
                     onChange={e => handleChange(idx, 'amount', e.target.value)}
                     placeholder="0.00"
                     onFocus={handleFieldFocus}
-                    onBlur={handleFieldBlur}
+                    onBlur={e => {
+                      let val = e.target.value;
+                      if (val !== '' && !isNaN(val)) {
+                        handleChange(idx, 'amount', Number(val).toFixed(2));
+                      } else {
+                        handleFieldBlur && handleFieldBlur(e);
+                      }
+                    }}
                   />
                   {showError(`services.${idx}.amount`) && <span className="error-message">{formErrors[`services.${idx}.amount`]}</span>}
                 </td>

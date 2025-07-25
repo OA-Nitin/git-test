@@ -278,12 +278,24 @@ const InvoiceAddLeadModal = ({ show, onClose, onSubmit, onLeadCreated, onLeadInf
         <div className="row mb-3">
           <div className="col-md-4 mb-3">
             <label>Phone Number:*</label>
-            <input id="authorized_signatory_phone" className="form-control" name="authorized_signatory_phone" value={form.authorized_signatory_phone} onChange={handleChange} />
+            <input id="authorized_signatory_phone" className="form-control" name="authorized_signatory_phone" value={form.authorized_signatory_phone} onChange={handleChange}
+            onKeyPress={e => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            />
             {errors.authorized_signatory_phone && <div className="text-danger small">{errors.authorized_signatory_phone}</div>}
           </div>
           <div className="col-md-4 mb-3">
             <label>Zip Code:*</label>
-            <input id="zip" className="form-control" name="zip" value={form.zip} onChange={handleChange} />
+            <input id="zip" className="form-control" name="zip" value={form.zip} onChange={handleChange} 
+            onKeyPress={e => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            />
             {errors.zip && <div className="text-danger small">{errors.zip}</div>}
           </div>
           <div className="col-md-4 mb-3">
