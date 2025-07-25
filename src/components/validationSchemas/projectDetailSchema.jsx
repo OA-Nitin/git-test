@@ -106,6 +106,20 @@ export const projectDetailSchema = yup.object().shape({
             }
         ),
 
+
+        review_link: yup
+                       .string()
+                       .notRequired()  
+                       .test(
+                           'is-valid-domain',
+                           'Please enter a valid Review Link (example.com or https://example.com)',
+                           value => {
+                           if (!value) return true;
+                            const domainRegex = /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(\/.*)?$/;
+                            return domainRegex.test(value);
+                            }
+                  ),
+                  
       business_entity_type: yup
       .string()
       .notRequired(),

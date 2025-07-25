@@ -119,8 +119,9 @@ const ProjectDetail = () => {
     business_entity_type: '',
     registration_number: '',
     registration_date: '',
-    state_of_registration :''
-
+    state_of_registration :'',
+    review_status:'',
+    review_link:''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -399,7 +400,9 @@ const ProjectDetail = () => {
     iv_invoice_pay_returned: '',
     iv_invoice_return_reason: '',
     iv_invoice_occams_share: '',
-    iv_invoice_aff_ref_share: ''
+    iv_invoice_aff_ref_share: '',
+    review_status: '',
+    review_link: '',
   });
   const [feesInfoLoading, setFeesInfoLoading] = useState(false);
   const [feesInfoError, setFeesInfoError] = useState(null);
@@ -2214,7 +2217,9 @@ const ProjectDetail = () => {
               company_folder_link: projectData.company_folder_link || projectData.company_folder || "",
               erc_document_folder: projectData.erc_document_folder || "",
               stc_document_folder: projectData.stc_document_folder || "",
-              agreement_folder: projectData.agreement_folder || ""
+              agreement_folder: projectData.agreement_folder || "",
+              review_status: projectData.review_status || "",
+              review_link: projectData.review_link || "",
             };
 
             //console.log('Mapped project data:', mappedProject);
@@ -4334,6 +4339,8 @@ const ProjectDetail = () => {
         registration_number: project.registration_number,
         registration_date: project.registration_date,
         state_of_registration: project.state_of_registration,
+        review_status: project.review_status,
+        review_link: project.review_link,
 
         // Folder Links
         // company_folder_link: combinedData.company_folder_link || companyFolderLink,

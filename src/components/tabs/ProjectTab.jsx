@@ -1,5 +1,14 @@
 import React from 'react';
 
+const storedData = localStorage.getItem("user");
+          let user_role = '';
+          if (storedData) {
+            const parsedData = JSON.parse(storedData);
+            if(parsedData.data && parsedData.data.user) {
+                user_role = parsedData.data.user.roles;
+            }
+          }
+
 function decodeHtmlEntities(str) {
   const parser = new DOMParser();
   const decoded = parser.parseFromString(str, 'text/html');
@@ -58,6 +67,34 @@ const ProjectTab = ({ project, isEditMode, errors, register, setProject, DateInp
             <input type="text" className="form-control" defaultValue={project?.project_fee || ""} readOnly />
           </div>
         </div>
+
+                {user_role.includes('echeck_staff') && (
+          <>
+          <div className="col-md-4">
+            <div className="form-group">
+              <label className="form-label">Review Status</label>
+                <select className="crm-erp-field form-control" name="review_status" id="review_status" value={project.review_status || ""} onChange={(e) => setProject({...project, review_status: e.target.value, review_link: e.target.value != "completed" ? "" : project.review_link})}  disabled={!isEditMode}>
+                    <option value="">Select Review Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                </select>
+              </div>
+          </div>
+           {project.review_status === "completed" && (
+          <div className="col-md-4 review_link">
+            <div className="form-group">
+              
+              <label className="form-label">Review link</label>
+                <input type="text" id="review_link" className={`form-control ${errors?.review_link ? 'is-invalid' : ''}`} name="review_link" readOnly value={project.review_link || ''} onChange={(e) => setProject({...project, review_link: e.target.value})} readOnly={!isEditMode}/>
+                {errors?.review_link && (
+                  <div className="invalid-feedback">{errors.review_link.message}</div>
+                )}
+          </div>
+          </div>
+           )}
+          </>
+        )}
+        
       </div>
       {/* Account Info Section */}
       <div className='d-flex align-items-center justify-content-between'>
