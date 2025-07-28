@@ -357,7 +357,7 @@ const InvoiceEditCustomerSection = forwardRef(({
             <label className="form-label">Billing Source*</label>
             <input type="text" name="billing_profile_name" 
             id="billing_profile_name" 
-            className="form-control" value="Quickbook Play" disabled />
+            className="form-control" value="Occams QB" disabled />
             <input type="hidden" name="billing_profile" 
             id="billing_profile" 
             className="form-control" value={formData.billing_profile || ''} />

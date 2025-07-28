@@ -430,7 +430,7 @@ const InvoiceReport = () => {
   const [visibleColumns, setVisibleColumns] = useState([
     "invoice_date",
     "customer_invoice_no",
-    "billing_profile_name",
+    //"billing_profile_name",
     "total_amount",
     "business_name",
     "customer_name",

@@ -748,7 +748,7 @@ const InvoiceCustomerSection = forwardRef(({
             onFocus={handleFieldFocus}
             onBlur={handleFieldBlur}
           >
-            <option value="2">Quickbook Play</option>
+            <option value="2">Occams QB</option>
           </select>
         </div>
         <div className="col-md-4">
