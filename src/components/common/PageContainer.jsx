@@ -1,6 +1,8 @@
 import React from 'react';
 import './ReportStyle.css';
 import { getAssetPath } from '../../utils/assetUtils';
+import PastDueTabs from '../past-due-invoice/PastDueTabs';
+import InvoiceTabs from '../invoice/InvoiceTab';
 
 /**
  * PageContainer - A reusable container component for page layouts
@@ -18,9 +20,14 @@ const PageContainer = ({
   children,
   titleIcon = 'assets/images/Knowledge_Ceter_White.svg',
   fullWidth = false,
-  className = ''
+  className = '',
+  activeTab,
+  onTabChange,
+  showInvoiceTabs = false,
+  showPastDueTabs = false // <-- new prop
 }) => {
   return (
+    
     <div className="main_content_iner">
       <div className="container-fluid p-0">
         <div className="row justify-content-center">
@@ -37,7 +44,13 @@ const PageContainer = ({
                       />
                     )}
                     <h4 className="text-white">{title}</h4>
+                    {showPastDueTabs && (
+                      <PastDueTabs activeTab={activeTab} onTabChange={onTabChange} />
+                    )}
                   </div>
+                    {showInvoiceTabs && (
+                      <InvoiceTabs activeTab={activeTab} onTabChange={onTabChange} />
+                    )}
                 </div>
               </div>
               <div className="white_card_body">
@@ -48,6 +61,7 @@ const PageContainer = ({
         </div>
       </div>
     </div>
+    
   );
 };
 

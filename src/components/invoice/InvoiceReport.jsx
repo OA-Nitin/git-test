@@ -28,6 +28,9 @@ const InvoiceReport = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  //--=Tab filter=--
+  const [activeTab, setActiveTab] = useState('all');
+  //--=Tab filter=--
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState("invoice_date");
   const [sortDirection, setSortDirection] = useState("desc");
@@ -146,6 +149,7 @@ const InvoiceReport = () => {
       } - Invoice #${invoiceId}`,
       actionType: newValue || "",
       invoiceId: invoiceId || "",
+      customerInvoiceNo: inv?.customerInvoiceNo || "N/A",
       invoiceDate: inv?.invoice_date || "N/A",
       invoiceAmount: isNaN(parseFloat(inv?.total_amount))
         ? "0.00"
@@ -199,44 +203,58 @@ const InvoiceReport = () => {
     });
   };
 
+  const currentUser = getCurrentUserInvoice(); // This gives user_id
+  const currentUserId = currentUser?.user_id || null;
+
   const ActionDropdown = ({ inv }) => {
     return (
       <select
         className="form-select"
         value={actionSelections[inv.invoice_id] || "Select"}
-        onChange={(e) =>
-          handleActionChange(inv.invoice_id, e.target.value, inv)
-        }
+        onChange={(e) => handleActionChange(inv.invoice_id, e.target.value, inv)}
       >
         <option value="Select">Select</option>
-        {(inv.action || "").split(",").map((act, idx) => {
-          const val = act.trim();
-          if (!val) return null;
-          let label = "";
-          let value = val;
-          const parsedId = parseInt(val, 10);
-          if (!isNaN(parsedId) && ACTIONS_MAP[parsedId]) {
-            label = ACTIONS_MAP[parsedId].text;
-            value = parsedId;
-          } else if (ACTIONS_MAP[val]) {
-            label = ACTIONS_MAP[val].text;
-          } else {
-            label = val
-              .replace(/_/g, " ")
-              .replace(/\b\w/g, (char) => char.toUpperCase());
-          }
-          return (
-            <option key={idx} value={value}>
-              {label}
-            </option>
-          );
-        })}
+        {(inv.action || "")
+          .split(",")
+          .map((act, idx) => {
+            const val = act.trim();
+            if (!val) return null;
+
+            // Condition: Hide action '13' for all except user_id = 45117
+            if (val === "13" && currentUserId === 45117) {
+              return null; // Skip rendering this option
+            }
+
+            let label = "";
+            let value = val;
+
+            const parsedId = parseInt(val, 10);
+
+            //Custom label for action 13 (regardless of ACTIONS_MAP)
+            if (val === "13") {
+              label = "Delete";
+            } else if (!isNaN(parsedId) && ACTIONS_MAP[parsedId]) {
+              label = ACTIONS_MAP[parsedId].text;
+              value = parsedId;
+            } else if (ACTIONS_MAP[val]) {
+              label = ACTIONS_MAP[val].text;
+            } else {
+              label = val
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase());
+            }
+
+            return (
+              <option key={idx} value={value}>
+                {label}
+              </option>
+            );
+          })}
       </select>
     );
   };
 
   const statusMap = STATUS_MAP_FULL;
-
   const actionsMap = ACTIONS_MAP;
 
   // utility function for view/edit
@@ -263,7 +281,7 @@ const InvoiceReport = () => {
         )}
       {canEdit && (
         <Link
-          to={`/invoices/edit/${row.invoice_id}`}
+          to={`/invoices/edit-invoice/${row.invoice_id}`}
           style={{ color: "#007bff", textDecoration: "none" }}
         >
           <i className="bi bi-pencil"></i> Edit
@@ -359,6 +377,12 @@ const InvoiceReport = () => {
       },
     },
     {
+      id: "lead_group",
+      label: "Lead Group",
+      sortable: true,
+      render: (value) => value || "-",
+    },
+    {
       id: "invoice_type_label",
       label: "Type",
       sortable: false,
@@ -406,11 +430,12 @@ const InvoiceReport = () => {
   const [visibleColumns, setVisibleColumns] = useState([
     "invoice_date",
     "customer_invoice_no",
-    "billing_profile_name",
+    //"billing_profile_name",
     "total_amount",
     "business_name",
     "customer_name",
     "status_id",
+    "Lead Group",
     "invoice_type_label",
     "due_date",
     "days_due",
@@ -451,6 +476,93 @@ const InvoiceReport = () => {
           return status ? status.text : "-";
         }
 
+        if (["invoice_date", "due_date", "paid_date"].includes(col.id)) {
+          return formatDateMMDDYYYY(rawValue);
+        }
+
+        const amountFields = [
+          "total_amount",
+          "service_amount",
+          "chargeable_amount",
+          "outstanding_charge_value",
+          "outstanding_service_value",
+          "payment_received",
+          "pending_balance"
+        ];
+
+        if (amountFields.includes(col.id)) {
+          return formatUSD(rawValue);
+        }        
+        // Basic fallback handling
+        if (typeof rawValue === "string" || typeof rawValue === "number") {
+          return rawValue;
+        }
+
+        return "-";
+      });
+    });
+
+    return { headers, data };
+  };
+
+  const generateExportExcelData = () => {
+
+    const exportColumns = [
+      { id: "invoice_date", label: "Date" },
+      { id: "customer_invoice_no", label: "Invoice #" },
+      { id: "billing_profile_name", label: "Billing Profile" },
+      { id: "total_amount", label: "Amount" },
+      { id: "service_amount", label: "Service Amount" },
+      { id: "chargeable_amount", label: "Chargeable Amount" },
+      { id: "outstanding_charge_value", label: "Outstanding Charge Amount" },
+      { id: "outstanding_service_value", label: "Outstanding Service Amount" },
+      { id: "payment_received", label: "Payment Received" },
+      { id: "pending_balance", label: "Pending Balance" },
+      { id: "customer_name", label: "Customer Name" },
+      { id: "business_name", label: "Business Name" },
+      { id: "affiliate_name", label: "Affiliate Name" },
+      { id: "merchant", label: "Merchant" },
+      { id: "product", label: "Product" },
+      { id: "days_due", label: "No. Days Due" },
+      { id: "status_id", label: "Status" },
+      { id: "paid_date", label: "Paid Date" },
+      { id: "sales_person", label: "Sales Person" },
+    ];
+
+    const headers = exportColumns.map((col) => col.label);
+
+    const data = sortedInvoices.map((inv) => {
+      return exportColumns.map((col) => {
+        const rawValue = inv[col.id];
+
+        // Handle special formats
+        if (col.id === "total_amount") {
+          const total = formatUSD(rawValue);
+          const service = formatUSD(inv?.service_amount);
+          const charge = formatUSD(inv?.chargeable_amount);
+          return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
+        }
+
+        if (col.id === "status_id") {
+          const status = statusMap[rawValue];
+          return status ? status.text : "-";
+        }
+        if (["invoice_date", "due_date", "paid_date"].includes(col.id)) {
+          return formatDateMMDDYYYY(rawValue);
+        }
+        const amountFields = [
+          "total_amount",
+          "service_amount",
+          "chargeable_amount",
+          "outstanding_charge_value",
+          "outstanding_service_value",
+          "payment_received",
+          "pending_balance"
+        ];
+
+        if (amountFields.includes(col.id)) {
+          return formatUSD(rawValue);
+        }        
         // Basic fallback handling
         if (typeof rawValue === "string" || typeof rawValue === "number") {
           return rawValue;
@@ -467,19 +579,31 @@ const InvoiceReport = () => {
   const fetchInvoices = async (start = startDate, end = endDate) => {
     setLoading(true);
     setError(null);
+    
     const formatDate = (date) => {
-      const mm = String(date.getMonth() + 1).padStart(2, "0");
-      const dd = String(date.getDate()).padStart(2, "0");
-      const yyyy = date.getFullYear();
+      if (!date) return null;
+      const dateObj = new Date(date);
+      if (isNaN(dateObj.getTime())) return null;
+      
+      const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const dd = String(dateObj.getDate()).padStart(2, "0");
+      const yyyy = dateObj.getFullYear();
       return `${mm}/${dd}/${yyyy}`;
     };
 
-    const today = new Date();
-    // Get the date 15 days before
-    const fifteenDaysAgo = new Date();
-    fifteenDaysAgo.setDate(today.getDate() - 240);
-    const date_from = formatDate(fifteenDaysAgo); 
-    const date_to = formatDate(today);
+    // Use provided dates or default to 15-day range
+    let date_from, date_to;
+    
+    if (start || end) {
+      date_from = formatDate(start);
+      date_to = formatDate(end);
+    } else {
+      const today = new Date();
+      const fifteenDaysAgo = new Date();
+      fifteenDaysAgo.setDate(today.getDate() - 15);
+      date_from = formatDate(fifteenDaysAgo);
+      date_to = formatDate(today);
+    }
 
     try {
       const response = await axios.post(
@@ -518,7 +642,25 @@ const InvoiceReport = () => {
     setEndDate(end);
     setCurrentPage(1);
     fetchInvoices(start, end);
+    Swal.fire({
+      icon: 'success',
+      title: 'Date Filter Applied',
+      text: `Showing invoices from ${start} to ${end}`,
+      timer: 1500,
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false
+    });
   };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setStartDate('');
+    setEndDate('');
+    setCurrentPage(1);
+    fetchInvoices(); // reset with default 15-day range
+  };
+
   const toggleColumnVisibility = (columnId) => {
     setVisibleColumns((prevVisibleColumns) => {
       if (prevVisibleColumns.includes(columnId)) {
@@ -556,9 +698,17 @@ const InvoiceReport = () => {
     }-${today.getDate()}-${today.getFullYear()}`;
     return `Invoice_Report_${date}.${format}`;
   };
+  const formatDateMMDDYYYY = (dateStr) => {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr || "-";
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const yyyy = date.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  };
 
   const exportToCSV = () => {
-    const { headers, data } = generateExportData();
+    const { headers, data } = generateExportExcelData();
     if (data.length === 0) {
       Swal.fire("No Data", "No invoices to export.", "info");
       return;
@@ -633,7 +783,7 @@ const InvoiceReport = () => {
     Swal.fire("Success", "Invoice data exported to PDF!", "success");
   };
   const exportToExcel = () => {
-    const { headers, data } = generateExportData();
+    const { headers, data } = generateExportExcelData();
     if (data.length === 0) {
       Swal.fire("No Data", "No invoices to export.", "info");
       return;
@@ -651,63 +801,93 @@ const InvoiceReport = () => {
     XLSX.writeFile(wb, getExportFileName("xlsx"));
     Swal.fire("Success", "Invoice data exported to Excel!", "success");
   };
-  const filteredInvoices = useMemo(() => {
-    return invoices.filter((inv) => {
-      if (searchTerm === "" && !startDate && !endDate) return true;
-      const searchTermLower = searchTerm.toLowerCase().trim();
-      const matchesSearch =
-        searchTerm === "" ||
-        (inv.customer_invoice_no &&
-          inv.customer_invoice_no.toLowerCase().includes(searchTermLower)) ||
-        (inv.business_name &&
-          inv.business_name.toLowerCase().includes(searchTermLower)) ||
-        (inv.customer_name &&
-          inv.customer_name.toLowerCase().includes(searchTermLower)) ||
-        (inv.billing_profile_name &&
-          inv.billing_profile_name.toLowerCase().includes(searchTermLower)) ||
-        (inv.id && String(inv.id).toLowerCase().includes(searchTermLower)) ||
-        (inv.display_name &&
-          inv.display_name.toLowerCase().includes(searchTermLower)) ||
-        statusMap[inv.status_id]?.text
-          .toLowerCase()
-          .includes(searchTermLower) ||
-        (inv.days_due && String(inv.days_due).includes(searchTermLower)) ||
-        (inv.product_title &&
-          inv.product_title.toLowerCase().includes(searchTermLower)) ||
-        (inv.invoice_type_label &&
-          inv.invoice_type_label.toLowerCase().includes(searchTermLower)) ||
-        (inv.total_amount &&
-          String(inv.total_amount).includes(searchTermLower)) ||
-        (inv.due_date &&
-          inv.due_date.toLowerCase().includes(searchTermLower)) ||
-        (inv.invoice_date &&
-          inv.invoice_date.toLowerCase().includes(searchTermLower));
-      let matchesDateRange = true;
-      if (startDate || endDate) {
-        const invoiceDate = parseInvoiceDate(inv.invoice_date);
-        const startFilterDate = parseInvoiceDate(startDate);
-        const endFilterDate = parseInvoiceDate(endDate);
-        if (!invoiceDate) {
+
+const filteredInvoices = useMemo(() => {
+  return invoices.filter((inv) => {
+    const searchTermLower = searchTerm.toLowerCase().trim();
+
+    const matchesSearch =
+      searchTerm === "" ||
+      (inv.customer_invoice_no &&
+        inv.customer_invoice_no.toLowerCase().includes(searchTermLower)) ||
+      (inv.business_name &&
+        inv.business_name.toLowerCase().includes(searchTermLower)) ||
+      (inv.customer_name &&
+        inv.customer_name.toLowerCase().includes(searchTermLower)) ||
+      (inv.billing_profile_name &&
+        inv.billing_profile_name.toLowerCase().includes(searchTermLower)) ||
+      (inv.display_name &&
+        inv.display_name.toLowerCase().includes(searchTermLower)) ||
+      (STATUS_MAP_FULL[inv.status_id]?.text || "")
+        .toLowerCase()
+        .includes(searchTermLower) ||
+      (inv.days_due && String(inv.days_due).includes(searchTermLower)) ||
+      (inv.product_title &&
+        inv.product_title.toLowerCase().includes(searchTermLower)) ||
+      (inv.invoice_type_label &&
+        inv.invoice_type_label.toLowerCase().includes(searchTermLower)) ||
+      (inv.total_amount &&
+        String(inv.total_amount).includes(searchTermLower)) ||
+      (inv.due_date &&
+        inv.due_date.toLowerCase().includes(searchTermLower)) ||
+      (inv.invoice_date &&
+        inv.invoice_date.toLowerCase().includes(searchTermLower));
+
+    let matchesDateRange = true;
+    if (startDate || endDate) {
+      const invoiceDate = parseInvoiceDate(inv.invoice_date);
+      const startFilterDate = parseInvoiceDate(startDate);
+      const endFilterDate = parseInvoiceDate(endDate);
+      if (!invoiceDate) {
+        matchesDateRange = false;
+      } else {
+        if (startFilterDate && invoiceDate < startFilterDate) {
           matchesDateRange = false;
-        } else {
-          if (startFilterDate && invoiceDate < startFilterDate) {
-            matchesDateRange = false;
-          }
-          if (
-            endFilterDate &&
-            matchesDateRange &&
-            invoiceDate > endFilterDate
-          ) {
-            matchesDateRange = false;
-          }
+        }
+        if (
+          endFilterDate &&
+          matchesDateRange &&
+          invoiceDate > endFilterDate
+        ) {
+          matchesDateRange = false;
         }
       }
-      return matchesSearch && matchesDateRange;
-    });
-  }, [invoices, searchTerm, startDate, endDate]);
+    }
+
+    // Tab filter
+    let matchesTab = true;
+    if (activeTab !== "all") {
+      const statusId = parseInt(inv.status_id, 10);
+      switch (activeTab) {
+        case "unpaid":
+          matchesTab = statusId === 1;
+          break;
+        case "in_process":
+          matchesTab = statusId === 6;
+          break;
+        case "partially_paid":
+          matchesTab = statusId === 17;
+          break;
+        case "paid":
+          matchesTab = statusId === 2;
+          break;
+        case "overdue":
+          matchesTab = inv.days_due > 0 && statusId !== 2 && statusId !== 3;
+          break;
+        default:
+          matchesTab = true;
+      }
+    }
+
+    return matchesSearch && matchesDateRange && matchesTab;
+  });
+}, [invoices, searchTerm, startDate, endDate, activeTab]);
+
+
   const sortedInvoices = useMemo(() => {
     return sortArrayByKey(filteredInvoices, sortField, sortDirection);
   }, [filteredInvoices, sortField, sortDirection]);
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedInvoices.slice(indexOfFirstItem, indexOfLastItem);
@@ -744,30 +924,35 @@ const InvoiceReport = () => {
   };
   const getModalSize = (actionType) => modalSizeMap[actionType] || "md";
 
-  return (
-    <PageContainer title="Invoice Report">
-      <ReportFilter
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        startDate={startDate}
-        endDate={endDate}
-        handleApplyDateFilter={handleApplyDateFilter}
-        refreshData={() => fetchInvoices(startDate, endDate)}
-        loading={loading}
-        isSearching={isSearching}
-        setIsSearching={setIsSearching}
-        setCurrentPage={setCurrentPage}
-        columnGroups={[
-          { id: "default", title: "Columns", columns: columnDefinitions },
-        ]}
-        visibleColumns={visibleColumns}
-        toggleColumnVisibility={toggleColumnVisibility}
-        resetToDefaultColumns={resetToDefaultColumns}
-        selectAllColumns={selectAllColumns}
-        exportToExcel={exportToExcel}
-        exportToPDF={exportToPDF}
-        exportToCSV={exportToCSV}
-      />
+return (
+  <PageContainer 
+    title="Invoice Report"
+    showInvoiceTabs={true}
+    activeTab={activeTab}
+    onTabChange={setActiveTab}
+  >
+    <ReportFilter
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      startDate={startDate}
+      endDate={endDate}
+      handleApplyDateFilter={handleApplyDateFilter}
+      refreshData={() => fetchInvoices(startDate, endDate)}
+      loading={loading}
+      isSearching={isSearching}
+      setIsSearching={setIsSearching}
+      setCurrentPage={setCurrentPage}
+      columnGroups={[
+        { id: "default", title: "Columns", columns: columnDefinitions },
+      ]}
+      visibleColumns={visibleColumns}
+      toggleColumnVisibility={toggleColumnVisibility}
+      resetToDefaultColumns={resetToDefaultColumns}
+      selectAllColumns={selectAllColumns}
+      exportToExcel={exportToExcel}
+      exportToPDF={exportToPDF}
+      exportToCSV={exportToCSV}
+    />
       <div className="table-responsive mt-4">
         {loading ? (
           <div className="text-center p-4">

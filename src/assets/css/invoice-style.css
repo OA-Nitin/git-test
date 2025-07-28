@@ -1,0 +1,451 @@
+.invoice-header {
+  margin-top: 10px;
+}
+
+p.company-information a {
+  color: #000;
+}
+p.company-information {
+  color: #000;
+  margin: 3px;
+}
+.invoice-header h4 {
+  color: #0788be;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 23px;
+  margin-left: 20px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.invoice-header img {
+  width: 230px;
+  margin-right: 20px;
+  margin-top: 3px;
+}
+
+.invoice-header h6 {
+  margin-bottom: 5px;
+  margin-top: 0;
+  font-weight: 700;
+  font-size: 16px;
+  color: #212529;
+  margin-left: 20px;
+}
+
+.invoice-header .merchant_business_name {
+  margin-bottom: 0px;
+  margin-top: 0;
+  font-weight: 500;
+  font-size: 14px;
+  color: #212529;
+  margin-left: 20px;
+}
+
+.invoice-header-address {
+  margin-bottom: 0;
+  font-size: 14px;
+  margin-top: 0;
+  color: #212529;
+  font-weight: 400;
+  margin-left: 20px;
+}
+
+.invoice-bill {
+  background: #ebf4fa;
+  margin-top: 20px;
+}
+.bill-to input {
+  font-size: 15px;
+  padding: 5px;
+  height: 37px;
+}
+.bill-to select {
+  font-size: 15px;
+  padding: 5px;
+  height: 37px;
+}
+.css-1lpq5kz-placeholder{
+  height: 32px;
+}
+.select__value-container.css-hlgwow {
+  height: 32px;
+  margin-top: -7px;
+}
+.select__control.css-17ioke3-control {
+  height: 32px !important;
+}
+.bill-invoice input{
+    height: 34px;
+}
+.product_table input, .product_table select {
+  height: 34px;
+  font-size: 14px;
+}
+.nxt_btn {
+  padding: 11px 25px;
+  color: #FF5F00 !important;
+  font-size: 16px !important;
+  font-weight: 600;
+  background: #FFFFFF 0% 0% no-repeat padding-box;
+  box-shadow: 0px 3px 6px #00000029;
+  border: 2px solid #FF5F00;
+  border-radius: 11px;
+  margin-right: 0 !important;
+}
+.add-customer-btn{
+  text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    background: #0788be;
+    padding: 10px;
+    border-radius: 5px;
+}
+.add-customer-btn:hover{
+  color: #fff;
+    background: #0788be;
+}
+.nxt_btn:hover,
+.nxt_btn:focus {
+  box-shadow: none !important;
+}
+
+.swal-invoice {
+  padding: 30px !important;
+  box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.3);
+  border-radius: 10px !important;
+}
+
+.swal-invoice p {
+  font-size: 18px;
+  padding: 0;
+  font-weight: 400;
+  font-family: "Mulish", sans-serif !important;
+  letter-spacing: -0.01em;
+  color: #4F4F4F;
+  line-height: 150%;
+  margin: 0;
+}
+
+.swal-invoice .swal2-html-container {
+  padding: 0 !important;
+}
+
+.swal-invoice .swal2-confirm {
+  background: #f36b21 !important;
+  border-color: #f36b21 !important;
+  padding: 10px 60px;
+  font-size: 18px !important;
+  margin: 0px;
+}
+
+.swal-invoice .swal2-cancel {
+  background: transparent !important;
+  border: 1px solid #f36b21 !important;
+  padding: 10px 60px;
+  font-size: 18px !important;
+  color: #f36b21 !important;
+  margin: 0px;
+}
+
+.swal-invoice .swal2-confirm,
+.swal-invoice .swal2-cancel {
+  box-shadow: none !important;
+}
+
+.swal-invoice .swal2-actions {
+  margin-top: 30px !important;
+}
+
+.swal2-styled.swal2-cancel:hover {
+  background: transparent !important;
+}
+
+.country-currency {
+  margin-right: -1px;
+  border-right: 0px !important;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.rate_currency {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.product_name {
+  padding-right: 30px;
+}
+
+.add-product_btn {
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: 700;
+  color: #212529;
+  border: 1px solid #ccc;
+}
+
+.mr-2 {
+  margin-right: 10px !important;
+}
+
+.mr-4 {
+  margin-right: 25px !important;
+}
+
+.buttion_next_prev {
+  width: 100%;
+  text-align: center;
+  margin-right: 48px;
+  margin-top: 54px;
+}
+
+.create-qb {
+  border-bottom: 1px solid #d6d6d6;
+  padding-bottom: 10px;
+  min-width: 95%;
+  font-weight: bold;
+}
+
+.prev_invoice_btn_1 {
+  margin-top: 10px;
+}
+
+.ml-4 {
+  margin-left: 1.5rem !important;
+}
+
+#custom-invoice-front-new button[disabled],
+#custom-invoice-front-new html input[disabled],
+button#Edit_preview_invoices[disabled],
+button#submit_custom_invoice[disabled] {
+  cursor: no-drop;
+  background: #ececec;
+}
+
+.width100 {
+  max-width: 100%;
+  width: 100%;
+  ;
+}
+
+/*********** Loader ***********/
+.loader {
+  width: 150px;
+  height: 80px;
+}
+
+.loader_small {
+  width: 50px;
+  height: 20px;
+}
+
+.infinity-shape {
+  fill: none;
+  stroke: url(#gradient);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 220 60;
+  stroke-dashoffset: 0;
+  animation: dashMove 2s linear infinite;
+}
+
+#wpbody-content {
+  padding-bottom: 0 !important;
+}
+
+.error-message {
+  padding: 2px;
+  background-color: transparent;
+  color: #d32f2f;
+  margin: 0;
+  border-radius: 4px;
+  border: 0px;
+}
+
+.occams_submit_btn {
+  margin: 0px auto 0px;
+  display: block;
+  padding: 11px 25px;
+  color: #ff5f00;
+  font-size: 16px !important;
+  font-weight: 600;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  box-shadow: 0px 3px 6px #00000029;
+  border: 2px solid #ff5f00;
+  border-radius: 11px;
+}
+.occams_submit_btn:hover,.occams_submit_btn:active {
+  color: #ff5f00 !important;
+  background: #ffffff 0% 0% no-repeat padding-box;
+  border: 2px solid #ff5f00;
+  background-color: #fff !important;
+  border-color: #ff5f00 !important;
+}
+.occams_submit_btn:disabled {
+  background: #ffffff !important;
+  border: 2px solid #ff5f00 !important;
+  color: #ff5f00 !important;
+  cursor: not-allowed !important;
+}
+.quantity-box input, .discount-box input {
+  border-right-width: 0px !important;
+  margin-right: -5px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.quantity-box select, .discount-box select {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  padding: 5px;
+}
+.rate_currency {
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+}
+.country-currency {
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+.summary-right input, .summary-right select {
+  height: 34px;
+}
+.summary-right .input-group-text{
+  font-size: 11px;
+}
+.right-summary-discount {
+  border-left-width: 0px !important;
+}
+.invoice-footer-notes textarea {
+  width: 100%;
+  resize: none;
+  min-height: 110px;
+}
+/******* Create inv Product section **********/
+.payment-method-modal .form-check-input {
+  float: none;
+}
+.form-check-inline{
+    display: flex;
+    margin-right: 1rem;
+    align-items: center;
+    text-align: left;
+    justify-content: left;
+}
+.payment-method-modal .form-check.form-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 0;
+}
+
+.payment-method-modal .form-check.form-switch .form-check-label {
+  padding-left: 1em;
+}
+
+.payment-method-modal .form-check.form-switch .form-check-input {
+  margin-left: auto;
+  margin-right: 1em;
+}
+.form-check{
+  display: flex;
+  align-items: center;
+}
+.spin-refresh {
+  animation: spin 1s linear infinite;
+}
+.email_template_select{
+  text-transform: capitalize;
+}
+.custombg-success{
+  background-color: #aee4ae !important;
+  color: #016f01 !important;
+  padding: 5px;
+  font-size: 15px;
+  border-radius: 5px;
+}
+td.d-flex.quantity-box {
+  align-items: center;
+}
+tbody.product_table td{
+  height: 54px;
+}
+.pname_fetch_loader{
+  width: 144px;
+  height: 5px;
+  background-color: #1758a8;
+  border-radius: 1em;
+  overflow: hidden;
+}
+/* Start Loader*/
+.loader_box {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+ 
+.loading__text {
+  font-weight: 500;
+  font-size: 15px;
+  color: #fff;
+}
+ 
+.loading__bar {
+  position: relative;
+  height: 7px;
+  width: 17rem;
+  background-color: #1758a8;
+  border-radius: 1em;
+  overflow: hidden;
+}
+.pname_fetch_loader.loading__bar {
+  position: relative;
+  height: 7px;
+  width: 8rem;
+  background-color: #1758a8;
+  border-radius: 1em;
+  overflow: hidden;
+  margin-top: 3px;
+  margin-bottom: 0px;
+}
+.loading__bar::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, #fff5, rgba(230, 230, 230, 0.891));
+  animation: loading-animation 1.3s infinite;
+  border-radius: 1em;
+}
+@keyframes loading-animation {
+  0% {
+      left: -50%;
+  }
+  100% {
+      left: 150%;
+  }
+}
+/* End Loader*/	
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+@keyframes dashMove {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -280;
+  }
+}

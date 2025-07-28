@@ -38,8 +38,8 @@ const financeMenuData = [
       icon: 'dashicons-image-filter',
       children: [
         { key: 'manageInvoice', name: 'Manage Invoices', path: '/invoice/report' },
-        //{ key: 'createInvoice', name: 'Create Invoice', path: '/invoice/create-invoice' },
-        //{ key: 'pastDueInvoices', name: 'Past Due Invoices', path: '/invoice/past-due-invoices' },
+        { key: 'createInvoice', name: 'Create Invoice', path: '/invoice/create-invoice' },
+        { key: 'pastDueInvoice', name: 'Past Due Invoice', path: '/past-due-invoice/report' },
         //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/invoice/invoice-settings' },
       ],
   },
