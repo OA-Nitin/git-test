@@ -322,23 +322,7 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                   </select>
                   {showError(`services.${idx}.product_id`) && <span className="error-message">{formErrors[`services.${idx}.product_id`]}</span>}
                   {loadingProductIdx === idx && (
-                    <div className="text-left">
-                    <svg className="loader_small" viewBox="0 0 200 100">
-                    <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#007bff" />
-                    <stop offset="100%" stopColor="#ff6600" />
-                    </linearGradient>
-                    </defs>
-                    <path className="infinity-shape"
-                        d="M30,50
-                        C30,20 70,20 100,50
-                        C130,80 170,80 170,50
-                        C170,20 130,20 100,50
-                        C70,80 30,80 30,50"
-                      />
-                    </svg>
-                  </div>
+                    <p style={{ display: 'block' }} className="pname_fetch_loader loading__bar small_loading_bar"></p>
                   )}
                 </td>
                 <td>
