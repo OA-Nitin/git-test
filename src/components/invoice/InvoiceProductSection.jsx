@@ -112,12 +112,11 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
     // Get values directly from DOM by id
     const parentProduct = document.getElementById('invoice_parent_product')?.value || '';
     const leadId = document.getElementById('leadId')?.value || '';
-    const customerInvoiceNo = document.getElementById('customer_invoice_no')?.value || '';
+    //const customerInvoiceNo = document.getElementById('customer_invoice_no')?.value || '';
     // Prepare API params
     const params = {
       parent_product: parentProduct,
       lead_id: leadId,
-      customer_invoice_no: customerInvoiceNo,
       product_name: optionName,
       product_id: value
     };
