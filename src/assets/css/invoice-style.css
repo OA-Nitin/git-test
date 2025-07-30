@@ -368,10 +368,24 @@ button#submit_custom_invoice[disabled] {
 }
 td.d-flex.quantity-box {
   align-items: center;
+  border-bottom: 0px;
+  position: relative;
+}
+.quantity-box .error-message {
+  position: absolute;
+  bottom: -17px;
 }
 tbody.product_table td{
-  height: 54px;
+  height: 55px;
+  position: relative;
+  padding-bottom: 15px;
 }
+tbody.product_table td .error-message{
+    position: absolute;
+    left: 6px;
+    bottom: -4px;
+}
+
 .pname_fetch_loader{
   width: 144px;
   height: 5px;
@@ -409,12 +423,12 @@ tbody.product_table td{
 }
 .pname_fetch_loader.loading__bar {
   position: relative;
-  height: 7px;
-  width: 8rem;
+  height: 3px;
+  width: 100%;
   background-color: #1758a8;
   border-radius: 1em;
   overflow: hidden;
-  margin-top: 3px;
+  margin-top: -3px;
   margin-bottom: 0px;
 }
 .loading__bar::after {

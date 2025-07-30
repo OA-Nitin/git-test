@@ -422,12 +422,12 @@ const InvoiceEditCustomerSection = forwardRef(({
 
         <div className="row mb-3">
         <div className="col-md-3 mb-3 ">
-          <label className="form-label">Country</label>
+          <label className="form-label">Country*</label>
           <input className="form-control" name="country" value={formData.country || ''} onChange={handleChange} />
           {showError('country') && <span className="error-message">{formErrors.country}</span>}
         </div>
         <div className="col-md-3">
-          <label className="form-label">State</label>
+          <label className="form-label">State*</label>
           <select className="form-select" name="state" value={formData.state || ''} onChange={handleChange}>
             <option value="">Select State</option>
             {Object.entries(states).map(([abbr, name]) => (
@@ -436,7 +436,7 @@ const InvoiceEditCustomerSection = forwardRef(({
           </select>
         </div>
         <div className="col-md-3">
-          <label className="form-label">City</label>
+          <label className="form-label">City*</label>
           <input className="form-control" name="city" value={formData.city || ''} onChange={handleChange} />
           {showError('city') && <span className="error-message">{formErrors.city}</span>}
         </div>

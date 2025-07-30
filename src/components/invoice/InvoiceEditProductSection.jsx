@@ -25,6 +25,7 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
   const [availableProductServiceHeads, setAvailableProductServiceHeads] = React.useState([]);
   const productTableRef = useRef(null);
   const [refreshLoading, setRefreshLoading] = React.useState(false);
+  const [fetchedRowsCount, setFetchedRowsCount] = React.useState(0); // Track how many rows were added by fetch
 
   // Initialize services from formData.products if present
   React.useEffect(() => {
@@ -42,6 +43,7 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
         amount: product.amount || 0,
       }));
       setServices(mapped);
+      setFetchedRowsCount(0); // Reset fetched rows count when initializing with existing data
     }
   }, [formData.products, setServices]);
   //console.log('productss data');
@@ -87,6 +89,10 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
   const handleRemoveRow = (idx) => {
     if (idx > 0) {
       setServices(services.filter((_, i) => i !== idx));
+      // If we're removing a fetched row, decrease the count
+      if (idx >= services.length - fetchedRowsCount) {
+        setFetchedRowsCount(prev => Math.max(0, prev - 1));
+      }
     }
   };
 
@@ -191,7 +197,7 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
           allowOutsideClick: false
         });
         // Still update the product_id, but not quantity
-        setServices(prev => prev.map((row, i) => i === idx ? { ...row, product_id: value } : row));
+        setServices(prev => prev.map((row, i) => i === idx ? { ...row, product_id: value , quantity: data.loOp_val } : row));
       }
     } catch (error) {
       await Swal.fire({
@@ -225,25 +231,44 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
         body: params.toString()
       });
       const data = await response.json();
-      if (data.result === 'success' && Array.isArray(data.jsondata)) {
-        const newRows = data.jsondata.map(row => {
-          const selectedOption = row.product_options.find(opt => String(opt.selected) === '1');
-          return {
-            product_id: selectedOption ? selectedOption.id : row.product_id || '',
-            product_options: row.product_options || [],
-            product_name: row.product_name || '',
-            description: row.description || '',
-            quantity: row.quantity !== undefined ? row.quantity : 1,
-            qty_type: row.qty_type || 'Qty',
-            price: row.price !== undefined ? row.price : '',
-            discount: row.discount || '',
-            discount_type: row.discount_type || 1,
-            tax: row.tax || '',
-            amount: row.amount || '',
-            currency: row.currency || '$',
-          };
-        });
-        setServices(prev => [...prev, ...newRows]);
+             if (data.result === 'success' && Array.isArray(data.jsondata)) {
+         const newRows = data.jsondata.map(row => {
+           const selectedOption = row.product_options.find(opt => String(opt.selected) === '1');
+           return {
+             product_id: selectedOption ? selectedOption.id : row.product_id || '',
+             product_options: row.product_options || [],
+             product_name: row.product_name || '',
+             description: row.description || '',
+             quantity: row.quantity !== undefined ? row.quantity : 1,
+             qty_type: row.qty_type || 'Qty',
+             price: row.price !== undefined ? row.price : '',
+             discount: row.discount || '',
+             discount_type: row.discount_type || 1,
+             tax: row.tax || '',
+             amount: row.amount || '',
+             currency: row.currency || '$',
+           };
+         });
+         
+         // Logic to handle fetched rows
+         setServices(prevServices => {
+           // Keep original rows (those not added by fetch)
+           const originalRows = prevServices.slice(0, prevServices.length - fetchedRowsCount);
+           // Add new fetched rows
+           const updatedServices = [...originalRows, ...newRows];
+           setFetchedRowsCount(newRows.length);
+           return updatedServices;
+         });
+         
+         // Show success message to user
+         await Swal.fire({
+           icon: 'success',
+           text: `Successfully fetched ${newRows.length} updated quarter(s).`,
+           confirmButtonText: 'OK',
+           timer: 2000,
+           timerProgressBar: true,
+           allowOutsideClick: false
+         });
       } else {
         await Swal.fire({
           icon: 'error',
@@ -278,7 +303,7 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
           <thead className="table-light">
             <tr>
               <th style={{ width: 40 }}>#</th>
-              <th>Product or Service*</th>
+              <th>Product/Service*</th>
               <th>Description</th>
               <th>Qty/Unit*</th>
               <th>Rate*</th>
@@ -306,7 +331,7 @@ const InvoiceEditProductSection = ({ services = [], setServices, formData, formE
                     onFocus={handleFieldFocus}
                     onBlur={handleFieldBlur}
                   >
-                    <option value="">Select Product or Service</option>
+                    <option value="">Select Product</option>
                     {(row.product_options && row.product_options.length > 0
                       ? row.product_options.map(item => (
                           <option key={item.id} value={item.id || ''}>

@@ -99,14 +99,14 @@ export function validateInvoiceForm(formData, services, paymentMethod) {
   if (!formData.country) {
     errors.country = 'Country is required.';
   } else if (!isAlphaOnly(formData.country)) {
-    errors.country = 'Country must contain only alphabets (no special characters or numbers).';
+    errors.country = 'Country must contain only alphabets.';
   }
 
   // City: Only alphabets, no special characters or numbers
   if (!formData.city) {
     errors.city = 'City is required.';
   } else if (!isAlphaOnly(formData.city)) {
-    errors.city = 'City must contain only alphabets (no special characters or numbers).';
+    errors.city = 'City must contain only alphabets.';
   }
 
   // Phone Number: Numeric, exactly 10 digits
@@ -157,7 +157,7 @@ export function validateInvoiceForm(formData, services, paymentMethod) {
       errors[`services.${idx}.product_id`] = 'Service is required.';
     }
     if (!row.quantity || isNaN(row.quantity)) {
-      errors[`services.${idx}.quantity`] = 'Quantity is required and must be a number.';
+      errors[`services.${idx}.quantity`] = 'Qty is required.';
     }
     if (!row.price) {
       errors[`services.${idx}.price`] = 'Rate is required.';

@@ -18,7 +18,7 @@ const InvoiceSummaryRight = ({
       
       <div className="mb-3 d-flex align-items-center justify-content-between">
         <span>Subtotal</span>
-        <div className="input-group" style={{ width: 120 }}>
+        <div className="input-group" style={{ width: 150 }}>
           <span className="input-group-text">$</span>
           <input
             type="text"
@@ -31,7 +31,7 @@ const InvoiceSummaryRight = ({
       </div>
       <div className="mb-3 d-flex align-items-center justify-content-between">
         <span>Discount</span>
-        <div className="input-group" style={{ width: 120 }}>
+        <div className="input-group" style={{ width: 150 }}>
           <input
             type="number"
             className="form-control other_discountinput"
@@ -53,7 +53,7 @@ const InvoiceSummaryRight = ({
             }}
             min="0"
             max="100"
-            step="0.001"
+            step="0.01"
             style={{ background: '#fff' }}
             onKeyDown={e => {
               if (e.key === 'e' || e.key === '+' || e.key === '-') {

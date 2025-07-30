@@ -92,7 +92,7 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
     setServices(updatedRows);
   };
 
-  // Helper to handle product change with API call
+  // Helper to handle product change with API call - only calls invoice_erc_project_check_amount
   const handleProductChange = async (idx, value, optionName) => {
     setLoadingProductIdx(idx);
     // Check for duplicate product selection, only if a value is selected
@@ -140,23 +140,44 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
           allowOutsideClick: false
         });
         // Still set the product_id as selected, do not revert
-        setServices(prev => prev.map((row, i) => i === idx ? { ...row, product_id: value } : row));
+        setServices(prev => prev.map((row, i) => i === idx ? { ...row, product_id: value, quantity: Number(data.loOp_val) } : row));
       }
       setLoadingProductIdx(null);
+    } catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        text: 'API error. Please try again.',
+        confirmButtonText: 'Close',
+        allowOutsideClick: false
+      });
+      setLoadingProductIdx(null);
+    }
+  };
 
-      // --- New API call for erc_product_loOP_quarter_fetch ---
+  // useEffect to handle erc_product_loOP_quarter_fetch API call when product changes
+  React.useEffect(() => {
+    const handleLoopQuarterFetch = async () => {
       // Get lead_id from hidden input
       const leadIdInput = document.getElementById('leadId');
       const lead_id = leadIdInput ? leadIdInput.value : '';
+      
       // Get billingProfile from selected dropdown
       const billingProfileSelect = document.querySelector('select[name="billing_profile"]');
       const billingProfile = billingProfileSelect ? billingProfileSelect.value : '';
-      if (value && billingProfile && lead_id) {
+      
+      // Check if any service has a product_id selected
+      const selectedProducts = services.filter(service => service.product_id && service.product_id !== '');
+      
+      if (selectedProducts.length > 0 && billingProfile && lead_id) {
+        // Use the first selected product for the API call
+        const selectedProduct = selectedProducts[0];
+        
         const loopParams = new URLSearchParams({
-          product_id: value,
+          product_id: selectedProduct.product_id,
           billingProfile: billingProfile,
           lead_id: lead_id
         }).toString();
+        
         try {
           const loopResponse = await fetch('https://play.occamsadvisory.com/portal/wp-json/v1/erc_product_loOP_quarter_fetch', {
             method: 'POST',
@@ -171,16 +192,14 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
           console.error('Error calling erc_product_loOP_quarter_fetch:', err);
         }
       }
-    } catch (err) {
-      await Swal.fire({
-        icon: 'error',
-        text: 'API error. Please try again.',
-        confirmButtonText: 'Close',
-        allowOutsideClick: false
-      });
-      setLoadingProductIdx(null);
+    };
+
+    // Only call the API if there are services with selected products
+    const hasSelectedProducts = services.some(service => service.product_id && service.product_id !== '');
+    if (hasSelectedProducts) {
+      handleLoopQuarterFetch();
     }
-  };
+  }, [services]); // Dependency on services array to trigger when products change
 
   return (
     <div className="mt-4 mb-4">
@@ -190,8 +209,8 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
           <thead className="table-light">
             <tr>
               <th style={{ width: 40 }}>#</th>
-              <th>Product or Service*</th>
-              <th>Description*</th>
+              <th>Product/Service*</th>
+              <th>Description</th>
               <th>Qty/Unit*</th>
               <th>Rate*</th>
               <th>Discount</th>
@@ -216,7 +235,7 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                     onFocus={handleFieldFocus}
                     onBlur={handleFieldBlur}
                   >
-                    <option value="">Select Product or Service</option>
+                    <option value="">Select Product</option>
                     {(row.product_options && row.product_options.length > 0
                       ? row.product_options.map(item => (
                           <option key={item.id} value={item.id} selected={String(item.selected) === '1'}>
@@ -315,7 +334,7 @@ const InvoiceProductSection = ({ services = [], setServices, availableProductSer
                     type="number"
                     min="0"
                     max="100"
-                    step="0.001"
+                    step="0.01"
                     className="form-control discountinput"
                     style={{ width: 60 }}
                     name="discount"

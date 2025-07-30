@@ -343,20 +343,22 @@ const InvoiceCustomerSection = forwardRef(({
           if (abbr) stateValue = abbr[0];
         }
 
-        setFormData(prevFormData => ({
-          ...prevFormData,
-          customer_name: leadData.authorized_signatory_name || '',
-          business_name: leadData.business_legal_name || '',
-          zip: leadData.zip || '',
-          address: leadData.street_address || '',
-          city: leadData.city || '',
-          state: stateValue,
-          country: country,
-          phone_no: business_phone,
-          email: leadData.business_email || '',
-          sales_email: leadData.sales_email || '',
-          bcc_email: leadData.affiliate_email || ''
-        }));
+                 setFormData(prevFormData => ({
+           ...prevFormData,
+           customer_name: leadData.authorized_signatory_name || '',
+           business_name: leadData.business_legal_name || '',
+           zip: leadData.zip || '',
+           address: leadData.street_address || '',
+           city: leadData.city || '',
+           state: stateValue,
+           country: country,
+           phone_no: business_phone,
+           email: leadData.business_email || '',
+           sales_email: leadData.sales_email || '',
+           bcc_email: leadData.affiliate_email || '',
+           cityError: '', // Clear city validation error
+           countryError: '' // Clear country validation error
+         }));
 
         // If fee_type is present, set it in the product section
         if (leadData.fee_type && setFeeTypeToProductSection) {
@@ -393,7 +395,8 @@ const InvoiceCustomerSection = forwardRef(({
       lead: selectedOption ? selectedOption.value : '',
       leadId: selectedOption ? selectedOption.value : '',
       'lead_id-paste': selectedOption ? selectedOption.value : '',
-      billing_profile: '2' // Always set static value
+      billing_profile: '2', // Always set static value
+      invoice_parent_product: '' // Clear parent product when lead changes
     }));
 
     // Update the selected lead state for react-select
@@ -417,33 +420,37 @@ const InvoiceCustomerSection = forwardRef(({
           ...prevFormData,
           leadId: selectedOption.value,
           'lead_id-paste': selectedOption.value,
-          billing_profile: '2'
+          billing_profile: '2',
+          invoice_parent_product: '' // Clear parent product when lead changes
         }));
       } catch (error) {
         console.error('Error fetching lead data:', error);
       }
     } else {
-      // Clear all fields when no lead is selected
-      const fieldsToClear = [
-        'customer_name', 'business_name', 'zip', 'address', 
-        'city', 'state', 'country', 'phone_no', 'email', 'sales_email'
-      ];
-      fieldsToClear.forEach(field => {
-        handleChange({
-          target: {
-            name: field,
-            value: ''
-          }
-        });
-      });
-      // Clear lead-related fields
-      setFormData(prevFormData => ({
-        ...prevFormData,
-        lead: '',
-        leadId: '',
-        'lead_id-paste': '',
-        billing_profile: '2'
-      }));
+             // Clear all fields when no lead is selected
+       const fieldsToClear = [
+         'customer_name', 'business_name', 'zip', 'address', 
+         'city', 'state', 'country', 'phone_no', 'email', 'sales_email'
+       ];
+       fieldsToClear.forEach(field => {
+         handleChange({
+           target: {
+             name: field,
+             value: ''
+           }
+         });
+       });
+       // Clear lead-related fields and validation errors
+       setFormData(prevFormData => ({
+         ...prevFormData,
+         lead: '',
+         leadId: '',
+         'lead_id-paste': '',
+         billing_profile: '2',
+         invoice_parent_product: '', // Clear parent product when lead changes
+         cityError: '', // Clear city validation error
+         countryError: '' // Clear country validation error
+       }));
     }
   };
 
@@ -478,6 +485,55 @@ const InvoiceCustomerSection = forwardRef(({
       }
       return newErrors;
     });
+  };
+
+  // Function to validate city and country fields for special characters
+  const validateCityCountry = (value) => {
+    // Allow letters, numbers, spaces, hyphens, and apostrophes
+    const validPattern = /^[a-zA-Z0-9\s\-']*$/;
+    return validPattern.test(value);
+  };
+
+  // Function to handle city input with validation
+  const handleCityChange = (e) => {
+    const value = e.target.value;
+    handleChange(e); // Update form data
+    
+    // Validate for special characters
+    if (value && !validateCityCountry(value)) {
+      // Show error message
+      setFormData(prev => ({
+        ...prev,
+        cityError: 'City name cannot contain special characters'
+      }));
+    } else {
+      // Clear error message
+      setFormData(prev => ({
+        ...prev,
+        cityError: ''
+      }));
+    }
+  };
+
+  // Function to handle country input with validation
+  const handleCountryChange = (e) => {
+    const value = e.target.value;
+    handleChange(e); // Update form data
+    
+    // Validate for special characters
+    if (value && !validateCityCountry(value)) {
+      // Show error message
+      setFormData(prev => ({
+        ...prev,
+        countryError: 'Country name cannot contain special characters'
+      }));
+    } else {
+      // Clear error message
+      setFormData(prev => ({
+        ...prev,
+        countryError: ''
+      }));
+    }
   };
 
   // Keep formData.other_emails in sync with additionalEmails
@@ -793,7 +849,7 @@ const InvoiceCustomerSection = forwardRef(({
           {showError('business_name') && <span className="error-message">{formErrors.business_name}</span>}
         </div>
         <div className="col-md-3">
-          <label className="form-label">Zip Code</label>
+          <label className="form-label">Zip Code*</label>
           <input className="form-control" name="zip" value={formData.zip || ''} onChange={handleZipChange} onKeyUp={handleZipChange} onFocus={handleFieldFocus} onBlur={handleFieldBlur}
             onKeyPress={e => {
               if (!/[0-9]/.test(e.key)) {
@@ -810,25 +866,43 @@ const InvoiceCustomerSection = forwardRef(({
         </div>
 
         <div className="row mb-3">
-        <div className="col-md-3 mb-3 ">
-          <label className="form-label">Country</label>
-          <input className="form-control" name="country" value={formData.country || ''} onChange={handleChange} />
-          {showError('country') && <span className="error-message">{formErrors.country}</span>}
-        </div>
-        <div className="col-md-3">
-          <label className="form-label">State</label>
-          <select className="form-select" name="state" value={formData.state || ''} onChange={handleChange}>
-            <option value="">Select State</option>
-            {Object.entries(states).map(([abbr, name]) => (
-              <option key={abbr} value={abbr}>{name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="col-md-3">
-          <label className="form-label">City</label>
-          <input className="form-control" name="city" value={formData.city || ''} onChange={handleChange} />
-          {showError('city') && <span className="error-message">{formErrors.city}</span>}
-        </div>
+                 <div className="col-md-3 mb-3 ">
+           <label className="form-label">Country*</label>
+           <input 
+             className="form-control" 
+             name="country" 
+             value={formData.country || ''} 
+             onChange={handleCountryChange}
+             onFocus={handleFieldFocus}
+             onBlur={handleFieldBlur}
+           />
+           {(showError('country') || formData.countryError) && (
+             <span className="error-message">{formErrors.country || formData.countryError}</span>
+           )}
+         </div>
+         <div className="col-md-3">
+           <label className="form-label">State*</label>
+           <select className="form-select" name="state" value={formData.state || ''} onChange={handleChange}>
+             <option value="">Select State</option>
+             {Object.entries(states).map(([abbr, name]) => (
+               <option key={abbr} value={abbr}>{name}</option>
+             ))}
+           </select>
+         </div>
+         <div className="col-md-3">
+           <label className="form-label">City*</label>
+           <input 
+             className="form-control" 
+             name="city" 
+             value={formData.city || ''} 
+             onChange={handleCityChange}
+             onFocus={handleFieldFocus}
+             onBlur={handleFieldBlur}
+           />
+           {(showError('city') || formData.cityError) && (
+             <span className="error-message">{formErrors.city || formData.cityError}</span>
+           )}
+         </div>
         <div className="col-md-3">
           <label className="form-label">Phone Number*</label>
           <input className="form-control" name="phone_no" value={formData.phone_no || ''} onChange={handleChange} onFocus={handleFieldFocus} onBlur={handleFieldBlur}
@@ -972,7 +1046,7 @@ const InvoiceCustomerSection = forwardRef(({
               <button
                 type="button"
                 className="btn btn-link text-danger position-absolute"
-                style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}
+                style={{ right: '10px', top: '4px' }}
                 onClick={() => handleRemoveEmail(email.id)}
               >
                 <i className="fas fa-times"></i>
