@@ -66,22 +66,28 @@ p.company-information {
   padding: 5px;
   height: 37px;
 }
-.css-1lpq5kz-placeholder{
-  height: 32px;
-}
-.select__value-container.css-hlgwow {
-  height: 32px;
-  margin-top: -7px;
-}
-.select__control.css-17ioke3-control {
-  height: 32px !important;
-}
+
 .bill-invoice input{
-    height: 34px;
+    height: 37px;
 }
 .product_table input, .product_table select {
-  height: 34px;
+  height: 37px;
   font-size: 14px;
+}
+input#react-select-3-input {
+  height: 25px;
+}
+.css-hlgwow{
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+.css-17ioke3-control{
+  min-height: 35px !important;
+}
+.css-1560u77{
+  margin: 0px !important;
+  padding-bottom: 0px !important;
+  padding-top: 0px !important;;
 }
 .nxt_btn {
   padding: 11px 25px;

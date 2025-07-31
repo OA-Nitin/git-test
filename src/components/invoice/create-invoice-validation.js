@@ -67,7 +67,7 @@ export function validateInvoiceForm(formData, services, paymentMethod) {
   if (!formData.customer_name) {
     errors.customer_name = 'Customer Name is required.';
   } else if (!isAlphaOnlyWithSpace(formData.customer_name)) {
-    errors.customer_name = 'Customer Name must contain only alphabets and a single space (no special characters).';
+    errors.customer_name = 'Customer Name must contain only alphabets and a single space.';
   } else if (formData.customer_name.length > 25) {
     errors.customer_name = 'Max 25 alphabetic characters.';
   }

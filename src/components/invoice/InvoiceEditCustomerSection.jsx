@@ -4,7 +4,7 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Swal from 'sweetalert2';
-import { isEmail } from './create-invoice-validation';
+import { isEmail, isAlphaOnly } from './create-invoice-validation';
 // Utility to get current user from localStorage
 export const getCurrentUserInvoice = () => {
   try {
@@ -227,6 +227,71 @@ const InvoiceEditCustomerSection = forwardRef(({
     }
   }, [setFormData]);
 
+  // Function to validate country field
+  const validateCountry = (value) => {
+    if (!value) {
+      return 'Country is required.';
+    } else if (!isAlphaOnly(value)) {
+      return 'Country must contain only alphabets.';
+    }
+    return '';
+  };
+
+  // Function to validate city field
+  const validateCity = (value) => {
+    if (!value) {
+      return 'City is required.';
+    } else if (!isAlphaOnly(value)) {
+      return 'City must contain only alphabets.';
+    }
+    return '';
+  };
+
+  // Function to handle country change with real-time validation
+  const handleCountryChange = (e) => {
+    const value = e.target.value;
+    handleChange(e); // Update formData
+    
+    // Real-time validation
+    const error = validateCountry(value);
+    if (error) {
+      // Update formData to show real-time validation error
+      setFormData(prev => ({
+        ...prev,
+        countryError: error
+      }));
+    } else {
+      // Clear error if validation passes
+      setFormData(prev => ({
+        ...prev,
+        countryError: ''
+      }));
+    }
+  };
+
+  // Function to handle city change with real-time validation
+  const handleCityChange = (e) => {
+    const value = e.target.value;
+    handleChange(e); // Update formData
+    
+    // Real-time validation
+    const error = validateCity(value);
+    if (error) {
+      // Update formData to show real-time validation error
+      setFormData(prev => ({
+        ...prev,
+        cityError: error
+      }));
+    } else {
+      // Clear error if validation passes
+      setFormData(prev => ({
+        ...prev,
+        cityError: ''
+      }));
+    }
+  };
+
+
 
   // Function to add new email field
   const handleAddEmail = () => {
@@ -423,8 +488,17 @@ const InvoiceEditCustomerSection = forwardRef(({
         <div className="row mb-3">
         <div className="col-md-3 mb-3 ">
           <label className="form-label">Country*</label>
-          <input className="form-control" name="country" value={formData.country || ''} onChange={handleChange} />
-          {showError('country') && <span className="error-message">{formErrors.country}</span>}
+          <input 
+            className="form-control" 
+            name="country" 
+            value={formData.country || ''} 
+            onChange={handleCountryChange}
+            onFocus={handleFieldFocus}
+            onBlur={handleFieldBlur}
+          />
+          {(showError('country') || formData.countryError) && (
+            <span className="error-message">{formErrors.country || formData.countryError}</span>
+          )}
         </div>
         <div className="col-md-3">
           <label className="form-label">State*</label>
@@ -437,8 +511,18 @@ const InvoiceEditCustomerSection = forwardRef(({
         </div>
         <div className="col-md-3">
           <label className="form-label">City*</label>
-          <input className="form-control" name="city" value={formData.city || ''} onChange={handleChange} />
-          {showError('city') && <span className="error-message">{formErrors.city}</span>}
+          <input 
+            className="form-control" 
+            name="city" 
+            value={formData.city || ''} 
+            onChange={handleCityChange}
+            onFocus={handleFieldFocus}
+            onBlur={handleFieldBlur}
+
+          />
+          {(showError('city') || formData.cityError) && (
+            <span className="error-message">{formErrors.city || formData.cityError}</span>
+          )}
         </div>
         <div className="col-md-3">
           <label className="form-label">Phone Number*</label>
