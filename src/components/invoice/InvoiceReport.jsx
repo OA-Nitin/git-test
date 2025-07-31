@@ -298,7 +298,7 @@ const InvoiceReport = () => {
         )}
       {canEdit && (
         <Link
-          to={`/invoices/edit/${row.invoice_id}`}
+          to={`/invoices/edit-invoice/${row.invoice_id}`}
           style={{ color: "#007bff", textDecoration: "none" }}
           target="_blank"
           rel="noopener noreferrer"
