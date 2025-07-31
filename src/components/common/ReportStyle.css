@@ -572,3 +572,53 @@
 .lead-link:hover {
   opacity: 0.8;
 }
+/* Tabs Design */
+.past-due-tabs-bar {
+  display: flex;
+  /* align-items: center;
+  background: linear-gradient(90deg, #1569ae 0%, #0a8ecf 100%); */
+  border-radius: 20px 20px 0 0;
+  padding: 0px 60px;
+  color: #fff;
+  margin-bottom: 15px;
+  z-index: 11000;
+  position: relative;
+  float: right;
+}
+/* .past-due-tabs-bar {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, #1569ae 0%, #0a8ecf 100%);
+  border-radius: 20px 20px 0 0;
+  padding: 0px 80px;
+  color: #fff;
+  margin-bottom: 12px;
+  float: right;
+} */
+.tabs-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  margin-right: 32px;
+}
+.tabs-list {
+  display: flex;
+  gap: 40px;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 6px 22px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin: 0px 0px 0px 25px;
+}
+.tab-btn.active,
+.tab-btn:hover {
+  border: 1px solid #fff;
+  border-radius: 20px;
+  font-weight: 600;
+}

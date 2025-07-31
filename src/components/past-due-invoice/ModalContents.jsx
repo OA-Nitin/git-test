@@ -2,16 +2,14 @@
 // Import all modal content components
 import PaidModalContent from './Modals/PaidModalContent';
 import CancelledModalContent from './Modals/CancelledModalContent';
-import ReminderModalContent from './Modals/ReminderModalContent';
+import ReminderModalContent from './Modals/ReminderModalContent'; //pending api not found
 import PaymentProcessModalContent from './Modals/PaymentProcessModalContent';
 import PartialPaidModalContent from './Modals/PartialPaidModalContent';
 import PaymentPlanModalContent from './Modals/PaymentPlanModalContent';
-import ResendInvoiceModalContent from './Modals/ResendInvoiceModalContent';
+import ResendInvoiceModalContent from './Modals/ResendInvoiceModalContent'; //pending api not found
 import UpdateInterestModalContent from './Modals/UpdateInterestModalContent';
-import PauseReminderModalContent from './Modals/PauseReminderModalContent'; 
-import ResumeReminderModalContent from './Modals/ResumeReminderModalContent';
+import PauseReminderModalContent from './Modals/PauseReminderModalContent'; //pending api not found
 import ShareInvoiceLinkModalContent from './Modals/ShareInvoiceLinkModalContent';
-import DeleteInvoiceModalContent from './Modals/DeleteInvoiceModalContent';
 import DefaultModalContent from './Modals/DefaultModalContent';
 
 const ModalContent = ({ modalData, actionsMap }) => {
@@ -34,15 +32,11 @@ const ModalContent = ({ modalData, actionsMap }) => {
     case 'resend':
       return <ResendInvoiceModalContent modalData={modalData} />; 
     case 'update_interest':
-      return <UpdateInterestModalContent modalData={modalData} />;
-    case 'share_invoice_link':
-      return <ShareInvoiceLinkModalContent modalData={modalData} />;  
-    case '13':
-      return <DeleteInvoiceModalContent modalData={modalData} />;
+      return <UpdateInterestModalContent modalData={modalData} />;   
     case 'cancel_auto_inv_reminder':
       return <PauseReminderModalContent modalData={modalData} />;
-    case 'resume_auto_inv_reminder': 
-      return <ResumeReminderModalContent modalData={modalData} />;
+    case 'share_invoice_link':
+      return <ShareInvoiceLinkModalContent modalData={modalData} />;      
     default:
       return <DefaultModalContent modalData={modalData} actionText={actionText} />;
   }
