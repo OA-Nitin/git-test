@@ -43,13 +43,18 @@ const sortedContacts = contacts.slice().sort((a, b) => {
             <i className="fa-solid fa-plus"></i> New Contact
         </a>
         <a
-          className="link_contact"
+          className={`link_contact ${contacts.length >= 5 ? 'disabled' : ''}`}
           href="#"
           onClick={(e) => {
             e.preventDefault();
             handleOpenLinkContactModal();
           }}
           title="Link a contact"
+          style={{
+            opacity: contacts.length >= 5 ? 0.5 : 1,
+            pointerEvents: contacts.length >= 5 ? 'none' : 'auto',
+            cursor: contacts.length >= 5 ? 'not-allowed' : 'pointer'
+          }}
         >
           <i className="fa-solid fa-plus"></i> Link a Contact
         </a>
@@ -101,7 +106,7 @@ const sortedContacts = contacts.slice().sort((a, b) => {
                     <i className="fas fa-star"></i>{" "}
                     {contact.contact_type
                       ? contact.contact_type.charAt(0).toUpperCase() + contact.contact_type.slice(1)
-                      : "Unknown"}
+                      : ""}
                   </h5>
                   <div className="opp_edit_dlt_btn">
                     <a
