@@ -2,19 +2,28 @@
 
 import * as yup from 'yup';
 import { emailField, phoneField, nameField, businessNameField, zipField, dateField } from './FieldValidators';
+import { referenceIdField, noteField, amountField} from './FieldValidators';
 
 // partial payemnt validation setup
+// export const partialPaymentRowSchema = yup.object().shape({
+//   refId: yup.string().required('Reference ID is required'),
+//   paymentDate: dateField(true),
+//   clearedDate: dateField(true),
+//   paymentMode: yup.string().required('Payment mode is required'),
+//   note: yup.string().notRequired(),
+//   received: yup
+//     .number()
+//     .typeError('Received amount must be a number')
+//     .positive('Amount must be greater than 0')
+//     .required('Received amount is required'),
+// });
 export const partialPaymentRowSchema = yup.object().shape({
-  refId: yup.string().required('Reference ID is required'),
+  refId: referenceIdField(true),
   paymentDate: dateField(true),
   clearedDate: dateField(true),
   paymentMode: yup.string().required('Payment mode is required'),
-  note: yup.string().notRequired(),
-  received: yup
-    .number()
-    .typeError('Received amount must be a number')
-    .positive('Amount must be greater than 0')
-    .required('Received amount is required'),
+  note: noteField(false),
+  received: amountField(true),
 });
 
 // paid invoice validation setup

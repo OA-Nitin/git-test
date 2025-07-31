@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import EmailReviewPane from '../Helpers/EmailReviewPane';
+import EmailToggleSection from '../Helpers/EmailToggleSection';
 import { handlePaymentProcessSave } from '../invoiceActionHandlers';
 import { getCurrentUserInvoice, ENDPOINTS } from '../invoice-settings';
 
@@ -14,6 +14,10 @@ const PaymentProcessModalContent = ({ modalData }) => {
   const [emailBody, setEmailBody] = useState("<p></p>");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const sendEmailRef = useRef();
+  const [emailUpdateNote, setEmailUpdateNote] = useState('');
+  const [noteValidationError, setNoteValidationError] = useState(false);
+
 
   useEffect(() => {
     const invoiceid = modalData?.invoiceId;
@@ -52,6 +56,13 @@ const PaymentProcessModalContent = ({ modalData }) => {
   }, [modalData?.invoiceId, modalData?.invoiceAmount]);
 
   const handleSubmit = async () => {
+
+    if (!sendEmail) {
+      const isValidNote = await sendEmailRef.current?.triggerValidation();
+      if (!isValidNote) {
+        return;
+      }
+    }
     setSubmitting(true);
 
     const user = getCurrentUserInvoice();
@@ -60,7 +71,7 @@ const PaymentProcessModalContent = ({ modalData }) => {
       action_type: 'payment in process',
       invoiceid: modalData?.invoiceId,
       send_email_update_to_client: sendEmail,
-      email_update_note: 'Invoice has been marked as payment in process.',
+      email_update_note: emailUpdateNote,
       user_email: emailTo,
       cc: cc,
       bcc: bcc,
@@ -68,7 +79,8 @@ const PaymentProcessModalContent = ({ modalData }) => {
       message: emailBody,
       user_id: user?.id || "",
     };
-
+    // console.log('[PaymentProcessModalContent]  Payload to Submit:', params);
+    // return;
     try {
       const res = await handlePaymentProcessSave(params);
       if (res?.success) {
@@ -79,6 +91,9 @@ const PaymentProcessModalContent = ({ modalData }) => {
           timer: 2000,
           showConfirmButton: false,
         });
+        // Auto close modal and refresh invoice data
+        if (modalData?.onClose) modalData.onClose();
+        if (modalData?.fetchInvoices) modalData.fetchInvoices();
       } else {
         throw new Error(res?.message || 'Failed to mark invoice in process.');
       }
@@ -100,7 +115,8 @@ const PaymentProcessModalContent = ({ modalData }) => {
 
   return (
     <div className="">
-      <EmailReviewPane
+      <EmailToggleSection
+        ref={sendEmailRef}
         sendEmail={sendEmail}
         setSendEmail={setSendEmail}
         emailTo={emailTo}
@@ -113,7 +129,11 @@ const PaymentProcessModalContent = ({ modalData }) => {
         setSubject={setSubject}
         emailBody={emailBody}
         setEmailBody={setEmailBody}
+        emailUpdateNote={emailUpdateNote}
+        setEmailUpdateNote={setEmailUpdateNote}
+        onNoteValidationChange={setNoteValidationError}
       />
+
 
       <div className="d-flex justify-content-center gap-3 mt-4">
         <button

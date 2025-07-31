@@ -44,7 +44,8 @@ const ReportFilter = ({
   exportToExcel,
   exportToPDF,
   exportToCSV,
-  datePickerKey
+  datePickerKey,
+  customSearchPlaceholder
 }) => {
   // Handle search
   const handleSearch = () => {
@@ -79,7 +80,7 @@ const ReportFilter = ({
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by Report ID, Business Name, Email, Phone, etc."
+                placeholder={customSearchPlaceholder || "Search by Report ID, Business Name, Email, Phone, etc."}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);

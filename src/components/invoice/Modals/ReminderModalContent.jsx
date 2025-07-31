@@ -38,16 +38,10 @@ const ReminderModalContent = ({ modalData }) => {
     const fetchTemplates = async () => {
       try {
         const res = await axios.get(ENDPOINTS.CUSTOM_REMINDER_TEMPLATES);
-        const rawHtml = res?.data?.data?.dropdown || "";
-        const tempDom = document.createElement("div");
-        tempDom.innerHTML = rawHtml;
-
-        const options = [...tempDom.querySelectorAll("option")]
-          .filter(opt => opt.value)
-          .map(opt => ({
-            id: opt.value,
-            name: opt.textContent.trim()
-          }));
+        const options = (res?.data?.data || []).map(item => ({
+          id: item.templateid,
+          name: item.name
+        }));
 
         setTemplateList(options);
       } catch (err) {
@@ -130,6 +124,9 @@ const ReminderModalContent = ({ modalData }) => {
       const res = await handleSendReminderSave(payload);
       if (res?.success || res?.message?.includes("successfully")) {
         Swal.fire("Success", "Reminder sent successfully.", "success");
+        // Auto close modal and refresh invoice data
+        if (modalData?.onClose) modalData.onClose();
+        if (modalData?.fetchInvoices) modalData.fetchInvoices();
       } else {
         Swal.fire("Error", res.message || "Reminder failed.", "error");
       }

@@ -9,18 +9,6 @@ const EmailReviewPane = ({
   emailBody, setEmailBody
 }) => (
   <>
-    <h5 className="section-title">Email Review Pane</h5>
-
-    <div className="form-check d-flex align-items-center mb-3">
-      <input
-        className="form-check-input me-2"
-        type="checkbox"
-        checked={sendEmail}
-        onChange={(e) => setSendEmail(e.target.checked)}
-      />
-      <label className="form-check-label">Send Email Update to Client</label>
-    </div>
-
     <div className="row">
       <div className="col-md-4">
         <label>To:</label>

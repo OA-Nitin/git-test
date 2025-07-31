@@ -30,6 +30,7 @@ const InvoiceReport = () => {
   const [currentPage, setCurrentPage] = useState(1);
   //--=Tab filter=--
   const [activeTab, setActiveTab] = useState('all');
+  const HIDDEN_UI_COLUMNS = ["billing_profile_name", "lead_group"];
   //--=Tab filter=--
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [sortField, setSortField] = useState("invoice_date");
@@ -104,32 +105,39 @@ const InvoiceReport = () => {
 
     // Handle Share Invoice Link action: copy link and show SweetAlert, do NOT open modal
     if (newValue === "share_invoice_link") {
-      if (inv?.invoice_url) {
+      // Check for either invoice_url or other_payment_link
+      const paymentLink = inv?.invoice_url || inv?.other_payment_link;
+
+      if (paymentLink) {
+        // Try modern clipboard API
         if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(inv.invoice_url);
+          navigator.clipboard.writeText(paymentLink);
         } else {
+          // Fallback method for insecure contexts or older browsers
           const textArea = document.createElement("textarea");
-          textArea.value = inv.invoice_url;
+          textArea.value = paymentLink;
           document.body.appendChild(textArea);
           textArea.focus();
           textArea.select();
           document.execCommand("copy");
           document.body.removeChild(textArea);
         }
+
+        // Show success alert
         Swal.fire({
           icon: "success",
           title: "Copied!",
-          text: "Invoice link copied to clipboard",
-          confirmButtonText: "OK", // Button text
-          confirmButtonColor: "#7C5CFC", // Optional: aapke design ke hisaab se
-          allowOutsideClick: false, // User ko force kare ki OK dabaye
-          allowEscapeKey: true, // Escape key se bhi band ho
+          text: "Payment link copied to clipboard",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#7C5CFC",
+          allowOutsideClick: false,
+          allowEscapeKey: true,
         });
       }
+
       // Do NOT open the modal
       return;
     }
-
     // Handle Update Interest action: show SweetAlert, do NOT open modal
     // Update Interest: Show SweetAlert instead of modal
     if (newValue === "update_interest") {
@@ -182,8 +190,12 @@ const InvoiceReport = () => {
     };
 
     //console.log("modalData set with the following values:", modalPayload); // <--- LOGGING HERE
+    const resetActionSelection = () => {
+      setActionSelections(prev => ({ ...prev, [invoiceId]: "Select" }));
+    };
 
     setModalData({
+      resetActionSelection,
       ...modalPayload,
       fetchInvoices, // <-- ADD THIS
       onClose: () => setShowModal(false), // <-- ADD THIS
@@ -213,7 +225,7 @@ const InvoiceReport = () => {
         value={actionSelections[inv.invoice_id] || "Select"}
         onChange={(e) => handleActionChange(inv.invoice_id, e.target.value, inv)}
       >
-        <option value="Select">Select</option>
+        <option value="Select">Action</option>
         {(inv.action || "")
           .split(",")
           .map((act, idx) => {
@@ -223,6 +235,11 @@ const InvoiceReport = () => {
             // Condition: Hide action '13' for all except user_id = 45117
             if (val === "13" && currentUserId === 45117) {
               return null; // Skip rendering this option
+            }
+            // Restrict share_invoice_link to specific roles
+            const allowedRolesForShareLink = ["echeck_client","master_sales","iris_sales_agent_rep","iris_sales_agent","fprs_sales_agent","iris_affiliate_users"];
+            if ( val === "share_invoice_link" && !userRoles.some(role => allowedRolesForShareLink.includes(role)) ) {
+              return null;
             }
 
             let label = "";
@@ -281,8 +298,10 @@ const InvoiceReport = () => {
         )}
       {canEdit && (
         <Link
-          to={`/invoices/edit-invoice/${row.invoice_id}`}
+          to={`/invoices/edit/${row.invoice_id}`}
           style={{ color: "#007bff", textDecoration: "none" }}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <i className="bi bi-pencil"></i> Edit
         </Link>
@@ -324,17 +343,20 @@ const InvoiceReport = () => {
       render: (value, row) => {
         return (
           <div className="tooltip-wrapper amount-tooltip">
-            <a href="#" className="amount-link">{formatUSD(value)}</a>
+            <a className="amount-link">{formatUSD(value)}</a>
             <div className="custom-tooltip top">
-              <span className="tooltip-label">Service:</span>{" "}
+              <span className="tooltip-label">Service value is:</span>{" "}
               <span className="tooltip-value">{formatUSD(row?.service_amount)}</span>
               {" | "}
-              <span className="tooltip-label">Charge:</span>{" "}
+              <span className="tooltip-label">Charge value is:</span>{" "}
               <span className="tooltip-value">{formatUSD(row?.chargeable_amount)}</span>
             </div>
           </div>
         );
-      }
+      },
+      cellStyle: () => ({
+        textAlign: "right",
+      }),
     },
     {
       id: "business_name",
@@ -435,7 +457,7 @@ const InvoiceReport = () => {
     "business_name",
     "customer_name",
     "status_id",
-    "Lead Group",
+    //"lead_group",
     "invoice_type_label",
     "due_date",
     "days_due",
@@ -466,9 +488,10 @@ const InvoiceReport = () => {
         // Handle special formats
         if (col.id === "total_amount") {
           const total = formatUSD(rawValue);
-          const service = formatUSD(inv?.service_amount);
-          const charge = formatUSD(inv?.chargeable_amount);
-          return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
+          // const service = formatUSD(inv?.service_amount);
+          // const charge = formatUSD(inv?.chargeable_amount);
+          // return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
+          return total;
         }
 
         if (col.id === "status_id") {
@@ -538,9 +561,10 @@ const InvoiceReport = () => {
         // Handle special formats
         if (col.id === "total_amount") {
           const total = formatUSD(rawValue);
-          const service = formatUSD(inv?.service_amount);
-          const charge = formatUSD(inv?.chargeable_amount);
-          return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
+          // const service = formatUSD(inv?.service_amount);
+          // const charge = formatUSD(inv?.chargeable_amount);
+          // return `Total: ${total}, Service: ${service}, Charge: ${charge}`;
+          return total;
         }
 
         if (col.id === "status_id") {
@@ -806,32 +830,47 @@ const filteredInvoices = useMemo(() => {
   return invoices.filter((inv) => {
     const searchTermLower = searchTerm.toLowerCase().trim();
 
-    const matchesSearch =
-      searchTerm === "" ||
-      (inv.customer_invoice_no &&
-        inv.customer_invoice_no.toLowerCase().includes(searchTermLower)) ||
-      (inv.business_name &&
-        inv.business_name.toLowerCase().includes(searchTermLower)) ||
-      (inv.customer_name &&
-        inv.customer_name.toLowerCase().includes(searchTermLower)) ||
-      (inv.billing_profile_name &&
-        inv.billing_profile_name.toLowerCase().includes(searchTermLower)) ||
-      (inv.display_name &&
-        inv.display_name.toLowerCase().includes(searchTermLower)) ||
-      (STATUS_MAP_FULL[inv.status_id]?.text || "")
-        .toLowerCase()
-        .includes(searchTermLower) ||
-      (inv.days_due && String(inv.days_due).includes(searchTermLower)) ||
-      (inv.product_title &&
-        inv.product_title.toLowerCase().includes(searchTermLower)) ||
-      (inv.invoice_type_label &&
-        inv.invoice_type_label.toLowerCase().includes(searchTermLower)) ||
-      (inv.total_amount &&
-        String(inv.total_amount).includes(searchTermLower)) ||
-      (inv.due_date &&
-        inv.due_date.toLowerCase().includes(searchTermLower)) ||
-      (inv.invoice_date &&
-        inv.invoice_date.toLowerCase().includes(searchTermLower));
+  const matchesSearch =
+    searchTerm === "" ||
+    (inv.customer_invoice_no &&
+      inv.customer_invoice_no.toLowerCase().includes(searchTermLower)) ||
+    (inv.business_name &&
+      inv.business_name.toLowerCase().includes(searchTermLower)) ||
+    (inv.customer_name &&
+      inv.customer_name.toLowerCase().includes(searchTermLower)) ||
+    (inv.display_name &&
+      inv.display_name.toLowerCase().includes(searchTermLower)) ||
+    (STATUS_MAP_FULL[inv.status_id]?.text || "")
+      .toLowerCase()
+      .includes(searchTermLower);
+      
+
+    // const matchesSearch =
+    //   searchTerm === "" ||
+    //   (inv.customer_invoice_no &&
+    //     inv.customer_invoice_no.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.business_name &&
+    //     inv.business_name.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.customer_name &&
+    //     inv.customer_name.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.billing_profile_name &&
+    //     inv.billing_profile_name.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.display_name &&
+    //     inv.display_name.toLowerCase().includes(searchTermLower)) ||
+    //   (STATUS_MAP_FULL[inv.status_id]?.text || "")
+    //     .toLowerCase()
+    //     .includes(searchTermLower) ||
+    //   (inv.days_due && String(inv.days_due).includes(searchTermLower)) ||
+    //   (inv.product_title &&
+    //     inv.product_title.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.invoice_type_label &&
+    //     inv.invoice_type_label.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.total_amount &&
+    //     String(inv.total_amount).includes(searchTermLower)) ||
+    //   (inv.due_date &&
+    //     inv.due_date.toLowerCase().includes(searchTermLower)) ||
+    //   (inv.invoice_date &&
+    //     inv.invoice_date.toLowerCase().includes(searchTermLower));
 
     let matchesDateRange = true;
     if (startDate || endDate) {
@@ -943,7 +982,11 @@ return (
       setIsSearching={setIsSearching}
       setCurrentPage={setCurrentPage}
       columnGroups={[
-        { id: "default", title: "Columns", columns: columnDefinitions },
+        {
+          id: "default",
+          title: "Columns",
+          columns: columnDefinitions.filter(col => !HIDDEN_UI_COLUMNS.includes(col.id))
+        }
       ]}
       visibleColumns={visibleColumns}
       toggleColumnVisibility={toggleColumnVisibility}
@@ -952,8 +995,9 @@ return (
       exportToExcel={exportToExcel}
       exportToPDF={exportToPDF}
       exportToCSV={exportToCSV}
+      customSearchPlaceholder="Search by Invoice Number, Business Name, Customer Name, User, or Status"
     />
-      <div className="table-responsive mt-4">
+      <div className="table-responsive mt-4 custom-inv-table">
         {loading ? (
           <div className="text-center p-4">
             <div className="spinner-border text-primary" role="status">
@@ -970,11 +1014,11 @@ return (
             <p>No invoices found</p>
           </div>
         ) : (
-          <table className="table table-bordered table-hover table-striped">
+          <table className="table table-bordered table-hover table-striped ">
             <thead>
               <tr>
                 {columnDefinitions
-                  .filter((col) => visibleColumns.includes(col.id))
+                  .filter(col => visibleColumns.includes(col.id) && !HIDDEN_UI_COLUMNS.includes(col.id))
                   .map((col) => (
                     <SortableTableHeader
                       key={col.id}
@@ -991,7 +1035,8 @@ return (
               {currentItems.map((inv, index) => (
                 <tr key={index}>
                   {columnDefinitions
-                    .filter((col) => visibleColumns.includes(col.id))
+                    //.filter((col) => visibleColumns.includes(col.id))
+                    .filter(col => visibleColumns.includes(col.id) && !HIDDEN_UI_COLUMNS.includes(col.id))
                     .map((col) => (
                       <td 
                       key={col.id}

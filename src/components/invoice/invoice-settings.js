@@ -4,10 +4,12 @@ export const INVOICE_API_BASE = 'https://play.occamsadvisory.com/portal/wp-json'
 export const INVOICE_V1 = `${INVOICE_API_BASE}/invoices/v1`;
 
 // Common endpoints
+
 export const ENDPOINTS = {
   GET_INVOICE_ACTION: `${INVOICE_V1}/get-invoice-action`,
   SEND_PARTIALLY_PAID: `${INVOICE_V1}/send-partially-paid-invoice-action`,
-  CUSTOM_REMINDER_TEMPLATES: `${INVOICE_V1}/custom-reminder-templates`,
+  CUSTOM_REMINDER_TEMPLATES: `${INVOICE_V1}/get-invoice-template-reminders`,
+  //CUSTOM_REMINDER_TEMPLATES: `${INVOICE_API_BASE}/v1/get_invoice_reminder_email_templates`,
   SEND_REMINDER_ACTION: `${INVOICE_V1}/send-reminder-action`,
   SEND_REMINDER_MAIL_ACTION: `${INVOICE_V1}/send-reminder-mail-action`,
   SEND_ADD_INTEREST: `${INVOICE_V1}/send-add-interest-action`,

@@ -1,11 +1,11 @@
 // Step 1: Import required libraries and helpers
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { handlePartialPaidSave } from '../invoiceActionHandlers';
 import { getCurrentUserInvoice, PAYMENT_MODES, ENDPOINTS } from '../invoice-settings';
-import EmailReviewPane from '../Helpers/EmailReviewPane';
+import EmailToggleSection from '../Helpers/EmailToggleSection';
 import ReadOnlyDateInput from '../Helpers/ReadOnlyDateInput';
 import { useInvoiceValidation } from '../Helpers/validationLibrary/useInvoiceValidation';
 import { partialPaymentRowSchema } from '../Helpers/validationLibrary/InvoiceValidator';
@@ -31,12 +31,17 @@ const PartialPaidModalContent = ({ modalData }) => {
   const [bcc, setBcc] = useState("");
   const [subject, setSubject] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const [noteValidationError, setNoteValidationError] = useState(false);
+
   const [overdueAmount, setOverdueAmount] = useState("0.00");
   const [receivedAmount, setReceivedAmount] = useState("0.00");
   const [submitting, setSubmitting] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [formHasErrors, setFormHasErrors] = useState(false);
 
+  const [emailUpdateNote, setEmailUpdateNote] = useState("");
+  const sendEmailRef = useRef();
   // Step 3: Initialize validation hook
   const { errors, validateAllRows, handleInputChange } = useInvoiceValidation(
     partialPaymentRowSchema,
@@ -170,7 +175,14 @@ const PartialPaidModalContent = ({ modalData }) => {
   const handlePartialPaidSubmit = async () => {
     const isValid = await validateAllRows();
     const user = getCurrentUserInvoice();
-
+    // Check note validation if email is not being sent
+    if (!sendEmail) {
+      const isValidNote = await sendEmailRef.current?.triggerValidation();
+      if (!isValidNote) {
+        setFormHasErrors(true);
+        return;
+      }
+    }
     setFormHasErrors(!isValid);
     if (!isValid) return;
 
@@ -191,7 +203,7 @@ const PartialPaidModalContent = ({ modalData }) => {
       send_email_update_to_client: sendEmail,
       manual_payment_mode: inputRows[0]?.paymentMode || "",
       payment_mode_note: inputRows[0]?.paymentMode || "",
-      email_update_note: `Partial payment of $${inputRows[0]?.received || 0} recorded via portal`,
+      email_update_note: emailUpdateNote || `Partial payment of $${inputRows[0]?.received || 0} recorded via portal`,
       user_email: emailTo,
       cc: cc,
       bcc: bcc,
@@ -200,6 +212,9 @@ const PartialPaidModalContent = ({ modalData }) => {
       overdue_amount_hidden: overdueAmount || "0.00",
       user_id: user?.id || "",
     };
+
+    // console.log("[DEBUG] Partial Payment Payload:", params);
+    // return; // STOP submission here
 
     try {
       const response = await handlePartialPaidSave(params);
@@ -213,18 +228,22 @@ const PartialPaidModalContent = ({ modalData }) => {
           showConfirmButton: false
         });
 
-        setInputRows([{
-          refId: "",
-          paymentDate: null,
-          clearedDate: null,
-          paymentMode: "",
-          note: "",
-          received: "",
-        }]);
+        // setInputRows([{
+        //   refId: "",
+        //   paymentDate: null,
+        //   clearedDate: null,
+        //   paymentMode: "",
+        //   note: "",
+        //   received: "",
+        // }]);
 
-        setFormHasErrors(false);
-        setReceivedAmount("0.00");
-        await fetchData();
+        // setFormHasErrors(false);
+        // setReceivedAmount("0.00");
+        // await fetchData();
+        
+        // Auto close modal and refresh invoice data
+        if (modalData?.onClose) modalData.onClose();
+        if (modalData?.fetchInvoices) modalData.fetchInvoices();
       } else {
         throw new Error(response?.msg || "Failed to record partial payment");
       }
@@ -375,11 +394,11 @@ const PartialPaidModalContent = ({ modalData }) => {
                   <div className="field-wrapper">
                     <input
                       type="text"
-                      className="form-control form-control-sm"
+                      className={`form-control form-control-sm ${errors[index]?.note ? 'is-invalid' : ''}`}
                       value={row.note}
                       onChange={(e) => handleInputChange(index, 'note', e.target.value)}
                     />
-                    <div className="invalid-feedback d-block">&nbsp;</div>
+                    <div className="invalid-feedback d-block">{errors[index]?.note || '\u00A0'}</div>
                   </div>
                 </td>
 
@@ -443,7 +462,8 @@ const PartialPaidModalContent = ({ modalData }) => {
         </div>
       </div>
 
-      <EmailReviewPane
+      <EmailToggleSection
+        ref={sendEmailRef}
         sendEmail={sendEmail}
         setSendEmail={setSendEmail}
         emailTo={emailTo}
@@ -456,8 +476,10 @@ const PartialPaidModalContent = ({ modalData }) => {
         setSubject={setSubject}
         emailBody={emailBody}
         setEmailBody={setEmailBody}
+        emailUpdateNote={emailUpdateNote}
+        setEmailUpdateNote={setEmailUpdateNote}
+        onNoteValidationChange={setNoteValidationError}
       />
-
       <div className="d-flex justify-content-center gap-3 mt-4">
         <button className="btn save-btn" onClick={handlePartialPaidSubmit} disabled={submitting || loading}>
           {submitting ? (

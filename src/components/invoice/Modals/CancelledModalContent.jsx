@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import EmailToggleSection from '../Helpers/EmailToggleSection';
 
 import { handleCancelInvoiceSave } from '../invoiceActionHandlers';
 import { cancelInvoiceSchema } from '../Helpers/validationLibrary/InvoiceValidator';
 import { useInvoiceValidation } from '../Helpers/validationLibrary/useInvoiceValidation';
 import { getCurrentUserInvoice, ENDPOINTS, PAYMENT_MODES } from '../invoice-settings';
 
-import EmailReviewPane from '../Helpers/EmailReviewPane';
 import ReadOnlyDateInput from '../Helpers/ReadOnlyDateInput';
+
 
 
 const CancelledModalContent = ({ modalData }) => {
   const [inputRows, setInputRows] = useState([{
-    paymentDate: null,
-    clearedDate: null,
+    paymentDate: new Date(),
+    clearedDate: new Date(),
     paymentMode: '',
     note: '',
   }]);
@@ -31,6 +32,9 @@ const CancelledModalContent = ({ modalData }) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formHasErrors, setFormHasErrors] = useState(false);
+  const [emailUpdateNote, setEmailUpdateNote] = useState('');
+  const [noteValidationError, setNoteValidationError] = useState(false);
+  const sendEmailRef = useRef();
 
   const { errors, setErrors, validateAllRows, handleInputChange } = useInvoiceValidation(
     cancelInvoiceSchema, inputRows, setInputRows
@@ -76,7 +80,14 @@ const CancelledModalContent = ({ modalData }) => {
       setFormHasErrors(true);
       return;
     }
-
+    // Check note validation if email is not being sent
+    if (!sendEmail) {
+      const isValidNote = await sendEmailRef.current?.triggerValidation();
+      if (!isValidNote) {
+        setFormHasErrors(true);
+        return;
+      }
+    }
     setFormHasErrors(false);
     setSubmitting(true);
 
@@ -91,7 +102,7 @@ const CancelledModalContent = ({ modalData }) => {
       payment_date: formatDateToDMY(row.paymentDate),
       cleared_date: formatDateToDMY(row.clearedDate),
       send_email_update_to_client: sendEmail,
-      email_update_note: 'Invoice has been marked as cancelled.',
+      email_update_note: emailUpdateNote || 'Invoice has been marked as cancelled.',
       user_email: emailTo,
       cc: cc,
       bcc: bcc,
@@ -99,7 +110,8 @@ const CancelledModalContent = ({ modalData }) => {
       message: emailBody,
       user_id: user?.id || "",
     };
-
+    // console.log('Check for debugging canceled data send: ',params);
+    // return;
     try {
       const res = await handleCancelInvoiceSave(params);
       if (res?.success) {
@@ -110,6 +122,9 @@ const CancelledModalContent = ({ modalData }) => {
           timer: 2000,
           showConfirmButton: false,
         });
+          // Auto close and refresh report
+        if (modalData?.onClose) modalData.onClose();
+        if (modalData?.fetchInvoices) modalData.fetchInvoices();
       } else {
         throw new Error(res?.message || 'Cancel failed.');
       }
@@ -193,7 +208,8 @@ const CancelledModalContent = ({ modalData }) => {
 
       {/* Email Review Pane */}
       <hr className="mt-4" />
-      <EmailReviewPane
+      <EmailToggleSection
+        ref={sendEmailRef}
         sendEmail={sendEmail}
         setSendEmail={setSendEmail}
         emailTo={emailTo}
@@ -206,7 +222,11 @@ const CancelledModalContent = ({ modalData }) => {
         setSubject={setSubject}
         emailBody={emailBody}
         setEmailBody={setEmailBody}
+        emailUpdateNote={emailUpdateNote}
+        setEmailUpdateNote={setEmailUpdateNote}
+        onNoteValidationChange={setNoteValidationError}
       />
+
 
       {/* Actions */}
       <div className="d-flex justify-content-center gap-3 mt-4">
