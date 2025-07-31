@@ -229,7 +229,7 @@ const ReminderModalContent = ({ modalData }) => {
         >
           {sending ? "Sending..." : "Send"}
         </button>
-        <button className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
+        <button className="btn cancel-btn" onClick={modalData?.onClose} data-bs-dismiss="modal">Cancel</button>
       </div>
     </div>
   );
