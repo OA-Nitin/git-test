@@ -16,7 +16,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import { useMemo } from "react";
 import ModalContent from "./ModalContents.jsx";
-import "./invoice.css";
+import "./past-due-invoice.css";
 import { getCurrentUserInvoice, ENDPOINTS, MERCHANT_ID, STATUS_MAP_FULL, ACTIONS_MAP } from "./invoice-settings.js";
 import { Link } from "react-router-dom";
 import Notes from '../common/Notes';
