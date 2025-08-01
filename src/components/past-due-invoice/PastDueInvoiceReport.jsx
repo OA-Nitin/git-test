@@ -102,7 +102,7 @@ const PastDueInvoiceReport = () => {
   };
 
   const handleActionChange = async (invoiceId, newValue, inv) => {
-    if (newValue === "Select") {
+    if (newValue === "Select Action") {
       setActionSelections((prev) => ({
         ...prev,
         [invoiceId]: newValue,
@@ -127,7 +127,7 @@ const PastDueInvoiceReport = () => {
         // Reset dropdown if cancelled
         setActionSelections((prev) => ({
           ...prev,
-          [invoiceId]: "Select",
+          [invoiceId]: "Select Action",
         }));
         return;
       }
@@ -249,13 +249,13 @@ const PastDueInvoiceReport = () => {
     const isActive = inv.inv_reminder_status === 'Active';
     return (
       <select
-        className="form-select"
-        value={actionSelections[inv.invoice_id] || "Select"}
+        className="form-select action-dropdown"
+        value={actionSelections[inv.invoice_id] || "Select Action"}
         onChange={(e) =>
           handleActionChange(inv.invoice_id, e.target.value, inv)
         }
       >
-        <option value="Select">Select</option>
+        <option value="Select Action">Select Action</option>
         {/* Static option for Pause/Resume Reminder based on status */}
         <option value={isActive ? "cancel_auto_inv_reminder" : "resume_auto_inv_reminder"}>
           {isActive ? "Pause Reminder" : "Resume Reminder"}
@@ -333,7 +333,6 @@ const PastDueInvoiceReport = () => {
         return (
           <div>
             <div>{value || "-"}</div>
-            <div>{renderViewEditLinks(row)}</div>
           </div>
         );
       },
@@ -523,9 +522,9 @@ const PastDueInvoiceReport = () => {
   }, [activeTab]);
 
   const generateExportData = () => {
-    // Exclude the 'actions' column from export
+    // Use visibleColumns to determine which columns to export, excluding actions and notes
     const exportColumns = columnDefinitions.filter(
-      (col) => col.id !== "actions" && col.id !== "notes",
+      (col) => visibleColumns.includes(col.id) && col.id !== "actions" && col.id !== "notes",
     );
 
     const headers = exportColumns.map((col) => col.label);

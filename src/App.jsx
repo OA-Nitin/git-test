@@ -60,6 +60,7 @@ import InvoiceEdit from "./components/invoice/EditInvoice.jsx";
 
 /****** Code By Ashish ******/
 import PastDueInvoiceReport from "./components/past-due-invoice/PastDueInvoiceReport";
+import InvoiceSettings from "./components/invoice-settings/InvoiceSettings";
 
 // Route wrapper component with authentication check
 const ProtectedRoute = ({ children }) => {
@@ -445,6 +446,13 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/invoice/settings" element={
+          <ProtectedRoute>
+            <Layout>
+              <InvoiceSettings />
+            </Layout>
+          </ProtectedRoute>
+          } />
       </Routes>
     </Router>
   );

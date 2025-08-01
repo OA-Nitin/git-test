@@ -40,7 +40,7 @@ const financeMenuData = [
         { key: 'manageInvoice', name: 'Manage Invoices', path: '/invoice/report' },
         { key: 'createInvoice', name: 'Create Invoice', path: '/invoice/create-invoice' },
         { key: 'pastDueInvoice', name: 'Past Due Invoice', path: '/past-due-invoice/report' },
-        //{ key: 'invoiceSettings', name: 'Invoice Settings', path: '/invoice/invoice-settings' },
+        { key: 'invoiceSettings', name: 'Invoice Settings', path: '/invoice/settings' },
       ],
   },
   // {

@@ -1,0 +1,321 @@
+/* Invoice Settings Styles */
+.invoice-settings-container {
+  padding: 20px;
+}
+
+.settings-section {
+  background: #fff;
+  border-radius: 8px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Reminder Table Styles */
+.reminder-table {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.reminder-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 1fr;
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.reminder-header > div {
+  padding: 15px 12px;
+  border-right: 1px solid #dee2e6;
+}
+
+.reminder-header > div:last-child {
+  border-right: none;
+}
+
+.reminder-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 1fr;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.reminder-row:last-child {
+  border-bottom: none;
+}
+
+.reminder-row:hover {
+  background: #f8f9fa;
+}
+
+.reminder-col {
+  padding: 12px;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+}
+
+.reminder-col:last-child {
+  border-right: none;
+}
+
+.reminder-col .form-control-sm {
+  font-size: 13px;
+  padding: 6px 8px;
+}
+
+/* Overdue Days Column with Repeat Days Dropdown */
+.reminder-col .d-flex {
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.reminder-col .d-flex .form-control-sm {
+  flex: 1;
+  min-width: 80px;
+}
+
+.reminder-col .d-flex .form-control-sm:first-child {
+  flex: 2;
+  min-width: 120px;
+}
+
+/* Button Styles */
+.btn-outline-warning {
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.btn-outline-warning:hover {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+
+.btn-outline-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+/* Loading States */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reminder-header,
+  .reminder-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .reminder-header > div,
+  .reminder-col {
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .reminder-header > div:last-child,
+  .reminder-col:last-child {
+    border-bottom: none;
+  }
+  
+  .reminder-header {
+    display: none;
+  }
+  
+  .reminder-row {
+    margin-bottom: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 10px;
+  }
+  
+  .reminder-col {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .reminder-col:last-child {
+    border-bottom: none;
+  }
+  
+  .reminder-col::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #495057;
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+}
+
+/* Animation for new reminders */
+.reminder-row {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add More Reminder Button Styles */
+.add-reminder-btn {
+  background: white;
+  border: 1px solid #ff6b35;
+  color: #ff6b35;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-reminder-btn:hover {
+  background: #ff6b35;
+  color: white;
+}
+
+.add-reminder-btn i {
+  font-size: 12px;
+}
+
+/* Preview and Delete Button Styles */
+.preview-btn {
+  background: white;
+  border: 1px solid #ff6b35;
+  color: #ff6b35;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.preview-btn:hover {
+  background: #ff6b35;
+  color: white;
+}
+
+.delete-btn {
+  background: white;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+}
+
+.delete-btn:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-btn i {
+  font-size: 12px;
+}
+
+/* Save Settings Button */
+.save-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding: 0 1rem;
+}
+
+.save-settings-btn {
+  background: #ff6b35;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.save-settings-btn:hover:not(:disabled) {
+  background: #e55a2b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+}
+
+.save-settings-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+} 
