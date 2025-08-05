@@ -1,0 +1,85 @@
+name: Deploy Node + React App (Build-only to git-test)
+
+on:
+  push:
+    branches:
+      - react-staging
+      - main
+
+env:
+  BUILD_DIR: build
+  TARGET_DIR: /opt/bitnami/wordpress/git-test
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # adjust if needed
+
+      - name: Install Dependencies (ci if lockfile exists, else install)
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "Using npm ci"
+            npm ci
+          elif [ -f package.json ]; then
+            echo "No package-lock.json found, using npm install"
+            npm install
+          else
+            echo "No package.json found. Nothing to build."
+            exit 1
+          fi
+
+      - name: Build App
+        run: |
+          if npm run | grep -qE '^  build'; then
+            npm run build
+          else
+            echo "No build script found in package.json"
+            exit 1
+          fi
+          if [ ! -d "$BUILD_DIR" ]; then
+            echo "Build directory '$BUILD_DIR' not found after build."
+            exit 1
+          fi
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Package build artifacts (tar.gz)
+        run: |
+          tar -czf build.tgz -C "$BUILD_DIR" .
+
+      - name: Upload build.tgz to server
+        run: |
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no build.tgz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/build.tgz
+
+      - name: Replace contents in target directory with new build
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            set -e
+            TARGET_DIR="/opt/bitnami/wordpress/git-test"
+
+            # Ensure target exists
+            sudo mkdir -p "$TARGET_DIR"
+            sudo chown -R $(whoami):$(whoami) "$TARGET_DIR"
+
+            # Clean old files (but keep the folder itself)
+            find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+
+            # Extract new build
+            tar -xzf /tmp/build.tgz -C "$TARGET_DIR"
+
+            # Cleanup
+            rm -f /tmp/build.tgz
+          EOF
