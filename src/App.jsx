@@ -18,6 +18,7 @@ import "./assets/css/header-dropdown.css";
 
 // JS imports
 //adding temporary comment
+//added another comment
 import "./assets/js/metisMenu.js";
 
 // Core components
