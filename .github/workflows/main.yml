@@ -50,10 +50,10 @@ jobs:
           BRANCH="${GITHUB_REF##*/}"
           if [[ "$BRANCH" == "main" ]]; then
             echo "DEPLOY_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
-            echo "TARGET_PATH=/opt/bitnami/wordpress/prod-build" >> $GITHUB_ENV
+            echo "TARGET_PATH=/opt/bitnami/wordpress/git-test" >> $GITHUB_ENV
           elif [[ "$BRANCH" == "react-staging" ]]; then
             echo "DEPLOY_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
-            echo "TARGET_PATH=/opt/bitnami/wordpress/staging-build" >> $GITHUB_ENV
+            echo "TARGET_PATH=/opt/bitnami/apache/htdocs/sample-test" >> $GITHUB_ENV
           else
             echo "Invalid branch: $BRANCH"
             exit 1
