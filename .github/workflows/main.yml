@@ -1,13 +1,10 @@
-name: Deploy Node + React App (Build-only to git-test)
+name: Deploy to Production or Staging
 
 on:
   push:
     branches:
-      - react-staging
       - main
-
-env:
-  TARGET_DIR: /opt/bitnami/wordpress/git-test
+      - react-staging
 
 jobs:
   build-and-deploy:
@@ -22,69 +19,64 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Dependencies (ci if lockfile exists, else install)
+      - name: Install Dependencies
         run: |
           if [ -f package-lock.json ]; then
             npm ci
           elif [ -f package.json ]; then
             npm install
           else
-            echo "No package.json found. Nothing to build."
+            echo "No package.json found. Nothing to install."
             exit 1
           fi
 
       - name: Build App
         run: |
-          if npm run | grep -qE '^  build'; then
-            npm run build
-          else
-            echo "No build script found in package.json"
-            exit 1
-          fi
-
-      - name: Detect build directory (dist or build)
-        run: |
+          npm run build
           if [ -d dist ]; then
             echo "BUILD_DIR=dist" >> $GITHUB_ENV
           elif [ -d build ]; then
             echo "BUILD_DIR=build" >> $GITHUB_ENV
           else
-            echo "No build directory (dist/ or build/) found after build."
-            ls -la
+            echo "❌ No build directory found."
             exit 1
           fi
-          echo "Using build directory: ${BUILD_DIR}"
+
+      - name: Set deployment IP and target path based on branch
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            echo "DEPLOY_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
+            echo "TARGET_PATH=/opt/bitnami/wordpress/prod-build" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF##*/}" == "react-staging" ]]; then
+            echo "DEPLOY_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
+            echo "TARGET_PATH=/opt/bitnami/wordpress/staging-build" >> $GITHUB_ENV
+          else
+            echo "Invalid branch for deployment"
+            exit 1
+          fi
 
       - name: Prepare SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H $DEPLOY_IP >> ~/.ssh/known_hosts
 
-      - name: Package build artifacts (tar.gz)
+      - name: Package build output
         run: |
           tar -czf build.tgz -C "$BUILD_DIR" .
 
-      - name: Upload build.tgz to server
+      - name: Upload build to $DEPLOY_IP
         run: |
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no build.tgz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/tmp/build.tgz
+          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no build.tgz ${{ secrets.SERVER_USER }}@$DEPLOY_IP:/tmp/build.tgz
 
-      - name: Replace contents in target directory with new build
+      - name: Deploy to $TARGET_PATH
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@$DEPLOY_IP << EOF
             set -e
-            TARGET_DIR="/opt/bitnami/wordpress/git-test"
-
-            sudo mkdir -p "$TARGET_DIR"
-            sudo chown -R $(whoami):$(whoami) "$TARGET_DIR"
-
-            # Clean old files (keep folder)
-            find "$TARGET_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-
-            # Extract new build
-            tar -xzf /tmp/build.tgz -C "$TARGET_DIR"
-
-            # Cleanup
-            rm -f /tmp/build.tgz
+            sudo mkdir -p "$TARGET_PATH"
+            sudo chown -R \$(whoami):\$(whoami) "$TARGET_PATH"
+            rm -rf "$TARGET_PATH"/*
+            tar -xzf /tmp/build.tgz -C "$TARGET_PATH"
+            rm /tmp/build.tgz
           EOF
