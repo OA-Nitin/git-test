@@ -42,44 +42,61 @@ jobs:
             exit 1
           fi
 
-      - name: Set IP, User, and Target Path Based on Branch
+      - name: Set IP/USER/PORT/TARGET based on branch
         run: |
           BRANCH="${GITHUB_REF##*/}"
           if [[ "$BRANCH" == "main" ]]; then
-            echo "DEPLOY_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
+            echo "DEPLOY_HOST=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
             echo "DEPLOY_USER=${{ secrets.SERVER_USER }}" >> $GITHUB_ENV
+            echo "DEPLOY_PORT=22" >> $GITHUB_ENV
             echo "TARGET_PATH=/opt/bitnami/wordpress/git-test" >> $GITHUB_ENV
+            echo "USE_SUDO=true" >> $GITHUB_ENV
           elif [[ "$BRANCH" == "react-staging" ]]; then
-            echo "DEPLOY_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
+            echo "DEPLOY_HOST=${{ secrets.STAGING_SERVER_HOST }}" >> $GITHUB_ENV
             echo "DEPLOY_USER=${{ secrets.STAGING_SERVER_USER }}" >> $GITHUB_ENV
+            echo "DEPLOY_PORT=65002" >> $GITHUB_ENV  # Hostinger port
             echo "TARGET_PATH=/home/u525216890/domains/occams.ai/public_html/git-test" >> $GITHUB_ENV
+            echo "USE_SUDO=false" >> $GITHUB_ENV
           else
-            echo "Invalid branch: $BRANCH"
-            exit 1
+            echo "Invalid branch: $BRANCH"; exit 1
           fi
 
-      - name: Setup SSH Access
+      - name: Setup SSH
+        shell: bash
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          printf "%s" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $DEPLOY_IP >> ~/.ssh/known_hosts
+          ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
 
-      - name: Package Build Output
+      - name: Package build (tar.gz)
         run: |
           tar -czf build.tgz -C "$BUILD_DIR" .
 
-      - name: Upload Build to Server
+      - name: Upload build
         run: |
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no build.tgz $DEPLOY_USER@$DEPLOY_IP:/tmp/build.tgz
+          scp -P "$DEPLOY_PORT" -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no build.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/build.tgz"
 
-      - name: Deploy on Server
+      - name: Deploy remotely
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_IP << EOF
+          ssh -p "$DEPLOY_PORT" -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" << 'EOF'
             set -e
-            sudo mkdir -p "$TARGET_PATH"
-            sudo chown -R \$(whoami):\$(whoami) "$TARGET_PATH"
-            rm -rf "$TARGET_PATH"/*
-            tar -xzf /tmp/build.tgz -C "$TARGET_PATH"
-            rm /tmp/build.tgz
+            TARGET_PATH="$TARGET_PATH"
+            USE_SUDO="$USE_SUDO"
+
+            # sudo prefix only if allowed
+            if [ "$USE_SUDO" = "true" ]; then
+              SUDO="sudo"
+            else
+              SUDO=""
+            fi
+
+            # make sure target exists (without sudo for Hostinger)
+            mkdir -p "$TARGET_PATH"
+
+            # clean and extract
+            # if folder is owned by root (prod), use sudo; on Hostinger, no sudo
+            $SUDO find "$TARGET_PATH" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+            $SUDO tar -xzf /tmp/build.tgz -C "$TARGET_PATH"
+            rm -f /tmp/build.tgz
           EOF
