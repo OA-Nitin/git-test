@@ -76,17 +76,19 @@ jobs:
       - name: Upload build
         run: |
           scp -P "$DEPLOY_PORT" -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no build.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/build.tgz"
-
+      
       - name: Deploy remotely
         run: |
-               ssh -p "$DEPLOY_PORT" -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
-                "$DEPLOY_USER@$DEPLOY_HOST" "TARGET_PATH='$TARGET_PATH' USE_SUDO='$USE_SUDO' bash -s" << 'EOSSH'
-                  set -e
-          
-                  if [ "$USE_SUDO" = "true" ]; then SUDO="sudo"; else SUDO=""; fi
-          
-                  mkdir -p "$TARGET_PATH"
-                  $SUDO find "$TARGET_PATH" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-                  $SUDO tar -xzf /tmp/build.tgz -C "$TARGET_PATH"
-                  rm -f /tmp/build.tgz
-                EOSSH
+          ssh -p "$DEPLOY_PORT" -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no "$DEPLOY_USER@$DEPLOY_HOST" << EOF
+            set -e
+            TARGET_PATH="$TARGET_PATH"
+            USE_SUDO="$USE_SUDO"
+      
+            if [ "\$USE_SUDO" = "true" ]; then SUDO="sudo"; else SUDO=""; fi
+      
+            mkdir -p "$TARGET_PATH"
+            \$SUDO find "$TARGET_PATH" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+            \$SUDO tar -xzf /tmp/build.tgz -C "$TARGET_PATH"
+            rm -f /tmp/build.tgz
+          EOF
+
